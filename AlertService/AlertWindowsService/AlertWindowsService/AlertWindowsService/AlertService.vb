@@ -72,6 +72,10 @@ Public Class AlertDefinition
     Private _ScriptName As String
     Private _ScriptCommand As String
     Private _ScriptLocation As String
+    '4/18/2017 NS added
+    Private _MailSent As Boolean
+    Private _SMSSent As Boolean
+    Private _ScriptSent As Boolean
 
     Public Sub New()   'constructor
         'Console.WriteLine("Object is being created")
@@ -277,6 +281,31 @@ Public Class AlertDefinition
         End Get
         Set(ByVal value As String)
             _ScriptLocation = value
+        End Set
+    End Property
+    '4/18/2017 NS added
+    Public Property MailSent() As Boolean
+        Get
+            Return _MailSent
+        End Get
+        Set(ByVal value As Boolean)
+            _MailSent = value
+        End Set
+    End Property
+    Public Property SMSSent() As Boolean
+        Get
+            Return _SMSSent
+        End Get
+        Set(ByVal value As Boolean)
+            _SMSSent = value
+        End Set
+    End Property
+    Public Property ScriptSent() As Boolean
+        Get
+            Return _ScriptSent
+        End Get
+        Set(ByVal value As Boolean)
+            _ScriptSent = value
         End Set
     End Property
 End Class
@@ -1109,6 +1138,7 @@ Public Class VitalSignsAlertService
                                     End If
                                     SendMailwithChilkatorNet(SendTo, CC, BCC, ADef.ServerName, ADef.ServerType, "", ADef.EventName, ADef.EventName, ADef.Details, "", "Alert")
                                     mailsent = True
+                                    ADef.MailSent = mailsent
                                 ElseIf ADef.SendSNMPTrap <> "False" Then
                                     WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification: SNMP trap.", LogLevel.Verbose)
                                     '***** SNMP Conditions *********
@@ -1119,6 +1149,7 @@ Public Class VitalSignsAlertService
                                         End If
                                         SendTo = "SNMP Trap"
                                         mailsent = True
+                                        ADef.MailSent = mailsent
                                     Catch ex As ApplicationException
                                         WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsSendNotification: Error occurred at SendSNMPTrap " & ex.Message, LogLevel.Normal)
                                     End Try
@@ -1138,6 +1169,7 @@ Public Class VitalSignsAlertService
                                     End Try
                                     SendTo = "Windows Log"
                                     mailsent = True
+                                    ADef.MailSent = mailsent
                                 End If
                             End If
                         Catch ex As ApplicationException
@@ -1153,6 +1185,7 @@ Public Class VitalSignsAlertService
                                     WriteServiceHistoryEntry(Now.ToString & "   SMSTo = " & SMSTo & ",   ServerName = " & ADef.ServerName & ",    AlertKey = " & ADef.AlertKey, LogLevel.Normal)
                                     SendSMSwithTwilio(SMSTo, ADef.ServerName, ADef.ServerType, ADef.EventName, ADef.Details, "", "")
                                     smssent = True
+                                    ADef.SMSSent = smssent
                                 End If
                             End If
                         Catch ex As ApplicationException
@@ -1168,6 +1201,7 @@ Public Class VitalSignsAlertService
                                     WriteServiceHistoryEntry(Now.ToString & "   ScriptName = " & ScriptName & ",   ServerName = " & ADef.ServerName & ",    AlertKey = " & ADef.AlertKey, LogLevel.Normal)
                                     SendScript(ScriptName, ScriptCommand, ScriptLocation, ADef.ServerName, ADef.ServerType, ADef.EventName, ADef.Details, "")
                                     scriptsent = True
+                                    ADef.ScriptSent = scriptsent
                                 End If
                             End If
                         Catch ex As ApplicationException
@@ -1175,7 +1209,24 @@ Public Class VitalSignsAlertService
                             scriptsent = False
                         End Try
                     End If
+                Else
+                    WriteServiceHistoryEntry(Now.ToString & " Max Alerts for this def reached: No more alerts will be sent", LogLevel.Normal)
+                End If
+            Next
+
+            '4/18/2017 NS modified
+            'Process events_detected updates after all notifications have gone out
+            For i = 0 To maxAllowedTodayCount
+                'now check the max alerts per def here
+                ADef = ADefArrOut(i)
+                noNewRecipients = False
+                WriteServiceHistoryEntry(Now.ToString & "ADefOut " & i.ToString() & ": " & ADef.AlertKey & ", " & ADef.AlertHistoryId & ", " & ADef.SendTo & ", " & ADef.SMSTo)
+                'get max alerts remaining to be sent today for this def
+                Dim MaxAlertsperDef = GetMaxAlertsRemainingToday(ADef.AlertKey)
+                'if max is not reached or max alerts per def setting is not set, then send, else bail out
+                If MaxAlertsperDef = -1 Or MaxAlertsperDef > 0 Then
                     Try
+                        mailsent = ADef.MailSent
                         If mailsent = True Then
                             WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to insert sent email information", LogLevel.Verbose)
                             InsertingSentMails(ADef.AlertHistoryId, SendTo, CC, BCC, resend, ADef.AlertKey)
@@ -1199,11 +1250,11 @@ Public Class VitalSignsAlertService
                                     WriteServiceHistoryEntry(Now.ToString & " Error occurred at the time of updating the events_detected for the Alert with ID of " & ADef.AlertHistoryId & ": " & ex.Message, LogLevel.Normal)
                                 End Try
                             End If
-
                         End If
                     Catch ex As Exception
                         WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsSendNotification: Error while attempting to insert Alert Mail history for emails " & ex.ToString, LogLevel.Normal)
                     End Try
+                    smssent = ADef.SMSSent
                     Try
                         If smssent = True Then
                             WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to insert sent SMS info", LogLevel.Verbose)
@@ -1212,6 +1263,7 @@ Public Class VitalSignsAlertService
                     Catch ex As Exception
                         WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsSendNotification: Error while attempting to insert Alert Mail history for SMS " & ex.ToString, LogLevel.Normal)
                     End Try
+                    scriptsent = ADef.ScriptSent
                     Try
                         If scriptsent = True Then
                             WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to insert sent Script info", LogLevel.Verbose)
@@ -1220,164 +1272,164 @@ Public Class VitalSignsAlertService
                     Catch ex As Exception
                         WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsSendNotification: Error while attempting to insert Alert Mail history for Script " & ex.ToString, LogLevel.Normal)
                     End Try
-                Else
-                    WriteServiceHistoryEntry(Now.ToString & " Max Alerts for this def reached: No more alerts will be sent", LogLevel.Normal)
+
                 End If
             Next
+
 
             'ESCALATION
             'Since escalation is Device, Device Type, and Event Type specific, filter out all user specific details from ADefArrOut
             Dim ADefArrE = New List(Of AlertDefinition)
-            For n = 0 To ADefArrOut.Length - 1
-                ADef = New AlertDefinition
-                ADef.ServerName = ADefArrOut(n).ServerName
-                ADef.ServerType = ADefArrOut(n).ServerType
-                ADef.EventName = ADefArrOut(n).EventName
-                If Not ADefArrE.Any(Function(j) j.ServerName = ADef.ServerName And j.ServerType = ADef.ServerType And j.EventName = ADef.EventName) Then
-                    ADefArrE.Add(ADef)
-                End If
-            Next
-            Try
-                Dim alertcreated As DateTime
-                Dim esmssent As Boolean = False
-                Dim eemailsent As Boolean = False
-                Dim notifications As List(Of String)
-                'Find all Notifications that have Escalation defined. Use existence of Interval as a filter
-                filterNotifications = repoNotifications.Filter.Exists(Function(j) j.Id, True)
-                notificationsEntity = repoNotifications.Find(filterNotifications).ToArray()
-                For i As Integer = 0 To notificationsEntity.Length - 1
-                    filterNotificationDest = repoNotificationDest.Filter.And(repoNotificationDest.Filter.Exists(Function(x) x.Interval),
-                                                                             repoNotificationDest.Filter.In(Of String)(Function(j) j.Id, notificationsEntity(i).SendList))
-                    notificationDestEntity = repoNotificationDest.Find(filterNotificationDest).OrderBy(Function(j) j.Interval).ToArray()
-                    For z As Integer = 0 To notificationDestEntity.Length - 1
-                        If Not IsNothing(notificationDestEntity(z).Interval) Then
-                            eid = notificationsEntity(i).ObjectId.ToString()
-                            'Find all events for which notifications have gone out (no Log File events)
-                            filterEventsDetected = repoEventsDetected.Filter.And(repoEventsDetected.Filter.Exists(Function(j) j.NotificationsSent, True),
-                                                                                 repoEventsDetected.Filter.Exists(Function(j) j.EventDismissed, False),
-                                                                                 repoEventsDetected.Filter.Not(repoEventsDetected.Filter.Regex(Function(j) j.EventType, New BsonRegularExpression("log file"))),
-                                                                                 repoEventsDetected.Filter.ElemMatch(Function(j) j.NotificationsSent, New FilterDefinitionBuilder(Of NotificationsSent)().Eq(Function(k) k.NotificationId, eid)))
-                            eventsCreated = repoEventsDetected.Find(filterEventsDetected).ToArray()
-                            'Find all events for which both notifications and escalations have gone out
-                            filterEventsDetected = repoEventsDetected.Filter.And(repoEventsDetected.Filter.Exists(Function(j) j.NotificationsSent, True),
-                                                                                 repoEventsDetected.Filter.Exists(Function(j) j.EventDismissed, False),
-                                                                                 repoEventsDetected.Filter.Not(repoEventsDetected.Filter.Regex(Function(j) j.EventType, New BsonRegularExpression("log file"))),
-                                                                                 repoEventsDetected.Filter.ElemMatch(Function(j) j.NotificationsSent, New FilterDefinitionBuilder(Of NotificationsSent)().Eq(Function(k) k.EscalationId, eid)),
-                                                                                 repoEventsDetected.Filter.ElemMatch(Function(j) j.NotificationsSent, New FilterDefinitionBuilder(Of NotificationsSent)().Eq(Function(k) k.NotificationId, eid)))
-                            eventsEscalated = repoEventsDetected.Find(filterEventsDetected).ToArray()
-                            'We could not find an event that has been escalated for the current notification/escalation, so we need to continue
-                            If eventsCreated.Length > 0 And eventsEscalated.Length = 0 Then
-                                For Each eDef In ADefArrE
-                                    For x As Integer = 0 To eventsCreated.Length - 1
-                                        If eventsCreated(x).EventType = eDef.EventName And eventsCreated(x).Device = eDef.ServerName And
-                                            eventsCreated(x).DeviceType = eDef.ServerType Then
-                                            'Based on whether the current time has passed the interval from the time of the original event,
-                                            'send an escalation
-                                            alertcreated = Convert.ToDateTime(eventsCreated(x).EventDetected)
-                                            If (Now - alertcreated).TotalMinutes >= Convert.ToInt32(notificationDestEntity(z).Interval) Then
-                                                '3. Send escalation
-                                                If notificationDestEntity(z).SendTo <> "" And notificationDestEntity(z).SendVia = "E-mail" Then
-                                                    WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - attempting to send an escalation via email", LogLevel.Verbose)
-                                                    WriteServiceHistoryEntry(Now.ToString & " Attempting to send an escalation via email:", LogLevel.Normal)
-                                                    WriteServiceHistoryEntry(Now.ToString & "   EscalateTo = " & notificationDestEntity(z).SendTo & ",   Event = " & eventsCreated(x).ObjectId.ToString(), LogLevel.Normal)
-                                                    SendMailwithChilkatorNet(notificationDestEntity(z).SendTo, "", "", eventsCreated(x).Device, eventsCreated(x).DeviceType, "", eventsCreated(x).EventType, eventsCreated(x).EventType, eventsCreated(x).Details, "", "ESCALATION")
-                                                    eemailsent = True
-                                                End If
-                                                If notificationDestEntity(z).SendTo <> "" And notificationDestEntity(z).SendVia = "SMS" Then
-                                                    WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - attempting to send an escalation via SMS", LogLevel.Verbose)
-                                                    WriteServiceHistoryEntry(Now.ToString & " Attempting to send an escalation via SMS:", LogLevel.Normal)
-                                                    WriteServiceHistoryEntry(Now.ToString & "   SMSTo = " & notificationDestEntity(z).SendTo & ",    Event = " & eventsCreated(x).ObjectId.ToString(), LogLevel.Normal)
-                                                    SendSMSwithTwilio(notificationDestEntity(z).SendTo, eventsCreated(x).Device, eventsCreated(x).DeviceType, eventsCreated(x).EventType, eventsCreated(x).Details, "ESCALATION ", "")
-                                                    esmssent = True
-                                                End If
-                                                '4. Store escalation information
-                                                If eemailsent Or esmssent Then
-                                                    'Update notifications_sent embedded documents in the events_detected document
-                                                    WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to insert sent email escalation info", LogLevel.Verbose)
-                                                    InsertSentEscalation(eventsCreated(x), eid, eid, notificationDestEntity(z).SendTo)
-                                                End If
-                                            End If
-                                        End If
-                                    Next
-                                Next
-                            End If
+                    For n = 0 To ADefArrOut.Length - 1
+                        ADef = New AlertDefinition
+                        ADef.ServerName = ADefArrOut(n).ServerName
+                        ADef.ServerType = ADefArrOut(n).ServerType
+                        ADef.EventName = ADefArrOut(n).EventName
+                        If Not ADefArrE.Any(Function(j) j.ServerName = ADef.ServerName And j.ServerType = ADef.ServerType And j.EventName = ADef.EventName) Then
+                            ADefArrE.Add(ADef)
                         End If
                     Next
-                Next
+                    Try
+                        Dim alertcreated As DateTime
+                        Dim esmssent As Boolean = False
+                        Dim eemailsent As Boolean = False
+                        Dim notifications As List(Of String)
+                        'Find all Notifications that have Escalation defined. Use existence of Interval as a filter
+                        filterNotifications = repoNotifications.Filter.Exists(Function(j) j.Id, True)
+                        notificationsEntity = repoNotifications.Find(filterNotifications).ToArray()
+                        For i As Integer = 0 To notificationsEntity.Length - 1
+                            filterNotificationDest = repoNotificationDest.Filter.And(repoNotificationDest.Filter.Exists(Function(x) x.Interval),
+                                                                                     repoNotificationDest.Filter.In(Of String)(Function(j) j.Id, notificationsEntity(i).SendList))
+                            notificationDestEntity = repoNotificationDest.Find(filterNotificationDest).OrderBy(Function(j) j.Interval).ToArray()
+                            For z As Integer = 0 To notificationDestEntity.Length - 1
+                                If Not IsNothing(notificationDestEntity(z).Interval) Then
+                                    eid = notificationsEntity(i).ObjectId.ToString()
+                                    'Find all events for which notifications have gone out (no Log File events)
+                                    filterEventsDetected = repoEventsDetected.Filter.And(repoEventsDetected.Filter.Exists(Function(j) j.NotificationsSent, True),
+                                                                                         repoEventsDetected.Filter.Exists(Function(j) j.EventDismissed, False),
+                                                                                         repoEventsDetected.Filter.Not(repoEventsDetected.Filter.Regex(Function(j) j.EventType, New BsonRegularExpression("log file"))),
+                                                                                         repoEventsDetected.Filter.ElemMatch(Function(j) j.NotificationsSent, New FilterDefinitionBuilder(Of NotificationsSent)().Eq(Function(k) k.NotificationId, eid)))
+                                    eventsCreated = repoEventsDetected.Find(filterEventsDetected).ToArray()
+                                    'Find all events for which both notifications and escalations have gone out
+                                    filterEventsDetected = repoEventsDetected.Filter.And(repoEventsDetected.Filter.Exists(Function(j) j.NotificationsSent, True),
+                                                                                         repoEventsDetected.Filter.Exists(Function(j) j.EventDismissed, False),
+                                                                                         repoEventsDetected.Filter.Not(repoEventsDetected.Filter.Regex(Function(j) j.EventType, New BsonRegularExpression("log file"))),
+                                                                                         repoEventsDetected.Filter.ElemMatch(Function(j) j.NotificationsSent, New FilterDefinitionBuilder(Of NotificationsSent)().Eq(Function(k) k.EscalationId, eid)),
+                                                                                         repoEventsDetected.Filter.ElemMatch(Function(j) j.NotificationsSent, New FilterDefinitionBuilder(Of NotificationsSent)().Eq(Function(k) k.NotificationId, eid)))
+                                    eventsEscalated = repoEventsDetected.Find(filterEventsDetected).ToArray()
+                                    'We could not find an event that has been escalated for the current notification/escalation, so we need to continue
+                                    If eventsCreated.Length > 0 And eventsEscalated.Length = 0 Then
+                                        For Each eDef In ADefArrE
+                                            For x As Integer = 0 To eventsCreated.Length - 1
+                                                If eventsCreated(x).EventType = eDef.EventName And eventsCreated(x).Device = eDef.ServerName And
+                                                    eventsCreated(x).DeviceType = eDef.ServerType Then
+                                                    'Based on whether the current time has passed the interval from the time of the original event,
+                                                    'send an escalation
+                                                    alertcreated = Convert.ToDateTime(eventsCreated(x).EventDetected)
+                                                    If (Now - alertcreated).TotalMinutes >= Convert.ToInt32(notificationDestEntity(z).Interval) Then
+                                                        '3. Send escalation
+                                                        If notificationDestEntity(z).SendTo <> "" And notificationDestEntity(z).SendVia = "E-mail" Then
+                                                            WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - attempting to send an escalation via email", LogLevel.Verbose)
+                                                            WriteServiceHistoryEntry(Now.ToString & " Attempting to send an escalation via email:", LogLevel.Normal)
+                                                            WriteServiceHistoryEntry(Now.ToString & "   EscalateTo = " & notificationDestEntity(z).SendTo & ",   Event = " & eventsCreated(x).ObjectId.ToString(), LogLevel.Normal)
+                                                            SendMailwithChilkatorNet(notificationDestEntity(z).SendTo, "", "", eventsCreated(x).Device, eventsCreated(x).DeviceType, "", eventsCreated(x).EventType, eventsCreated(x).EventType, eventsCreated(x).Details, "", "ESCALATION")
+                                                            eemailsent = True
+                                                        End If
+                                                        If notificationDestEntity(z).SendTo <> "" And notificationDestEntity(z).SendVia = "SMS" Then
+                                                            WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - attempting to send an escalation via SMS", LogLevel.Verbose)
+                                                            WriteServiceHistoryEntry(Now.ToString & " Attempting to send an escalation via SMS:", LogLevel.Normal)
+                                                            WriteServiceHistoryEntry(Now.ToString & "   SMSTo = " & notificationDestEntity(z).SendTo & ",    Event = " & eventsCreated(x).ObjectId.ToString(), LogLevel.Normal)
+                                                            SendSMSwithTwilio(notificationDestEntity(z).SendTo, eventsCreated(x).Device, eventsCreated(x).DeviceType, eventsCreated(x).EventType, eventsCreated(x).Details, "ESCALATION ", "")
+                                                            esmssent = True
+                                                        End If
+                                                        '4. Store escalation information
+                                                        If eemailsent Or esmssent Then
+                                                            'Update notifications_sent embedded documents in the events_detected document
+                                                            WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to insert sent email escalation info", LogLevel.Verbose)
+                                                            InsertSentEscalation(eventsCreated(x), eid, eid, notificationDestEntity(z).SendTo)
+                                                        End If
+                                                    End If
+                                                End If
+                                            Next
+                                        Next
+                                    End If
+                                End If
+                            Next
+                        Next
 
-                'filterNotificationDest = repoNotificationDest.Filter.Exists(Function(x) x.Interval)
-                'notificationDestEntity = repoNotificationDest.Find(filterNotificationDest).ToArray()
-                'For n As Integer = 0 To notificationDestEntity.Length - 1
-                '    filterNotifications = repoNotifications.Filter.ElemMatch(Of String)(Function(j) j.SendList, notificationDestEntity(n).Id)
-                '    notificationsEntity = repoNotifications.Find(filterNotifications).ToArray()
-                '    If notificationsEntity.Length > 0 Then
-                '        For i As Integer = 0 To notificationsEntity.Length - 1
-                '            oid = notificationsEntity(i).ObjectId.ToString()
-                '            'Get Escalation documents
-                '            notifications = notificationDestEntity(n).SendTo
-                '            notifications = notifications.ToList().OrderBy(Function(j) j.Interval).ToArray()
-                '            For z As Integer = 0 To notifications.Length - 1
-                '                If Not IsNothing(notifications(z).Interval) Then
-                '                    eid = notifications(z).ObjectId.ToString()
-                '                    'Find all events for which notifications have gone out (no Log File events)
-                '                    filterEventsDetected = repoEventsDetected.Filter.And(repoEventsDetected.Filter.Exists(Function(j) j.NotificationsSent, True),
-                '                                                                         repoEventsDetected.Filter.Exists(Function(j) j.EventDismissed, False),
-                '                                                                         repoEventsDetected.Filter.Not(repoEventsDetected.Filter.Regex(Function(j) j.EventType, New BsonRegularExpression("log file"))),
-                '                                                                         repoEventsDetected.Filter.ElemMatch(Function(j) j.NotificationsSent, New FilterDefinitionBuilder(Of NotificationsSent)().Eq(Function(k) k.NotificationId, oid)))
-                '                    eventsCreated = repoEventsDetected.Find(filterEventsDetected).ToArray()
-                '                    'Find all events for which both notifications and escalations have gone out
-                '                    filterEventsDetected = repoEventsDetected.Filter.And(repoEventsDetected.Filter.Exists(Function(j) j.NotificationsSent, True),
-                '                                                                         repoEventsDetected.Filter.Exists(Function(j) j.EventDismissed, False),
-                '                                                                         repoEventsDetected.Filter.Not(repoEventsDetected.Filter.Regex(Function(j) j.EventType, New BsonRegularExpression("log file"))),
-                '                                                                         repoEventsDetected.Filter.ElemMatch(Function(j) j.NotificationsSent, New FilterDefinitionBuilder(Of NotificationsSent)().Eq(Function(k) k.EscalationId, eid)),
-                '                                                                         repoEventsDetected.Filter.ElemMatch(Function(j) j.NotificationsSent, New FilterDefinitionBuilder(Of NotificationsSent)().Eq(Function(k) k.NotificationId, oid)))
-                '                    eventsEscalated = repoEventsDetected.Find(filterEventsDetected).ToArray()
-                '                    'We could not find an event that has been escalated for the current notification/escalation, so we need to continue
-                '                    If eventsCreated.Length > 0 And eventsEscalated.Length = 0 Then
-                '                        For Each eDef In ADefArrE
-                '                            For x As Integer = 0 To eventsCreated.Length - 1
-                '                                If eventsCreated(x).EventType = eDef.EventName And eventsCreated(x).Device = eDef.ServerName And
-                '                                    eventsCreated(x).DeviceType = eDef.ServerType Then
-                '                                    'Based on whether the current time has passed the interval from the time of the original event,
-                '                                    'send an escalation
-                '                                    alertcreated = Convert.ToDateTime(eventsCreated(x).EventDetected)
-                '                                    If (Now - alertcreated).TotalMinutes >= Convert.ToInt32(notifications(z).Interval) Then
-                '                                        '3. Send escalation
-                '                                        If notifications(z).SendTo <> "" And notifications(z).SendVia = "email" Then
-                '                                            WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - attempting to send an escalation via email", LogLevel.Verbose)
-                '                                            WriteServiceHistoryEntry(Now.ToString & " Attempting to send an escalation via email:", LogLevel.Normal)
-                '                                            WriteServiceHistoryEntry(Now.ToString & "   EscalateTo = " & notifications(z).SendTo & ",   Event = " & eventsCreated(x).ObjectId.ToString(), LogLevel.Normal)
-                '                                            SendMailwithChilkatorNet(notifications(z).SendTo, "", "", eventsCreated(x).Device, eventsCreated(x).DeviceType, "", eventsCreated(x).EventType, eventsCreated(x).EventType, eventsCreated(x).Details, "", "ESCALATION")
-                '                                            eemailsent = True
-                '                                        End If
-                '                                        If notifications(z).SendTo <> "" And notifications(z).SendVia = "sms" Then
-                '                                            WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - attempting to send an escalation via SMS", LogLevel.Verbose)
-                '                                            WriteServiceHistoryEntry(Now.ToString & " Attempting to send an escalation via SMS:", LogLevel.Normal)
-                '                                            WriteServiceHistoryEntry(Now.ToString & "   SMSTo = " & notifications(z).SendTo & ",    Event = " & eventsCreated(x).ObjectId.ToString(), LogLevel.Normal)
-                '                                            SendSMSwithTwilio(notifications(z).SendTo, eventsCreated(x).Device, eventsCreated(x).DeviceType, eventsCreated(x).EventType, eventsCreated(x).Details, "ESCALATION ", "")
-                '                                            esmssent = True
-                '                                        End If
-                '                                        '4. Store escalation information
-                '                                        If eemailsent Or esmssent Then
-                '                                            'Update notifications_sent embedded documents in the events_detected document
-                '                                            WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to insert sent email escalation info", LogLevel.Verbose)
-                '                                            InsertSentEscalation(eventsCreated(x), oid, eid, notifications(z).SendTo)
-                '                                        End If
-                '                                    End If
-                '                                End If
-                '                            Next
-                '                        Next
-                '                    End If
-                '                End If
-                '            Next
-                '        Next
-                '    End If
-                'Next
+                        'filterNotificationDest = repoNotificationDest.Filter.Exists(Function(x) x.Interval)
+                        'notificationDestEntity = repoNotificationDest.Find(filterNotificationDest).ToArray()
+                        'For n As Integer = 0 To notificationDestEntity.Length - 1
+                        '    filterNotifications = repoNotifications.Filter.ElemMatch(Of String)(Function(j) j.SendList, notificationDestEntity(n).Id)
+                        '    notificationsEntity = repoNotifications.Find(filterNotifications).ToArray()
+                        '    If notificationsEntity.Length > 0 Then
+                        '        For i As Integer = 0 To notificationsEntity.Length - 1
+                        '            oid = notificationsEntity(i).ObjectId.ToString()
+                        '            'Get Escalation documents
+                        '            notifications = notificationDestEntity(n).SendTo
+                        '            notifications = notifications.ToList().OrderBy(Function(j) j.Interval).ToArray()
+                        '            For z As Integer = 0 To notifications.Length - 1
+                        '                If Not IsNothing(notifications(z).Interval) Then
+                        '                    eid = notifications(z).ObjectId.ToString()
+                        '                    'Find all events for which notifications have gone out (no Log File events)
+                        '                    filterEventsDetected = repoEventsDetected.Filter.And(repoEventsDetected.Filter.Exists(Function(j) j.NotificationsSent, True),
+                        '                                                                         repoEventsDetected.Filter.Exists(Function(j) j.EventDismissed, False),
+                        '                                                                         repoEventsDetected.Filter.Not(repoEventsDetected.Filter.Regex(Function(j) j.EventType, New BsonRegularExpression("log file"))),
+                        '                                                                         repoEventsDetected.Filter.ElemMatch(Function(j) j.NotificationsSent, New FilterDefinitionBuilder(Of NotificationsSent)().Eq(Function(k) k.NotificationId, oid)))
+                        '                    eventsCreated = repoEventsDetected.Find(filterEventsDetected).ToArray()
+                        '                    'Find all events for which both notifications and escalations have gone out
+                        '                    filterEventsDetected = repoEventsDetected.Filter.And(repoEventsDetected.Filter.Exists(Function(j) j.NotificationsSent, True),
+                        '                                                                         repoEventsDetected.Filter.Exists(Function(j) j.EventDismissed, False),
+                        '                                                                         repoEventsDetected.Filter.Not(repoEventsDetected.Filter.Regex(Function(j) j.EventType, New BsonRegularExpression("log file"))),
+                        '                                                                         repoEventsDetected.Filter.ElemMatch(Function(j) j.NotificationsSent, New FilterDefinitionBuilder(Of NotificationsSent)().Eq(Function(k) k.EscalationId, eid)),
+                        '                                                                         repoEventsDetected.Filter.ElemMatch(Function(j) j.NotificationsSent, New FilterDefinitionBuilder(Of NotificationsSent)().Eq(Function(k) k.NotificationId, oid)))
+                        '                    eventsEscalated = repoEventsDetected.Find(filterEventsDetected).ToArray()
+                        '                    'We could not find an event that has been escalated for the current notification/escalation, so we need to continue
+                        '                    If eventsCreated.Length > 0 And eventsEscalated.Length = 0 Then
+                        '                        For Each eDef In ADefArrE
+                        '                            For x As Integer = 0 To eventsCreated.Length - 1
+                        '                                If eventsCreated(x).EventType = eDef.EventName And eventsCreated(x).Device = eDef.ServerName And
+                        '                                    eventsCreated(x).DeviceType = eDef.ServerType Then
+                        '                                    'Based on whether the current time has passed the interval from the time of the original event,
+                        '                                    'send an escalation
+                        '                                    alertcreated = Convert.ToDateTime(eventsCreated(x).EventDetected)
+                        '                                    If (Now - alertcreated).TotalMinutes >= Convert.ToInt32(notifications(z).Interval) Then
+                        '                                        '3. Send escalation
+                        '                                        If notifications(z).SendTo <> "" And notifications(z).SendVia = "email" Then
+                        '                                            WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - attempting to send an escalation via email", LogLevel.Verbose)
+                        '                                            WriteServiceHistoryEntry(Now.ToString & " Attempting to send an escalation via email:", LogLevel.Normal)
+                        '                                            WriteServiceHistoryEntry(Now.ToString & "   EscalateTo = " & notifications(z).SendTo & ",   Event = " & eventsCreated(x).ObjectId.ToString(), LogLevel.Normal)
+                        '                                            SendMailwithChilkatorNet(notifications(z).SendTo, "", "", eventsCreated(x).Device, eventsCreated(x).DeviceType, "", eventsCreated(x).EventType, eventsCreated(x).EventType, eventsCreated(x).Details, "", "ESCALATION")
+                        '                                            eemailsent = True
+                        '                                        End If
+                        '                                        If notifications(z).SendTo <> "" And notifications(z).SendVia = "sms" Then
+                        '                                            WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - attempting to send an escalation via SMS", LogLevel.Verbose)
+                        '                                            WriteServiceHistoryEntry(Now.ToString & " Attempting to send an escalation via SMS:", LogLevel.Normal)
+                        '                                            WriteServiceHistoryEntry(Now.ToString & "   SMSTo = " & notifications(z).SendTo & ",    Event = " & eventsCreated(x).ObjectId.ToString(), LogLevel.Normal)
+                        '                                            SendSMSwithTwilio(notifications(z).SendTo, eventsCreated(x).Device, eventsCreated(x).DeviceType, eventsCreated(x).EventType, eventsCreated(x).Details, "ESCALATION ", "")
+                        '                                            esmssent = True
+                        '                                        End If
+                        '                                        '4. Store escalation information
+                        '                                        If eemailsent Or esmssent Then
+                        '                                            'Update notifications_sent embedded documents in the events_detected document
+                        '                                            WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to insert sent email escalation info", LogLevel.Verbose)
+                        '                                            InsertSentEscalation(eventsCreated(x), oid, eid, notifications(z).SendTo)
+                        '                                        End If
+                        '                                    End If
+                        '                                End If
+                        '                            Next
+                        '                        Next
+                        '                    End If
+                        '                End If
+                        '            Next
+                        '        Next
+                        '    End If
+                        'Next
 
-            Catch ex As Exception
-                WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsSendNotification: Error while selecting Escalation details " & ex.ToString, LogLevel.Normal)
-            End Try
-        End If
+                    Catch ex As Exception
+                        WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsSendNotification: Error while selecting Escalation details " & ex.ToString, LogLevel.Normal)
+                    End Try
+                End If
     End Sub
     Private Sub ProcessAlertsClearSendNotification()
         Try
