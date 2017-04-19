@@ -153,7 +153,7 @@ namespace VSNext.Mongo.Repository
 
         public virtual void Replace(T entity, UpdateOptions updateOptions)
         {
-            Collection.ReplaceOne(i => i.Id == entity.Id, ConvertDateTimesForReplace(entity), updateOptions);
+            Collection.ReplaceOne(i => i.Id == entity.Id, (T)ConvertDateTimesForReplace(entity), updateOptions);
         }
 
         public void Replace(IEnumerable<T> entities, UpdateOptions updateOptions)
@@ -254,15 +254,8 @@ namespace VSNext.Mongo.Repository
         {
             //return entities;
             if (!isService) return entities;
-            bool a = entities.Any();
-            bool b = entities == null;
             if (entities.Count() == 0)
                 return entities;
-
-            //core of this is new function
-            //make it deal more with objects
-
-
 
             System.Reflection.PropertyInfo[] properties = entities.First().GetType().GetProperties().Where(i => (((Nullable.GetUnderlyingType(i.PropertyType) ?? i.PropertyType) == typeof(DateTime)) && i.GetSetMethod() != null) || i.PropertyType.Namespace == "System.Collections.Generic").ToArray();
             var g = entities.First().GetType().GetProperties();
@@ -301,26 +294,111 @@ namespace VSNext.Mongo.Repository
             return listOfEntities;
         }
 
-        private T ConvertDateTimesForReplace(T entity)
+        private Object ConvertDateTimesForReplace(T entity)
         {
             //return entities;
             if (!isService) return entity;
 
-            System.Reflection.PropertyInfo[] properties = entity.GetType().GetProperties().Where(i => ((Nullable.GetUnderlyingType(i.PropertyType) ?? i.PropertyType) == typeof(DateTime)) && i.GetSetMethod() != null).ToArray();
+            System.Reflection.PropertyInfo[] properties = entity.GetType().GetProperties().Where(i => (((Nullable.GetUnderlyingType(i.PropertyType) ?? i.PropertyType) == typeof(DateTime)) && i.GetSetMethod() != null) || i.PropertyType.Namespace == "System.Collections.Generic").ToArray();
+
             foreach (System.Reflection.PropertyInfo prop in properties)
             {
-
-                DateTime? dt = (DateTime?)(prop.GetValue(entity));
-                if (dt.HasValue && !dt.Value.Equals(DateTime.MinValue))
+                if (prop.PropertyType.Namespace == "System.Collections.Generic")
                 {
-                    prop.SetValue(entity, dt.Value.Subtract(dateTimeOffset));
+                    try
+                    {
+                        //working!!!! ?
+                        var val = prop.GetValue(entity) as System.Collections.IEnumerable;
+                        if (val != null)
+                        {
+                            var valEnumerable = val.Cast<Object>().AsEnumerable();
+                            ConvertDateTimesForReplace(valEnumerable);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                    }
                 }
-                DateTime? dt2 = (DateTime?)(prop.GetValue(entity));
-
+                else
+                {
+                    DateTime? dt = (DateTime?)(prop.GetValue(entity));
+                    if (dt.HasValue && !dt.Value.Equals(DateTime.MinValue))
+                    {
+                        prop.SetValue(entity, dt.Value.Subtract(dateTimeOffset));
+                    }
+                    DateTime? dt2 = (DateTime?)(prop.GetValue(entity));
+                }
             }
             
             return entity;
+
         }
+
+        private IEnumerable<Object> ConvertDateTimesForReplace(IEnumerable<Object> entities)
+        {
+            //return entities;
+            if (!isService) return entities;
+            if (entities.Count() == 0)
+                return entities;
+
+            System.Reflection.PropertyInfo[] properties = entities.First().GetType().GetProperties().Where(i => (((Nullable.GetUnderlyingType(i.PropertyType) ?? i.PropertyType) == typeof(DateTime)) && i.GetSetMethod() != null) || i.PropertyType.Namespace == "System.Collections.Generic").ToArray();
+            var g = entities.First().GetType().GetProperties();
+            List<Object> listOfEntities = entities.ToList();
+            foreach (Object entity in listOfEntities)
+            {
+                foreach (System.Reflection.PropertyInfo prop in properties)
+                {
+                    if (prop.PropertyType.Namespace == "System.Collections.Generic")
+                    {
+                        try
+                        {
+                            //working!!!! ?
+                            var val = prop.GetValue(entity) as System.Collections.IEnumerable;
+                            if (val != null)
+                            {
+                                var valEnumerable = val.Cast<Object>().AsEnumerable();
+                                ConvertDateTimesForReplace(valEnumerable);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                        }
+                    }
+                    else
+                    {
+                        DateTime? dt = (DateTime?)(prop.GetValue(entity));
+                        if (dt.HasValue && !dt.Value.Equals(DateTime.MinValue))
+                        {
+                            prop.SetValue(entity, dt.Value.Subtract(dateTimeOffset));
+                        }
+                        DateTime? dt2 = (DateTime?)(prop.GetValue(entity));
+                    }
+                }
+            }
+            return listOfEntities;
+        }
+
+
+        //private T ConvertDateTimesForReplace(T entity)
+        //{
+        //    //return entities;
+        //    if (!isService) return entity;
+
+        //    System.Reflection.PropertyInfo[] properties = entity.GetType().GetProperties().Where(i => ((Nullable.GetUnderlyingType(i.PropertyType) ?? i.PropertyType) == typeof(DateTime)) && i.GetSetMethod() != null).ToArray();
+        //    foreach (System.Reflection.PropertyInfo prop in properties)
+        //    {
+
+        //        DateTime? dt = (DateTime?)(prop.GetValue(entity));
+        //        if (dt.HasValue && !dt.Value.Equals(DateTime.MinValue))
+        //        {
+        //            prop.SetValue(entity, dt.Value.Subtract(dateTimeOffset));
+        //        }
+        //        DateTime? dt2 = (DateTime?)(prop.GetValue(entity));
+
+        //    }
+
+        //    return entity;
+        //}
 
 
         #endregion
