@@ -76,6 +76,7 @@ Public Class AlertDefinition
     Private _MailSent As Boolean
     Private _SMSSent As Boolean
     Private _ScriptSent As Boolean
+    Private _Resent As Boolean
 
     Public Sub New()   'constructor
         'Console.WriteLine("Object is being created")
@@ -306,6 +307,14 @@ Public Class AlertDefinition
         End Get
         Set(ByVal value As Boolean)
             _ScriptSent = value
+        End Set
+    End Property
+    Public Property Resent() As Boolean
+        Get
+            Return _Resent
+        End Get
+        Set(ByVal value As Boolean)
+            _Resent = value
         End Set
     End Property
 End Class
@@ -1106,6 +1115,7 @@ Public Class VitalSignsAlertService
                     Catch ex As ApplicationException
                         WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsSendNotification: Error occurred at the time of getting records from events_detected " & ex.Message, LogLevel.Normal)
                     End Try
+                    ADef.Resent = resend
                     mailsent = False
                     smssent = False
                     scriptsent = False
@@ -1229,7 +1239,7 @@ Public Class VitalSignsAlertService
                         mailsent = ADef.MailSent
                         If mailsent = True Then
                             WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to insert sent email information", LogLevel.Verbose)
-                            InsertingSentMails(ADef.AlertHistoryId, SendTo, CC, BCC, resend, ADef.AlertKey)
+                            InsertingSentMails(ADef.AlertHistoryId, ADef.SendTo, ADef.CopyTo, ADef.BlindCopyTo, ADef.Resent, ADef.AlertKey)
                             If (ADef.Details = "This is a TEST alert.") Or InStr(ADef.EventName, "Log File") Then
                                 If (ADef.Details = "This is a TEST alert.") Then
                                     WriteServiceHistoryEntry(Now.ToString & " This is a TEST alert and will be cleared instantly", LogLevel.Normal)
@@ -1245,7 +1255,7 @@ Public Class VitalSignsAlertService
                                     repoEventsDetected.Update(filterEventsDetected, updateEventsDetected)
 
                                     WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to update event_dismissed_sent in events_detected.notifications_sent", LogLevel.Verbose)
-                                    UpdatingSentMails(ADef.AlertHistoryId, SendTo, CC, BCC, ADef.AlertKey)
+                                    UpdatingSentMails(ADef.AlertHistoryId, ADef.SendTo, ADef.CopyTo, ADef.BlindCopyTo, ADef.AlertKey)
                                 Catch ex As Exception
                                     WriteServiceHistoryEntry(Now.ToString & " Error occurred at the time of updating the events_detected for the Alert with ID of " & ADef.AlertHistoryId & ": " & ex.Message, LogLevel.Normal)
                                 End Try
@@ -1498,7 +1508,7 @@ Public Class VitalSignsAlertService
                                 If IsNothing(notificationsSent(k).EventDismissedSent) Then
                                     dr = Historytable.NewRow()
                                     dr("ID") = eventsCreated(i).ObjectId.ToString() 'notificationsSent(k).ObjectId.ToString()
-                                    dr("sentid") = eventsCreated(i).ObjectId.ToString()
+                                    dr("sentid") = notificationsSent(k).ObjectId.ToString() 'eventsCreated(i).ObjectId.ToString()
                                     dr("sentto") = notificationsSent(k).NotificationSentTo
                                     dr("ccdto") = ""
                                     If Not notificationsSent(k).NotificationCcdTo Is Nothing Then
@@ -1564,7 +1574,8 @@ Public Class VitalSignsAlertService
                                     If Not IsNothing(AHist) Then
                                         If (InStr(AHist.EventName, ADef.EventName) > 0 And ADef.ServerName = AHist.ServerName And ADef.ServerType = AHist.ServerType) Or
                                         (InStr(AHist.EventName, ADef.EventName) > 0 And ADef.ServerType = AHist.ServerType And ADef.ServerName = "") Then
-                                            WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsClearSendNotification - found a match", LogLevel.Verbose)
+                                            WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - found a match for " & AHist.EventName & ", " & AHist.ServerName & ", " & AHist.ServerType, LogLevel.Verbose)
+                                            WriteServiceHistoryEntry(Now.ToString & " Count: " & c & ", SendTo: " & ADef.SendTo, LogLevel.Verbose)
                                             ADefOut = New AlertDefinition
                                             ADefOut.AlertKey = AHist.AlertKey
                                             ADefOut.SentID = AHist.SentID
@@ -1605,7 +1616,7 @@ Public Class VitalSignsAlertService
 
                 End If
             Catch ex As Exception
-                WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsClearSendNotification: Error processing the alert distionary data set: " & ex.Message, LogLevel.Normal)
+                WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsClearSendNotification: Error processing the alert dictionary data set: " & ex.Message, LogLevel.Normal)
             End Try
 
             If Not ADefArrOut Is Nothing Then
@@ -1632,6 +1643,7 @@ Public Class VitalSignsAlertService
                     Try
                         If Not AlertDictOut.ContainsKey(SentID) Then
                             AlertDictOut.Add(SentID, SentID)
+                            WriteServiceHistoryEntry(Now.ToString & " Added SentID: " & SentID & ", SendTo: " & ADef.SendTo, LogLevel.Verbose)
                             SendTo = ADef.SendTo
                             CC = ADef.CopyTo
                             BCC = ADef.BlindCopyTo
@@ -2080,18 +2092,21 @@ Public Class VitalSignsAlertService
         Dim filterEventsDetected As FilterDefinition(Of EventsDetected)
         Dim eventsCreated() As EventsDetected
         Dim notificationsSent As List(Of NotificationsSent)
+        Dim strdt As String
+        Dim oid As String
+        Dim nid As New ObjectId
 
         Try
-            Dim strdt As String
+
             strdt = Date.Now
-            Dim oid As String
             oid = AlertKey
+            nid = ObjectId.GenerateNewId()
             If resent Then
                 filterEventsDetected = repoEventsDetected.Filter.And(repoEventsDetected.Filter.Exists(Function(j) j.NotificationsSent, True),
                                                                      repoEventsDetected.Filter.Eq(Of String)(Function(j) j.Id, AlertID))
                 eventsCreated = repoEventsDetected.Find(filterEventsDetected).ToArray()
                 If eventsCreated.Length > 0 Then
-                    Dim notificationentity As New NotificationsSent With {.NotificationId = oid, .NotificationSentTo = SentTo, .NotificationCcdTo = CcdTo, .NotificationBccdTo = BccdTo, .EventDetectedSent = strdt}
+                    Dim notificationentity As New NotificationsSent With {.Id = nid.ToString(), .NotificationId = oid, .NotificationSentTo = SentTo, .NotificationCcdTo = CcdTo, .NotificationBccdTo = BccdTo, .EventDetectedSent = strdt}
                     eventsCreated(0).NotificationsSent.Add(notificationentity)
                     repoEventsDetected.Replace(eventsCreated(0))
                 End If
@@ -2099,7 +2114,7 @@ Public Class VitalSignsAlertService
                 filterEventsDetected = repoEventsDetected.Filter.Eq(Of String)(Function(j) j.Id, AlertID)
                 eventsCreated = repoEventsDetected.Find(filterEventsDetected).ToArray()
                 If eventsCreated.Length > 0 Then
-                    Dim notificationentity As New NotificationsSent With {.NotificationId = oid, .NotificationSentTo = SentTo, .NotificationCcdTo = CcdTo, .NotificationBccdTo = BccdTo, .EventDetectedSent = strdt}
+                    Dim notificationentity As New NotificationsSent With {.Id = nid.ToString(), .NotificationId = oid, .NotificationSentTo = SentTo, .NotificationCcdTo = CcdTo, .NotificationBccdTo = BccdTo, .EventDetectedSent = strdt}
                     If eventsCreated(0).NotificationsSent Is Nothing Then
                         notificationsSent = New List(Of NotificationsSent)
                         notificationsSent.Add(notificationentity)
