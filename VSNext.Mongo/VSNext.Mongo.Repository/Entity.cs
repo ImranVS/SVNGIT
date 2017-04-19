@@ -29,10 +29,8 @@ namespace VSNext.Mongo.Repository
         [BsonElement("created_on",Order = 3)]
         public DateTime CreatedOn
         {
-            get
-            {
-                return ObjectId.CreationTime;
-            }
+            get;
+            set;
             
         }
         public ObjectId ObjectId
