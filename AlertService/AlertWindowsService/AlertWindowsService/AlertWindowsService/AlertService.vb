@@ -795,6 +795,9 @@ Public Class VitalSignsAlertService
                             If c > 0 Then
                                 If ADefArrOut(c - 1).AlertKey.ToString <> "" Then
                                     WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification: trying to add item #" & c & ", key " & ADefArrOut(c - 1).AlertKey & ", i " & i & ", item " & ADefArr(i).AlertKey, LogLevel.Verbose)
+                                    For n As Integer = 0 To ADefArrOut.Length - 1
+                                        WriteServiceHistoryEntry(Now.ToString & "    SendTo: " & ADefArrOut(n).SendTo & ", ServerType: " & ADefArrOut(n).ServerType & ", EventName: " & ADefArrOut(n).EventName, LogLevel.Verbose)
+                                    Next
                                     AlertDict.Add(ADefArrOut(c - 1).AlertKey, ADefArrOut)
                                 End If
                             End If
@@ -807,6 +810,9 @@ Public Class VitalSignsAlertService
                     Next
                     If ADefArrOut(c - 1).AlertKey.ToString <> "" Then
                         WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification: trying to add " & ADefArrOut(c - 1).AlertKey, LogLevel.Verbose)
+                        For n As Integer = 0 To ADefArrOut.Length - 1
+                            WriteServiceHistoryEntry(Now.ToString & "    SendTo: " & ADefArrOut(n).SendTo & ", ServerType: " & ADefArrOut(n).ServerType & ", EventName: " & ADefArrOut(n).EventName, LogLevel.Verbose)
+                        Next
                         AlertDict.Add(ADefArrOut(c - 1).AlertKey, ADefArrOut)
                     End If
                 End If
@@ -893,6 +899,7 @@ Public Class VitalSignsAlertService
                                         WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - alertAboutRecurrences: " & alertAboutRecurrences & ", ADef.EventName: " & ADef.EventName & ", ADef.NotifyOnRepeat: " & ADef.NotifyOnRepeat & ", AHist.EventRepeatCount: " & AHist.EventRepeatCount, LogLevel.Verbose)
                                         If ADef.NotifyOnRepeat And alertAboutRecurrences And AHist.EventRepeatCount + 1 >= numberOfRecurrences Or Not ADef.NotifyOnRepeat Or Not alertAboutRecurrences Then
                                             WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - found a match for " & AHist.EventName & ", " & AHist.ServerName & ", " & AHist.ServerType, LogLevel.Verbose)
+                                            WriteServiceHistoryEntry(Now.ToString & " c: " & c & ", SendTo: " & ADef.SendTo, LogLevel.Verbose)
                                             ADefOut = New AlertDefinition
                                             ADefOut.AlertHistoryId = AHist.AlertKey
                                             ADefOut.AlertKey = ADef.AlertKey
@@ -1006,7 +1013,7 @@ Public Class VitalSignsAlertService
                 'now check the max alerts per def here
                 ADef = ADefArrOut(i)
                 noNewRecipients = False
-                WriteServiceHistoryEntry(Now.ToString & "ADefOut " & i.ToString() & ": " & ADef.AlertKey & ", " & ADef.AlertHistoryId & ", " & ADef.SendTo & ", " & ADef.SMSTo)
+                'WriteServiceHistoryEntry(Now.ToString & "ADefOut " & i.ToString() & ": " & ADef.AlertKey & ", " & ADef.AlertHistoryId & ", " & ADef.SendTo & ", " & ADef.SMSTo)
                 'get max alerts remaining to be sent today for this def
                 Dim MaxAlertsperDef = GetMaxAlertsRemainingToday(ADef.AlertKey)
                 'if max is not reached or max alerts per def setting is not set, then send, else bail out
@@ -1230,7 +1237,7 @@ Public Class VitalSignsAlertService
                 'now check the max alerts per def here
                 ADef = ADefArrOut(i)
                 noNewRecipients = False
-                WriteServiceHistoryEntry(Now.ToString & "ADefOut " & i.ToString() & ": " & ADef.AlertKey & ", " & ADef.AlertHistoryId & ", " & ADef.SendTo & ", " & ADef.SMSTo)
+                'WriteServiceHistoryEntry(Now.ToString & "ADefOut " & i.ToString() & ": " & ADef.AlertKey & ", " & ADef.AlertHistoryId & ", " & ADef.SendTo & ", " & ADef.SMSTo)
                 'get max alerts remaining to be sent today for this def
                 Dim MaxAlertsperDef = GetMaxAlertsRemainingToday(ADef.AlertKey)
                 'if max is not reached or max alerts per def setting is not set, then send, else bail out
@@ -1574,18 +1581,18 @@ Public Class VitalSignsAlertService
                                     If Not IsNothing(AHist) Then
                                         If (InStr(AHist.EventName, ADef.EventName) > 0 And ADef.ServerName = AHist.ServerName And ADef.ServerType = AHist.ServerType) Or
                                         (InStr(AHist.EventName, ADef.EventName) > 0 And ADef.ServerType = AHist.ServerType And ADef.ServerName = "") Then
-                                            WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - found a match for " & AHist.EventName & ", " & AHist.ServerName & ", " & AHist.ServerType, LogLevel.Verbose)
+                                            WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsClearSendNotification - found a match for " & AHist.EventName & ", " & AHist.ServerName & ", " & AHist.ServerType, LogLevel.Verbose)
                                             WriteServiceHistoryEntry(Now.ToString & " Count: " & c & ", SendTo: " & ADef.SendTo, LogLevel.Verbose)
                                             ADefOut = New AlertDefinition
                                             ADefOut.AlertKey = AHist.AlertKey
                                             ADefOut.SentID = AHist.SentID
                                             ADefOut.EventName = AHist.EventName
-                                            ADefOut.ServerType = ADef.ServerType
+                                            ADefOut.ServerType = AHist.ServerType
                                             ADefOut.ServerName = AHist.ServerName
-                                            ADefOut.SendTo = ADef.SendTo
-                                            'ADefOut.SendTo = AHist.SendTo
-                                            ADefOut.CopyTo = ADef.CopyTo
-                                            ADefOut.BlindCopyTo = ADef.BlindCopyTo
+                                            'ADefOut.SendTo = ADef.SendTo
+                                            ADefOut.SendTo = AHist.SendTo
+                                            ADefOut.CopyTo = AHist.CopyTo
+                                            ADefOut.BlindCopyTo = AHist.BlindCopyTo
                                             ADefOut.StartTime = ADef.StartTime
                                             ADefOut.Duration = ADef.Duration
                                             ADefOut.Days = ADef.Days
@@ -1594,10 +1601,10 @@ Public Class VitalSignsAlertService
                                             ADefOut.SendSNMPTrap = ADef.SendSNMPTrap
                                             ADefOut.EnablePersistentAlert = ADef.EnablePersistentAlert
                                             ADefOut.DateCreated = AHist.DateCreated
-                                            ADefOut.SMSTo = ADef.SMSTo
+                                            ADefOut.SMSTo = AHist.SMSTo
                                             ADefOut.ScriptName = ADef.ScriptName
-                                            ADefOut.ScriptCommand = ADef.ScriptCommand
-                                            ADefOut.ScriptLocation = ADef.ScriptLocation
+                                            ADefOut.ScriptCommand = AHist.ScriptCommand
+                                            ADefOut.ScriptLocation = AHist.ScriptLocation
                                             ReDim Preserve ADefArrOut(c)
                                             ADefArrOut(c) = ADefOut
                                             c = c + 1
