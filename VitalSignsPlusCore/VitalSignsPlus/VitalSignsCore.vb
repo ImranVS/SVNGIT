@@ -87,7 +87,6 @@ Public Class VitalSignsPlusCore
     Dim ThreadMainMailServices As New Thread(AddressOf MonitorMailServices)
     Dim ThreadSametimeServers As New Thread(AddressOf MonitorSametimeThread)
     Dim ThreadBlackBerryServers As New Thread(AddressOf MonitorBlackBerryServers)
-    Dim ThreadWebSphereServers As New Thread(AddressOf MonitorWebSphere)
     Dim ThreadIBMConnectServers As New Thread(AddressOf MonitorIBMConnect)
 
     '  Dim WithEvents PingControl As New nsoftware.IPWorks.Ping("31504E3641414E5852464336354235353231000000000000000000000000000000000000000000004D3047595958364A00003042394E505658333642345A0000")
@@ -225,6 +224,10 @@ Public Class VitalSignsPlusCore
     Dim MyClouds As New MonitoredItems.CloudCollection
     Dim CurrentCloud As String 'Contains the name of the Cloud URL currently being queried
     Dim CloudStringFound As Boolean
+
+    Dim ListOfWebSphereThreads As List(Of Threading.Thread) = New List(Of Threading.Thread)
+    Private Shared WebSphereSelector_Mutex As New Mutex()
+    Dim CurrentWebSphereThreadCount = 0
 
     'Determines the verbosity of the log file
     Enum LogLevel
@@ -664,17 +667,61 @@ Public Class VitalSignsPlusCore
     End Sub
 
     Protected Sub StartWebSphereThreads()
-        If (boolMonitorWebSphere = True And MyWebSphereServers.Count > 0) Then
-            If (Not ThreadWebSphereServers.IsAlive()) Then
-                WriteAuditEntry(Now.ToString & " Starting WebSphere Servers monitoring thread...")
-                ThreadWebSphereServers.IsBackground = True
-                ThreadWebSphereServers.Priority = ThreadPriority.Normal
-                ThreadWebSphereServers.CurrentCulture = New CultureInfo(sCultureString)
-                ThreadWebSphereServers.Start()
+
+
+        Try
+
+            If (Not (boolMonitorWebSphere = True And MyWebSphereServers.Count > 0)) Then
+                WriteAuditEntry(Now.ToString & " WebSphere monitoring is DISABLED or contains no servers.")
+                Exit Sub
             End If
+
+            Dim EnabledWebSphereCount As Integer = 0
+            Dim WebSphereOne As MonitoredItems.WebSphere
+            For n = 0 To MyWebSphereServers.Count - 1
+                WebSphereOne = MyWebSphereServers.Item(n)
+                If WebSphereOne.Enabled = True Then EnabledWebSphereCount += 1
+            Next n
+            Dim intThreadCount As Integer = CInt(EnabledWebSphereCount / 4)
+            If intThreadCount <= 1 Then
+                intThreadCount = 2
+            End If
+
+            WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " There are " & EnabledWebSphereCount & " enabled WebSpheres to scan.")
+            WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " I am launching " & intThreadCount & " threads to scan these WebSpheres.")
+
+            Try
+                For n = CurrentWebSphereThreadCount To intThreadCount - 1
+                    Dim tTemp As Threading.Thread = New Threading.Thread(AddressOf MonitorWebSphere)
+                    tTemp.CurrentCulture = New CultureInfo(sCultureString)
+                    tTemp.Start()
+
+                    ListOfWebSphereThreads.Add(tTemp)
+                    Threading.Thread.Sleep(2000)  'sleep 2 seconds then start another thread
+                Next
+            Catch ex As Exception
+                If InStr(ex.ToString, "System.OutOfMemoryException") > 0 Then
+                    WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " VitalSigns is out of memory.  Attempting to exit so the Master service will restart it. ")
+                    Thread.Sleep(1000)
+                    End
         Else
-            WriteAuditEntry(Now.ToString & " WebSphere monitoring is DISABLED...")
+                    WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " Error starting MonitorWebSphere thread " & ex.ToString, LogLevel.Normal)
         End If
+
+            End Try
+            CurrentWebSphereThreadCount = intThreadCount
+            Dim i As Integer = 0
+            For Each t As Threading.Thread In ListOfWebSphereThreads
+                WriteAuditEntry(Now.ToString & " WebSphere monitoring thread #" & i.ToString & " state = " & t.ThreadState.ToString)
+                i += 1
+            Next
+
+
+        Catch ex As Exception
+
+        End Try
+
+
     End Sub
 
     Protected Sub StartIBMConnectThreads()
@@ -1169,7 +1216,7 @@ Public Class VitalSignsPlusCore
 
             Try
 
-                If Now.Day <> Day Then
+                If Now.Day <> Day And Now.Hour >= 2 Then
                     Try
                         WriteAuditEntry(Now.ToString & " Now starting the Daily Task...")
                         Dim ThreadDaily As New Thread(AddressOf DailyTasks)
@@ -1254,6 +1301,10 @@ Public Class VitalSignsPlusCore
 
             Next
 
+            For Each server As MonitoredItems.IBMConnect In MyIBMConnectServers
+                WriteAuditEntry(Now.ToString & " Beginning to perform daily purge for IBM Connections server " & server.Name, LogLevel.Verbose)
+                PurgeConnectionsDatabase(server)
+            Next
 
             myRegistry.WriteToRegistry("LastCoreDaily", Now.ToString())
 
@@ -1583,81 +1634,6 @@ Public Class VitalSignsPlusCore
 
     End Sub
 
-    Protected Sub MonitorWebSpehereThread()
-        Dim elapsed As TimeSpan
-        Dim start, done As Long
-        start = Now.Ticks
-        Dim myRegistry As New RegistryHandler
-
-        Do While boolTimeToStop <> True
-            WriteAuditEntry(Now.ToString & " Creating new WebSphere monitoring thread.")
-            Dim threadMonitorWebSphere As New Thread(AddressOf MonitorWebSphere)
-            Try
-                threadMonitorWebSphere.CurrentCulture = New CultureInfo(sCultureString)
-                threadMonitorWebSphere.Start()
-                Thread.Sleep(4000) 'sleep 4 seconds to give thread a chance to start
-                Do
-                    Dim myLastUpdate As TimeSpan
-
-                    Try
-
-                        myLastUpdate = dtWebSphereLastUpdate.Subtract(Now)
-                        '   WriteAuditEntry(Now.ToString & " ST thread last updated " & myLastUpdate.TotalSeconds & " seconds ago.")
-                        If myLastUpdate.TotalSeconds < -180 Then
-                            'The ST Thread hasn't looped in 180 seconds
-                            WriteAuditEntry(Now.ToString & " Destroying Sametime thread because it hasn't updated in " & myLastUpdate.TotalSeconds & " seconds. ")
-                            threadMonitorWebSphere.Abort()
-                            threadMonitorWebSphere.Join(5000)
-                            dtWebSphereLastUpdate = Now
-                            threadMonitorWebSphere = Nothing
-                            Exit Do
-                        End If
-
-                        done = Now.Ticks
-                        elapsed = New TimeSpan(done - start)
-
-                        If elapsed.TotalMinutes > 5 Then
-                            start = Now.Ticks
-                            WriteAuditEntry(Now.ToString & " Refreshing configuration of WebSphere servers to check for changes.")
-                            Try
-
-                                CreateWebSphereCollection()
-                                UpdateStatusTableWithWebSphere()
-                                'myRegistry.WriteToRegistry("Sametime Server Update", False)
-                            Catch ex As Exception
-
-                            End Try
-
-                            Try
-
-                            Catch ex As Exception
-
-                            End Try
-
-                        End If
-
-
-                    Catch ex As ThreadAbortException
-                        WriteAuditEntry(Now.ToString & " Destroying WebSphere Server monitor thread to shut down service. ")
-                        threadMonitorWebSphere.Abort()
-                        threadMonitorWebSphere.Join(5000)
-                        threadMonitorWebSphere = Nothing
-                        Exit Sub
-                    Catch ex As Exception
-                        WriteAuditEntry(Now.ToString & " WebSphere Thread #1 error: " & ex.Message)
-                    End Try
-                    Thread.Sleep(2900)
-                    '  Thread.Sleep(29000)
-                Loop
-            Catch ex As Exception
-                WriteAuditEntry(Now.ToString & " WebSphere Thread #2 error: " & ex.Message)
-            End Try
-
-
-        Loop
-
-    End Sub
-
     Protected Sub ThreadChecker()
         'watches over the threads
         Dim SleepTime As Integer
@@ -1688,6 +1664,12 @@ Public Class VitalSignsPlusCore
             Dim i As Integer = 1
             For Each t As Threading.Thread In ListOfURLThreads
                 WriteAuditEntry(Now.ToString & " URL monitoring thread #" & i.ToString & " state = " & t.ThreadState.ToString)
+                i += 1
+            Next
+
+            i = 1
+            For Each t As Threading.Thread In ListOfWebSphereThreads
+                WriteAuditEntry(Now.ToString & " WebSphere monitoring thread #" & i.ToString & " state = " & t.ThreadState.ToString)
                 i += 1
             Next
 
@@ -2800,7 +2782,20 @@ Public Class VitalSignsPlusCore
 
             Try
                 Dim myServer As MonitoredItems.WebSphere
-                myServer = CType(SelectServerToMonitor(MyWebSphereServers), MonitoredItems.WebSphere)
+
+                Try
+                    WebSphereSelector_Mutex.WaitOne()
+                    myServer = SelectServerToMonitor(MyWebSphereServers)
+                    If (myServer IsNot Nothing) Then
+                        myServer.IsBeingScanned = True
+                        myServer.LastScan = Now
+                    End If
+
+                Catch ex As Exception
+                    myServer = Nothing
+                Finally
+                    WebSphereSelector_Mutex.ReleaseMutex()
+                End Try
 
                 If myServer Is Nothing Then
                     CurrentWebSphere = ""
@@ -2825,12 +2820,17 @@ Public Class VitalSignsPlusCore
                 myServer.ResponseDetails = "This server passed all tests"
                 myServer.AlertCondition = False
 
-                Dim Cells As VitalSignsWebSphereDLL.VitalSignsWebSphereDLL.Cells_ServerStats
+                Dim Cells As New VitalSignsWebSphereDLL.VitalSignsWebSphereDLL.Cells_ServerStats
                 Try
                     Cells = WsDll.getServerStats(myServer)
                 Catch ex As Exception
                     WriteAuditEntryWebSphere(Now.ToString & " Exception thrown while getting stats: " & ex.Message.ToString())
-                    WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " Exception thrown while getting stats: " & ex.Message.ToString())
+                    Try
+                        WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " raw xml for execption: " + Cells.rawXml)
+                    Catch ex2 As Exception
+                        WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " Exception thrown while printing raw xml: " & ex2.Message.ToString())
+                    End Try
+
                     myServer.ResponseDetails = "The server never sent a response back.  Check the status of the server."
                     myServer.Status = "Issue"
                     myServer.StatusCode = "Issue"
@@ -2839,9 +2839,28 @@ Public Class VitalSignsPlusCore
                     Cells.Connectionstatus = "NOT CONNECTED"
                 End Try
 
-                If (Cells.Connectionstatus <> "CONNECTED") Then
+                If Cells.Connectionstatus = "ACCESS DENIED" Then
+
+                    WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " Could not connect to the cell due to invalid credentials. Name: " & myServer.ServerName)
+                    Try
+                        WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " raw xml for invalid creds: " + Cells.rawXml)
+                    Catch ex2 As Exception
+                        WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " Exception thrown while printing raw xml: " & ex2.Message.ToString())
+                    End Try
+                    WriteAuditEntryWebSphere(Now.ToString & " Could not connect to the cell due to invalid credentials for " & myServer.Name & ".")
+                    myServer.Status = "Not Responding"
+                    myServer.StatusCode = "Not Responding"
+                    myServer.ResponseDetails = "Could not connect to the cell due to invalid credentials"
+                    SendWebSphereNotRespondingAlert(myServer, False)
+
+                ElseIf (Cells.Connectionstatus <> "CONNECTED") Then
                     WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " Could not connect to the cell. Name: " & myServer.ServerName)
-                    WriteAuditEntryWebSphere(Now.ToString & " Could not conenct to the cell for " & myServer.Name & ".")
+                    Try
+                        WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " raw xml for not connected: " + Cells.rawXml)
+                    Catch ex2 As Exception
+                        WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " Exception thrown while printing raw xml: " & ex2.Message.ToString())
+                    End Try
+                    WriteAuditEntryWebSphere(Now.ToString & " Could not connect to the cell for " & myServer.Name & ".")
                     myServer.Status = "Not Responding"
                     myServer.StatusCode = "Not Responding"
                     myServer.ResponseDetails = "Could not connect to the cell"
@@ -2850,10 +2869,14 @@ Public Class VitalSignsPlusCore
                 Else
                     If Cells.Cell.Nodes.Node.Servers.Server.Stats.Status.Value = "Not Reachable" Then
                         WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " Could not connectto the server. Name: " & myServer.ServerName)
-                        WriteAuditEntryWebSphere(Now.ToString & " Could not conenct to the server for " & myServer.Name & ".")
+                        Try
+                            WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " raw xml for not reachable: " + Cells.rawXml)
+                        Catch ex2 As Exception
+                            WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " Exception thrown while printing raw xml: " & ex2.Message.ToString())
+                        End Try
+                        WriteAuditEntryWebSphere(Now.ToString & " Could not connect to the server for " & myServer.Name & ".")
                         myServer.Status = "Not Responding"
                         myServer.StatusCode = "Not Responding"
-                        myServer.AlertCondition = True
                         myServer.ResponseDetails = "Could not connect to the server"
                         SendWebSphereNotRespondingAlert(myServer, False)
                     Else
@@ -3203,31 +3226,46 @@ CleanUp:
     '    For n = 0 To MyWebSphereServers.Count - 1
     '        ServerOne = MyWebSphereServers.Item(n)
 
-    '        If ServerOne.Status = "Not Scanned" Or ServerOne.Status = "Master Service Stopped." Then
+    '        If ServerOne.Status = "Not Scanned" Or ServerOne.Status = "Master Service Stopped." And ServerOne.IsBeingScanned = False Then
     '            '        WriteAuditEntry(Now.ToString & " >>> Selecting " & ServerOne.Name & " because status is " & ServerOne.Status)
     '            Return ServerOne
     '            Exit Function
     '        End If
     '    Next
 
-    '    'start with the first two servers
-    '    ServerOne = MyWebSphereServers.Item(0)
-    '    If MyWebSphereServers.Count > 1 Then ServerTwo = MyWebSphereServers.Item(1)
+    '    Dim ScanCandidates As New MonitoredItems.WebSphereCollection
+
+    '    For Each srv As MonitoredItems.WebSphere In MyWebSphereServers
+    '        If srv.IsBeingScanned = False And srv.Enabled = True Then
+    '            tNow = Now
+    '            tScheduled = srv.NextScan
+    '            If DateTime.Compare(tNow, tScheduled) > 0 Then
+    '                ScanCandidates.Add(srv)
+    '            End If
+
+    '            ' WriteDeviceHistoryEntry("All", "Selection", Now.ToString & " " & srv.Name & " is not being scanned.")
+    '        End If
+    '    Next
+
+    '    ServerOne = ScanCandidates.Item(0)
+    '    ServerTwo = ScanCandidates.Item(0)
+    '    If ScanCandidates.Count > 1 Then ServerTwo = ScanCandidates.Item(1)
 
     '    'go through the remaining servers, see which one has the oldest (earliest) scheduled time
-    '    If MyWebSphereServers.Count > 2 Then
+    '    If ScanCandidates.Count > 2 Then
     '        Try
-    '            For n = 2 To MyWebSphereServers.Count - 1
+    '            For n = 2 To ScanCandidates.Count - 1
     '                '           WriteAuditEntry(Now.ToString & " N is " & n)
     '                timeOne = CDate(ServerOne.NextScan)
     '                timeTwo = CDate(ServerTwo.NextScan)
     '                If DateTime.Compare(timeOne, timeTwo) < 0 Then
     '                    'time one is earlier than time two, so keep server 1
-    '                    ServerTwo = MyWebSphereServers.Item(n)
+    '                    ServerTwo = ScanCandidates.Item(n)
     '                Else
     '                    'time two is later than time one, so keep server 2
-    '                    ServerOne = MyWebSphereServers.Item(n)
+    '                    ServerOne = ScanCandidates.Item(n)
     '                End If
+
     '            Next
     '        Catch ex As Exception
     '            WriteAuditEntry(Now.ToString & " >>> Error Selecting WebSphere server... " & ex.Message)
@@ -3236,12 +3274,10 @@ CleanUp:
     '        'There were only two server, so use those going forward
     '    End If
 
-    '    'WriteAuditEntry(Now.ToString & " >>> Down to two servers... " & ServerOne.Name & " and " & ServerTwo.Name)
-
-    '    'Of the two remaining servers, pick the one with earliest scheduled time for next scan
-    '    If Not (ServerTwo Is Nothing) Then
-    '        timeOne = CDate(ServerOne.NextScan)
-    '        timeTwo = CDate(ServerTwo.NextScan)
+    ''    'Of the two remaining servers, pick the one with earliest scheduled time for next scan
+    ''    If Not (ServerTwo Is Nothing) Then
+    ''        timeOne = CDate(ServerOne.NextScan)
+    ''        timeTwo = CDate(ServerTwo.NextScan)
 
     '        If DateTime.Compare(timeOne, timeTwo) < 0 Then
     '            'time one is earlier than time two, so keep server 1
@@ -3252,7 +3288,6 @@ CleanUp:
     '            tScheduled = CDate(ServerTwo.NextScan)
     '        End If
     '        tNow = Now
-    '        '   WriteAuditEntry(Now.ToString & " >>> Down to one server... " & SelectedServer.Name & " to scan at " & SelectedServer.NextScan & ". Status is " & SelectedServer.Status)
     '    Else
     '        SelectedServer = ServerOne
     '        tScheduled = CDate(ServerOne.NextScan)
@@ -3261,30 +3296,33 @@ CleanUp:
     '    tScheduled = CDate(SelectedServer.NextScan)
     '    If DateTime.Compare(tNow, tScheduled) < 0 Then
     '        If SelectedServer.Status <> "Not Scanned" Then
-    '            '  WriteAuditEntry(Now.ToString & " No Domino servers scheduled for monitoring, next scan after " & SelectedServer.NextScan)
     '            SelectedServer = Nothing
     '        Else
-    '            WriteAuditEntry(Now.ToString & " selected WebSphere server: " & SelectedServer.Name & " because it has not been scanned yet.")
     '        End If
     '    Else
-    '        WriteAuditEntry(Now.ToString & " selected WebSphere server: " & SelectedServer.Name)
+    '        Dim mySpan As TimeSpan = tNow - tScheduled
     '    End If
+
+    '    '**************
 
     '    'Release Memory
     '    tNow = Nothing
     '    tScheduled = Nothing
     '    n = Nothing
 
-    '    timeOne = Nothing
-    '    timeTwo = Nothing
+    ''    timeOne = Nothing
+    ''    timeTwo = Nothing
 
-    '    ServerOne = Nothing
-    '    ServerTwo = Nothing
+    ''    ServerOne = Nothing
+    ''    ServerTwo = Nothing
 
-    '    'return selectedserver
     '    SelectWebSphereServerToMonitor = SelectedServer
-    '    'Exit Function
-    '    SelectedServer = Nothing
+
+
+
+
+
+
     'End Function
 
     'Private Sub ScanWebSphereServer(Server As MonitoredItems.WebSphere)
@@ -3431,6 +3469,11 @@ CleanUp:
                     myAlert.ResetAlert(myServer.ServerType, myServer.Name, "Not Responding", myServer.Location, "The server is responding", myServer.ServerType)
                     TestIMBConnectLogon(myServer)
 
+
+                    If myServer.TestCreateCommunities Then
+                        TestCreateAllInOneCommunities(myServer)
+                    Else
+
                     If (myServer.TestCreateActivity) Then
                         TestCreateActivity(myServer)
                     Else
@@ -3449,7 +3492,7 @@ CleanUp:
                         adapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", "DELETE FROM StatusDetail WHERE TypeANDName = '" & myServer.Name & "-IBM Connections' and TestName = 'Create Bookmark'")
                     End If
 
-                    If (myServer.TestCreateCommunities) Then
+                        If (myServer.TestCreateCommunities Or myServer.TestCreateForums Or myServer.TestCreateBlog) Then
                         TestCreateCommunities(myServer)
                     Else
                         adapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", "DELETE FROM StatusDetail WHERE TypeANDName = '" & myServer.Name & "-IBM Connections' and TestName = 'Create Community'")
@@ -3471,6 +3514,7 @@ CleanUp:
                         TestSearchProfiles(myServer)
                     Else
                         adapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", "DELETE FROM StatusDetail WHERE TypeANDName = '" & myServer.Name & "-IBM Connections' and TestName = 'Search Profiles'")
+                    End If
                     End If
 
 
@@ -4247,8 +4291,13 @@ CleanUp:
 
                     Dim deleteString As String = headers.Get("Location")
 
+                    Dim reg As Text.RegularExpressions.Regex = New Text.RegularExpressions.Regex("(?<=communityUuid=)[a-zA-Z0-9-]*")
+                    Dim docId = reg.Match(deleteString).Value.ToString()
+
+
+
                     httpWR = WebRequest.Create(deleteString)
-                    httpWR.Timeout = 6000000
+                    httpWR.Timeout = 60000
                     httpWR.Method = "DELETE"
                     httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                     httpWR.ContentType = "application/atom+xml"
@@ -4262,9 +4311,32 @@ CleanUp:
                     Try
                         webResponse2 = httpWR.GetResponse()
 
-                        If (webResponse2.StatusCode = HttpStatusCode.NoContent) Then
+                        If (webResponse2.StatusCode = HttpStatusCode.OK) Then
                             'It deleted...do nothing
                             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Deleted community.", LogUtilities.LogUtils.LogLevel.Normal)
+
+                            Try
+                                httpWR = WebRequest.Create(deleteString)
+                                httpWR.Timeout = 60000
+                                httpWR.Method = "DELETE"
+                                httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                                httpWR.ContentType = "application/atom+xml"
+                                httpWR.Accept = "*/*"
+                                'httpWR.Headers.Add("Authorization", "Basic d3N0YW51bGlzOldzMTMxNTU3MDIh")
+
+                                httpWR.CookieContainer = cookieContainer
+
+                                webResponse2 = httpWR.GetResponse()
+                                If (webResponse2.StatusCode = HttpStatusCode.OK) Then
+                                    'It deleted...do nothing
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " purgerd community.", LogUtilities.LogUtils.LogLevel.Normal)
+                                Else
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " failed to purge community.", LogUtilities.LogUtils.LogLevel.Normal)
+                                End If
+
+                            Catch ex As Exception
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " exception tryign to purge the community. Error : " & ex.Message(), LogUtilities.LogUtils.LogLevel.Normal)
+                            End Try
 
                             'If TestThreshold > createTime Then
                             '    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The activity was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
@@ -4421,7 +4493,7 @@ CleanUp:
                     Dim deleteString As String = headers.Get("Location")
 
 
-                    Dim reg = New Text.RegularExpressions.Regex("(?<=\/document\/)[a-zA-Z0-9-]*(?=\/)")
+                    Dim reg As New Text.RegularExpressions.Regex("(?<=\/document\/)[a-zA-Z0-9-]*(?=\/)")
                     Dim docId = reg.Match(deleteString).Value.ToString()
 
                     httpWR = WebRequest.Create(deleteString)
@@ -4513,7 +4585,7 @@ CleanUp:
 
     End Sub
 
-    Public Sub TestCreateForums(ByRef myServer As MonitoredItems.IBMConnect)
+    Public Sub TestCreateForums(ByRef myServer As MonitoredItems.IBMConnect, ByVal communityUUID As String)
         Try
             'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateForums", LogUtilities.LogUtils.LogLevel.Normal)
             Dim AlertType As String = "Create Forum"
@@ -4525,7 +4597,7 @@ CleanUp:
             Dim TestThreshold As Int32 = myServer.CreateForumsThreshold
 
             Dim Name As String = "VitalSigns Test Forum"
-            Dim URL As String = URLBase + "/forums/atom/forums"
+            Dim URL As String = URLBase + "/forums/atom/forums?communityUuid=" & communityUUID
             Dim Body As String = "<?xml version=""1.0"" encoding=""utf-8""?><entry xmlns=""http://www.w3.org/2005/Atom""><title type=""text"">" & Name & "</title><content type=""text"">Forum Sub Forum Test 1</content><category scheme=""http://www.ibm.com/xmlns/prod/sn/type"" term=""forum-forum""></category></entry>"
 
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Will first try deleting all undeleted VitalSigns Forums", LogUtilities.LogUtils.LogLevel.Normal)
@@ -4561,9 +4633,9 @@ CleanUp:
 
                 Else
                     'Created wrongly...do things
-                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Commuinity for the forum failed to create. It produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " forum failed to create. It produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = False
-                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The community for the forum was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The forum was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
 
                     If myServer.StatusCode = "OK" Then
                         myServer.StatusCode = "Issue"
@@ -4579,11 +4651,6 @@ CleanUp:
 
                     Dim LocationsHeader As String = headers.Get("Location")
                     webResponse.Close()
-
-                    Dim reg As Text.RegularExpressions.Regex = New Text.RegularExpressions.Regex("(?<=forumUuid=)[a-zA-Z0-9-]*")
-                    Dim docId = reg.Match(LocationsHeader).Value.ToString()
-
-                    TestCreateForumsTopic(myServer, docId)
 
                     httpWR = WebRequest.Create(LocationsHeader)
                     httpWR.Timeout = 6000000
@@ -4603,14 +4670,14 @@ CleanUp:
 
                             If (webResponse2.StatusCode = HttpStatusCode.NoContent) Then
                                 'It deleted...do nothing
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Deleted community.", LogUtilities.LogUtils.LogLevel.Normal)
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Deleted forum.", LogUtilities.LogUtils.LogLevel.Normal)
                             Else
                                 'It failed to delete...send alert
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Failed to delete community.", LogUtilities.LogUtils.LogLevel.Normal)
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Failed to delete forum.", LogUtilities.LogUtils.LogLevel.Normal)
                             End If
 
                         Catch ex As Exception
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to delete community due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to delete forum due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
                         Finally
                             If webResponse2 IsNot Nothing Then
                                 webResponse2.Close()
@@ -4646,7 +4713,7 @@ CleanUp:
                     End Try
                 End If
             Catch ex As Exception
-                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create community for forum due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create forum due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
                 myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The forum was not created.", myServer.Location)
 
                 If myServer.StatusCode = "OK" Then
@@ -5074,6 +5141,1273 @@ CleanUp:
 
 
 
+    Public Sub TestCreateAllInOneCommunities(ByRef myServer As MonitoredItems.IBMConnect)
+        Try
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateAllInOneCommunities", LogUtilities.LogUtils.LogLevel.Normal)
+            Dim AlertType As String = "Create Community"
+            Dim alertReset As Boolean
+
+            Dim URLBase As String = myServer.IPAddress
+            Dim Username As String = myServer.UserName
+            Dim Password As String = myServer.Password
+            Dim TestThreshold As Int32 = myServer.CreateCommunitiesThreshold
+
+            Dim Name As String = "VitalSigns Test Community"
+            Dim URL As String = URLBase & "/communities/service/atom/communities/my"
+            Dim Body As String = "<?xml version=""1.0"" encoding=""utf-8""?><entry xmlns=""http://www.w3.org/2005/Atom"" xmlns:app=""http://www.w3.org/2007/app""  xmlns:snx=""http://www.ibm.com/xmlns/prod/sn""><title type=""text"">" & Name & "</title><content type=""html"">Test Community</content><category term=""community"" scheme=""http://www.ibm.com/xmlns/prod/sn/type""></category><snx:communityType>private</snx:communityType></entry>"
+
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Will first try deleting all undeleted VitalSigns Communities", LogUtilities.LogUtils.LogLevel.Normal)
+            CleanAllVitalSignCommunities(myServer)
+
+            Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
+            httpWR.Timeout = 60000
+            httpWR.Method = "POST"
+            httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+            httpWR.ContentType = "application/atom+xml"
+            httpWR.Accept = "*/*"
+            httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
+
+            Dim byteArr As Byte() = System.Text.Encoding.ASCII.GetBytes(Body.ToString())
+            httpWR.ContentLength = byteArr.Length
+            Dim dataStream As Stream = httpWR.GetRequestStream()
+            dataStream.Write(byteArr, 0, byteArr.Length)
+            dataStream.Close()
+            Dim cookieContainer As New CookieContainer()
+            httpWR.CookieContainer = cookieContainer
+
+            Dim webResposne As HttpWebResponse
+
+            Try
+                Dim startTime As DateTime = DateTime.Now
+                webResposne = httpWR.GetResponse()
+                Dim endTime As DateTime = DateTime.Now
+                Dim span As TimeSpan = endTime - startTime
+                Dim createTime As Double = Math.Round(span.TotalMilliseconds, 1)
+
+                If (webResposne.StatusCode = HttpStatusCode.Created) Then
+                    'Created Correctly...do things
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created community in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
+                    alertReset = True
+                    InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Community.TimeMs", createTime.ToString(), myServer.ServerObjectID)
+                Else
+                    'Created wrongly...do things
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Community failed to create. It took " & createTime & " ms and produced a status code of " & webResposne.StatusCode & " and description of " & webResposne.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
+                    alertReset = False
+
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The community was not created. It produced a status code of " & webResposne.StatusCode & " and a description of " & webResposne.StatusDescription & ".", myServer.Location)
+
+                    If myServer.StatusCode = "OK" Then
+                        myServer.StatusCode = "Issue"
+                        myServer.Status = "Issue"
+                        myServer.ResponseDetails = "The community was not created. It produced a status code of " & webResposne.StatusCode & " and a description of " & webResposne.StatusDescription & "."
+                    End If
+                End If
+
+
+                If (webResposne.StatusCode = HttpStatusCode.Created) Then
+
+                    Dim headers As System.Net.WebHeaderCollection
+                    headers = webResposne.Headers
+
+
+                    Dim deleteString As String = headers.Get("Location")
+
+                    Dim reg As Text.RegularExpressions.Regex = New Text.RegularExpressions.Regex("(?<=communityUuid=)[a-zA-Z0-9-]*")
+                    Dim docId = reg.Match(deleteString).Value.ToString()
+
+
+                    If (myServer.TestCreateActivity) Then
+                        TestCreateCommunityActivity(myServer, docId)
+                    Else
+
+                    End If
+
+                    If (myServer.TestCreateBlog) Then
+                        TestCreateCommunityBlog(myServer, docId)
+                    Else
+
+                    End If
+
+                    If (myServer.TestCreateBookmarks) Then
+                        TestCreateCommunityBookmarks(myServer, docId)
+                    Else
+
+                    End If
+
+                    If (myServer.TestCreateFiles) Then
+                        TestCreateCommunityFiles(myServer, docId)
+                    Else
+
+                    End If
+
+                    If (myServer.TestCreateWikis) Then
+                        TestCreateCommunityWiki(myServer, docId)
+                    Else
+
+                    End If
+
+                    If (myServer.TestCreateForums) Then
+                        TestCreateCommunityForumsTopic(myServer, docId)
+                    Else
+
+                    End If
+
+
+
+
+
+
+                    httpWR = WebRequest.Create(deleteString)
+                    httpWR.Timeout = 60000
+                    httpWR.Method = "DELETE"
+                    httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                    httpWR.ContentType = "application/atom+xml"
+                    httpWR.Accept = "*/*"
+                    'httpWR.Headers.Add("Authorization", "Basic d3N0YW51bGlzOldzMTMxNTU3MDIh")
+
+                    httpWR.CookieContainer = cookieContainer
+
+                    Dim webResponse2 As HttpWebResponse
+
+                    Try
+                        webResponse2 = httpWR.GetResponse()
+
+                        If (webResponse2.StatusCode = HttpStatusCode.OK) Then
+                            'It deleted...do nothing
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Deleted community.", LogUtilities.LogUtils.LogLevel.Normal)
+
+                            Try
+                                httpWR = WebRequest.Create(deleteString)
+                                httpWR.Timeout = 60000
+                                httpWR.Method = "DELETE"
+                                httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                                httpWR.ContentType = "application/atom+xml"
+                                httpWR.Accept = "*/*"
+                                'httpWR.Headers.Add("Authorization", "Basic d3N0YW51bGlzOldzMTMxNTU3MDIh")
+
+                                httpWR.CookieContainer = cookieContainer
+
+                                webResponse2 = httpWR.GetResponse()
+                                If (webResponse2.StatusCode = HttpStatusCode.OK) Then
+                                    'It deleted...do nothing
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " purgerd community.", LogUtilities.LogUtils.LogLevel.Normal)
+                                Else
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " failed to purge community.", LogUtilities.LogUtils.LogLevel.Normal)
+                                End If
+
+                            Catch ex As Exception
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " exception tryign to purge the community. Error : " & ex.Message(), LogUtilities.LogUtils.LogLevel.Normal)
+                            End Try
+
+                            'If TestThreshold > createTime Then
+                            '    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The activity was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
+                            'Else
+                            '    myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The activity was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
+                            'End If
+                        Else
+                            'It failed to delete...send alert
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Failed to delete community.", LogUtilities.LogUtils.LogLevel.Normal)
+                            'myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The community was successfully created in " & createTime & " ms but failed to delete.")
+
+                            If myServer.StatusCode = "OK" Then
+                                'myServer.StatusCode = "Issue"
+                                'myServer.ResponseDetails = "The community was successfully created in " & createTime & " ms but failed to delete."
+                            End If
+                        End If
+
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to delete community due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                        'myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The community was successfully created in " & createTime & " ms but failed to delete.")
+
+                        If myServer.StatusCode = "OK" Then
+                            'myServer.StatusCode = "Issue"
+                            'myServer.ResponseDetails = "The community was successfully created in " & createTime & " ms but failed to delete."
+                        End If
+
+                    Finally
+                        If webResponse2 IsNot Nothing Then
+                            webResponse2.Close()
+                        End If
+
+                        If TestThreshold < createTime Then
+                            myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The community was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
+
+                            If myServer.StatusCode = "OK" Then
+                                myServer.StatusCode = "Issue"
+                                myServer.Status = "Issue"
+                                myServer.ResponseDetails = "The community was successfully created in " & createTime & " ms but has a threshold of " & TestThreshold & " ms."
+                            End If
+
+                        Else
+                            myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The community was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
+                        End If
+
+                    End Try
+
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create community due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The community was not created.", myServer.Location)
+                If myServer.StatusCode = "OK" Then
+                    myServer.StatusCode = "Issue"
+                    myServer.Status = "Issue"
+                    myServer.ResponseDetails = "The community was not created."
+                End If
+            Finally
+                If webResposne IsNot Nothing Then
+                    webResposne.Close()
+                End If
+            End Try
+        Catch ex As Exception
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error in TestCreateAllInOneCommunities. Error: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+        End Try
+
+    End Sub
+
+    Public Sub TestCreateCommunityActivity(ByRef myServer As MonitoredItems.IBMConnect, ByVal communityUUID As String)
+        Try
+
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateCommunityActivity", LogUtilities.LogUtils.LogLevel.Normal)
+            Dim AlertType As String = "Create Activity"
+            Dim URL As String = myServer.IPAddress
+            Dim Username As String = myServer.UserName
+            Dim Password As String = myServer.Password
+            Dim TestThreshold As Int32 = myServer.CreateActivityThreshold
+
+            Dim alertReset As Boolean
+
+            Dim ActivityName As String = "VitalSigns Test Activity"
+            Dim activityURL As String = URL & "/activities/service/atom2/activities?communityUuid=" & communityUUID & "&public=no&authenticate=no"
+            Dim activityBody As String = "<?xml version=""1.0"" encoding=""UTF-8""?><entry xmlns=""http://www.w3.org/2005/Atom"" xmlns:app=""http://www.w3.org/2007/app"" xmlns:snx=""http://www.ibm.com/xmlns/prod/sn""><category scheme=""http://www.ibm.com/xmlns/prod/sn/type"" term=""community_activity"" label=""Community Activity""/><title type=""text"">" & ActivityName & "</title><content type=""text"">Activity Testing</content><snx:communityUuid>" & communityUUID & "</snx:communityUuid></entry>"
+
+            ' WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Will first try deleting all undeleted VitalSigns Activities", LogUtilities.LogUtils.LogLevel.Normal)
+            ' CleanAllVitalSignActivities(myServer)
+            'activities/service/atom2/activities?title=VitalSigns%20Test%20Activity
+
+
+            Dim httpWR As HttpWebRequest = WebRequest.Create(activityURL)
+            httpWR.Timeout = 60000
+            httpWR.Method = "POST"
+            httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+            httpWR.ContentType = "application/atom+xml"
+            httpWR.Accept = "*/*"
+            httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
+
+            Dim byteArr As Byte() = System.Text.Encoding.ASCII.GetBytes(activityBody.ToString())
+            httpWR.ContentLength = byteArr.Length
+            Dim dataStream As Stream = httpWR.GetRequestStream()
+            dataStream.Write(byteArr, 0, byteArr.Length)
+            dataStream.Close()
+            Dim cookieContainer As New CookieContainer()
+            httpWR.CookieContainer = cookieContainer
+
+
+            Dim webResponse As HttpWebResponse
+
+            Try
+                Dim startTime As DateTime = DateTime.Now
+
+                Try
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Adding acitivity widget.", LogUtilities.LogUtils.LogLevel.Normal)
+                    AddWidgetToComunity(myServer, communityUUID, "Activities")
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error adding activity widget. Error: " And ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                End Try
+
+                webResponse = httpWR.GetResponse()
+                Dim endTime As DateTime = DateTime.Now
+                Dim span As TimeSpan = endTime - startTime
+                Dim createTime As Double = Math.Round(span.TotalMilliseconds, 1)
+
+                If (webResponse.StatusCode = HttpStatusCode.Created) Then
+                    'Created Correctly...do things
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created activity in " & createTime & " ms", LogUtilities.LogUtils.LogLevel.Normal)
+                    alertReset = True
+                    InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Activity.TimeMs", createTime.ToString(), myServer.ServerObjectID)
+                Else
+                    'Created wrongly...do things
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Activity failed to create. It took " & createTime & " ms and produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
+                    alertReset = False
+
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The activity was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
+
+                    If myServer.StatusCode = "OK" Then
+                        myServer.StatusCode = "Issue"
+                        myServer.Status = "Issue"
+                        myServer.ResponseDetails = "The activity was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & "."
+                    End If
+                End If
+
+                If (webResponse.StatusCode = HttpStatusCode.Created) Then
+
+                    Dim actString As String = webResponse.ResponseUri.AbsolutePath
+                    Dim actDS As Stream = webResponse.GetResponseStream()
+                    Dim actReader As StreamReader = New StreamReader(actDS)
+                    Dim resposne As String = actReader.ReadToEnd()
+
+
+                    Dim deleteString As String = webResponse.Headers.Get("Location")
+
+                    httpWR = WebRequest.Create(deleteString)
+                    httpWR.Timeout = 6000000
+                    httpWR.Method = "DELETE"
+                    httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                    httpWR.ContentType = "application/atom+xml"
+                    httpWR.Accept = "*/*"
+                    'httpWR.Headers.Add("Authorization", "Basic d3N0YW51bGlzOldzMTMxNTU3MDIh")
+
+                    httpWR.CookieContainer = cookieContainer
+
+                    Dim webResponse2 As HttpWebResponse
+
+                    Try
+                        webResponse2 = httpWR.GetResponse()
+
+                        If (webResponse2.StatusCode = HttpStatusCode.NoContent) Then
+                            'It deleted...do nothing
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Deleted activity.", LogUtilities.LogUtils.LogLevel.Normal)
+                            'If TestThreshold > createTime Then
+                            '    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The activity was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
+                            'Else
+                            '    myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The activity was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
+                            'End If
+
+                        Else
+                            'It failed to delete...send alert
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Failed to delete activity.", LogUtilities.LogUtils.LogLevel.Normal)
+                            'myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The activity was successfully created in " & createTime & " ms.")
+
+                            If myServer.StatusCode = "OK" Then
+                                'myServer.StatusCode = "Issue"
+                                'myServer.ResponseDetails = "The activity was created but failed to be deleted. It produced a status code of " & webResponse2.StatusCode & " and a description of " & webResponse2.StatusDescription & "."
+                            End If
+                        End If
+
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to delete activity due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                        'myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The activity was successfully created in " & createTime & " ms but failed to delete.")
+
+                        'If TestThreshold > createTime Then
+                        '    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The activity was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
+                        'Else
+                        '    myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The activity was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
+                        'End If
+
+                        If myServer.StatusCode = "OK" Then
+                            'myServer.StatusCode = "Issue"
+                            'myServer.ResponseDetails = "The activity was created but failed to be deleted. It produced a status code of " & webResponse2.StatusCode & " and a description of " & webResponse2.StatusDescription & "."
+                        End If
+                    Finally
+                        If webResponse2 IsNot Nothing Then
+                            webResponse2.Close()
+                        End If
+
+                        If TestThreshold < createTime Then
+                            myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The activity was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
+
+                            If myServer.StatusCode = "OK" Then
+                                myServer.StatusCode = "Issue"
+                                myServer.Status = "Issue"
+                                myServer.ResponseDetails = "The activity was successfully created in " & createTime & " ms but has a threshold of " & TestThreshold & " ms."
+                            End If
+
+                        Else
+                            myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The activity was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
+                        End If
+
+                    End Try
+                End If
+
+                Try
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Removing activity widget.", LogUtilities.LogUtils.LogLevel.Normal)
+                    RemoveWidgetFromComunity(myServer, communityUUID, "Activities")
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error removing activity widget. Error: " And ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                End Try
+
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create activity due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The activity was not created.", myServer.Location)
+
+                If myServer.StatusCode = "OK" Then
+                    myServer.StatusCode = "Issue"
+                    myServer.Status = "Issue"
+                    myServer.ResponseDetails = "The activity was not created."
+                End If
+            Finally
+                If webResponse IsNot Nothing Then
+                    webResponse.Close()
+                End If
+            End Try
+        Catch ex As Exception
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error in TestCreateCommunityActivity. Error: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+        End Try
+    End Sub
+
+    Public Sub TestCreateCommunityBookmarks(ByRef myServer As MonitoredItems.IBMConnect, ByVal communityUUID As String)
+        Try
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateBookmarks", LogUtilities.LogUtils.LogLevel.Normal)
+            Dim AlertType As String = "Create Bookmark"
+            Dim alertReset As Boolean
+
+            Dim URL As String = myServer.IPAddress
+            Dim Username As String = myServer.UserName
+            Dim Password As String = myServer.Password
+            Dim TestThreshold As Int32 = myServer.CreateBookmarkThreshold
+
+            Dim Name As String = "VitalSigns Test BookMark Title"
+            Dim testUrl As String = "http://www.DummyURLForVitalSigns.com"
+            URL = URL & "/communities/service/atom/community/bookmarks?communityUuid=" & communityUUID
+            Dim Body As String = "<entry xmlns=""http://www.w3.org/2005/Atom"" xmlns:app=""http://www.w3.org/2007/app"" xmlns:snx=""http://www.ibm.com/xmlns/prod/sn""><category term = ""bookmark"" scheme=""http://www.ibm.com/xmlns/prod/sn/type""></category><content type=""html""></content><title type=""text"">" & Name & "</title><link href=""" & testUrl & """></link></entry>"
+
+            'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Will first try deleting all undeleted VitalSigns Bookmarks", LogUtilities.LogUtils.LogLevel.Normal)
+            'CleanAllVitalSignBookmarks(myServer)
+
+            Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
+            httpWR.Timeout = 60000
+            httpWR.Method = "POST"
+            httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+            httpWR.ContentType = "application/atom+xml"
+            httpWR.Accept = "*/*"
+            httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
+
+            Dim byteArr As Byte() = System.Text.Encoding.ASCII.GetBytes(Body.ToString())
+            httpWR.ContentLength = byteArr.Length
+            Dim dataStream As Stream = httpWR.GetRequestStream()
+            dataStream.Write(byteArr, 0, byteArr.Length)
+            dataStream.Close()
+            Dim cookieContainer As New CookieContainer()
+            httpWR.CookieContainer = cookieContainer
+
+            Dim webResposne As HttpWebResponse
+
+            Try
+                Dim startTime As DateTime = DateTime.Now
+                webResposne = httpWR.GetResponse()
+                Dim endTime As DateTime = DateTime.Now
+                Dim span As TimeSpan = endTime - startTime
+                Dim createTime As Double = Math.Round(span.TotalMilliseconds, 1)
+
+                If (webResposne.StatusCode = HttpStatusCode.Created) Then
+                    'Created Correctly...do things
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created bookmark in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
+                    alertReset = True
+                    InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Bookmark.TimeMs", createTime.ToString(), myServer.ServerObjectID)
+                Else
+                    'Created wrongly...do things
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Bookmark failed to create. It took " & createTime & " ms and produced a status code of " & webResposne.StatusCode & " and description of " & webResposne.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
+                    alertReset = False
+
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The bookmark was not created. It produced a status code of " & webResposne.StatusCode & " and a description of " & webResposne.StatusDescription & ".", myServer.Location)
+
+                    If myServer.StatusCode = "OK" Then
+                        myServer.StatusCode = "Issue"
+                        myServer.Status = "Issue"
+                        myServer.ResponseDetails = "The bookmark was not created. It produced a status code of " & webResposne.StatusCode & " and a description of " & webResposne.StatusDescription & "."
+                    End If
+                End If
+
+                If (webResposne.StatusCode = HttpStatusCode.Created) Then
+
+                    Dim deleteString As String = webResposne.Headers.Get("Location")
+
+                    httpWR = WebRequest.Create(deleteString)
+                    httpWR.Timeout = 6000000
+                    httpWR.Method = "DELETE"
+                    httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                    httpWR.ContentType = "application/atom+xml"
+                    httpWR.Accept = "*/*"
+                    'httpWR.Headers.Add("Authorization", "Basic d3N0YW51bGlzOldzMTMxNTU3MDIh")
+
+                    httpWR.CookieContainer = cookieContainer
+
+                    Dim webResponse2 As HttpWebResponse
+
+                    Try
+                        webResponse2 = httpWR.GetResponse()
+
+                        If (webResponse2.StatusCode = HttpStatusCode.NoContent) Then
+                            'It deleted...do nothing
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Deleted bookmark.", LogUtilities.LogUtils.LogLevel.Normal)
+                            'If TestThreshold > createTime Then
+                            '    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The activity was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
+                            'Else
+                            '    myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The activity was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
+                            'End If
+                        Else
+                            'It failed to delete...send alert
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Failed to delete bookmark.", LogUtilities.LogUtils.LogLevel.Normal)
+                            'myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The bookmark was successfully created in " & createTime & " ms but failed to delete.")
+
+                            If myServer.StatusCode = "OK" Then
+                                'myServer.StatusCode = "Issue"
+                                'myServer.ResponseDetails = "The bookmark was created but failed to be deleted. It produced a status code of " & webResposne.StatusCode & " and a description of " & webResposne.StatusDescription & "."
+                            End If
+                        End If
+
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to delete bookmark due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                        'myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The bookmark was successfully created in " & createTime & " ms but failed to delete.")
+
+                        If myServer.StatusCode = "OK" Then
+                            'myServer.StatusCode = "Issue"
+                            'myServer.ResponseDetails = "The bookmark was created but failed to be deleted."
+                        End If
+
+                    Finally
+                        If webResponse2 IsNot Nothing Then
+                            webResponse2.Close()
+                        End If
+
+                        If TestThreshold < createTime Then
+                            myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The bookmark was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
+
+                            If myServer.StatusCode = "OK" Then
+                                myServer.StatusCode = "Issue"
+                                myServer.Status = "Issue"
+                                myServer.ResponseDetails = "The bookmark was successfully created in " & createTime & " ms but has a threshold of " & TestThreshold & " ms."
+                            End If
+
+                        Else
+                            myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The bookmark was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
+                        End If
+
+                    End Try
+
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create bookmark due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The bookmark was not created.", myServer.Location)
+
+                If myServer.StatusCode = "OK" Then
+                    myServer.StatusCode = "Issue"
+                    myServer.Status = "Issue"
+                    myServer.ResponseDetails = "The bookmark failed to be created."
+                End If
+
+            Finally
+                If webResposne IsNot Nothing Then
+                    webResposne.Close()
+                End If
+            End Try
+        Catch ex As Exception
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error in TestCreateBookmark. Error: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+        End Try
+
+
+    End Sub
+
+    Public Sub TestCreateCommunityForumsTopic(ByRef myServer As MonitoredItems.IBMConnect, ByRef forumId As String)
+        Try
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateCommunityForumsTopic", LogUtilities.LogUtils.LogLevel.Normal)
+            Dim AlertType As String = "Create Forum"
+            Dim alertReset As Boolean
+
+            Dim URLBase As String = myServer.IPAddress
+            Dim Username As String = myServer.UserName
+            Dim Password As String = myServer.Password
+            Dim TestThreshold As Int32 = myServer.CreateForumsThreshold
+
+            Dim Name As String = "VitalSigns Test Forum"
+            Dim URL As String = URLBase & "/forums/atom/topics?forumUuid=" & forumId
+            Dim Body As String = "<entry xmlns=""http://www.w3.org/2005/Atom""><title type=""text"">" & Name & "</title><content type=""text"">topic test</content><category scheme=""http://www.ibm.com/xmlns/prod/sn/type"" term=""forum-topic""></category></entry>"
+
+            'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Will first try deleting all undeleted VitalSigns Forums", LogUtilities.LogUtils.LogLevel.Normal)
+            'CleanAllVitalSignCommunities(myServer)
+
+            Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
+            httpWR.Timeout = 60000
+            httpWR.Method = "POST"
+            httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+            httpWR.ContentType = "application/atom+xml"
+            httpWR.Accept = "*/*"
+            httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
+
+            Dim byteArr As Byte() = System.Text.Encoding.ASCII.GetBytes(Body.ToString())
+            httpWR.ContentLength = byteArr.Length
+            Dim dataStream As Stream = httpWR.GetRequestStream()
+            dataStream.Write(byteArr, 0, byteArr.Length)
+            dataStream.Close()
+            Dim cookieContainer As New CookieContainer()
+            httpWR.CookieContainer = cookieContainer
+
+            Dim webResponse As HttpWebResponse
+            Try
+                Dim startTime As DateTime = DateTime.Now
+                webResponse = httpWR.GetResponse()
+                Dim endTime As DateTime = DateTime.Now
+                Dim span As TimeSpan = endTime - startTime
+                Dim createTime As Double = Math.Round(span.TotalMilliseconds, 1)
+
+                If (webResponse.StatusCode = HttpStatusCode.Created) Then
+                    'Created Correctly...do nothing
+                    alertReset = True
+
+                Else
+                    'Created wrongly...do things
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " the community forum failed to create. It produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
+                    alertReset = False
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The  forum was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
+
+                    If myServer.StatusCode = "OK" Then
+                        myServer.StatusCode = "Issue"
+                        myServer.Status = "Issue"
+                        myServer.ResponseDetails = "The forum was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & "."
+                    End If
+                End If
+
+                If (webResponse.StatusCode = HttpStatusCode.Created) Then
+
+                    Dim headers As System.Net.WebHeaderCollection
+                    headers = webResponse.Headers
+
+                    Dim LocationsHeader As String = headers.Get("Location")
+                    webResponse.Close()
+
+                    httpWR = WebRequest.Create(LocationsHeader)
+                    httpWR.Timeout = 6000000
+                    httpWR.Method = "DELETE"
+                    httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                    httpWR.ContentType = "application/atom+xml"
+                    httpWR.Accept = "*/*"
+                    httpWR.CookieContainer = cookieContainer
+
+                    Dim httpWebResponse As HttpWebResponse
+
+                    Try
+                        Dim webResponse2 As HttpWebResponse
+
+                        Try
+                            webResponse2 = httpWR.GetResponse()
+
+                            If (webResponse2.StatusCode = HttpStatusCode.NoContent) Then
+                                'It deleted...do nothing
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Deleted community forum.", LogUtilities.LogUtils.LogLevel.Normal)
+                            Else
+                                'It failed to delete...send alert
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Failed to delete community forum.", LogUtilities.LogUtils.LogLevel.Normal)
+                            End If
+
+                        Catch ex As Exception
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to delete community forum due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                        Finally
+                            If webResponse2 IsNot Nothing Then
+                                webResponse2.Close()
+                            End If
+
+                            If TestThreshold < createTime Then
+                                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The forum was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
+
+                                If myServer.StatusCode = "OK" Then
+                                    myServer.StatusCode = "Issue"
+                                    myServer.Status = "Issue"
+                                    myServer.ResponseDetails = "The forum was successfully created in " & createTime & " ms but has a threshold of " & TestThreshold & " ms."
+                                End If
+
+                            Else
+                                myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The forum was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
+                            End If
+
+                        End Try
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create community forum due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                        myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The forum was not created.", myServer.Location)
+
+                        If myServer.StatusCode = "OK" Then
+                            myServer.StatusCode = "Issue"
+                            myServer.Status = "Issue"
+                            myServer.ResponseDetails = "The forum was not created."
+                        End If
+                    Finally
+                        If httpWebResponse IsNot Nothing Then
+                            httpWebResponse.Close()
+                        End If
+                    End Try
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create community forum due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The forum was not created.", myServer.Location)
+
+                If myServer.StatusCode = "OK" Then
+                    myServer.StatusCode = "Issue"
+                    myServer.Status = "Issue"
+                    myServer.ResponseDetails = "The forum was not created."
+                End If
+            Finally
+                If webResponse IsNot Nothing Then
+                    webResponse.Close()
+                End If
+            End Try
+        Catch ex As Exception
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error in TestCreateComunityForumsTopic. Error: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+        End Try
+
+
+    End Sub
+
+    Public Sub TestCreateCommunityBlog(ByRef myServer As MonitoredItems.IBMConnect, ByVal communityUUID As String)
+        Try
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateCommunityBlog", LogUtilities.LogUtils.LogLevel.Normal)
+            Dim AlertType As String = "Create Blog"
+            Dim alertReset As Boolean
+
+            Dim URL As String = myServer.IPAddress
+            Dim Username As String = myServer.UserName
+            Dim Password As String = myServer.Password
+            Dim TestThreshold As Int32 = myServer.CreateBlogThreshold
+
+
+        Try
+                Dim startTime As DateTime = DateTime.Now
+
+
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Adding blog widget.", LogUtilities.LogUtils.LogLevel.Normal)
+                Dim success As Boolean = AddWidgetToComunity(myServer, communityUUID, "Blog")
+                Dim endTime As DateTime = DateTime.Now
+                Dim span As TimeSpan = endTime - startTime
+                Dim createTime As Double = Math.Round(span.TotalMilliseconds, 1)
+
+                If success Then
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created blog in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
+                    alertReset = True
+                    InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Blog.TimeMs", createTime.ToString(), myServer.ServerObjectID)
+                Else
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Blog failed to create. It took " & createTime & " ms to respond.", LogUtilities.LogUtils.LogLevel.Normal)
+                    alertReset = False
+
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The blog was not created.", myServer.Location)
+
+                    If myServer.StatusCode = "OK" Then
+                        myServer.StatusCode = "Issue"
+                        myServer.Status = "Issue"
+                        myServer.ResponseDetails = "The blog was not created."
+                    End If
+                End If
+
+                Try
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Removing blog widget.", LogUtilities.LogUtils.LogLevel.Normal)
+                    RemoveWidgetFromComunity(myServer, communityUUID, "Blog")
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error removing blog widget. Error: " And ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                End Try
+
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create blog due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The blog was not created.", myServer.Location)
+
+                If myServer.StatusCode = "OK" Then
+                    myServer.StatusCode = "Issue"
+                    myServer.Status = "Issue"
+                    myServer.ResponseDetails = "The blog was not created."
+                End If
+            Finally
+
+            End Try
+        Catch ex As Exception
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error in TestCreateBlog. Error: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+        End Try
+
+    End Sub
+
+    Public Sub TestCreateCommunityBlogPost(ByRef myServer As MonitoredItems.IBMConnect, ByVal communityUUID As String)
+        Try
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateCommunityBlogPost", LogUtilities.LogUtils.LogLevel.Normal)
+            Dim AlertType As String = "Create Blog"
+            Dim alertReset As Boolean
+
+            Dim URL As String = myServer.IPAddress
+            Dim Username As String = myServer.UserName
+            Dim Password As String = myServer.Password
+            Dim TestThreshold As Int32 = myServer.CreateBlogThreshold
+
+            Dim Name As String = "VitalSigns Test Blog"
+            URL = URL & "/blogs/" & communityUUID & "/api/entries"
+            Dim Body As String = "<?xml version=""1.0"" encoding=""UTF-8""?><entry xmlns=""http//www.w3.org/2005/Atom"" xmlns:app=""http//www.w3.org/2007/app"" xmlns:snx=""http://www.ibm.com/xmlns/prod/sn""><title type=""text"">" & Name & "</title><summary type=""html"">Test Entry - BLOG</summary><content type=""html"">Test Entry - BLOG </content></entry>"
+
+            'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Will first try deleting all undeleted VitalSigns Blogs", LogUtilities.LogUtils.LogLevel.Normal)
+            'CleanAllVitalSignCommunityBlogPosts(myServer)
+
+            Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
+            httpWR.Timeout = 60000
+            httpWR.Method = "POST"
+            httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+            httpWR.ContentType = "application/atom+xml"
+            httpWR.Accept = "*/*"
+            httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
+
+            Dim byteArr As Byte() = System.Text.Encoding.ASCII.GetBytes(Body.ToString())
+            httpWR.ContentLength = byteArr.Length
+            Dim dataStream As Stream = httpWR.GetRequestStream()
+            dataStream.Write(byteArr, 0, byteArr.Length)
+            dataStream.Close()
+            Dim cookieContainer As New CookieContainer()
+            httpWR.CookieContainer = cookieContainer
+
+            Dim webResponse As HttpWebResponse
+
+
+
+            Try
+                Dim startTime As DateTime = DateTime.Now
+
+                Try
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Adding blog widget.", LogUtilities.LogUtils.LogLevel.Normal)
+                    AddWidgetToComunity(myServer, communityUUID, "Blog")
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error adding blog widget. Error: " And ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                End Try
+
+                webResponse = httpWR.GetResponse()
+                Dim endTime As DateTime = DateTime.Now
+                Dim span As TimeSpan = endTime - startTime
+                Dim createTime As Double = Math.Round(span.TotalMilliseconds, 1)
+
+                If (webResponse.StatusCode = HttpStatusCode.Created) Then
+                    'Created Correctly...do things
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created blog in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
+                    alertReset = True
+                    InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Blog.TimeMs", createTime.ToString(), myServer.ServerObjectID)
+                Else
+                    'Created wrongly...do things
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Blog failed to create. It took " & createTime & " ms and produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
+                    alertReset = False
+
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The blog was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
+
+                        If myServer.StatusCode = "OK" Then
+                            myServer.StatusCode = "Issue"
+                            myServer.Status = "Issue"
+                        myServer.ResponseDetails = "The blog was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & "."
+                        End If
+                    End If
+
+                Try
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Removing blog widget.", LogUtilities.LogUtils.LogLevel.Normal)
+                    RemoveWidgetFromComunity(myServer, communityUUID, "Blog")
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error removing blog widget. Error: " And ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                End Try
+
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create blog due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The blog was not created.", myServer.Location)
+
+                If myServer.StatusCode = "OK" Then
+                    myServer.StatusCode = "Issue"
+                    myServer.Status = "Issue"
+                    myServer.ResponseDetails = "The blog was not created."
+                End If
+            Finally
+                If webResponse IsNot Nothing Then
+                    webResponse.Close()
+                End If
+            End Try
+        Catch ex As Exception
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error in TestCreateBlog. Error: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+        End Try
+
+    End Sub
+
+    Public Sub TestCreateCommunityFiles(ByRef myServer As MonitoredItems.IBMConnect, ByVal communityUUID As String)
+        Try
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateCommunityFiles", LogUtilities.LogUtils.LogLevel.Normal)
+            Dim AlertType As String = "Create File"
+            Dim alertReset As Boolean
+
+            Dim URL As String = myServer.IPAddress
+            Dim Username As String = myServer.UserName
+            Dim Password As String = myServer.Password
+            Dim TestThreshold As Int32 = myServer.CreateFilesThreshold
+
+            Dim Name As String = "VitalSignsTestFiles.txt"
+            Dim GetURL As String = URL & "/files/basic/api/nonce"
+            URL = URL & "/files/basic/api/communitylibrary/" & communityUUID & "/feed"
+
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Will first try deleting all undeleted VitalSigns Files", LogUtilities.LogUtils.LogLevel.Normal)
+            CleanAllVitalSignFiles(myServer)
+
+            Dim httpWR As HttpWebRequest = WebRequest.Create(GetURL)
+            httpWR.Timeout = 60000
+            httpWR.Method = "Get"
+            httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+            httpWR.ContentType = "application/atom+xml"
+            httpWR.Accept = "*/*"
+            httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
+
+            Dim cookieContainer As New CookieContainer()
+            httpWR.CookieContainer = cookieContainer
+
+            Dim webResponse As HttpWebResponse
+            Dim response As String = ""
+
+            Try
+                webResponse = httpWR.GetResponse()
+                Dim ds As Stream = webResponse.GetResponseStream()
+                Dim reader As StreamReader = New StreamReader(ds)
+                response = reader.ReadToEnd()
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Exception getting Nonce. " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+            Finally
+                If webResponse IsNot Nothing Then
+                    webResponse.Close()
+                End If
+            End Try
+
+            httpWR = WebRequest.Create(URL)
+            httpWR.Timeout = 6000000
+            httpWR.Method = "POST"
+            httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+            httpWR.ContentType = "text/plain"
+            httpWR.Accept = "*/*"
+            httpWR.CookieContainer = cookieContainer
+            httpWR.Headers.Add("X-Update-Nonce", response)
+            httpWR.Headers.Add("SLUG", Name)
+
+            Try
+                Dim startTime As DateTime = DateTime.Now
+                webResponse = httpWR.GetResponse()
+                Dim endTime As DateTime = DateTime.Now
+                Dim span As TimeSpan = endTime - startTime
+                Dim createTime As Double = Math.Round(span.TotalMilliseconds, 1)
+
+                If (webResponse.StatusCode = HttpStatusCode.Created) Then
+                    'Created Correctly...do things
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created file in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
+                    alertReset = True
+                    InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.File.TimeMs", createTime.ToString(), myServer.ServerObjectID)
+                Else
+                    'Created wrongly...do things
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " File failed to create. It took " & createTime & " ms and produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
+                    alertReset = False
+
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The file was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
+                    If myServer.StatusCode = "OK" Then
+                        myServer.StatusCode = "Issue"
+                        myServer.Status = "Issue"
+                        myServer.ResponseDetails = "The file was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & "."
+                    End If
+                End If
+
+                If (webResponse.StatusCode = HttpStatusCode.Created) Then
+
+                    Dim headers As System.Net.WebHeaderCollection
+                    headers = webResponse.Headers
+
+
+                    Dim deleteString As String = headers.Get("Location")
+
+
+                    Dim reg As New Text.RegularExpressions.Regex("(?<=\/document\/)[a-zA-Z0-9-]*(?=\/)")
+                    Dim docId = reg.Match(deleteString).Value.ToString()
+
+                    httpWR = WebRequest.Create(deleteString)
+                    httpWR.Timeout = 6000000
+                    httpWR.Method = "DELETE"
+                    httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                    httpWR.ContentType = "application/atom+xml"
+                    httpWR.Accept = "*/*"
+                    'httpWR.Headers.Add("Authorization", "Basic d3N0YW51bGlzOldzMTMxNTU3MDIh")
+
+                    httpWR.CookieContainer = cookieContainer
+                    Dim webResponse2 As HttpWebResponse
+
+                    Try
+                        webResponse2 = httpWR.GetResponse()
+
+                        If (webResponse2.StatusCode = HttpStatusCode.NoContent) Then
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "TestCreateFiles purge url:" & deleteString.Replace("/document/", "/view/recyclebin/"), LogUtilities.LogUtils.LogLevel.Verbose)
+                            httpWR = WebRequest.Create(deleteString.Replace("/document/", "/view/recyclebin/"))
+                            httpWR.Timeout = 6000000
+                            httpWR.Method = "DELETE"
+                            httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                            httpWR.ContentType = "application/atom+xml"
+                            httpWR.Accept = "*/*"
+                            'httpWR.Headers.Add("Authorization", "Basic d3N0YW51bGlzOldzMTMxNTU3MDIh")
+
+                            httpWR.CookieContainer = cookieContainer
+                            Dim webResponse3 As HttpWebResponse
+                            Try
+                                webResponse3 = httpWR.GetResponse()
+                            Catch ex As Exception
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to purge file due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                            Finally
+                                If webResponse3 IsNot Nothing Then
+                                    webResponse3.Close()
+                                End If
+
+                            End Try
+
+
+                            'It deleted...do nothing
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Purged file.", LogUtilities.LogUtils.LogLevel.Normal)
+
+                        Else
+                            'It failed to delete...send alert
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Failed to purge file.", LogUtilities.LogUtils.LogLevel.Normal)
+                            End If
+
+                    Catch ex As Exception
+
+                    Finally
+                        If webResponse2 IsNot Nothing Then
+                            webResponse2.Close()
+                        End If
+
+                        If TestThreshold < createTime Then
+                            myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The file was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
+
+                            If myServer.StatusCode = "OK" Then
+                                myServer.StatusCode = "Issue"
+                                myServer.Status = "Issue"
+                                myServer.ResponseDetails = "The file was successfully created in " & createTime & " ms but has a threshold of " & TestThreshold & " ms."
+                            End If
+
+                        Else
+                            myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The file was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
+                        End If
+
+                    End Try
+
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create file due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The file was not created.", myServer.Location)
+
+                If myServer.StatusCode = "OK" Then
+                    myServer.StatusCode = "Issue"
+                    myServer.Status = "Issue"
+                    myServer.ResponseDetails = "The file was not created."
+                End If
+            Finally
+                If webResponse IsNot Nothing Then
+                    webResponse.Close()
+                End If
+            End Try
+        Catch ex As Exception
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error in TestCreateCommunityFiles. Error: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+        End Try
+
+    End Sub
+
+    Public Sub TestCreateCommunityWiki(ByRef myServer As MonitoredItems.IBMConnect, ByVal communityUUID As String)
+        Try
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateCommunityWiki", LogUtilities.LogUtils.LogLevel.Normal)
+            Dim AlertType As String = "Create Wiki"
+            Dim alertReset As Boolean
+            Dim TestThreshold As String = myServer.CreateWikisThreshold
+
+            Dim URL As String = myServer.IPAddress
+            Dim Username As String = myServer.UserName
+            Dim Password As String = myServer.Password
+
+            Try
+                Dim startTime As DateTime = DateTime.Now
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Adding Wiki widget.", LogUtilities.LogUtils.LogLevel.Normal)
+                Dim success As Boolean = AddWidgetToComunity(myServer, communityUUID, "Wiki")
+                Dim endTime As DateTime = DateTime.Now
+                Dim span As TimeSpan = endTime - startTime
+                Dim createTime As Double = Math.Round(span.TotalMilliseconds, 1)
+
+                If success Then
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created wiki in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
+                    alertReset = True
+                    InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Wiki.TimeMs", createTime.ToString(), myServer.ServerObjectID)
+                Else
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Wiki failed to create. It took " & createTime & " ms to respond.", LogUtilities.LogUtils.LogLevel.Normal)
+                    alertReset = False
+
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The wiki was not created.", myServer.Location)
+
+                    If myServer.StatusCode = "OK" Then
+                        myServer.StatusCode = "Issue"
+                        myServer.Status = "Issue"
+                        myServer.ResponseDetails = "The wiki was not created."
+                    End If
+                End If
+
+                Try
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Removing wiki widget.", LogUtilities.LogUtils.LogLevel.Normal)
+                    RemoveWidgetFromComunity(myServer, communityUUID, "Wiki")
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error removing wiki widget. Error: " And ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                End Try
+
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create wiki due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The wiki was not created.", myServer.Location)
+
+                If myServer.StatusCode = "OK" Then
+                    myServer.StatusCode = "Issue"
+                    myServer.Status = "Issue"
+                    myServer.ResponseDetails = "The wiki was not created."
+                End If
+            Finally
+
+            End Try
+        Catch ex As Exception
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error in TestCreateCommunityWiki. Error: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+        End Try
+
+
+    End Sub
+
+
+    Public Function AddWidgetToComunity(ByRef myServer As MonitoredItems.IBMConnect, ByVal communityUUID As String, ByVal widgetDefId As String) As Boolean
+        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In AddWidgetToComunity", LogUtilities.LogUtils.LogLevel.Normal)
+
+        Dim URL As String = myServer.IPAddress
+        Dim Username As String = myServer.UserName
+        Dim Password As String = myServer.Password
+
+        URL = URL & "/communities/service/atom/community/widgets?communityUuid=" & communityUUID & "&widgetDefId=" & widgetDefId
+        Dim Body As String = "<?xml version=""1.0"" encoding=""UTF-8""?><entry xmlns:snx=""http://www.ibm.com/xmlns/prod/sn"" xmlns=""http://www.w3.org/2005/Atom""><title type=""text"">" & widgetDefId & "</title><category term=""widget"" scheme=""http://www.ibm.com/xmlns/prod/sn/type""></category><snx:widgetDefId>" & widgetDefId & "</snx:widgetDefId><snx:widgetCategory></snx:widgetCategory><snx:hidden>false</snx:hidden></entry>"
+        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In AddWidgetToComunity. URL: " & URL, LogUtilities.LogUtils.LogLevel.Verbose)
+        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In AddWidgetToComunity. Body: " & Body, LogUtilities.LogUtils.LogLevel.Verbose)
+        Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
+        httpWR.Timeout = 60000
+        httpWR.Method = "POST"
+        httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+        httpWR.ContentType = "application/atom+xml"
+        httpWR.Accept = "*/*"
+        httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
+
+        Dim byteArr As Byte() = System.Text.Encoding.ASCII.GetBytes(Body.ToString())
+        httpWR.ContentLength = byteArr.Length
+        Dim dataStream As Stream = httpWR.GetRequestStream()
+        dataStream.Write(byteArr, 0, byteArr.Length)
+        dataStream.Close()
+        Dim cookieContainer As New CookieContainer()
+        httpWR.CookieContainer = cookieContainer
+
+        Dim webResponse As HttpWebResponse
+
+        Try
+            Dim startTime As DateTime = DateTime.Now
+            webResponse = httpWR.GetResponse()
+            Dim endTime As DateTime = DateTime.Now
+            Dim span As TimeSpan = endTime - startTime
+            Dim createTime As Double = Math.Round(span.TotalMilliseconds, 1)
+
+            If (webResponse.StatusCode = HttpStatusCode.Created) Then
+                'Created Correctly...do things
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Widget was added in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
+                Return True
+            Else
+                'Created wrongly...do things
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Widget failed to be added. It took " & createTime & " ms and produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
+                Return False
+            End If
+        Catch ex As Exception
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Widget failed to be added due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+            Return False
+        Finally
+                If webResponse IsNot Nothing Then
+                    webResponse.Close()
+                End If
+            End Try
+    End Function
+
+    Public Sub RemoveWidgetFromComunity(ByRef myServer As MonitoredItems.IBMConnect, ByVal communityUUID As String, ByVal widgetDefId As String)
+        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In RemoveWidgetFromComunity", LogUtilities.LogUtils.LogLevel.Normal)
+
+        Dim URL As String = myServer.IPAddress
+        Dim Username As String = myServer.UserName
+        Dim Password As String = myServer.Password
+
+        URL = URL + "/communities/service/atom/community/widgets?communityUuid=" & communityUUID & "&widgetDefId=" & widgetDefId
+
+        Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
+        httpWR.Timeout = 60000
+        httpWR.Method = "GET"
+        httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+        httpWR.ContentType = "application/atom+xml"
+        httpWR.Accept = "*/*"
+        httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
+
+        Dim cookieContainer As New CookieContainer()
+        httpWR.CookieContainer = cookieContainer
+
+        Dim webResponse As HttpWebResponse
+
+        Try
+            Dim startTime As DateTime = DateTime.Now
+            webResponse = httpWR.GetResponse()
+            Dim endTime As DateTime = DateTime.Now
+            Dim span As TimeSpan = endTime - startTime
+            Dim createTime As Double = Math.Round(span.TotalMilliseconds, 1)
+
+            If (webResponse.StatusCode = HttpStatusCode.OK) Then
+                'Created Correctly...do things
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Widget was found.", LogUtilities.LogUtils.LogLevel.Normal)
+
+                Dim actString As String = webResponse.ResponseUri.AbsolutePath
+                Dim actDS As Stream = webResponse.GetResponseStream()
+                Dim actReader As StreamReader = New StreamReader(actDS)
+                Dim resposne As String = actReader.ReadToEnd()
+
+                Dim xmlDoc As New Xml.XmlDocument()
+                xmlDoc.LoadXml(resposne)
+
+                Dim deleteString As String = ""
+
+
+
+                For Each xmlElement As Xml.XmlElement In xmlDoc.Item("feed").Item("entry")
+                    If xmlElement.Name = "link" Then
+                        If xmlElement.Attributes("rel").Value.ToString().Equals("self") Then
+                            deleteString = xmlElement.Attributes("href").Value.ToString()
+                            Exit For
+                        End If
+                    End If
+                Next
+
+                If deleteString <> "" Then
+
+                    httpWR = WebRequest.Create(deleteString)
+                    httpWR.Timeout = 60000
+                    httpWR.Method = "DELETE"
+                    httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                    httpWR.ContentType = "application/atom+xml"
+                    httpWR.Accept = "*/*"
+                    httpWR.Headers.Add("Authorization", "Basic " & GetEncodedUsernamePassword(Username, Password))
+                    httpWR.CookieContainer = cookieContainer
+
+                    Dim webResponse2 As HttpWebResponse
+
+                    Try
+                        webResponse2 = httpWR.GetResponse()
+
+                        If (webResponse2.StatusCode = HttpStatusCode.OK) Then
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Widget was removed.", LogUtilities.LogUtils.LogLevel.Normal)
+                        Else
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Widget was NOT removed. Status code of " + webResponse2.StatusCode, LogUtilities.LogUtils.LogLevel.Normal)
+                        End If
+        Catch ex As Exception
+
+        End Try
+                End If
+            Else
+                'Created wrongly...do things
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Widget failed to be added. It took " & createTime & " ms and produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
+            End If
+        Catch ex As Exception
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Widget failed to be added due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+
+        Finally
+            If webResponse IsNot Nothing Then
+                webResponse.Close()
+            End If
+        End Try
+    End Sub
+
+
+
+
+
+
+
+
+
 
     Public Sub CleanAllVitalSignActivities(ByRef myServer As MonitoredItems.IBMConnect)
 
@@ -5428,10 +6762,32 @@ CleanUp:
 
                                                 Try
                                                     webResponse2 = httpWR2.GetResponse()
-                                                    If webResponse2.StatusCode <> HttpStatusCode.OK Then
-                                                        'not deleted
-                                                    Else
+                                                    If webResponse2.StatusCode = HttpStatusCode.OK Then
+                                                        'deleted
+                                                        'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " deleted community in CleanAllCommunitites." & deleteURL, LogUtilities.LogUtils.LogLevel.Normal)
                                                         deleteThisLoop = True
+                                                        Try
+                                                            httpWR = WebRequest.Create(deleteURL)
+                                                            httpWR.Timeout = 60000
+                                                            httpWR.Method = "DELETE"
+                                                            httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                                                            httpWR.ContentType = "application/atom+xml"
+                                                            httpWR.Accept = "*/*"
+                                                            'httpWR.Headers.Add("Authorization", "Basic d3N0YW51bGlzOldzMTMxNTU3MDIh")
+
+                                                            httpWR.CookieContainer = cookieContainer
+
+                                                            webResponse2 = httpWR.GetResponse()
+                                                            If (webResponse2.StatusCode = HttpStatusCode.OK) Then
+                                                                'It deleted...do nothing
+                                                                'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " purgerd community in CleanAllCommunitites.", LogUtilities.LogUtils.LogLevel.Normal)
+                                                    Else
+                                                                'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " failed to purge community in CleanAllCommunitites.", LogUtilities.LogUtils.LogLevel.Normal)
+                                                    End If
+
+                                                Catch ex As Exception
+                                                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " exception tryign to purge the community in CleanAllCommunitites. Error : " & ex.Message(), LogUtilities.LogUtils.LogLevel.Normal)
+                                                        End Try
                                                     End If
 
                                                 Catch ex As Exception
@@ -6166,9 +7522,7 @@ CleanUp:
         'Wikis https://connections-as.jnittech.com:9444/wikis/home/statistics
 
         Try
-
             Randomize()
-
             'ClearConnectionObjectTables(myServer)
 
             'This should be first
@@ -6185,10 +7539,11 @@ CleanUp:
             GetLibraryStats(myServer)
 
             'This should be last
+            'GetHomepageStats(myServer)
             ConsolidateConnectionObjects(myServer)
 
         Catch ex As Exception
-
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error in GetConnetionsStats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
         End Try
 
     End Sub
@@ -6211,13 +7566,12 @@ CleanUp:
             repo.Delete(filterdef)
 
         Catch ex As Exception
-            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error cleaning old conenctions data for type : " & type & ". Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error in ClearConnectionObjectTables. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
         End Try
     End Sub
 
     Public Sub GetActivityStats(ByRef myServer As MonitoredItems.IBMConnect)
-
-
+        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityStats.", LogUtilities.LogUtils.LogLevel.Verbose)
         Dim sql As String = "SELECT COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END), 0) LOGINS_LAST_MONTH,COALESCE( SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) LOGINS_LAST_WEEK, COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) LOGINS_LAST_DAY FROM ACTIVITIES.OA_MEMBERPROFILE;" &
          "SELECT COUNT(*) NUM_OF_ACTIVITIES FROM ACTIVITIES.OA_NODE WHERE ISDELETED = 0 AND NODETYPE = 'application/activity';" &
          "SELECT COUNT(distinct ACTIVITIES.OA_NODEMEMBER.MEMBERID) NUM_OF_USERS_FOLLOWING_ACTIVITY FROM ACTIVITIES.OA_NODEMEMBER INNER JOIN ACTIVITIES.OA_MEMBERPROFILE ON ACTIVITIES.OA_NODEMEMBER.MEMBERID = ACTIVITIES.OA_MEMBERPROFILE.MEMBERID;" &
@@ -6229,21 +7583,17 @@ CleanUp:
          "SELECT nm.NODEUUID, mp.EXID FROM ACTIVITIES.OA_NODEMEMBER nm INNER JOIN ACTIVITIES.OA_MEMBERPROFILE mp ON mp.MEMBERID = nm.MEMBERID;" &
          "select mp.exid, node.nodeuuid from (select exid, memberid from activities.oa_memberprofile where exid in ('" & String.Join("','", dictOfCommunityIds.Keys) & "')) mp inner join activities.oa_memberprofile mp2 on mp2.exid =  mp.memberid || '+owner' inner join activities.OA_ACLENTRY al on mp2.memberid = al.memberid inner join activities.oa_node node on node.nodeuuid = al.objectuuid and node.isdeleted = 0;"
 
-
         Dim Category As String = "Activity"
 
         Try
             Dim con As IBM.Data.DB2.DB2Connection
             Dim ds As New DataSet
             Try
-
                 con = New IBM.Data.DB2.DB2Connection("Database=OPNACT;UserID=" & myServer.DBUserName & ";Password=" & myServer.DBPassword & ";Server=" & myServer.DBHostName & ":" & myServer.DBPort & ";Connect Timeout=60;")
                 con.Open()
-
                 Dim cmd As New IBM.Data.DB2.DB2Command(sql, con)
                 Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
                 adapter.Fill(ds)
-
 
 
             Catch ex As Exception
@@ -6257,6 +7607,14 @@ CleanUp:
 
                 End Try
 
+            End Try
+
+            Try
+                If MyLogLevel = LogLevel.Verbose Then
+                    DataSetToLog(myServer, ds)
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error printing Atiity Stats data log. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
             End Try
 
             'sql = "INSERT INTO IbmConnectionsActivityStats (ServerId, StatName, StatValue, Category, DateTime) VALUES "
@@ -6306,8 +7664,19 @@ CleanUp:
                         addSummaryStats(myServer, Name.ToUpper(), Val)
                     Next
 
-                    Dim dt As DataTable = ds.Tables(6)
 
+                Dim adapter As New VSAdaptor()
+                Try
+                    adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error inserting Activity Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                End Try
+
+
+
+
+                'Handling for other tables
+                    Dim dt As DataTable = ds.Tables(6)
 
                     Dim myServerName As String = myServer.Name
                     Dim myServerId As String = myServer.ServerObjectID
@@ -6390,6 +7759,7 @@ CleanUp:
     End Sub
 
     Public Sub GetBlogStats(ByRef myServer As MonitoredItems.IBMConnect)
+        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetBlogStats.", LogUtilities.LogUtils.LogLevel.Verbose)
 
         Dim sql As String = "select count(*) Num_Of_Published_Blogs from BLOGS.WEBSITE;" &
          "select count(distinct WEBSITEID) Num_Of_Blogs_More_Than_One_Author from (select USERID, WEBSITEID FROM BLOGS.WEBLOGENTRY GROUP BY WEBSITEID,USERID) group by WEBSITEID having count(*) > 1;" &
@@ -6421,10 +7791,8 @@ CleanUp:
             Dim con As IBM.Data.DB2.DB2Connection
             Dim ds As New DataSet
             Try
-
                 con = New IBM.Data.DB2.DB2Connection("Database=BLOGS;UserID=" & myServer.DBUserName & ";Password=" & myServer.DBPassword & ";Server=" & myServer.DBHostName & ":" & myServer.DBPort & ";Connect Timeout=60;")
                 con.Open()
-
                 Dim cmd As New IBM.Data.DB2.DB2Command(sql, con)
                 Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
                 adapter.Fill(ds)
@@ -6441,6 +7809,14 @@ CleanUp:
 
                 End Try
 
+            End Try
+
+            Try
+                If MyLogLevel = LogLevel.Verbose Then
+                    DataSetToLog(myServer, ds)
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error printing Bog Stats data log. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
             End Try
 
             Dim dict As New Dictionary(Of String, String)
@@ -6651,14 +8027,14 @@ CleanUp:
     End Sub
 
     Public Sub GetCommunityStats(ByRef myServer As MonitoredItems.IBMConnect)
-
+        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetCommunityStats.", LogUtilities.LogUtils.LogLevel.Verbose)
         Dim sql As String = "SELECT COMMUNITY_TYPE, COUNT(*) Num_Of_Communities FROM SNCOMM.COMMUNITY WHERE DELETE_STATE = 0 GROUP BY COMMUNITY_TYPE;" &
          "SELECT COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) COMMUNITY_LOGIN_LAST_MONTH, COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) COMMUNITY_LOGIN_LAST_WEEK, COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) COMMUNITY_LOGIN_LAST_DAY FROM SNCOMM.MEMBERPROFILE WHERE LASTLOGIN > CURRENT_TIMESTAMP - 1 MONTH;" &
          "SELECT COUNT(*) NUM_OF_COMMUNITIES_MADE_IN_LAST_MONTH FROM SNCOMM.COMMUNITY WHERE CREATED > CURRENT_TIMESTAMP - 1 MONTH AND DELETE_STATE = 0;" &
          "SELECT COUNT(*) TAG_COUNT, COUNT(DISTINCT NAME) DISTINCT_TAG_COUNT FROM SNCOMM.TAG;" &
          "SELECT COUNT(*) TOP_TAG_COUNT, NAME FROM SNCOMM.TAG GROUP BY NAME ORDER BY TOP_TAG_COUNT DESC FETCH FIRST 20 ROWS ONLY;" &
          "SELECT COUNT(*) NUM_OF_COMMUNITIES_CREATED_YESTERDAY FROM SNCOMM.COMMUNITY WHERE DATE(CREATED) = CURRENT_DATE - 1 DAY AND DELETE_STATE = 0;" &
-         "SELECT c.COMMUNITY_UUID, c.NAME, 'Community' as Type, c.CREATED, c.LASTMOD, c.TAGS_LIST, mp.DIRECTORY_UUID, c.COMMUNITY_TYPE, c.PLAIN_DESCR, c.COMMUNITY_TYPE, t.OWNER_COUNT, t.MEMBER_COUNT, f.FOLLOWING_COUNT FROM SNCOMM.COMMUNITY c INNER JOIN SNCOMM.MEMBERPROFILE mp ON mp.MEMBER_UUID = c.CREATED_BY INNER JOIN (SELECT COMMUNITY_UUID, COALESCE(SUM(CASE WHEN ROLE = 1 THEN 1 ELSE 0 END),0) OWNER_COUNT, COALESCE(SUM(CASE WHEN ROLE = 0 THEN 1 ELSE 0 END),0) MEMBER_COUNT FROM SNCOMM.MEMBER m GROUP BY COMMUNITY_UUID) as t on t.COMMUNITY_UUID = c.COMMUNITY_UUID INNER JOIN (SELECT COMMUNITY_UUID, COALESCE(COUNT(*),0) FOLLOWING_COUNT FROM SNCOMM.Following GROUP BY COMMUNITY_UUID) as f on f.COMMUNITY_UUID = c.COMMUNITY_UUID WHERE c.DELETE_STATE = 0;" &
+         "select c.COMMUNITY_UUID, c.NAME, 'Community' as Type, c.CREATED, c.LASTMOD, c.TAGS_LIST, mp.DIRECTORY_UUID, c.COMMUNITY_TYPE FROM SNCOMM.COMMUNITY c INNER JOIN SNCOMM.MEMBERPROFILE mp ON mp.MEMBER_UUID = c.CREATED_BY WHERE c.DELETE_STATE = 0;" &
          "Select mp.Display, mp.DIRECTORY_UUID, c.Name, (CASE WHEN m.Role = 1 THEN 'Owner' ELSE 'Member' END) MemberType from sncomm.community c inner join sncomm.member m on c.community_uuid = m.community_uuid and c.delete_state = 0 inner join sncomm.memberprofile mp on mp.member_uuid = m.member_uuid;" &
          "SELECT r.REF_UUID, r.COMMUNITY_UUID, r.NAME, 'Bookmark' as Type,  r.CREATED, r.LASTMOD, mp.DIRECTORY_UUID FROM SNCOMM.REF r INNER JOIN SNCOMM.MEMBERPROFILE mp ON mp.MEMBER_UUID = r.CREATED_BY;"
 
@@ -6695,7 +8071,15 @@ CleanUp:
 
             End Try
 
-            'sql = "INSERT INTO TABLENAME (ServerId, StatName, StatValue, Category, DateTime) VALUES "
+            Try
+                If MyLogLevel = LogLevel.Verbose Then
+                    DataSetToLog(myServer, ds)
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error printing Community Stats data log. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            End Try
+
+            sql = "INSERT INTO TABLENAME (ServerId, StatName, StatValue, Category, DateTime) VALUES "
 
             Dim tupleList As New List(Of Tuple(Of String, String, String))()
             Try
@@ -6945,6 +8329,14 @@ CleanUp:
 
             End Try
 
+            Try
+                If MyLogLevel = LogLevel.Verbose Then
+                    DataSetToLog(myServer, ds)
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error printing File Stats data log. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            End Try
+
 
             Dim dict As New Dictionary(Of String, String)
             Try
@@ -7073,6 +8465,14 @@ CleanUp:
 
                 End Try
 
+            End Try
+
+            Try
+                If MyLogLevel = LogLevel.Verbose Then
+                    DataSetToLog(myServer, ds)
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error printing Bookmark Stats data log. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
             End Try
 
 
@@ -7209,8 +8609,16 @@ CleanUp:
 
             End Try
 
+            Try
+                If MyLogLevel = LogLevel.Verbose Then
+                    DataSetToLog(myServer, ds)
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error printing Forum Stats data log. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            End Try
 
-            Dim dict As New Dictionary(Of String, String)()
+
+            Dim dict As New Dictionary(Of String, String)
             Try
                 If (ds.Tables.Count = 0) Then
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Could not get " & Category & " stats.", LogUtilities.LogUtils.LogLevel.Normal)
@@ -7439,9 +8847,9 @@ CleanUp:
             "SELECT COUNT(*) NUM_OF_WIKIS_PAGES_CREATED_YESTERDAY FROM WIKIS.MEDIA WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY;" &
             "SELECT COUNT(*) NUM_OF_WIKIS_REVISIONS FROM WIKIS.MEDIA_REVISION;" &
             "SELECT COUNT(*) NUM_OF_WIKIS_REVISIONS_EDITED_YESTERDAY FROM WIKIS.MEDIA_REVISION WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY;" &
-            "SELECT HEX(wiki.ID) as ID, wiki.LABEL, 'Wiki' as Type, wiki.CREATE_DATE, wiki.LAST_UPDATE, user.DIRECTORY_ID, wiki.EXTERNAL_CONTAINER_ID, notifications.COUNT FOLLOWERS FROM WIKIS.LIBRARY wiki INNER JOIN WIKIS.USER user ON wiki.OWNER_USER_ID = user.ID INNER JOIN (SELECT HEX(LIBRARY_ID) LIBRARY_ID, COUNT(*) COUNT FROM WIKIS.LIBRARY_NOTIFICATION GROUP BY HEX(LIBRARY_ID)) notifications ON notifications.LIBRARY_ID = HEX(wiki.ID);" &
+            "SELECT HEX(wiki.ID) as ID, wiki.LABEL, 'Wiki' as Type, wiki.CREATE_DATE, wiki.LAST_UPDATE, user.DIRECTORY_ID, wiki.EXTERNAL_CONTAINER_ID FROM WIKIS.LIBRARY wiki INNER JOIN WIKIS.USER user ON wiki.OWNER_USER_ID = user.ID;" &
             "SELECT HEX(lib.LIBRARY_ID) as LIBRARY_ID, tag.TAG FROM WIKIS.LIBRARY_TO_TAG lib INNER JOIN WIKIS.TAG tag ON tag.ID = lib.TAG_ID;" &
-            "SELECT HEX(media.ID) as ID, media.LABEL, 'Wiki Entry' as TYPE, media.CREATE_DATE, media.LAST_UPDATE, user.DIRECTORY_ID, HEX(media.LIBRARY_ID) as LIBRARY_ID, notifications.COUNT FOLLOWERS FROM WIKIS.MEDIA media INNER JOIN WIKIS.USER user ON user.ID = media.OWNER_USER_ID LEFT OUTER JOIN (SELECT HEX(MEDIA_ID) MEDIA_ID, COUNT(*) COUNT FROM WIKIS.MEDIA_NOTIFICATION GROUP BY HEX(MEDIA_ID)) notifications ON notifications.MEDIA_ID = HEX(media.ID);"
+            "SELECT HEX(media.ID) as ID, media.LABEL, 'Wiki Entry' as TYPE, media.CREATE_DATE, media.LAST_UPDATE, user.DIRECTORY_ID, HEX(media.LIBRARY_ID) as LIBRARY_ID FROM WIKIS.MEDIA media INNER JOIN WIKIS.USER user ON user.ID = media.OWNER_USER_ID;"
 
 
         Dim Category As String = "WIKIS"
@@ -7471,6 +8879,14 @@ CleanUp:
 
                 End Try
 
+            End Try
+
+            Try
+                If MyLogLevel = LogLevel.Verbose Then
+                    DataSetToLog(myServer, ds)
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error printing Wiki Stats data log. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
             End Try
 
 
@@ -7651,6 +9067,13 @@ CleanUp:
 
             End Try
 
+            Try
+                If MyLogLevel = LogLevel.Verbose Then
+                    DataSetToLog(myServer, ds)
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error printing Profile Stats data log. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            End Try
 
             Dim dict As New Dictionary(Of String, String)
             Try
@@ -7786,6 +9209,14 @@ CleanUp:
 
                 End Try
 
+            End Try
+
+            Try
+                If MyLogLevel = LogLevel.Verbose Then
+                    DataSetToLog(myServer, ds)
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error printing Homepage Stats data log. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
             End Try
 
 
@@ -7983,11 +9414,23 @@ CleanUp:
     Public Sub GetHomepageStats(ByRef myServer As MonitoredItems.IBMConnect)
 
         Dim sqlDs As New DataSet()
-        Dim sql As String = ""
         Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
         Dim filterdef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Where(Function(i) i.Type.Equals("Community"))
         Dim projectDef As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Project.Include(Function(i) i.GUID)
         Dim IbmConnectionsObjectsList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Find(filterdef, projectDef).ToList()
+
+        Dim sql As String = "SELECT COUNT(*) LIBRARIES_TOTAL_NUM_OF_FILES, COALESCE(SUM(CASE WHEN CONTENT_SIZE >= 1024 AND CONTENT_SIZE < 1024*1024 THEN 1 ELSE 0 END),0) LIBRARIES_FILES_OVER_KB, COALESCE(SUM(CASE WHEN CONTENT_SIZE >= 1024*1024 AND CONTENT_SIZE < 1024*1024*1024 THEN 1 ELSE 0 END),0) LIBRARIES_FILES_OVER_MB, COALESCE(SUM(CASE WHEN CONTENT_SIZE >= 1024*1024*1024 THEN 1 ELSE 0 END),0) LIBRARIES_FILES_OVER_GB FROM DOCVERSION WHERE RECOVERY_ITEM_ID IS NULL AND IS_CURRENT = 1;" &
+            "SELECT COUNT(*) LIBRARIES_NUM_OF_FILES_IN_TRASH FROM RECOVERYITEM;" &
+            "SELECT COALESCE(SUM(CASE WHEN MODIFY_DATE > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) LIBRARIES_NUM_OF_FILES_UPDATED_LAST_MONTH, COALESCE(SUM(CASE WHEN MODIFY_DATE > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) LIBRARIES_NUM_OF_FILES_UPDATED_LAST_WEEK, COALESCE(SUM(CASE WHEN MODIFY_DATE > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) LIBRARIES_NUM_OF_FILES_UPDATED_LAST_DAY FROM DOCVERSION WHERE MODIFY_DATE > CURRENT_TIMESTAMP - 1 MONTH AND RECOVERY_ITEM_ID IS NULL AND IS_CURRENT = 1;" &
+            "SELECT COUNT(DISTINCT VERSION_SERIES_ID) LIBRARIES_NUM_OF_FILES_WITH_A_REVISION FROM DOCVERSION WHERE RECOVERY_ITEM_ID IS NULL GROUP BY VERSION_SERIES_ID HAVING COUNT(VERSION_SERIES_ID) > 1;" &
+            "SELECT COUNT(*) LIBRARIES_TOTAL_NUM_OF_TAGS FROM UT_CLBTAG;" &
+            "SELECT COUNT(*) LIBRARIES_NUM_OF_FILES_CREATED_YESTERDAY FROM DOCVERSION WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY AND MAJOR_VERSION_NUMBER = 1;" &
+            "SELECT COUNT(*) LIBRARIES_NUM_OF_FILES_UPDATED_YESTERDAY FROM DOCVERSION a INNER JOIN (SELECT VERSION_SERIES_ID, MAX(MAJOR_VERSION_NUMBER) MAJOR_NUMBER FROM DOCVERSION GROUP BY VERSION_SERIES_ID) AS b ON a.VERSION_SERIES_ID = b.VERSION_SERIES_ID AND b.MAJOR_NUMBER = a.MAJOR_VERSION_NUMBER WHERE DATE(MODIFY_DATE) = CURRENT_DATE - 1 DAY;" &
+            "SELECT COUNT(*) LIBRARIES_NUM_OF_FILES_DOWNLOADED_YESTERDAY FROM UT_CLBDOWNLOADRECORD WHERE DATE(MODIFY_DATE) = CURRENT_DATE - 1 DAY;" &
+            "SELECT COUNT(*) LIBRARIES_NUM_OF_FILES_REVISIONED_YESTERDAY FROM DOCVERSION WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY AND MAJOR_VERSION_NUMBER != 1;" &
+            "SELECT COUNT(*) LIBRARIES_TOTAL_NUM_OF_LIBRARIES FROM CONTAINER;" &
+            "SELECT COUNT(*) LIBRARIES_NUM_OF_LIBRARIES_CREATED_YESTERDAY FROM CONTAINER WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY;" &
+            "SELECT COUNT(*) LIBRARIES_NUM_OF_LIBRARIES_MODIFIED_YESTERDAY FROM CONTAINER WHERE DATE(MODIFY_DATE) = CURRENT_DATE - 1 DAY;"
 
         Try
             Dim objVSAdaptor As New VSFramework.VSAdaptor()
@@ -8045,6 +9488,14 @@ CleanUp:
 
                 End Try
 
+            End Try
+
+            Try
+                If MyLogLevel = LogLevel.Verbose Then
+                    DataSetToLog(myServer, ds)
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error printing Library Stats data log. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
             End Try
 
 
@@ -8124,6 +9575,121 @@ CleanUp:
 
     End Sub
 
+    Public Sub PurgeConnectionsDatabase(ByRef myServer As MonitoredItems.IBMConnect)
+
+        Try
+            Dim myServerTemp As MonitoredItems.IBMConnect = myServer
+            Dim tTemp As Threading.Thread = New Threading.Thread(
+                Sub()
+                    PurgeAllCommunities(myServerTemp)
+                End Sub
+            )
+            tTemp.CurrentCulture = New CultureInfo(sCultureString)
+            tTemp.Start()
+
+
+        Catch ex As Exception
+
+        End Try
+
+    End Sub
+
+
+    Public Sub PurgeAllCommunities(ByRef myServer As MonitoredItems.IBMConnect)
+        Dim baseURL As String = myServer.IPAddress & "/communities/service/atom/community/instance?communityUuid="
+        Dim Name As String = "VitalSigns Test Community"
+
+        Dim sql As String = "select COMMUNITY_UUID FROM SNCOMM.COMMUNITY WHERE DELETE_STATE = 1 AND NAME = '" & Name & "';"
+        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In PurgeAllCommunities")
+
+
+
+        Dim Category As String = "Community"
+
+        Try
+            Dim con As IBM.Data.DB2.DB2Connection
+            Dim ds As New DataSet
+            Try
+
+                con = New IBM.Data.DB2.DB2Connection("Database=SNCOMM;UserID=" & myServer.DBUserName & ";Password=" & myServer.DBPassword & ";Server=" & myServer.DBHostName & ":" & myServer.DBPort & "")
+                con.Open()
+
+                Dim cmd As New IBM.Data.DB2.DB2Command(sql, con)
+                Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
+                adapter.Fill(ds)
+
+
+
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error getting Communities to purge. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            Finally
+                Try
+                    If con.IsOpen Then
+                        con.Close()
+                    End If
+                Catch ex As Exception
+
+                End Try
+
+            End Try
+
+
+            If (ds.Tables.Count > 0 And ds.Tables(0).Rows.Count > 0) Then
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In PurgeAllCommunities. Found " & ds.Tables(0).Rows.Count & " communities to purge")
+                Dim httpWR As HttpWebRequest
+                Dim encodedHeader As String = GetEncodedUsernamePassword(myServer.UserName, myServer.Password)
+                For Each row As DataRow In ds.Tables(0).Rows
+
+                    Dim deleteURL As String = baseURL & row("COMMUNITY_UUID").ToString()
+                    'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In PurgeAllCommunities. Purging via " & deleteURL & "")
+
+                    Try
+                        httpWR = WebRequest.Create(deleteURL)
+                        httpWR.Timeout = 300000
+                        httpWR.Method = "DELETE"
+                        httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                        httpWR.ContentType = "application/atom+xml"
+                        httpWR.Accept = "*/*"
+                        httpWR.Headers.Add("Authorization", "Basic " & encodedHeader)
+                        Dim cookieContainer As New CookieContainer()
+                        httpWR.CookieContainer = cookieContainer
+                        httpWR.KeepAlive = False
+
+                        Using webResponse2 As HttpWebResponse = httpWR.GetResponse()
+                            Try
+                                If webResponse2.StatusCode <> HttpStatusCode.OK Then
+                                    'deleted
+                                End If
+
+                            Catch ex As Exception
+
+                            Finally
+
+                                If webResponse2 IsNot Nothing Then
+                                    webResponse2.Close()
+                                End If
+
+                            End Try
+                        End Using
+
+
+
+                    Catch ex As Exception
+
+                    End Try
+
+                    Thread.Sleep(5000)
+
+                Next
+            End If
+
+        Catch ex As Exception
+
+        End Try
+    End Sub
+
+
+
     Public Function HexToGUID(ByRef hex As String) As String
         Return hex.Insert(20, "-").Insert(16, "-").Insert(12, "-").Insert(8, "-")
     End Function
@@ -8138,6 +9704,32 @@ CleanUp:
         decoder.GetChars(data, 0, data.Length, c, 0)
         Return New String(c)
     End Function
+
+    Private Sub DataSetToLog(ByRef myServer As MonitoredItems.IBMConnect, ByVal ds As DataSet)
+        Dim output As String = ""
+
+        For Each table As DataTable In ds.Tables
+            ' Loop through each row in the table. '
+            output = ""
+            For Each col As DataColumn In table.Columns
+                output += col.ColumnName & ", "
+            Next
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, output, LogUtilities.LogUtils.LogLevel.Verbose)
+            output = ""
+            For Each row As DataRow In table.Rows
+                ' Loop through each column. '
+                For Each col As DataColumn In table.Columns
+                    ' Output the value of each column's data.
+                    output += row(col).ToString() & ", "
+                Next
+                ' Trim off the trailing ", ", so the output looks correct. '
+                If output.Length > 2 Then
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, output.Substring(0, output.Length - 2), LogUtilities.LogUtils.LogLevel.Verbose)
+                End If
+                output = ""
+            Next
+        Next
+    End Sub
 
 
 #End Region

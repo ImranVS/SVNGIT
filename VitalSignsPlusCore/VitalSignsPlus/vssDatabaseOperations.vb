@@ -3126,9 +3126,15 @@ Partial Public Class VitalSignsPlusCore
             'Update the status table
 
             With MyWebSphereServer
-                strSQL = "Update WebSphereServerDetails SET " & _
-                " ProcessID='" & .ProcessId & _
-                 "', UpTimeSeconds='" & .UpTime & _
+                strSQL = "Update WebSphereServerDetails SET " &
+                " ProcessID='" & .ProcessId &
+                 "', UpTimeSeconds='" & .UpTime &
+                 "', AverageThreadCount='" & .AverageThreadPool &
+                 "', ActiveThreadCount='" & .ActiveThreadCount &
+                 "', CurrentHeapSize='" & .CurrentHeap &
+                 "', HungThreadCount='" & .HungThreadCount &
+                 "', ProcessCpu='" & .CPU_Utilization &
+                 "', ProcessMemoryMb='" & .Memory_Used &
                 "' WHERE ServerID='" & .ID & "'"
             End With
 
@@ -3150,8 +3156,10 @@ Partial Public Class VitalSignsPlusCore
             Dim objVSAdaptor As New VSAdaptor
             If objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL) = False And MyWebSphereServer.Enabled = True Then
                 With MyWebSphereServer
-                    strSQL = "INSERT INTO WebSphereServerDetails (ServerID, ProcessID,  UpTimeSeconds) " & _
-                    " VALUES ('" & .ID & "', '" & .ProcessId & "', '" & .UpTime & "')"
+                    strSQL = "INSERT INTO WebSphereServerDetails (ServerID, ProcessID, UpTimeSeconds, AverageThreadCount, ActiveThreadCount, " &
+                        "CurrentHeapSize, HungThreadCount, ProcessCpu, ProcessMemoryMb) " &
+                    " VALUES ('" & .ID & "', '" & .ProcessId & "', '" & .UpTime & "', '" & .AverageThreadPool & "', '" & .ActiveThreadCount & "', " &
+                    " '" & .CurrentHeap & "', '" & .HungThreadCount & "', '" & .CPU_Utilization & "', '" & .Memory_Used & "')"
                 End With
                 WriteAuditEntryWebSphere(Now.ToString & " WebSphereServerDetails Insert: " & strSQL)
                 objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)

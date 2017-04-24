@@ -2966,6 +2966,26 @@ Partial Public Class VitalSignsPlusCore
                     'End Try
 
                     'Try
+                    '    If dr.Item("FreeMemory") Is Nothing Then
+                    '        .Memory_Threshold = 0
+                    '    Else
+                    '        .Memory_Threshold = dr.Item("FreeMemory")
+                    '    End If
+                    'Catch ex As Exception
+                    '    .Memory_Threshold = 0
+                    'End Try
+
+                    'Try
+                    '    If dr.Item("CPUUtilization") Is Nothing Then
+                    '        .CPU_Threshold = 0
+                    '    Else
+                    '        .CPU_Threshold = dr.Item("CPUUtilization")
+                    '    End If
+                    'Catch ex As Exception
+                    '    .CPU_Threshold = 0
+                    'End Try
+
+                    'Try
                     '	If dr.Item("DumpGenerated") Is Nothing Then
                     '		.DumpGeneratedThreshold = 0
                     '	Else
