@@ -6465,7 +6465,7 @@ namespace VitalSigns.API.Controllers
                     Details = x.Details,
                     EventDetected = x.EventDetected != null ? x.EventDetected.Value : nullDate
 
-                }).ToList();
+                }).OrderByDescending(x => x.EventDetected).ToList();
 
 
                 Response = Common.CreateResponse(result);
