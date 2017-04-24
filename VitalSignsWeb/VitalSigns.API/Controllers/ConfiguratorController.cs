@@ -7907,7 +7907,7 @@ namespace VitalSigns.API.Controllers
         /// <author></author>
         /// <returns></returns>
         [HttpPut("upload_script")]
-        public string uploadScripts()
+        public APIResponse uploadScripts()
         {
             string uploadedFile = "";
             try
@@ -7927,12 +7927,14 @@ namespace VitalSigns.API.Controllers
                     fs.Dispose();
                     uploadedFile = "~/" + filePath + fileName;
                     //uploadedFile = System.Web.Hosting.HostingEnvironment.MapPath(filePath + fileName);
+                    Response = Common.CreateResponse(uploadedFile, Common.ResponseStatus.Success.ToDescription(), "Script uploaded successfully");
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), ex.Message);
             }
-            return uploadedFile;
+            return Response;
         }
         /// <summary>
         /// 
