@@ -1,64 +1,59 @@
-﻿<div class="widgetWrapper">
-    <div class="widgetContent">
-        <div class="grid-sort-group" *ngIf="data">
+﻿<div class="grid-sort-group" *ngIf="data">
 
-            <!-- edit details in a popup -->
-            <button class="btn btn-success" (click)="showEditForm(frmDialog)" [disabled]="data.itemCount==0">
-                Edit
-            </button>
-            <button class="btn btn-success" (click)="showAddForm(frmDialog)">
-                Add
-            </button>
-            <button class="btn btn-success" (click)="deleteScript()" [disabled]="data.itemCount==0">
-                Delete
-            </button>
+    <!-- edit details in a popup -->
+    <button class="btn btn-success" (click)="showEditForm(frmDialog)" [disabled]="data.itemCount==0">
+        Edit
+    </button>
+    <button class="btn btn-success" (click)="showAddForm(frmDialog)">
+        Add
+    </button>
+    <button class="btn btn-success" (click)="deleteScript()" [disabled]="data.itemCount==0">
+        Delete
+    </button>
+</div>
+<div>&nbsp;</div>
+<wj-flex-grid [itemsSource]="data" selectionMode="Row" headersVisibility="Column" [frozenColumns]="1" [isReadOnly]="true" #flex>
+    <wj-flex-grid-filter></wj-flex-grid-filter>
+    <wj-flex-grid-column [header]="'Script Name'" [binding]="'script_name'" [width]="200"> </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Command'" [binding]="'script_command'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [width]="180" [visible]="false"></wj-flex-grid-column>
+</wj-flex-grid>
+
+<wj-popup class="col-md-6 modal-content" #frmDialog>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            {{formTitle}}
+            <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
         </div>
-        <div>&nbsp;</div>
-        <wj-flex-grid [itemsSource]="data" selectionMode="Row" headersVisibility="Column" [frozenColumns]="1" [isReadOnly]="true" #flex>
-            <wj-flex-grid-filter></wj-flex-grid-filter>
-            <wj-flex-grid-column [header]="'Script Name'" [binding]="'script_name'" [width]="200"> </wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Command'" [binding]="'script_command'" [width]="280"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [width]="180" [visible]="false"></wj-flex-grid-column>
-        </wj-flex-grid>
-
-
-        <wj-popup class="col-md-6 modal-content" #frmDialog>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    {{formTitle}}
-                    <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+        <form (ngSubmit)="saveScripts(frmDialog)" #frmUser="ngForm">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="script_name">Script Name</label>
+                    <input type="text" class="form-control" id="script_name" required name="script_name" [(ngModel)]="formObject.script_name">
                 </div>
-                <form (ngSubmit)="saveScripts(frmDialog)" #frmUser="ngForm">
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="script_name">Script Name:</label>
-                            <input type="text" class="form-control" id="script_name" required name="script_name" [(ngModel)]="formObject.script_name">
-                        </div>
-                        <div class="form-group">
-                            <label for="script_name">Command:</label>
-                            <input type="text" class="form-control" id="script_command" required name="script_command" [(ngModel)]="formObject.script_command">
-                        </div>
-                        <div class="form-group">
-                            <label for="script_name">Upload Script:</label>
-                            <input type="file" class="form-control" required name="script_location" (change)="changeListener($event)">
-                            <!--<button class="btn btn-primary" name="upload_script" (click)="uploadScript($event)">Upload</button>-->
-                        </div>
-                        <div class="form-group">
-                            <label for="script_name">Location:</label>
-                            <!--<input type="text" class="form-control" id="script_location" required name="script_location" [(ngModel)]="formObject.script_location">-->
-                            <span id="scriptLocation"></span>
-                        </div>
-                    </div>
-
-
-                    <div class="panel-footer">
-                        <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
-                        <button class="btn btn-primary wj-hide" type="cancel" name="cancel" (click)="cancelEditAdd()">Cancel</button>
-                    </div>
-
-                </form>
+                <div class="form-group">
+                    <label for="script_name">Command</label>
+                    <input type="text" class="form-control" id="script_command" required name="script_command" [(ngModel)]="formObject.script_command">
+                </div>
+                <div class="form-group">
+                    <label for="script_name">Upload Script</label>
+                    <input type="file" class="form-control" required name="script_location" (change)="changeListener($event)">
+                    <!--<button class="btn btn-primary" name="upload_script" (click)="uploadScript($event)">Upload</button>-->
+                </div>
+                <div class="form-group">
+                    <label for="script_name">Location</label>
+                    <!--<input type="text" class="form-control" id="script_location" required name="script_location" [(ngModel)]="formObject.script_location">-->
+                    <span id="scriptLocation"></span>
+                </div>
             </div>
 
-        </wj-popup>
+
+            <div class="panel-footer">
+                <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+                <button class="btn btn-primary wj-hide" type="cancel" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+            </div>
+
+        </form>
     </div>
-</div>
+
+</wj-popup>

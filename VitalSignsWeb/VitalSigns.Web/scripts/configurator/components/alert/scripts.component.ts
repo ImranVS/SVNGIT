@@ -151,10 +151,15 @@ export class Scripts extends GridBase implements OnInit {
         this.service.put('/configurator/upload_script', this.formData)
             .subscribe(
             response => {
-                this.formObject.script_location = response.data;
-                var location = <HTMLSpanElement>document.getElementById("scriptLocation");
-                location.innerHTML = response.data;
-
+                if (response.status == "Success") {
+                    this.formObject.script_location = response.data;
+                    var location = <HTMLSpanElement>document.getElementById("scriptLocation");
+                    location.innerHTML = response.data;
+                    this.appComponentService.showSuccessMessage(response.message);
+                }
+                else {
+                    this.appComponentService.showErrorMessage(response.message);
+                }
             },
             (error) => this.errorMessage = <any>error
 
