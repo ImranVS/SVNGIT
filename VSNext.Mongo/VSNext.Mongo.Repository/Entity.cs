@@ -14,6 +14,7 @@ namespace VSNext.Mongo.Repository
         [DataMember]
         [BsonElement("_id",Order = 0)]
         [BsonRepresentation(BsonType.ObjectId)]
+        //[BsonIgnoreIfNull]
         public string Id { get; set; }
 
         [DataMember]
@@ -26,12 +27,22 @@ namespace VSNext.Mongo.Repository
         [BsonRepresentation(BsonType.DateTime)]
         [BsonIgnoreIfNull]
         public DateTime? ModifiedOn { get; set; }
-        [BsonElement("created_on",Order = 3)]
+
+
+        private DateTime? _createdOn;
+        [BsonElement("created_on", Order = 3)]
         public DateTime CreatedOn
         {
-            get;
-            set;
-            
+            get
+            {
+                if (_createdOn.HasValue)
+                    return _createdOn.Value;
+                return ObjectId.CreationTime;
+            }
+            set
+            {
+                _createdOn = value;
+            }
         }
         public ObjectId ObjectId
         {

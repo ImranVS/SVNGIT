@@ -527,7 +527,7 @@ Public Class VSMaster
 
     Protected Sub DailyTasks()
         Dim Hour As Integer
-
+        Dim NodeName As String = ""
         Dim myRegistry As New RegistryHandler
         Dim LastDate, MyDate, StatusDate As DateTime
         ' Thread.Sleep(30000)
@@ -556,8 +556,21 @@ Public Class VSMaster
                 WriteAuditEntry(Now.ToString & " Free Disk Space " & Math.Round(Convert.ToDouble(moHD("FreeSpace")) / 1024 / 1024).ToString & "(Mb) Total Disk Space " & Math.Round(Convert.ToDouble(moHD("Size")) / 1024 / 1024 / 1024).ToString & "(Gb)")
                 '  MyDate = Now
                 TimeToStop = True
+
                 Try
-                    Dim strLastDate As String = myRegistry.ReadFromRegistry("Service Reset Date")
+                    If NodeName = "" Then
+                        If System.Configuration.ConfigurationManager.AppSettings("VSNodeName") Is Nothing Then
+                            WriteAuditEntry(Now.ToString & " The VSNodeName is not defined in the config file. Cannot send pulse until it is defined.")
+                        Else
+                            NodeName = System.Configuration.ConfigurationManager.AppSettings("VSNodeName").ToString()
+                        End If
+                    End If
+                Catch ex As Exception
+
+                End Try
+
+                Try
+                    Dim strLastDate As String = myRegistry.ReadFromRegistry("Service Reset Date@" & NodeName)
                     'LastDate = CType(myRegistry.ReadFromRegistry("Service Reset Date"), DateTime)
                     LastDate = FixDate(strLastDate)
                 Catch ex As Exception
@@ -590,7 +603,7 @@ Public Class VSMaster
                         Dim strDateFormat As String
                         strDateFormat = objDateUtils.GetDateFormat()
                         strdt = objDateUtils.FixDate(Date.Now, strDateFormat)
-                        myRegistry.WriteToRegistry("Service Reset Date", strdt)
+                        myRegistry.WriteToRegistry("Service Reset Date@" & NodeName, strdt)
                         RestartTime = False
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " Exception #2: " & ex.ToString)
@@ -772,7 +785,7 @@ Public Class VSMaster
 
 
                 Try
-                    Dim strLastDate As String = myRegistry.ReadFromRegistry("Daily Tasks Date")
+                    Dim strLastDate As String = myRegistry.ReadFromRegistry("Daily Tasks Date@" & NodeName)
                     LastDate = FixDate(strLastDate)
                 Catch ex As Exception
                     LastDate = Now.AddDays(-2).ToShortDateString
@@ -791,7 +804,7 @@ Public Class VSMaster
                     Dim strDateFormat As String
                     strDateFormat = objDateUtils.GetDateFormat()
                     strdt = objDateUtils.FixDate(Date.Now, strDateFormat)
-                    myRegistry.WriteToRegistry("Daily Tasks Date", strdt)
+                    myRegistry.WriteToRegistry("Daily Tasks Date@" & NodeName, strdt)
                 End If
                 WriteAuditEntry(Now.ToString & " Daily Tasks service was stop")
                 'FIND SERVERS NOT SCANNED COUNT AND MODIFY BELOW IF CONDITION WITH 'OR'
@@ -2433,7 +2446,7 @@ Public Class VSMaster
             '             boolCore64Service = False
             '         End If
             boolDominoService = True
-            boolMicrosoftService = True
+                boolMicrosoftService = True
             boolCore64Service = True
 
             Try
