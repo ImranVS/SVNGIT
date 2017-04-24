@@ -20,7 +20,8 @@ declare var injectSVG: any;
     providers: [
         HttpModule,
         RESTService,
-        helpers.GridTooltip
+        helpers.GridTooltip,
+        helpers.DateTimeHelper
     ]
 })
 export class Issues implements OnInit {
@@ -30,7 +31,7 @@ export class Issues implements OnInit {
     data: wijmo.collections.CollectionView;
     errorMessage: string;
 
-    constructor(private service: RESTService, private route: ActivatedRoute, protected toolTip: helpers.GridTooltip) { }
+    constructor(private service: RESTService, private route: ActivatedRoute, protected toolTip: helpers.GridTooltip, protected datetimeHelpers: helpers.DateTimeHelper) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -45,7 +46,7 @@ export class Issues implements OnInit {
         this.service.get('/Configurator/get_all_open_issues/')
             .subscribe(
             (response) => {
-                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
                 this.data.pageSize = 20;
             },
             (error) => this.errorMessage = <any>error
