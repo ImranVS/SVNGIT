@@ -54,7 +54,6 @@
             this.sqlHostname.Name = "sqlHostname";
             this.sqlHostname.Size = new System.Drawing.Size(100, 20);
             this.sqlHostname.TabIndex = 0;
-            this.sqlHostname.Text = "192.168.1.147";
             // 
             // sqlUsername
             // 
@@ -71,7 +70,7 @@
             this.sqlPassword.PasswordChar = '*';
             this.sqlPassword.Size = new System.Drawing.Size(100, 20);
             this.sqlPassword.TabIndex = 2;
-            this.sqlPassword.Text = "admin123!";
+            this.sqlPassword.Text = "V1talsign$";
             // 
             // label1
             // 
@@ -142,7 +141,7 @@
             this.mongoUsername.Name = "mongoUsername";
             this.mongoUsername.Size = new System.Drawing.Size(100, 20);
             this.mongoUsername.TabIndex = 7;
-            this.mongoUsername.Text = "vsadmin2";
+            this.mongoUsername.Text = "vsadmin";
             // 
             // mongoHostname
             // 
@@ -150,7 +149,6 @@
             this.mongoHostname.Name = "mongoHostname";
             this.mongoHostname.Size = new System.Drawing.Size(100, 20);
             this.mongoHostname.TabIndex = 6;
-            this.mongoHostname.Text = "172.16.100.25";
             // 
             // button1
             // 
