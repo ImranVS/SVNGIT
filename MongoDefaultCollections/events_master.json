@@ -76,3 +76,206 @@
 { "_id" : { "$oid" : "582c9057d6e14d07a4d15817" }, "created_on" : { "$date" : "2016-11-16T16:59:03.000+0000" }, "event_type" : "Create Wiki", "device_type" : "IBM Connections", "notification_on_repeat" : false }
 { "_id" : { "$oid" : "58b749b74e01bee5d8624761" }, "event_type" : "Database Connection Error", "device_type" : "Notes Database", "notification_on_repeat" : false }
 { "_id" : { "$oid" : "58b749df4e01bee5d8624762" }, "event_type" : "Database View Refresh", "device_type" : "Notes Database", "notification_on_repeat" : false }
+{ 
+    "_id" : ObjectId("58d58518ca97a28482f25d6f"), 
+    "created_on" : ISODate("2017-03-24T20:44:08.000+0000"), 
+    "event_type" : "Create Site", 
+    "device_type" : "Office365", 
+    "notification_on_repeat" : false, 
+    "notifications" : [
+
+    ]
+}
+{ 
+    "_id" : ObjectId("58d58518ca97a28482f25d70"), 
+    "created_on" : ISODate("2017-03-24T20:44:08.000+0000"), 
+    "event_type" : "Delete Site", 
+    "device_type" : "Office365", 
+    "notification_on_repeat" : false, 
+    "notifications" : [
+
+    ]
+}
+{ 
+    "_id" : ObjectId("58d58518ca97a28482f25d71"), 
+    "created_on" : ISODate("2017-03-24T20:44:08.000+0000"), 
+    "event_type" : "Auto Discovery", 
+    "device_type" : "Office365", 
+    "notification_on_repeat" : false, 
+    "notifications" : [
+
+    ]
+}
+{ 
+    "_id" : ObjectId("58d58518ca97a28482f25d72"), 
+    "created_on" : ISODate("2017-03-24T20:44:08.000+0000"), 
+    "event_type" : "IMAP", 
+    "device_type" : "Office365", 
+    "notification_on_repeat" : false, 
+    "notifications" : [
+
+    ]
+}
+{ 
+    "_id" : ObjectId("58d58518ca97a28482f25d73"), 
+    "created_on" : ISODate("2017-03-24T20:44:08.000+0000"), 
+    "event_type" : "SMTP", 
+    "device_type" : "Office365", 
+    "notification_on_repeat" : false, 
+    "notifications" : [
+
+    ]
+}
+{ 
+    "_id" : ObjectId("58d58518ca97a28482f25d74"), 
+    "created_on" : ISODate("2017-03-24T20:44:08.000+0000"), 
+    "event_type" : "POP3", 
+    "device_type" : "Office365", 
+    "notification_on_repeat" : false, 
+    "notifications" : [
+
+    ]
+}
+{ 
+    "_id" : ObjectId("58d58518ca97a28482f25d75"), 
+    "created_on" : ISODate("2017-03-24T20:44:08.000+0000"), 
+    "event_type" : "MAPI Connectivity", 
+    "device_type" : "Office365", 
+    "notification_on_repeat" : false, 
+    "notifications" : [
+
+    ]
+}
+{ 
+    "_id" : ObjectId("58d58518ca97a28482f25d76"), 
+    "created_on" : ISODate("2017-03-24T20:44:08.000+0000"), 
+    "event_type" : "Create Calendar Entry", 
+    "device_type" : "Office365", 
+    "notification_on_repeat" : false, 
+    "notifications" : [
+
+    ]
+}
+{ 
+    "_id" : ObjectId("58d58518ca97a28482f25d77"), 
+    "created_on" : ISODate("2017-03-24T20:44:08.000+0000"), 
+    "event_type" : "Delete Calendar Entry", 
+    "device_type" : "Office365", 
+    "notification_on_repeat" : false, 
+    "notifications" : [
+
+    ]
+}
+{ 
+    "_id" : ObjectId("58d58518ca97a28482f25d78"), 
+    "created_on" : ISODate("2017-03-24T20:44:08.000+0000"), 
+    "event_type" : "OWA", 
+    "device_type" : "Office365", 
+    "notification_on_repeat" : false, 
+    "notifications" : [
+
+    ]
+}
+{ 
+    "_id" : ObjectId("58d58518ca97a28482f25d79"), 
+    "created_on" : ISODate("2017-03-24T20:44:08.000+0000"), 
+    "event_type" : "Mail flow", 
+    "device_type" : "Office365", 
+    "notification_on_repeat" : false, 
+    "notifications" : [
+
+    ]
+}
+{ 
+    "_id" : ObjectId("58d58518ca97a28482f25d7a"), 
+    "created_on" : ISODate("2017-03-24T20:44:08.000+0000"), 
+    "event_type" : "Inbox", 
+    "device_type" : "Office365", 
+    "notification_on_repeat" : false, 
+    "notifications" : [
+
+    ]
+}
+{ 
+    "_id" : ObjectId("58d58518ca97a28482f25d7b"), 
+    "created_on" : ISODate("2017-03-24T20:44:08.000+0000"), 
+    "event_type" : "OneDrive Upload Document", 
+    "device_type" : "Office365", 
+    "notification_on_repeat" : false, 
+    "notifications" : [
+
+    ]
+}
+{ 
+    "_id" : ObjectId("58d58518ca97a28482f25d7c"), 
+    "modified_on" : ISODate("2017-04-07T16:45:25.761+0000"), 
+    "created_on" : ISODate("2017-03-24T20:44:08.000+0000"), 
+    "event_type" : "OneDrive Download Document", 
+    "device_type" : "Office365", 
+    "notification_on_repeat" : false, 
+    "notifications" : [
+
+    ]
+}
+{ 
+    "_id" : ObjectId("58d58518ca97a28482f25d7d"), 
+    "created_on" : ISODate("2017-03-24T20:44:08.000+0000"), 
+    "event_type" : "Authentication", 
+    "device_type" : "Office365", 
+    "notification_on_repeat" : false, 
+    "notifications" : [
+
+    ]
+}
+{ 
+    "_id" : ObjectId("58d58518ca97a28482f25d7e"), 
+    "created_on" : ISODate("2017-03-24T20:44:08.000+0000"), 
+    "event_type" : "Not Responding", 
+    "device_type" : "Office365", 
+    "notification_on_repeat" : false, 
+    "notifications" : [
+
+    ]
+}
+{ 
+    "_id" : ObjectId("58d58518ca97a28482f25d7f"), 
+    "modified_on" : ISODate("2017-04-07T16:45:25.761+0000"), 
+    "created_on" : ISODate("2017-03-24T20:44:08.000+0000"), 
+    "event_type" : "Create Mail Folder", 
+    "device_type" : "Office365", 
+    "notification_on_repeat" : false, 
+    "notifications" : [
+        ObjectId("58ec15f38a287b3ac857da60")
+    ]
+}
+{ 
+    "_id" : ObjectId("58d58518ca97a28482f25d80"), 
+    "created_on" : ISODate("2017-03-24T20:44:08.000+0000"), 
+    "event_type" : "URL", 
+    "device_type" : "Office365", 
+    "notification_on_repeat" : false, 
+    "notifications" : [
+
+    ]
+}
+{ 
+    "_id" : ObjectId("58d58518ca97a28482f25d81"), 
+    "created_on" : ISODate("2017-03-24T20:44:08.000+0000"), 
+    "event_type" : "DirSync Import", 
+    "device_type" : "Office365", 
+    "notification_on_repeat" : false, 
+    "notifications" : [
+
+    ]
+}
+{ 
+    "_id" : ObjectId("58d58518ca97a28482f25d82"), 
+    "created_on" : ISODate("2017-03-24T20:44:08.000+0000"), 
+    "event_type" : "DirSync Export", 
+    "device_type" : "Office365", 
+    "notification_on_repeat" : false, 
+    "notifications" : [
+
+    ]
+}
+
