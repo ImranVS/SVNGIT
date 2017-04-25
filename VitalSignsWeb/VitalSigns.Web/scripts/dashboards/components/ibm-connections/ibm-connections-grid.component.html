@@ -9,14 +9,13 @@
             <span *ngIf="cell.item.status == 'Maintenance'" class="label label-pill label-default">Maintenance</span>
         </template>
     </wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Details'" [binding]="'details'" [width]="280">
+    <wj-flex-grid-column [header]="'Details'" [binding]="'details'" [width]="320">
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
             <div data-toggle="tooltip" data-placement="top" title={{cell.item.details}}>
                 {{cell.item.details}}
             </div>
         </template>
     </wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'CPU'" [binding]="'cpu'" align="right" [width]="80"></wj-flex-grid-column>
     <wj-flex-grid-column header="Tests" [binding]="headerText" [width]="550">
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-item="item" let-cell="cell">
             <!--<div  class="list-group">

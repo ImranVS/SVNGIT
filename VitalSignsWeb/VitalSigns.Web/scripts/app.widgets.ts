@@ -123,6 +123,7 @@ export * from './reports/components/servers/overall-status-report-grid.component
 export * from './reports/filters/components/traveler-filter.component'
 export * from './reports/filters/components/server-availability-filter.component'
 export * from './reports/filters/components/user-filter.component'
+export * from './reports/components/mobile-users/mobile-users-report-grid.component'
 
 //Server Import
 export * from './configurator/components/serverImport/server-import-domino.component'

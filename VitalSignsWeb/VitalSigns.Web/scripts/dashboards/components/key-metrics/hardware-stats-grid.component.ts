@@ -1,4 +1,4 @@
-﻿import {Component, Input, OnInit} from '@angular/core';
+﻿import { Component, Input, OnInit, ViewChild} from '@angular/core';
 import {HttpModule}    from '@angular/http';
 
 import {WidgetComponent} from '../../../core/widgets';
@@ -19,7 +19,7 @@ import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
     ]
 })
 export class HardwareStatisticsGrid implements WidgetComponent, OnInit {
-
+    @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     @Input() settings: any;
 
     data: wijmo.collections.CollectionView;
@@ -52,5 +52,10 @@ export class HardwareStatisticsGrid implements WidgetComponent, OnInit {
             },
             (error) => this.errorMessage = <any>error
             );
+    }
+
+    ExportExcel(event) {
+        let flex = this.flex;
+        wijmo.grid.xlsx.FlexGridXlsxConverter.save(this.flex, { includeColumnHeaders: true, includeCellStyles: false }, "CPUMemoryHealth.xlsx");
     }
 }

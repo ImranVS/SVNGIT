@@ -1,71 +1,67 @@
-﻿<div class="widgetWrapper">
-    <div class="widgetContent">
-        <div>&nbsp;</div>
-        <div class="row">
-            <div class="form-group col-sm-9">
-                <label for="start_date" class="control-label col-sm-2">Month/Year</label>
-                <div class="col-sm-2">
-                    <wj-input-date format="yyyy-MM" [(value)]="filterDate" style="width:125px;" id="start_date" required selectionMode="Month"></wj-input-date>
-                </div>
-                <div class="col-sm-2">
-                    <button type="button" class="btn btn-primary" (click)="filterAlerts()">Filter</button>
-                </div>
-                <label for="notification_def" class="control-label col-sm-2">Notification Definition</label>
-                <div class="col-sm-2">
-                    <wj-combo-box name="notification_def" [itemsSource]="notification_definitions" displayMemberPath="name" selectedValuePath="id" #notification_def>
-                    </wj-combo-box>
-                </div>
-                <div class="col-sm-2">
-                    <button type="button" class="btn btn-primary" (click)="filterAlertsByDef(notification_def)">Filter</button>
-                </div>
-            </div>
+﻿<div>&nbsp;</div>
+<div class="row">
+    <div class="form-group col-sm-9">
+        <label for="start_date" class="control-label col-sm-2">Month/Year</label>
+        <div class="col-sm-2">
+            <wj-input-date format="yyyy-MM" [(value)]="filterDate" style="width:125px;" id="start_date" required selectionMode="Month"></wj-input-date>
         </div>
-        <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
-        <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" headersVisibility="Column">
-            <wj-flex-grid-filter></wj-flex-grid-filter>
-            <wj-flex-grid-column [header]="'Device Name'" [binding]="'device'" [width]="180"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Device Type'" [binding]="'device_type'" [width]="200"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Event Type'" [binding]="'alert_type'" [width]="250"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Notification Sent Date'" [binding]="'event_detected_sent'" [width]="180"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Notification Recipient'" [binding]="'notification_sent_to'" [width]="180"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Event Detected Date'" [binding]="'event_detected'" [width]="180"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Event Dismissed Date'" [binding]="'event_dismissed'" [width]="180"></wj-flex-grid-column>
-            <wj-flex-grid-column [header]="'Details'" [binding]="'details'" [width]="200"></wj-flex-grid-column>
-        </wj-flex-grid>
-        <div class="btn-group" *ngIf="data != null">
-            <button type="button" class="btn btn-default"
-                    (click)="data.moveToFirstPage()"
-                    [disabled]="data.pageIndex <= 0">
-                <span class="glyphicon glyphicon-fast-backward"></span>
-            </button>
-            <button type="button" class="btn btn-default"
-                    (click)="data.moveToPreviousPage()"
-                    [disabled]="data.pageIndex <= 0">
-                <span class="glyphicon glyphicon-step-backward">
-                </span>
-            </button>
-            <button type="button" class="btn btn-default" disabled style="width:100px">
-                {{
-data.pageIndex + 1 | number
-                }} / {{data.pageCount | number}}
-            </button>
-            <button type="button" class="btn btn-default"
-                    (click)="data.moveToNextPage()"
-                    [disabled]="data.pageIndex >= data.pageCount - 1">
-                <span class="glyphicon glyphicon-step-forward"></span>
-            </button>
-            <button type="button" class="btn btn-default"
-                    (click)="data.moveToLastPage()"
-                    [disabled]="data.pageIndex >= data.pageCount - 1">
-                <span class="glyphicon glyphicon-fast-forward"></span>
-            </button>
+        <div class="col-sm-2">
+            <button type="button" class="btn btn-primary" (click)="filterAlerts()">Filter</button>
         </div>
-        <div class="pull-right" *ngIf="data != null">
-            <wj-menu [(value)]="pageSize" [header]="'Page size'">
-                <wj-menu-item [value]="10">10</wj-menu-item>
-                <wj-menu-item [value]="20">20</wj-menu-item>
-                <wj-menu-item [value]="50">50</wj-menu-item>
-            </wj-menu>
+        <label for="notification_def" class="control-label col-sm-2">Notification Definition</label>
+        <div class="col-sm-2">
+            <wj-combo-box name="notification_def" [itemsSource]="notification_definitions" displayMemberPath="name" selectedValuePath="id" #notification_def>
+            </wj-combo-box>
+        </div>
+        <div class="col-sm-2">
+            <button type="button" class="btn btn-primary" (click)="filterAlertsByDef(notification_def)">Filter</button>
         </div>
     </div>
+</div>
+<wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+<wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" headersVisibility="Column">
+    <wj-flex-grid-filter></wj-flex-grid-filter>
+    <wj-flex-grid-column [header]="'Device Name'" [binding]="'device'" [width]="180"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Device Type'" [binding]="'device_type'" [width]="200"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Event Type'" [binding]="'alert_type'" [width]="250"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Notification Sent Date'" [binding]="'event_detected_sent'" [width]="180"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Notification Recipient'" [binding]="'notification_sent_to'" [width]="180"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Event Detected Date'" [binding]="'event_detected'" [width]="180"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Event Dismissed Date'" [binding]="'event_dismissed'" [width]="180"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Details'" [binding]="'details'" [width]="200"></wj-flex-grid-column>
+</wj-flex-grid>
+<div class="btn-group" *ngIf="data != null">
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToFirstPage()"
+            [disabled]="data.pageIndex <= 0">
+        <span class="glyphicon glyphicon-fast-backward"></span>
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToPreviousPage()"
+            [disabled]="data.pageIndex <= 0">
+        <span class="glyphicon glyphicon-step-backward">
+        </span>
+    </button>
+    <button type="button" class="btn btn-default" disabled style="width:100px">
+        {{
+data.pageIndex + 1 | number
+        }} / {{data.pageCount | number}}
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToNextPage()"
+            [disabled]="data.pageIndex >= data.pageCount - 1">
+        <span class="glyphicon glyphicon-step-forward"></span>
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToLastPage()"
+            [disabled]="data.pageIndex >= data.pageCount - 1">
+        <span class="glyphicon glyphicon-fast-forward"></span>
+    </button>
+</div>
+<div class="pull-right" *ngIf="data != null">
+    <wj-menu [(value)]="pageSize" [header]="'Page size'">
+        <wj-menu-item [value]="10">10</wj-menu-item>
+        <wj-menu-item [value]="20">20</wj-menu-item>
+        <wj-menu-item [value]="50">50</wj-menu-item>
+    </wj-menu>
 </div>

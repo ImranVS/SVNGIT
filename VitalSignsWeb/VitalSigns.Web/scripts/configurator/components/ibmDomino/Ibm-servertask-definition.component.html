@@ -1,185 +1,183 @@
-﻿<div class="widgetWrapper">
-    <div class="widgetContent">
-        <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
-            <div class="row">
-                <div class="alert alert-info col-lg-12">
-                    Tasks are programs that run on IBM Domino Servers. The table below lists various server tasks that could be monitored. You may define a server task here and associate it with a server using the Server Tasks tab on the Domino Server page.
-                </div>
-                    <div class="grid-sort-group"  *ngIf="data">
-
-                    <!-- edit details in a popup -->
-                    <button class="btn btn-success" (click)="editGridRow(frmDialog)" [disabled]="data.itemCount==0">
-                        Edit
-                    </button>
-                    <button class="btn btn-success" (click)="addServerTask(frmDialog)">
-                        Add
-                    </button>
-                    <button class="btn btn-success" (click)="delteServerTaskDefinition();" [disabled]="data.itemCount==0">
-                        Delete
-                    </button>
-                </div>
-                <div>&nbsp;</div>
-                <wj-flex-grid #flex [itemsSource]="data" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
-                    <wj-flex-grid-filter></wj-flex-grid-filter>
-                    <wj-flex-grid-column [header]="'Task Name'" [binding]="'task_name'" [width]="180"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Load String'" [binding]="'load_string'" [width]="200"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Console String'" [binding]="'console_string'" [width]="250"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Freeze Detection'" [binding]="'freeze_detect'" [width]="150"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Idle String'" [binding]="'idle_string'" [width]="150"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Maximum Busy Time'" [binding]="'max_busy_time'" [width]="180"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Retry Count'" [binding]="'retry_count'" [width]="150"></wj-flex-grid-column>
-                </wj-flex-grid>
-                <div class="btn-group" *ngIf="data != null">
-                    <button type="button" class="btn btn-default"
-                            (click)="data.moveToFirstPage()"
-                            [disabled]="data.pageIndex <= 0">
-                        <span class="glyphicon glyphicon-fast-backward"></span>
-                    </button>
-                    <button type="button" class="btn btn-default"
-                            (click)="data.moveToPreviousPage()"
-                            [disabled]="data.pageIndex <= 0">
-                        <span class="glyphicon glyphicon-step-backward">
-                        </span>
-                    </button>
-                    <button type="button" class="btn btn-default" disabled style="width:100px">
-                        {{
-data.pageIndex + 1 | number
-                        }} / {{data.pageCount | number}}
-                    </button>
-                    <button type="button" class="btn btn-default"
-                            (click)="data.moveToNextPage()"
-                            [disabled]="data.pageIndex >= data.pageCount - 1">
-                        <span class="glyphicon glyphicon-step-forward"></span>
-                    </button>
-                    <button type="button" class="btn btn-default"
-                            (click)="data.moveToLastPage()"
-                            [disabled]="data.pageIndex >= data.pageCount - 1">
-                        <span class="glyphicon glyphicon-fast-forward"></span>
-                    </button>
-                </div>
-                <div class="pull-right" *ngIf="data != null">
-                    <wj-menu [(value)]="pageSize" [header]="'Page size'">
-                        <wj-menu-item [value]="10">10</wj-menu-item>
-                        <wj-menu-item [value]="20">20</wj-menu-item>
-                        <wj-menu-item [value]="50">50</wj-menu-item>
-                    </wj-menu>
-                </div>
-                <div>&nbsp;</div>
-                <wj-popup class="modal-content col-sm-10" #frmDialog style="height:70%;overflow:auto">
-
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            {{formTitle}}
-
-                            <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
-                        </div>
-                        <form (ngSubmit)="saveServerTaskDefinition(frmDialog)" #frmUser="ngForm" class="form-horizontal">
-
-                            <div class="panel-body" *ngIf="currentEditItem">
-                                <div class="alert alert-info col-md-12">
-                                    <p>VitalSigns can monitor any server task, if the correct settings are provided for task. To obtain the correct settings, issue a "show stat server.task" command on Domino Server console window. You'll get back something like <br/>
-                                        Server.Task = Rooms and Resources Manager:Idle:[05/20/2011 05:40:13 MST] <br/>
-                                        Server.Task = Admin Process:Idle:[05/20/2011 05:39:40 MST]<br/>
-                                        Server.Task = HTTP Server:Listen for connect requests on TCP Port:80:[05/20/2011 05:40:13 MST]<br/> 
-                                        The text immediately following the '=' sign is the Console String, and the text following that is the Idle String.</p>
-                                </div>
-                                <div class="col-sm-6">
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading">Task Definition</div>
-                                        <div class="panel-body">
-                                            <div class="row">
-                                                <div class="form-group col-sm-12">
-                                                    <label for="task_name" class="control-label col-sm-5">Task Name</label>
-                                                    <div class="col-sm-7">
-                                                        <input type="text" class="form-control" id="task_name" required name="task_name" [(ngModel)]="currentEditItem.task_name">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="form-group col-sm-12">
-                                                    <label for="idle_string" class="control-label col-sm-5">Idle String</label>
-                                                    <div class="col-sm-7">
-                                                        <input type="text" class="form-control" id="idle_string" required name="idle_string" [(ngModel)]="currentEditItem.idle_string">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="form-group col-sm-12">
-                                                    <label for="console_string" class="control-label col-sm-5">Console String</label>
-                                                    <div class="col-sm-7">
-                                                        <input type="text" class="form-control" id="console_string" required name="console_string" [(ngModel)]="currentEditItem.console_string">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="form-group col-sm-12">
-                                                    <label for="load_string" class="control-label col-sm-5">Load Command</label>
-                                                    <div class="col-sm-7">
-                                                        <input type="text" class="form-control" id="load_string" required name="load_string" [(ngModel)]="currentEditItem.load_string">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="form-group col-sm-12">
-                                                    <label for="retry_count" class="control-label col-sm-5">Retry Count</label>
-                                                    <div class="col-sm-7">
-                                                        <input type="number" min="0" class="form-control" id="retry_count" name="retry_count" required [(ngModel)]="currentEditItem.retry_count"
-                                                               onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                                
-                                <div class="form-group col-sm-6">
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading">Task Hang Detection</div>
-                                        <div class="panel-body">
-                                            <div class="row">
-                                                <div class="col-sm-12">
-                                                    <div class="alert alert-info" id="div1">
-                                                        Hang Detection is optional and may not be appropriate for all tasks.
-                                                        The [time/date] stamp shown above is tracked. If the time is further in the past than the Maximum Run Time specified, the task will be considered hung.
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="form-group col-sm-12">
-                                                    <div class="col-sm-4">&nbsp;</div>
-                                                    <div class="col-sm-5">
-                                                        <div class="funkyradio">
-                                                            <div class="funkyradio-default">
-                                                                <input type="checkbox" id="freeze_detect" [(ngModel)]="currentEditItem.freeze_detect" name="freeze_detect">
-                                                                <label for="freeze_detect">Enable Hang Detection</label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="form-group col-sm-12">
-                                                    <label for="max_busy_time" class="control-label col-sm-4">Maximum Run Time</label>
-                                                    <div class="col-sm-5">
-                                                        <input type="number" min="0" class="form-control" id="max_busy_time" name="max_busy_time" required [(ngModel)]="currentEditItem.max_busy_time"
-                                                               onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
-                                                    </div>
-                                                    <div class="control-label  col-sm-2">minutes</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="panel-footer">
-                                <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
-                                <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
-                            </div>
-                        </form>
-                    </div>
-                </wj-popup>
-            </div>
+﻿<div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+    <div class="row">
+        <div class="alert alert-info col-lg-12">
+            Tasks are programs that run on IBM Domino Servers. The table below lists various server tasks that could be monitored. You may define a server task here and associate it with a server using the Server Tasks tab on the Domino Server page.
         </div>
+        <div class="grid-sort-group" *ngIf="data">
+
+            <!-- edit details in a popup -->
+            <button class="btn btn-success" (click)="editGridRow(frmDialog)" [disabled]="data.itemCount==0">
+                Edit
+            </button>
+            <button class="btn btn-success" (click)="addServerTask(frmDialog)">
+                Add
+            </button>
+            <button class="btn btn-success" (click)="delteServerTaskDefinition();" [disabled]="data.itemCount==0">
+                Delete
+            </button>
+        </div>
+        <div>&nbsp;</div>
+        <wj-flex-grid #flex [itemsSource]="data" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
+            <wj-flex-grid-filter></wj-flex-grid-filter>
+            <wj-flex-grid-column [header]="'Task Name'" [binding]="'task_name'" [width]="180"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Load String'" [binding]="'load_string'" [width]="200"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Console String'" [binding]="'console_string'" [width]="250"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Freeze Detection'" [binding]="'freeze_detect'" [width]="150"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Idle String'" [binding]="'idle_string'" [width]="150"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Maximum Busy Time'" [binding]="'max_busy_time'" [width]="180"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Retry Count'" [binding]="'retry_count'" [width]="150"></wj-flex-grid-column>
+        </wj-flex-grid>
+        <div class="btn-group" *ngIf="data != null">
+            <button type="button" class="btn btn-default"
+                    (click)="data.moveToFirstPage()"
+                    [disabled]="data.pageIndex <= 0">
+                <span class="glyphicon glyphicon-fast-backward"></span>
+            </button>
+            <button type="button" class="btn btn-default"
+                    (click)="data.moveToPreviousPage()"
+                    [disabled]="data.pageIndex <= 0">
+                <span class="glyphicon glyphicon-step-backward">
+                </span>
+            </button>
+            <button type="button" class="btn btn-default" disabled style="width:100px">
+                {{
+data.pageIndex + 1 | number
+                }} / {{data.pageCount | number}}
+            </button>
+            <button type="button" class="btn btn-default"
+                    (click)="data.moveToNextPage()"
+                    [disabled]="data.pageIndex >= data.pageCount - 1">
+                <span class="glyphicon glyphicon-step-forward"></span>
+            </button>
+            <button type="button" class="btn btn-default"
+                    (click)="data.moveToLastPage()"
+                    [disabled]="data.pageIndex >= data.pageCount - 1">
+                <span class="glyphicon glyphicon-fast-forward"></span>
+            </button>
+        </div>
+        <div class="pull-right" *ngIf="data != null">
+            <wj-menu [(value)]="pageSize" [header]="'Page size'">
+                <wj-menu-item [value]="10">10</wj-menu-item>
+                <wj-menu-item [value]="20">20</wj-menu-item>
+                <wj-menu-item [value]="50">50</wj-menu-item>
+            </wj-menu>
+        </div>
+        <div>&nbsp;</div>
+        <wj-popup class="modal-content col-sm-10" #frmDialog style="height:70%;overflow:auto">
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    {{formTitle}}
+
+                    <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+                </div>
+                <form (ngSubmit)="saveServerTaskDefinition(frmDialog)" #frmUser="ngForm" class="form-horizontal">
+
+                    <div class="panel-body" *ngIf="currentEditItem">
+                        <div class="alert alert-info col-md-12">
+                            <p>
+                                VitalSigns can monitor any server task, if the correct settings are provided for task. To obtain the correct settings, issue a "show stat server.task" command on Domino Server console window. You'll get back something like <br />
+                                Server.Task = Rooms and Resources Manager:Idle:[05/20/2011 05:40:13 MST] <br />
+                                Server.Task = Admin Process:Idle:[05/20/2011 05:39:40 MST]<br />
+                                Server.Task = HTTP Server:Listen for connect requests on TCP Port:80:[05/20/2011 05:40:13 MST]<br />
+                                The text immediately following the '=' sign is the Console String, and the text following that is the Idle String.
+                            </p>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">Task Definition</div>
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="form-group col-sm-12">
+                                            <label for="task_name" class="control-label col-sm-5">Task Name</label>
+                                            <div class="col-sm-7">
+                                                <input type="text" class="form-control" id="task_name" required name="task_name" [(ngModel)]="currentEditItem.task_name">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="form-group col-sm-12">
+                                            <label for="idle_string" class="control-label col-sm-5">Idle String</label>
+                                            <div class="col-sm-7">
+                                                <input type="text" class="form-control" id="idle_string" required name="idle_string" [(ngModel)]="currentEditItem.idle_string">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="form-group col-sm-12">
+                                            <label for="console_string" class="control-label col-sm-5">Console String</label>
+                                            <div class="col-sm-7">
+                                                <input type="text" class="form-control" id="console_string" required name="console_string" [(ngModel)]="currentEditItem.console_string">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="form-group col-sm-12">
+                                            <label for="load_string" class="control-label col-sm-5">Load Command</label>
+                                            <div class="col-sm-7">
+                                                <input type="text" class="form-control" id="load_string" required name="load_string" [(ngModel)]="currentEditItem.load_string">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="form-group col-sm-12">
+                                            <label for="retry_count" class="control-label col-sm-5">Retry Count</label>
+                                            <div class="col-sm-7">
+                                                <input type="number" min="0" class="form-control" id="retry_count" name="retry_count" required [(ngModel)]="currentEditItem.retry_count"
+                                                       onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="form-group col-sm-6">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">Task Hang Detection</div>
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="alert alert-info" id="div1">
+                                                Hang Detection is optional and may not be appropriate for all tasks.
+                                                The [time/date] stamp shown above is tracked. If the time is further in the past than the Maximum Run Time specified, the task will be considered hung.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="form-group col-sm-12">
+                                            <div class="col-sm-4">&nbsp;</div>
+                                            <div class="col-sm-5">
+                                                <div class="funkyradio">
+                                                    <div class="funkyradio-default">
+                                                        <input type="checkbox" id="freeze_detect" [(ngModel)]="currentEditItem.freeze_detect" name="freeze_detect">
+                                                        <label for="freeze_detect">Enable Hang Detection</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="form-group col-sm-12">
+                                            <label for="max_busy_time" class="control-label col-sm-4">Maximum Run Time</label>
+                                            <div class="col-sm-5">
+                                                <input type="number" min="0" class="form-control" id="max_busy_time" name="max_busy_time" required [(ngModel)]="currentEditItem.max_busy_time"
+                                                       onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+                                            </div>
+                                            <div class="control-label  col-sm-2">minutes</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+                        <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </wj-popup>
     </div>
 </div>

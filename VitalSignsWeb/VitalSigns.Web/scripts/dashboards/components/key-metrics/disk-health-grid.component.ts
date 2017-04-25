@@ -1,4 +1,4 @@
-﻿import {Component, Input, OnInit} from '@angular/core';
+﻿import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {HttpModule}    from '@angular/http';
 
 import {WidgetComponent} from '../../../core/widgets';
@@ -23,7 +23,7 @@ import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 })
 export class DiskHealthGrid implements WidgetComponent, OnInit {
     @Input() settings: any;
-
+    @ViewChild("flex") wjFlexGrid: wijmo.grid.FlexGrid;
     data: wijmo.collections.CollectionView;
     errorMessage: string;
     _serviceId: string;
@@ -71,4 +71,14 @@ export class DiskHealthGrid implements WidgetComponent, OnInit {
             );
     }
 
+    //ImportExcel(event) {
+    //    let flex = this.flex;
+    //    let fileEle = <HTMLInputElement>$("#importFile")[0];
+    //    wijmo.grid.xlsx.FlexGridXlsxConverter.load(this.flex, fileEle.files[0], { includeColumnHeaders: true });
+    //}
+    //// Save Funciton
+    //ExportExcel(event) {
+    //    let flex = this.flex;
+    //    wijmo.grid.xlsx.FlexGridXlsxConverter.save(this.flex, { includeColumnHeaders: true, includeCellStyles: false }, "FlexGrid.xlsx");
+    //}
 }

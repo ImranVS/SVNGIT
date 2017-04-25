@@ -123,6 +123,7 @@ import { WebSphereCurrentHeapSize } from './reports/components/ibm-websphere/web
 import { Office365UptimeReport } from './reports/components/office365/office365-uptime.component';
 import { MobileDevicesSummaryOS } from './reports/components/mobile-users/mobile-users-os-summary.component';
 import {RepeatableChart} from './reports/components/repeatable-chart.component';
+import { MobileUsersReport } from './reports/components/mobile-users/mobile-users-report.component';
 
 @NgModule({
     imports: [
@@ -234,6 +235,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         WebSphereCurrentHeapSize,
         Office365UptimeReport,
         MobileDevicesSummaryOS,
+        MobileUsersReport,
         dashboards.SampleDashboard,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
@@ -383,6 +385,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         widgets.IBMConnectionsUserComparison,
         widgets.IBMConnectionsCommunityUser,
         widgets.NotesMailProbes,
+        widgets.MobileUsersReportGrid,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,
@@ -545,6 +548,7 @@ import {RepeatableChart} from './reports/components/repeatable-chart.component';
         widgets.IBMConnectionsUserComparison,
         widgets.IBMConnectionsCommunityUser,
         widgets.NotesMailProbes,
+        widgets.MobileUsersReportGrid,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsOverviewTab,

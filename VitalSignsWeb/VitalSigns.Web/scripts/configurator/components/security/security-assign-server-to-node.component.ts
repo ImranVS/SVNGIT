@@ -31,7 +31,7 @@ export class Nodes extends GridBase {
     nodes: any;
     servernodes: any;
     nodesHealth: FormGroup;
-    devices: string;
+    devices: string = "";
     selectedNode: string = null;
     visibility: boolean = true;
     isVisible: boolean = false;

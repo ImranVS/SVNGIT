@@ -31,7 +31,25 @@ export class IBMWebsphereDashboard extends WidgetController implements OnInit {
                 id: 'websphereGrid',
                 title: 'Cells',
                 name: 'IBMWebsphereGrid',
-                css: 'col-xs-12 col-sm-12  col-md-12 col-lg-8',
+                css: 'col-xs-12 col-sm-12  col-md-12 col-lg-12',
+                settings: {
+
+                }
+            },
+            {
+                id: 'websphereNodeGrid',
+                title: 'Nodes',
+                name: 'IBMWebsphereNodeGrid',
+                css: 'col-xs-12 col-sm-12  col-md-12 col-lg-12',
+                settings: {
+
+                }
+            },
+            {
+                id: 'websphereServerGrid',
+                title: 'Servers',
+                name: 'IBMWebsphereServerGrid',
+                css: 'col-xs-12 col-sm-12  col-md-12 col-lg-12',
                 settings: {
 
                 }
@@ -84,15 +102,6 @@ export class IBMWebsphereDashboard extends WidgetController implements OnInit {
                 }
             },
             {
-                id: 'websphereNodeGrid',
-                title: 'Nodes',
-                name: 'IBMWebsphereNodeGrid',
-                css: 'col-xs-12 col-sm-12  col-md-12 col-lg-8',
-                settings: {
-
-                }
-            },
-            {
                 id: 'activeThreads',
                 title: 'Active Thread Count',
                 name: 'ChartComponent',
@@ -125,15 +134,6 @@ export class IBMWebsphereDashboard extends WidgetController implements OnInit {
                         },
                         series: []
                     }
-                }
-            },
-            {
-                id: 'websphereServerGrid',
-                title: 'Servers',
-                name: 'IBMWebsphereServerGrid',
-                css: 'col-xs-12 col-sm-12  col-md-12 col-lg-8',
-                settings: {
-
                 }
             },
             {

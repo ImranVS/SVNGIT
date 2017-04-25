@@ -82,7 +82,7 @@ export class MobileDevicesSummaryOS extends WidgetController {
                         },
                         legend: {
                             labelFormatter: function () {
-                                return '<div style="font-size: 10px; font-weight: normal;">' + this.name + ' (' + this.percentage + '%)' + '</div>'; 
+                                return '<div style="font-size: 10px; font-weight: normal;">' + this.name + ' (' + Math.round(this.percentage) + '%)' + '</div>'; 
                             }
                         },
                         credits: {
