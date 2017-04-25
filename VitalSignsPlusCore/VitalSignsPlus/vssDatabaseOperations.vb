@@ -1389,7 +1389,7 @@ Partial Public Class VitalSignsPlusCore
         For n = 0 To MyIBMConnectServers.Count - 1
             MyIBMConnectServer = MyIBMConnectServers.Item(n)
             Dim myStatusCode As String = ServerStatusCode(MyIBMConnectServer.Status)
-            Dim TypeAndName As String = MyIBMConnectServer.Name & MyIBMConnectServer.ServerType
+            Dim TypeAndName As String = MyIBMConnectServer.Name & "-" & MyIBMConnectServer.ServerType
             Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
             Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
             With MyIBMConnectServer
