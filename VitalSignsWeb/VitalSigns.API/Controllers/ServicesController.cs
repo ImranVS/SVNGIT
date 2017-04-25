@@ -1015,10 +1015,10 @@ namespace VitalSigns.API.Controllers
                     {
                         DeviceId = x.DeviceId,
                         DeviceName = x.DeviceName,
-                        StatName = x.StatName,
+                        StatName = uc.GetUserFriendlyStatName(x.StatName),
                         StatValue = x.StatValue
 
-                    }).Take(500).ToList();
+                    }).OrderBy(x => x.StatName).Take(500).ToList();
 
                     foreach (string currString in statNames.Where(i => i.Contains("*")))
                     {
@@ -1036,10 +1036,10 @@ namespace VitalSigns.API.Controllers
                             {
                                 DeviceId = x.DeviceId,
                                 DeviceName = x.DeviceName,
-                                StatName = x.StatName,
+                                StatName = uc.GetUserFriendlyStatName(x.StatName),
                                 StatValue = x.StatValue
 
-                            }).Take(500).ToList()
+                            }).OrderBy(x => x.StatName).Take(500).ToList()
                         );
 
                     }

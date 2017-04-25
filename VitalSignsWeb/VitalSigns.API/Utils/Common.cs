@@ -295,7 +295,7 @@ namespace VitalSigns.API
             mailMessage.To.Add(emailId);
             mailMessage.From = new MailAddress(emailUserId);
             mailMessage.IsBodyHtml = false;
-            mailMessage.Body = "Your VitalSigns account details are as follows: \n\rUser name: " + emailId.ToString() + "\nPassword:" + password + "";
+            mailMessage.Body = "Your VitalSigns account details are as follows: \n\rUser name: " + emailId.ToString() + "\nPassword: " + password + "";
             mailMessage.Subject = "Your VitalSigns Account Information Update";
 
             try
