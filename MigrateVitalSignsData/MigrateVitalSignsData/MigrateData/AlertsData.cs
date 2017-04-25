@@ -17,6 +17,8 @@ namespace MigrateVitalSignsData
         static Repository<EventsMaster> eventsmasterRepository = new Repository<EventsMaster>(MappingHelper.MongoConnectionString);
         static Repository<BusinessHours> businessHoursRepository = new Repository<BusinessHours>(MappingHelper.MongoConnectionString);
         static Repository<NotificationDestinations> notificationdesRepository = new Repository<NotificationDestinations>(MappingHelper.MongoConnectionString);
+        static Repository<Server> serverRepository = new Repository<Server>(MappingHelper.MongoConnectionString);
+        static Repository<Location> locationRepository = new Repository<Location>(MappingHelper.MongoConnectionString);
 
         public static void MigrateAlertsData()
         {
@@ -24,7 +26,7 @@ namespace MigrateVitalSignsData
             //Event Master
             var eventsMaster = new Mapper<EventsMaster>("EventsMaster.json").Map();
 
-            eventsmasterRepository.Insert(eventsMaster);
+            //eventsmasterRepository.Insert(eventsMaster);
 
             //Notifications
             var notifications = new Mapper<Notifications>("Notification.json").Map();
@@ -58,7 +60,6 @@ namespace MigrateVitalSignsData
                     var result = eventsmasterRepository.Update(eventMaster, updateDefination);
                 }
             }
-
 
             //Notification Destination
             query = @"SELECT hi.Type,
@@ -105,7 +106,7 @@ namespace MigrateVitalSignsData
                 else if (!string.IsNullOrEmpty(alertDetails.SendTo))
                 {
                     notifDestination.SendVia = "E-mail";
-                    notifDestination.SendVia = alertDetails.SendTo;
+                    notifDestination.SendTo = alertDetails.SendTo;
                     notifDestination.CopyTo = alertDetails.CopyTo;
                     notifDestination.BlindCopyTo = alertDetails.BCC;
                 }
@@ -114,7 +115,7 @@ namespace MigrateVitalSignsData
                 notifDestination.ScriptLocation = alertDetails.ScriptLocation;
                 notifDestination.PersistentNotification = alertDetails.EnablePersistentAlert;
                 // notifDestinations.Add(notifDestination);
-                notifDestination.Interval = alertDetails.Duration;
+                notifDestination.Interval = alertDetails.Duration == 0 ? null : alertDetails.Duration;
                 notificationdesRepository.Insert(notifDestination);
                 if (notifAndNotifDest.ContainsKey(alertDetails.AlertName))
                 {
@@ -143,10 +144,117 @@ namespace MigrateVitalSignsData
                 }
             }
 
+
+            //Update servers notifications
+
+            query = @"select AN.AlertName, asvr.ServerId, asvr.LocationID, asvr.ServerTypeID
+                        From vitalsigns.dbo.AlertNames AN
+                        Inner join vitalsigns.dbo.AlertServers asvr on AN.AlertKey = asvr.AlertKey";
+            var AlertServers = (MappingHelper.ExecuteQuery(query)).AsEnumerable().Select(x => new AlertServersClass
+            {
+                AlertName = x.Field<string>(0).Trim(),
+                ServerId = x.Field<int>(1).ToString(),
+                LocationId = x.Field<int>(2).ToString(),
+                ServerTypeId = x.Field<int>(3).ToString(),
+
+            }).ToList();
+
+            query = @"SELECT LocationId, id, ServerTypeId, ServerName from vitalsigns.dbo.Servers";
+            var Servers = (MappingHelper.ExecuteQuery(query)).AsEnumerable().Select(x => new ServersClass
+            {
+                LocationId = x.Field<int>(0).ToString(),
+                ServerId = x.Field<int>(1).ToString(),
+                ServerTypeId = x.Field<int>(2).ToString(),
+                ServerName = x.Field<string>(3),
+
+            }).ToList();
+
+            query = @"SELECT Location, id from vitalsigns.dbo.Locations";
+            var Locations = (MappingHelper.ExecuteQuery(query)).AsEnumerable().Select(x => new LocationsClass
+            {
+                Location = x.Field<string>(0),
+                LocationId = x.Field<int>(1).ToString()
+            }).ToList();
+
+            query = @"SELECT ID, ServerType from vitalsigns.dbo.ServerTypes";
+            var ServerTypes = (MappingHelper.ExecuteQuery(query)).AsEnumerable().Select(x => new ServerTypesClass
+            {
+                ServerTypeId = x.Field<int>(0).ToString(),
+                ServerType = x.Field<string>(1)
+            }).ToList();
+
+            var locationsMongo = locationRepository.Find(x => true).ToList();
+
+            foreach (var entry in AlertServers)
+            {
+                try
+                {
+                    List<LocationsClass> locations;
+                    if (entry.LocationId == "0")
+                        locations = Locations.ToList();
+                    else
+                        locations = Locations.Where(x => x.LocationId == entry.LocationId).ToList();
+
+                    List<ServerTypesClass> serverTypes;
+                    if (entry.ServerTypeId == "0")
+                        serverTypes = ServerTypes.ToList();
+                    else
+                        serverTypes = ServerTypes.Where(x => x.ServerTypeId == entry.ServerTypeId).ToList();
+
+                    List<ServersClass> servers;
+                    if (entry.ServerId == "0")
+                        servers = Servers.ToList();
+                    else
+                        servers = Servers.Where(x => x.ServerId == entry.ServerId).ToList();
+
+                    var notification = notifications.Where(x => x.NotificationName == entry.AlertName).First();
+
+                    serverRepository.Update((
+                        serverRepository.Filter.In(x => x.DeviceName, servers.Select(x => x.ServerName)) &
+                        serverRepository.Filter.In(x => x.LocationId, locationsMongo.Where(y => locations.Select(z => z.Location).Contains(y.LocationName)).Select(y => y.Id))) &
+                        serverRepository.Filter.In(x => x.DeviceName, servers.Select(x => x.ServerName)),
+                        serverRepository.Updater.AddToSet(x => x.NotificationList, notification.Id));
+
+                }
+                catch(Exception ex)
+                {
+
+                }
+            }
+
+
             //Events Detected
 
 
 
+        }
+
+        private class AlertServersClass
+        {
+            public String AlertName;
+            public String ServerId;
+            public String LocationId;
+            public String ServerTypeId;
+        }
+
+        private class LocationsClass
+        {
+            public String LocationId;
+            public String Location;
+        }
+
+        private class ServerTypesClass
+        {
+            public String ServerTypeId;
+            public String ServerType;
+        }
+
+        private class ServersClass
+        {
+            public String ServerTypeId;
+            public String ServerName;
+            public String LocationId;
+            public String ServerId;
         }
     }
 }

@@ -1,0 +1,25 @@
+{
+  "sql_query": "SELECT DeviceName, DeviceType, StatName, StatValue, StatDate, daily.SourceAggregation AggregationType FROM (   SELECT ServerName DeviceName, DeviceType, StatName, StatValue, Date StatDate, 'DeviceDailySummaryStats' TableName	FROM [VSS_Statistics].[dbo].[DeviceDailySummaryStats ]  union SELECT ServerName DeviceName, DeviceType, StatName, StatValue, Date StatDate, 'DeviceUpTimeSummaryStats' TableName FROM [VSS_Statistics].[dbo].[DeviceUpTimeSummaryStats]   union SELECT ServerName DeviceName, 'Domino' DeviceType, StatName, StatValue, Date StatDate, 'DominoSummaryStats' TableName FROM [VSS_Statistics].[dbo].[DominoSummaryStats]   union SELECT ServerName DeviceName, 'IBM Connections' DeviceType, StatName, StatValue, Date StatDate, 'IbmConnectionsSummaryStats' TableName FROM [VSS_Statistics].[dbo].[IbmConnectionsSummaryStats]   union SELECT ServerName DeviceName, (SELECT ServerTypes.ServerType FROM vitalsigns.dbo.ServerTypes WHERE ServerTypes.ID = ServerTypeId) DeviceType, StatName, StatValue, Date StatDate, 'MicrosoftSummaryStats' TableName FROM [VSS_Statistics].[dbo].[MicrosoftSummaryStats]) tbl   left outer join vitalsigns.dbo.DailyTasks daily on tbl.TableName = daily.DestinationTableName AND daily.DestinationStatName = tbl.StatName",
+  "mappings": [
+    {
+      "sql_column": "DeviceName",
+      "mongodb_field": "device_name"
+    },
+    {
+      "sql_column": "DeviceType",
+      "mongodb_field": "device_type"
+    },
+    {
+      "sql_column": "StatName",
+      "mongodb_field": "stat_name"
+    },
+    {
+      "sql_column": "StatValue",
+      "mongodb_field": "stat_value"
+    },
+    {
+      "sql_column": "AggregationType",
+      "mongodb_field": "aggregation_type"
+    }
+  ]
+}

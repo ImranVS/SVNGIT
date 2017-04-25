@@ -12,9 +12,9 @@ using System.Data;
 
 namespace MigrateVitalSignsData
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
 
             if (args.Length < 2)
@@ -25,60 +25,87 @@ namespace MigrateVitalSignsData
             }
             else
             {
-                MappingHelper.SQLConnectionString = args[0];
+                MappingHelper.SQLVitalsignsConnectionString = args[0];
+                MappingHelper.SQLStatisticsConnectionString = args[0].Replace("Catalog=VitalSigns", "Catalog=VSS_Statistics");
                 MappingHelper.MongoConnectionString = args[1];
-                AlertsData.MigrateAlertsData();
+
+                
+
                 //Credentials
+                Console.WriteLine("Processing Credentials");
                 var credentials = new Mapper<Credentials>("Credentials.json").Map();
                 Repository<Credentials> credentialsRepository = new Repository<Credentials>(MappingHelper.MongoConnectionString);
-                credentialsRepository.Insert(credentials);
+                if(credentials.Count > 0)
+                    credentialsRepository.Insert(credentials);
+
                 //MobileDevices
+                Console.WriteLine("Processing Mobile Devices");
                 var mobileDevices = new Mapper<MobileDevices>("MobileDevices.json").Map();
                 Repository<MobileDevices> mobileDeviecesRepository = new Repository<MobileDevices>(MappingHelper.MongoConnectionString);
                 if (mobileDevices.Count > 0)
                     mobileDeviecesRepository.Insert(mobileDevices);
 
                 //Locations
+                Console.WriteLine("Processing Locations");
                 var locations = new Mapper<Location>("location.json").Map();
                 Repository<Location> locationRepository = new Repository<Location>(MappingHelper.MongoConnectionString);
-                locationRepository.Insert(locations);
+                if (locations.Count > 0)
+                    locationRepository.Insert(locations);
 
                 //License
+                Console.WriteLine("Processing License");
                 var license = new Mapper<License>("License.json").Map();
                 Repository<License> licenseRepository = new Repository<License>(MappingHelper.MongoConnectionString);
-                licenseRepository.Insert(license);
+                if (license.Count > 0)
+                    licenseRepository.Insert(license);
 
+                Console.WriteLine("Processing Nodes");
                 var node = new Mapper<Nodes>("Node.json").Map();
                 Repository<Nodes> nodeRepository = new Repository<Nodes>(MappingHelper.MongoConnectionString);
-                nodeRepository.Insert(node);
+                if (node.Count > 0)
+                    nodeRepository.Insert(node);
 
+                Console.WriteLine("Processing Maintenance");
                 var maintenance = new Mapper<Maintenance>("maintenance.json").Map();
                 Repository<Maintenance> maintenanceRepository = new Repository<Maintenance>(MappingHelper.MongoConnectionString);
-                maintenanceRepository.Insert(maintenance);
+                if (maintenance.Count > 0)
+                    maintenanceRepository.Insert(maintenance);
 
-                var ibm_connections_objects = new Mapper<IbmConnectionsObjects>("ibm_connections_object.json").Map();
-                Repository<IbmConnectionsObjects> connectionsRepository = new Repository<IbmConnectionsObjects>(MappingHelper.MongoConnectionString);
-               // connectionsRepository.Insert(ibm_connections_objects);
+                //Console.WriteLine("Processing Credentials");
+                //var ibm_connections_objects = new Mapper<IbmConnectionsObjects>("ibm_connections_object.json").Map();
+                //Repository<IbmConnectionsObjects> connectionsRepository = new Repository<IbmConnectionsObjects>(MappingHelper.MongoConnectionString);
+                // connectionsRepository.Insert(ibm_connections_objects);
 
+                Console.WriteLine("Processing Settings");
                 var namevalue = new Mapper<NameValue>("namevalue.json").Map();
                 Repository<NameValue> nameValueRepository = new Repository<NameValue>(MappingHelper.MongoConnectionString);
-                nameValueRepository.Insert(namevalue);
+                if (namevalue.Count > 0)
+                    nameValueRepository.Insert(namevalue);
+                    //foreach (var entity in namevalue)
+                        //nameValueRepository.Replace(entity, new FilterDefinitionBuilder<NameValue>().Eq(x => x.Name, entity.Name), (new UpdateOptions() { IsUpsert = true }));
 
+
+                Console.WriteLine("Processing Users");
                 var users = new Mapper<Users>("Users.json").Map();
                 Repository<Users> userRepository = new Repository<Users>(MappingHelper.MongoConnectionString);
-                userRepository.Insert(users);
+                if (users.Count > 0)
+                    userRepository.Insert(users);
 
+                Console.WriteLine("Processing Consolidation Reports");
                 var consolidationresult = new Mapper<ConsolidationResults>("ConsolidationResults.json").Map();
                 Repository<ConsolidationResults> consolidatioresultRepository = new Repository<ConsolidationResults>(MappingHelper.MongoConnectionString);
-                consolidatioresultRepository.Insert(consolidationresult);
+                if (consolidationresult.Count > 0)
+                    consolidatioresultRepository.Insert(consolidationresult);
 
+                Console.WriteLine("Processing Domino Server Tasks");
                 var dominoservertask = new Mapper<DominoServerTasks>("DominoServerTasks.json").Map();
                 Repository<DominoServerTasks> dominoservertaskRepository = new Repository<DominoServerTasks>(MappingHelper.MongoConnectionString);
-                dominoservertaskRepository.Insert(dominoservertask);
+                if (dominoservertask.Count > 0)
+                    dominoservertaskRepository.Insert(dominoservertask);
 
-               
 
 
+                Console.WriteLine("Processing Buiness Hours");
                 var businessHours = new Mapper<BusinessHours>("business_hours.json").Map();
                 string query = "SELECT [ID],[Type],[Starttime],[Duration],[UseType],[Issunday],[IsMonday],[IsTuesday],[IsWednesday],[IsThursday],[IsFriday],[Issaturday]  FROM [vitalsigns].[dbo].[HoursIndicator]";
                 var hoursIndicatorTable = (MappingHelper.ExecuteQuery(query)).AsEnumerable().ToList();
@@ -96,9 +123,11 @@ namespace MigrateVitalSignsData
 
 
                     }).FirstOrDefault();
+
+                    List<string> days = new List<string>();
                     if (hourIndicatorRow != null)
                     {
-                        List<string> days = new List<string>();
+                        
                         if (hourIndicatorRow.Sunday.HasValue && hourIndicatorRow.Sunday.Value)
                             days.Add("Sunday");
                         if (hourIndicatorRow.Monday.HasValue && hourIndicatorRow.Monday.Value)
@@ -113,22 +142,32 @@ namespace MigrateVitalSignsData
                             days.Add("Friday");
                         if (hourIndicatorRow.Saturday.HasValue && hourIndicatorRow.Saturday.Value)
                             days.Add("Saturday");
-
-                        if (days.Count() > 0)
-                            businesshour.Days = days.ToArray();
-
                     }
+
+                    //if (days.Count() > 0)
+                    businesshour.Days = days.ToArray();
 
                 }
                 Repository<BusinessHours> business_hoursRepository = new Repository<BusinessHours>(MappingHelper.MongoConnectionString);
-                business_hoursRepository.Insert(businessHours);
+                if (businessHours.Count > 0)
+                    business_hoursRepository.Insert(businessHours);
 
+                    /*foreach (var entity in businessHours)
+                        business_hoursRepository.Replace(entity, new FilterDefinitionBuilder<BusinessHours>().Eq(x => x.Name, entity.Name), (new UpdateOptions() { IsUpsert = true }));
+                        */
+                Console.WriteLine("Processing Server Data");
                 MigrateData.ServerData.MigrateServerData();
+
+                Console.WriteLine("Processing Cluster Datebase Details");
                 var clusterDatabaseDetails = new Mapper<ClusterDatabaseDetails>("cluster_database_details.json").Map();
                 Repository<ClusterDatabaseDetails> clusterDatabseRepository = new Repository<ClusterDatabaseDetails>(MappingHelper.MongoConnectionString);
-                clusterDatabseRepository.Insert(clusterDatabaseDetails);
+                if (clusterDatabaseDetails.Count > 0)
+                    clusterDatabseRepository.Insert(clusterDatabaseDetails);
 
+                Console.WriteLine("Processing Alerts");
+                AlertsData.MigrateAlertsData();
 
+                Console.WriteLine("Processing Traveler Summary Stats");
                 var travelerSummaryStats = new Mapper<TravelerStatusSummary>("traveler_summary_stats.json").Map();
                 if (travelerSummaryStats.Count() > 0)
                 {
@@ -136,22 +175,24 @@ namespace MigrateVitalSignsData
                     travelerSummaryStatsRepository.Insert(travelerSummaryStats);
                 }
 
-
+                Console.WriteLine("Processing Traveler Data Store");
                 var travelerDataStore = new Mapper<TravelerDTS>("traveler_data_store.json").Map();
                 Repository<TravelerDTS> travelerDataStoreRepository = new Repository<TravelerDTS>(MappingHelper.MongoConnectionString);
-                travelerDataStoreRepository.Insert(travelerDataStore);
+                if (travelerDataStore.Count > 0)
+                    travelerDataStoreRepository.Insert(travelerDataStore);
 
-
+                Console.WriteLine("Processing Mobile Device Translations");
                 var mobileDeviceTranslations = new Mapper<MobileDeviceTranslations>("mobile_device_translations.json").Map();
                 Repository<MobileDeviceTranslations> mobileDeviceTranslationsRepository = new Repository<MobileDeviceTranslations>(MappingHelper.MongoConnectionString);
-                mobileDeviceTranslationsRepository.Insert(mobileDeviceTranslations);
+                if (mobileDeviceTranslations.Count > 0)
+                    mobileDeviceTranslationsRepository.Insert(mobileDeviceTranslations);
 
-
+                //Console.WriteLine("Processing Credentials");
                 var sharepointWebTrafficDailyStats = new Mapper<SharePointWebTrafficDailyStatistics>("sharepoint_webtraffic_dailystats.json").Map();
                 if (sharepointWebTrafficDailyStats.Count() > 0)
                 {
                     Repository<SharePointWebTrafficDailyStatistics> sharepointWebTrafficDailyStatsRepository = new Repository<SharePointWebTrafficDailyStatistics>(MappingHelper.MongoConnectionString);
-                    sharepointWebTrafficDailyStatsRepository.Insert(sharepointWebTrafficDailyStats);
+                   // sharepointWebTrafficDailyStatsRepository.Insert(sharepointWebTrafficDailyStats);
                 }
 
                 //var deviceDailyStats = new Mapper<DailyStatistics>("daily_statistics.json").Map();
@@ -169,15 +210,19 @@ namespace MigrateVitalSignsData
                 //}
 
 
-
+                Console.WriteLine("Processing Scripts");
                 var scripts = new Mapper<Scripts>("Scripts.json").Map();
                 Repository<Scripts> scriptsRepository = new Repository<Scripts>(MappingHelper.MongoConnectionString);
-                scriptsRepository.Insert(scripts);
+                if (scripts.Count > 0)
+                    scriptsRepository.Insert(scripts);
 
+                Console.WriteLine("Processing Log Files");
                 var logfile = new Mapper<LogFile>("logfile.json").Map();
                 Repository<LogFile> logFileRepository = new Repository<LogFile>(MappingHelper.MongoConnectionString);
-                logFileRepository.Insert(logfile);
+                if (logfile.Count > 0)
+                    logFileRepository.Insert(logfile);
 
+                Console.WriteLine("Processing Traveler Stats");
                 Repository<TravelerStats> travelerStatsRepository = new Repository<TravelerStats>(MappingHelper.MongoConnectionString);
                 var travelerstats = new Mapper<TravelerStats>("travelerstats.json").Map();
                 Repository<Server> serverRepository = new Repository<Server>(MappingHelper.MongoConnectionString);
@@ -190,9 +235,28 @@ namespace MigrateVitalSignsData
                         travelerstat.DeviceId = serverid.Id;
                     }
                 }
-                travelerStatsRepository.Insert(travelerstats);
+                if (travelerstats.Count > 0)
+                    travelerStatsRepository.Insert(travelerstats);
 
+                Console.WriteLine("Processing Summary Stats");
+                var summaryStats = new Mapper<SummaryStatistics>("SummaryStats.json", vitalsignsDatabase: false).Map();
+                foreach(var summaryStat in summaryStats)
+                {
+                    try
+                    {
+                        string ID = servers.Where(x => x.DeviceName == summaryStat.DeviceName && x.DeviceType == summaryStat.DeviceType).First().Id;
+                        summaryStat.DeviceId = ID;
+                    }
+                    catch(Exception ex)
+                    {
 
+                    }
+                }
+                Repository<SummaryStatistics> summaryStatsRepository = new Repository<SummaryStatistics>(MappingHelper.MongoConnectionString);
+                if (summaryStats.Count > 0)
+                    summaryStatsRepository.Insert(summaryStats);
+
+                
 
             }
         }

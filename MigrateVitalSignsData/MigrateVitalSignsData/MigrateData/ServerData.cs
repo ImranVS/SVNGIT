@@ -38,8 +38,8 @@ namespace MigrateVitalSignsData.MigrateData
                 server.DeviceType = Enums.ServerType.Domino.ToDescription();
                 BuildServerData(server);
             }
-
-            serverRepository.Insert(dominoServers);
+            if (dominoServers.Count > 0)
+                serverRepository.Insert(dominoServers);
             //IBM WebSphere
 
             var websphereCell = new Mapper<Server>("WebSphereCell.json").Map();
@@ -95,9 +95,12 @@ namespace MigrateVitalSignsData.MigrateData
                 }
                 cell.Nodes = nodes;
             }
-            serverRepository.Insert(websphereServer);
-            serverRepository.Insert(websphereCell);
-            serverRepository.Insert(websphereNode);
+            if(websphereServer.Count > 0)
+                serverRepository.Insert(websphereServer);
+            if (websphereCell.Count > 0)
+                serverRepository.Insert(websphereCell);
+            if (websphereNode.Count > 0)
+                serverRepository.Insert(websphereNode);
           
 
             //IBM Connections
@@ -137,7 +140,9 @@ namespace MigrateVitalSignsData.MigrateData
                     server.SimulationTests = simulationTests;                
                 BuildServerData(server);
             }
-            serverRepository.Insert(ConnectionServers);
+
+            if (ConnectionServers.Count > 0)
+                serverRepository.Insert(ConnectionServers);
             //sametime server
             var sameTimeServers = new Mapper<Server>("Sametime.json").Map();
             query = "SELECT ID,AliasName From [vitalsigns].[dbo].[Credentials]";
@@ -173,8 +178,8 @@ namespace MigrateVitalSignsData.MigrateData
                 else
                     server.User2CredentialsId = null;
             }
-
-            serverRepository.Insert(sameTimeServers);
+            if (sameTimeServers.Count > 0)
+                serverRepository.Insert(sameTimeServers);
 
         }
         private static void BuildServerData(Server server)

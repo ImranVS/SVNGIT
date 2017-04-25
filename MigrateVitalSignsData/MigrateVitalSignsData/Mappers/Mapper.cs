@@ -13,13 +13,15 @@ namespace MigrateVitalSignsData.Mappers
     public class Mapper<TEntity>  where TEntity : class, new()
     {
         public readonly MapperData MapperData;
-        public Mapper(string fileName)
+        public readonly bool VitalSignsDatabase;
+        public Mapper(string fileName, bool vitalsignsDatabase = true)
         {
             MapperData = MappingHelper.GetMapingData(fileName);
+            VitalSignsDatabase = vitalsignsDatabase;
         }
         public List<TEntity> Map()
         {
-            DataTable table = MappingHelper.ExecuteQuery(MapperData.SQLQuery);
+            DataTable table = MappingHelper.ExecuteQuery(MapperData.SQLQuery, VitalSignsDatabase);
             List<TEntity> entities = new List<TEntity>();
             var columnNames = table.Columns.Cast<DataColumn>().Select(x => x.ColumnName).ToList();
             var properties = (typeof(TEntity)).GetProperties().Where(x => x.GetCustomAttributes(typeof(BsonElementAttribute), true).Any())

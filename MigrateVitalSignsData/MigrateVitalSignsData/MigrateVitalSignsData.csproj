@@ -67,11 +67,11 @@
     <Reference Include="System.Xml" />
     <Reference Include="VSNext.Mongo.Entities, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Builds\Services\VSNext.Mongo.Entities.dll</HintPath>
+      <HintPath>..\..\..\Builds\Services\VSNext.Mongo.Entities.dll</HintPath>
     </Reference>
     <Reference Include="VSNext.Mongo.Repository, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Builds\Services\VSNext.Mongo.Repository.dll</HintPath>
+      <HintPath>..\..\..\Builds\Services\VSNext.Mongo.Repository.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -94,6 +94,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="MappingData\ConsolidationResults.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="MappingData\SummaryStats.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="MappingData\Credentials.json">
@@ -192,9 +195,16 @@
     <None Include="MappingData\WebSphereNode.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\..\VitalSigns Services\VitalSignsLicensing\VitalSignsLicensing.csproj">
+      <Project>{723d8395-0a54-41bb-b893-b4e6a1828d79}</Project>
+      <Name>VitalSignsLicensing</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

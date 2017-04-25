@@ -1,5 +1,5 @@
 ﻿{
-  "sql_query": "SELECT [LicenseKey],[Units],[InstallType],[CompanyName],[LicenseType],[ExpirationDate],[EncUnits] FROM [vitalsigns].[dbo].[License]",
+  "sql_query": "SELECT [LicenseKey],[Units],[InstallType],[CompanyName],[LicenseType],[ExpirationDate] FROM [vitalsigns].[dbo].[License]",
   "mappings": [
     {
       "sql_column": "LicenseKey",
@@ -24,10 +24,6 @@
     {
       "sql_column": "ExpirationDate",
       "mongodb_field": "expiration_date"
-    },
-    {
-      "sql_column": "EncUnits",
-      "mongodb_field": "enc_units"
     }
   ]
 }

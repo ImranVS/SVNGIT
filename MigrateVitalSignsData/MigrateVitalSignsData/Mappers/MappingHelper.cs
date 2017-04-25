@@ -13,7 +13,8 @@ namespace MigrateVitalSignsData.Mappers
 {
     public static class MappingHelper       
     {
-        public static string SQLConnectionString;
+        public static string SQLVitalsignsConnectionString;
+        public static string SQLStatisticsConnectionString;
         public static string MongoConnectionString;
 
         public static string GetSourceNames(Type type, string propertyName)
@@ -88,13 +89,23 @@ namespace MigrateVitalSignsData.Mappers
                     prop.SetValue(entity, double.Parse(value.ToString()), null);
                 }
             }
+            else if (prop.PropertyType == typeof(bool) || prop.PropertyType == typeof(bool?))
+            {
+                bool boolVal;
+                bool isValid = bool.TryParse(value.ToString(), out boolVal);
+                if (isValid)
+                {
+                    prop.SetValue(entity, bool.Parse(value.ToString()), null);
+                }
+            }
         }
 
-        public static DataTable ExecuteQuery(string query)
+        public static DataTable ExecuteQuery(string query, bool vitalSignsDatabase = true)
         {
             var dataTable = new DataTable();
+            string connectionString = vitalSignsDatabase ? SQLVitalsignsConnectionString : SQLStatisticsConnectionString;
          
-            using (SqlConnection connection = new SqlConnection(SQLConnectionString))
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
                 using (var sqlCommand = new SqlCommand(query, connection))
