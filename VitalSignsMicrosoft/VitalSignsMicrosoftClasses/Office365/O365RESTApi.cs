@@ -661,7 +661,11 @@ namespace VitalSignsMicrosoftClasses
 			start = DateTime.Now.Ticks;
 			bool mailSent = sendMessage(randomNo, myServer);
 
-			System.Threading.Thread.Sleep(myServer.MailFlowThreshold);
+            if(mailSent)
+                myServer.IncrementServiceUpCount(MonitoredItems.Office365Server.ServiceTypes.Exchange.ToString(), "MailSent@" + nodeName);
+            else
+                myServer.IncrementServiceDownCount(MonitoredItems.Office365Server.ServiceTypes.Exchange.ToString(), "MailSent@" + nodeName);
+            System.Threading.Thread.Sleep(myServer.MailFlowThreshold);
 			string messageId = getMessages(randomNo, myServer);
 			//if the message has not been delivered yet, well try to check for another 30 secs
 			if (messageId == "")
@@ -691,7 +695,12 @@ namespace VitalSignsMicrosoftClasses
 				done = DateTime.Now.Ticks;
 				elapsed = new TimeSpan(done - start);
 			}
-			if (messageId == "")
+            if(messageId == "")
+                myServer.IncrementServiceDownCount(MonitoredItems.Office365Server.ServiceTypes.Exchange.ToString(), "MailReceived@" + nodeName);
+            else
+                myServer.IncrementServiceUpCount(MonitoredItems.Office365Server.ServiceTypes.Exchange.ToString(), "MailReceived@" + nodeName);
+
+            if (messageId == "")
 				Common.makeAlert(elapsed.TotalMilliseconds, myServer.MailFlowThreshold, myServer, commonEnums.AlertType.Mail_flow, ref AllTestsList, "Mail was not delivered in the specified threshold time plus additional 30 secs", "Performance");
 			else
 			{
@@ -828,10 +837,12 @@ namespace VitalSignsMicrosoftClasses
 				//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
                 AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "Inbox" + "@" + nodeName, elapsed.TotalMilliseconds.ToString()));
 				Common.makeAlert(bInboxTest, myServer, commonEnums.AlertType.Inbox, ref AllTestsList, "Successfully connected to Inbox", "Performance");
+                myServer.IncrementServiceUpCount(MonitoredItems.Office365Server.ServiceTypes.Exchange.ToString(), "Inbox@" + nodeName);
 			}
 			else
 			{
-				Common.makeAlert(bInboxTest, myServer, commonEnums.AlertType.Inbox, ref AllTestsList, "Connection to Inbox failed", "Performance");
+                myServer.IncrementServiceDownCount(MonitoredItems.Office365Server.ServiceTypes.Exchange.ToString(), "Inbox@" + nodeName);
+                Common.makeAlert(bInboxTest, myServer, commonEnums.AlertType.Inbox, ref AllTestsList, "Connection to Inbox failed", "Performance");
 			}
 		}
 		public bool deleteMessage(string messageId, MonitoredItems.Office365Server myServer)
@@ -899,6 +910,7 @@ namespace VitalSignsMicrosoftClasses
             elapsed = new TimeSpan(done - start);
             if (fileUploadStatus == true)
             {
+                Server.IncrementServiceUpCount(MonitoredItems.Office365Server.ServiceTypes.OneDrive.ToString(), "UploadFile@" + nodeName);
                 if ((Server.OneDriveUplaodThreshold != 0) && (Server.OneDriveUplaodThreshold > 0) && (Server.OneDriveUplaodThreshold < elapsed.TotalMilliseconds))
 					// Common.makeAlert(false, Server, commonEnums.AlertType.OneDrive_Upload_Document, ref AllTestsList, "Successfully uploaded a test document but it did not meet the threshold time of " + Server.OneDriveUplaodThreshold.ToString() + " ms", "Performance");
 					Common.makeAlert(elapsed.TotalMilliseconds, Server.OneDriveUplaodThreshold, Server, commonEnums.AlertType.OneDrive_Upload_Document, ref AllTestsList, "OneDrive Upload Document: The document was Upload in " + elapsed.TotalMilliseconds + " ms at " + time.ToString(format) + ", but it did not meet the threshold of " + Server.OneDriveUplaodThreshold + " ms", "Performance");
@@ -907,6 +919,7 @@ namespace VitalSignsMicrosoftClasses
             }
             else
             {
+                Server.IncrementServiceDownCount(MonitoredItems.Office365Server.ServiceTypes.OneDrive.ToString(), "UploadFile@" + nodeName);
                 Common.makeAlert(fileUploadStatus, Server, commonEnums.AlertType.OneDrive_Upload_Document, ref AllTestsList, "Upload document test failed", "Performance");
             }
             //bool fileDownloadStatus = DownloadDocument(URL, "VSTestText.txt", creds, "Documents");
@@ -975,8 +988,8 @@ namespace VitalSignsMicrosoftClasses
             elapsed = new TimeSpan(done - start);
             if (fileDownloadStatus == true)
             {
-				
-				if ((Server.OneDriveDownlaodThreshold != 0) && (Server.OneDriveDownlaodThreshold > 0) && (Server.OneDriveDownlaodThreshold < elapsed.TotalMilliseconds))
+                Server.IncrementServiceUpCount(MonitoredItems.Office365Server.ServiceTypes.OneDrive.ToString(), "DownloadFile@" + nodeName);
+                if ((Server.OneDriveDownlaodThreshold != 0) && (Server.OneDriveDownlaodThreshold > 0) && (Server.OneDriveDownlaodThreshold < elapsed.TotalMilliseconds))
 				{
 
 					// Common.makeAlert(false, Server, commonEnums.AlertType.OneDrive_Download_Document, ref AllTestsList, "Successfully downloaded a test document but it did not meet the threshold time of " + Server.OneDriveUplaodThreshold.ToString() + " ms", "Performance");
@@ -989,7 +1002,7 @@ namespace VitalSignsMicrosoftClasses
             }
             else
             {
-				
+                Server.IncrementServiceDownCount(MonitoredItems.Office365Server.ServiceTypes.OneDrive.ToString(), "DownloadFile@" + nodeName);
                 Common.makeAlert(fileDownloadStatus, Server, commonEnums.AlertType.OneDrive_Download_Document, ref AllTestsList, "Download document test  failed", "Performance");
             }
         }

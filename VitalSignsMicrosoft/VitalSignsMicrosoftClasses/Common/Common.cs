@@ -1855,7 +1855,7 @@ namespace VitalSignsMicrosoftClasses
 
                         notResponding = true;
                         myServer.AlertCondition = false;
-                        myServer.IncrementUpCount();
+                        myServer.IncrementDownCount();
 
                         string ErrorMessage = results == null ? "" : results.ErrorMessage.ToString();
                         DB.SetServerStatus(myServer, myServer.ServerType, results.PreferedStatus, ErrorMessage);
@@ -1887,9 +1887,24 @@ namespace VitalSignsMicrosoftClasses
         public static void RecordUpAndDownTimes(MonitoredItems.MicrosoftServer myServer, ref TestResults AllTestsList)
         {
             Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Starting Recording of Up and Down Times.", Common.LogLevel.Normal);
+
             try
             {
+                AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "HourlyUpTimePercent", (myServer.UpPercentMinutes * 100).ToString()));
+                AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "HourlyDownTimeMinutes", (myServer.DownMinutes).ToString()));
                 myServer.ResetUpandDownCounts();
+                if (myServer.ServerType == VSNext.Mongo.Entities.Enums.ServerType.Office365.ToDescription())
+                {
+                    MonitoredItems.Office365Server server = myServer as MonitoredItems.Office365Server;
+                    foreach (MonitoredItems.Office365Server.ServiceTests test in server.ServiceResults)
+                    {
+                        //AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "Services.HourlyUpTimePercent." + test.ServiceType + (String.IsNullOrWhiteSpace(test.TestName) ? "" : "." + test.TestName), (server.ServiceUpPercentMinutes(test.ServiceType, test.TestName) * 100).ToString()));
+                        //AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "Services.HourlyDownTimeMinutes." + test.ServiceType + (String.IsNullOrWhiteSpace(test.TestName) ? "" : "." + test.TestName), (server.ServiceDownMinutes(test.ServiceType, test.TestName)).ToString()));
+                        AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "Services.HourlyUpTimePercent." + test.ServiceType + "@" + myServer.Category, (server.ServiceUpPercentMinutes(test.ServiceType, test.TestName) * 100).ToString()));
+                        AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "Services.HourlyDownTimeMinutes." + test.ServiceType + "@" + myServer.Category, (server.ServiceDownMinutes(test.ServiceType, test.TestName)).ToString()));
+                        test.ResetUpandDownCounts();
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -2192,7 +2207,7 @@ namespace VitalSignsMicrosoftClasses
             mongoStatement.Execute();
         }
 
-
+        
 
 
         #region HelperClasses

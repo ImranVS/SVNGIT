@@ -460,11 +460,14 @@ namespace VitalSignsMicrosoftClasses
 								errorMessage = "ADFS Service Unavailable";
 							if (thisServer.StatusCode == "Not Responding")
 							{
+                                thisServer.IncrementDownCount();
 								DB.NotRespondingQueries(thisServer, thisServer.ServerType);
 								DB.ProcessAlerts(AllTestResults, thisServer, thisServer.ServerType);
 							}
 							else
 							{
+                                thisServer.IncrementUpCount();
+
 								Common.WriteDeviceHistoryEntry("All", serverType, "Start General Tests " + thisServer.Name + " on thread " + threadNum + ". Start Time:" + DateTime.Now.ToString() , Common.LogLevel.Normal);
 								//sart a new thread to do rest api tests as that does'nt required a PS connection
 								DateTime thTime = DateTime.Now.AddMinutes(10);//soma
@@ -752,7 +755,7 @@ repo.Upsert(filterdef, updatedef);
 
                         try
                         {
-                            VSNext.Mongo.Entities.Status currStatus = listOfStatus.First(x => x.DeviceId == currServer.Id);
+                            VSNext.Mongo.Entities.Status currStatus = null;// listOfStatus.First(x => x.DeviceId == currServer.Id);
                             if (currStatus != null)
                             {
                                 oldServer.LastScan = currStatus.LastUpdated.HasValue ? currStatus.LastUpdated.Value : DateTime.Now;
@@ -1060,7 +1063,26 @@ repo.Upsert(filterdef, updatedef);
 
 			Common.WriteDeviceHistoryEntry("All", serverType, " Hourly Task started.", Common.LogLevel.Normal);
 			MonitoredItems.Office365Server testServer = null;
-			try
+
+            try
+            {
+                TestResults AllTestResults = new TestResults();
+                foreach (MonitoredItems.Office365Server myServer in myOffice365Servers)
+                    Common.RecordUpAndDownTimes(myServer, ref AllTestResults);
+
+
+                CommonDB db = new CommonDB();
+                db.ProcessMongoStatements(AllTestResults, DummyServerForLogs);
+            }
+            catch(Exception ex)
+            {
+                Common.WriteDeviceHistoryEntry(testServer.ServerType, testServer.Name, " Error in Hourly Task. Loop for all servers. Error : " + ex.Message, Common.LogLevel.Normal);
+            }
+            
+
+
+
+            try
 			{
 				if (myOffice365Servers != null)
 					foreach (MonitoredItems.Office365Server server in myOffice365Servers)

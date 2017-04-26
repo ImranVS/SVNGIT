@@ -590,44 +590,7 @@ namespace VitalSignsMicrosoftClasses
                         Details = "The service failed to connect to the server after several attempts.";
                     
                 }
-
-                strSQL = "UPDATE STATUS SET " +
-					"STATUS='" + Server.Status + "', " +
-					"DETAILS='"+Details+"', " +
-					"STATUSCODE='" + NotResponding + "', " +
-					"LASTUPDATE='" + DateTime.Now.ToString() + "', " +
-
-					//"TypeAndName='" + TypeAndName + "', " +
-					"UserCount='0', " +
-					"ResponseTime='0', " +
-					"SecondaryRole='', " +
-					"Location='" + Server.Location + "', " +
-					"Category='" + Server.Category + "', " +
-					"ResponseThreshold='" + Server.ResponseThreshold + "', " +
-					"DominoVersion='', " +
-					"OperatingSystem='', " +
-					"NextScan='" + Server.NextScan + "', " +
-					"CPU=0, " + 
-					"Memory=0 " +
-					"WHERE TypeAndName='" + TypeAndName + "'";
-                int retCount = DB.Execute(strSQL);
-                if (retCount == 0)
-                {
-                    //insert 
-					
-                    strSQL = "" + 
-						"INSERT INTO STATUS (NAME, STATUS,DETAILS, STATUSCODE, LASTUPDATE, TYPE, LOCATION, CATEGORY, " + 
-						"TYPEANDNAME, DESCRIPTION, UserCount, ResponseTime, " +
-						"SecondaryRole," +
-						"ResponseThreshold, " +
-						"DominoVersion, OperatingSystem, NextScan, CPU, Memory) " +
-						"VALUES ('" + Server.Name + "', '" + NotResponding + "','"+Details+"','" + NotResponding + "', '" + DateTime.Now.ToString() + "','" + ServerType + "','" + Server.Location + "','" + Server.Category + "','" +
-						TypeAndName + "', 'Microsoft " + ServerType + " Server', '0', '0', " +
-						"'', " + 
-						"'" + Server.ResponseThreshold + "', " +
-						"'', '', '" + Server.NextScan + "', 0, 0 )";
-                    DB.Execute(strSQL);
-                }
+                
 
                 MongoStatementsUpsert<VSNext.Mongo.Entities.Status> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Status>();
                 mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.TypeAndName == Server.TypeANDName);

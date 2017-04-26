@@ -260,10 +260,12 @@ namespace VitalSignsMicrosoftClasses
 				Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, " checkServer: PS SESSION IS NULL", Common.LogLevel.Normal);
 				Server.Status = "Not Responding";
 				Server.StatusCode = "Not Responding";
+                Server.IncrementDownCount();
 				//***************************************************Not Responding********************************************//
 			}
 			else
 			{
+                Server.IncrementUpCount();
 				Common.makeAlert(true, Server, commonEnums.AlertType.Authentication, ref AllTestsList, "Successfully authenticated using provided credentials", "Connectivity");
 				Common.makeAlert(true, Server, commonEnums.AlertType.Not_Responding, ref AllTestsList, "Tenant is Responding", "Connectivity");
 			}
@@ -2226,7 +2228,7 @@ namespace VitalSignsMicrosoftClasses
 				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "createSPOSite: Starting.", Common.LogLevel.Normal);
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 
-				string str = "New-SPOSite -Title 'VSTest' -Url 'https://" + myServer.tenantName + ".sharepoint.com/sites/VSTest2' -Owner '" + myServer.UserName + "' -StorageQuota '500' ";
+				string str = "New-SPOSite -Title 'VSTest' -Url 'https://" + myServer.tenantName + ".sharepoint.com/sites/VSTest' -Owner '" + myServer.UserName + "' -StorageQuota '500' ";
 
 				powershellobj.PS.Commands.Clear();
 				powershellobj.PS.Streams.ClearStreams();
@@ -2241,7 +2243,7 @@ namespace VitalSignsMicrosoftClasses
 				DateTime dtNow = DateTime.Now;
 				int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
 
-				str = "Get-SPOSite -Identity 'https://" + myServer.tenantName + ".sharepoint.com/sites/VSTest2'";
+				str = "Get-SPOSite -Identity 'https://" + myServer.tenantName + ".sharepoint.com/sites/VSTest'";
 				powershellobj.PS.Commands.Clear();
 				powershellobj.PS.Streams.ClearStreams();
 				powershellobj.PS.AddScript(str);
@@ -2249,22 +2251,25 @@ namespace VitalSignsMicrosoftClasses
                 results = powershellobj.PS.Invoke();
                 Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "createSPOSite after 2", Common.LogLevel.Normal);
                 if (results.Count > 0)
-				{
+                {
+                    myServer.IncrementServiceUpCount(MonitoredItems.Office365Server.ServiceTypes.SharePoint.ToString(), "CreateSite@" + nodeName);
                     if ((myServer.CreateSiteThreshold != 0) && (myServer.CreateSiteThreshold > 0) && (myServer.CreateSiteThreshold < elapsed.TotalMilliseconds))
                         //Common.makeAlert(false, myServer, commonEnums.AlertType.Create_Site, ref AllTestsList, "Successfully created a test site, but it did not meet the threshold time of " + myServer.CreateSiteThreshold.ToString() + " ms", "Performance");
-						Common.makeAlert(elapsed.TotalMilliseconds, myServer.CreateSiteThreshold, myServer, commonEnums.AlertType.Create_Site, ref AllTestsList, "Create Site: The Site was created in " + elapsed.TotalMilliseconds + " ms at " + time.ToString(format) + ", but it did not meet the threshold of " + myServer.CreateSiteThreshold + " ms", "Performance");
-					else
+                        Common.makeAlert(elapsed.TotalMilliseconds, myServer.CreateSiteThreshold, myServer, commonEnums.AlertType.Create_Site, ref AllTestsList, "Create Site: The Site was created in " + elapsed.TotalMilliseconds + " ms at " + time.ToString(format) + ", but it did not meet the threshold of " + myServer.CreateSiteThreshold + " ms", "Performance");
+                    else
                         Common.makeAlert(true, myServer, commonEnums.AlertType.Create_Site, ref AllTestsList, "Successfully created a test site", "Performance");
 
-					string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
-							+ " values('" + myServer.Name + "','" + myServer.ServerTypeId + "',GetDate(),'CreateSite" + "@" + nodeName + "'" + " ," + elapsed.TotalMilliseconds.ToString() +
-						   "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
-					//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+                    string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
+                            + " values('" + myServer.Name + "','" + myServer.ServerTypeId + "',GetDate(),'CreateSite" + "@" + nodeName + "'" + " ," + elapsed.TotalMilliseconds.ToString() +
+                           "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
+                    //AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
                     AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "CreateSite" + "@" + nodeName, elapsed.TotalMilliseconds.ToString()));
-				}
-				else
+                }
+                else
+                {
                     Common.makeAlert(false, myServer, commonEnums.AlertType.Create_Site, ref AllTestsList, "Failed to create a test site", "Performance");
-
+                    myServer.IncrementServiceDownCount(MonitoredItems.Office365Server.ServiceTypes.SharePoint.ToString(), "CreateSite@" + nodeName);
+                }
 			}
 			catch (Exception ex)
 			{
@@ -2280,8 +2285,8 @@ namespace VitalSignsMicrosoftClasses
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				//String str = " Get-Mailbox -ResultSize Unlimited | Select Name,Alais,DisplayName,StorageLimitStatus,membertype,servername,ProhibitSendQuota,LastLogonTime";
 				//string str = "Get-Command| where {$_.Name -like '*Msol*'}";
-				string str = "Remove-SPOSite  -Identity 'https://" + myServer.tenantName + ".sharepoint.com/sites/VSTest2' -Confirm:$false " + "\n";
-				str += " Remove-SPODeletedSite -Identity 'https://" + myServer.tenantName + ".sharepoint.com/sites/VSTest2' -Confirm:$false ";
+				string str = "Remove-SPOSite  -Identity 'https://" + myServer.tenantName + ".sharepoint.com/sites/VSTest' -Confirm:$false " + "\n";
+				str += " Remove-SPODeletedSite -Identity 'https://" + myServer.tenantName + ".sharepoint.com/sites/VSTest' -Confirm:$false ";
 				powershellobj.PS.Commands.Clear();
 				powershellobj.PS.Streams.ClearStreams();
 				powershellobj.PS.AddScript(str);
@@ -2290,15 +2295,21 @@ namespace VitalSignsMicrosoftClasses
 				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "removeSPOSite Results: " + results.Count.ToString(), Common.LogLevel.Normal);
 				DateTime dtNow = DateTime.Now;
 				int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
-				str = "Get-SPOSite -Identity 'https://" + myServer.tenantName + ".sharepoint.com/sites/VSTest2'";
+				str = "Get-SPOSite -Identity 'https://" + myServer.tenantName + ".sharepoint.com/sites/VSTest'";
 				powershellobj.PS.Commands.Clear();
 				powershellobj.PS.Streams.ClearStreams();
 				powershellobj.PS.AddScript(str);
 				results = powershellobj.PS.Invoke();
-				if (results.Count > 0)
-					Common.makeAlert(false, myServer, commonEnums.AlertType.Delete_Site, ref AllTestsList, "Failed to delete a test site", "Performance");
-				else
-					Common.makeAlert(true, myServer, commonEnums.AlertType.Delete_Site, ref AllTestsList, "Successfully deleted a test site", "Performance");
+                if (results.Count > 0)
+                {
+                    Common.makeAlert(false, myServer, commonEnums.AlertType.Delete_Site, ref AllTestsList, "Failed to delete a test site", "Performance");
+                    myServer.IncrementServiceDownCount(MonitoredItems.Office365Server.ServiceTypes.SharePoint.ToString(), "RemoveSite@" + nodeName);
+                }
+                else
+                {
+                    Common.makeAlert(true, myServer, commonEnums.AlertType.Delete_Site, ref AllTestsList, "Successfully deleted a test site", "Performance");
+                    myServer.IncrementServiceUpCount(MonitoredItems.Office365Server.ServiceTypes.SharePoint.ToString(), "RemoveSite@" + nodeName);
+                }
 			}
 			catch (Exception ex)
 			{
@@ -2330,7 +2341,8 @@ namespace VitalSignsMicrosoftClasses
 				int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
 				if (results.Count > 0)
 				{
-					foreach (PSObject ps in results)
+                    myServer.IncrementServiceUpCount(MonitoredItems.Office365Server.ServiceTypes.SkypeForBusiness.ToString(), "LyncStats@" + nodeName);
+                    foreach (PSObject ps in results)
 					{
 						string AccountName = ps.Properties["TenantName"].Value == null ? "0" : ps.Properties["TenantName"].Value.ToString();
 						string ActiveUsers = ps.Properties["ActiveUsers"].Value == null ? "0" : ps.Properties["ActiveUsers"].Value.ToString();
@@ -2357,6 +2369,10 @@ namespace VitalSignsMicrosoftClasses
                     AllTestsList.MongoEntity.Add(msi);
 
 				}
+                else
+                {
+                    myServer.IncrementServiceDownCount(MonitoredItems.Office365Server.ServiceTypes.SkypeForBusiness.ToString(), "LyncStats@" + nodeName);
+                }
 
 			}
 			catch (Exception ex)
@@ -2812,7 +2828,7 @@ namespace VitalSignsMicrosoftClasses
                     mongoUpdate.updateDef = mongoUpdate.repo.Updater.Set(x => x.InactiveDaysCount, Convert.ToInt32((DateTime.Now - mailbox.LastLogonTime.Value).TotalDays));
                     AllTestsList.MongoEntity.Add(mongoUpdate);
                 }
-                AllTestsList.MongoEntity.Add(Common.GetInsertIntoSummaryStats(myServer, "ActiveUsersCount", listMailboxes.Where(x => x.LastLogonTime.HasValue && x.LastLogonTime.Value < DateTime.Now.AddDays(-1)).Count().ToString()));
+                AllTestsList.MongoEntity.Add(Common.GetInsertIntoSummaryStats(myServer, "ActiveUsersCount", listMailboxes.Where(x => x.LastLogonTime.HasValue && x.LastLogonTime.Value < DateTime.Now.AddDays(-14)).Count().ToString()));
 
                 
 			}
@@ -2821,7 +2837,8 @@ namespace VitalSignsMicrosoftClasses
 				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailStatus: Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
 			}
 		}
-	}
+
+    }
 	public class Parameters
 	{
 		public MonitoredItems.Office365Server myServer;
