@@ -4,6 +4,7 @@ Imports System.Data.DataView
 Imports System.ComponentModel
 Imports VSFramework
 Imports System.Configuration
+Imports System.Collections.Generic
 'Monitored Items Class for use with VitalSigns
 'Developed by Alan Forbes
 'Copyright 2010, All Rights Reserved.
@@ -1150,6 +1151,281 @@ Public Class Office365Server
     Public Property ResolveUserThreshold As Integer
     Public Property DirSyncExportThreshold As Integer
     Public Property DirSyncImportThreshold As Integer
+
+    Public Property ServiceTestsResults As New List(Of ServiceTests)
+    Public Property ServiceResults As New List(Of ServiceTests)
+
+    Public Function ServiceDownMinutes(ByVal ServiceType As String, ByVal Optional TestName As String = "") As Double
+
+        Dim index As Integer = -1
+        If TestName = "" Then
+            index = ServiceResults.FindIndex(Function(x) x.ServiceType = ServiceType.ToString())
+        Else
+            index = ServiceTestsResults.FindIndex(Function(x) x.ServiceType = ServiceType.ToString() And x.TestName = TestName)
+        End If
+
+        If index <= -1 Then
+            Return 60
+        Else
+            If TestName = "" Then
+                Return ServiceResults(index).DownMinutes
+            Else
+                Return ServiceTestsResults(index).DownMinutes
+            End If
+        End If
+
+    End Function
+    Public Function ServiceUpMinutes(ByVal ServiceType As String, ByVal Optional TestName As String = "") As Double
+        Dim index As Integer = -1
+        If TestName = "" Then
+            index = ServiceResults.FindIndex(Function(x) x.ServiceType = ServiceType.ToString())
+        Else
+            index = ServiceTestsResults.FindIndex(Function(x) x.ServiceType = ServiceType.ToString() And x.TestName = TestName)
+        End If
+
+        If index <= -1 Then
+            Return 0
+        Else
+            If TestName = "" Then
+                Return ServiceResults(index).UpMinutes
+            Else
+                Return ServiceTestsResults(index).UpMinutes
+            End If
+        End If
+
+    End Function
+    Public Function ServiceUpPercentMinutes(ByVal ServiceType As String, ByVal Optional TestName As String = "") As Double
+        Dim index As Integer = -1
+        If TestName = "" Then
+            index = ServiceResults.FindIndex(Function(x) x.ServiceType = ServiceType.ToString())
+        Else
+            index = ServiceTestsResults.FindIndex(Function(x) x.ServiceType = ServiceType.ToString() And x.TestName = TestName)
+        End If
+
+        If index <= -1 Then
+            Return 0
+        Else
+            If TestName = "" Then
+                Return ServiceResults(index).UpPercentMinutes
+            Else
+                Return ServiceTestsResults(index).UpPercentMinutes
+            End If
+        End If
+
+    End Function
+    Public Function ServiceDownPercentMinutes(ByVal ServiceType As String, ByVal Optional TestName As String = "") As Double
+
+        Dim index As Integer = -1
+        If TestName = "" Then
+            index = ServiceResults.FindIndex(Function(x) x.ServiceType = ServiceType.ToString())
+        Else
+            index = ServiceTestsResults.FindIndex(Function(x) x.ServiceType = ServiceType.ToString() And x.TestName = TestName)
+        End If
+
+        If index <= -1 Then
+            Return 100
+        Else
+            If TestName = "" Then
+                Return ServiceResults(index).DownPercentMinutes
+            Else
+                Return ServiceTestsResults(index).DownPercentMinutes
+            End If
+        End If
+
+
+    End Function
+
+    Public Sub IncrementServiceUpCount(ByVal ServiceType As String, ByVal TestName As String)
+        Dim index As Integer = ServiceTestsResults.FindIndex(Function(x) x.ServiceType = ServiceType.ToString() And x.TestName = TestName)
+        If index <= -1 Then
+            Dim temp As New MonitoredItems.Office365Server.ServiceTests() With {.isResponding = True, .ServiceType = ServiceType.ToString(), .TestName = TestName}
+            ServiceTestsResults.Add(temp)
+            temp.IncrementUpCount()
+        Else
+            ServiceTestsResults(index).isResponding = True
+            ServiceTestsResults(index).IncrementUpCount()
+        End If
+        ProcessServiceResults(ServiceType)
+    End Sub
+
+    Public Sub IncrementServiceDownCount(ByVal ServiceType As String, ByVal TestName As String)
+        Dim index As Integer = ServiceTestsResults.FindIndex(Function(x) x.ServiceType = ServiceType.ToString() And x.TestName = TestName)
+        If index <= -1 Then
+            Dim temp As New MonitoredItems.Office365Server.ServiceTests() With {.isResponding = False, .ServiceType = ServiceType.ToString(), .TestName = TestName}
+            ServiceTestsResults.Add(temp)
+            temp.IncrementDownCount()
+        Else
+            ServiceTestsResults(index).isResponding = False
+            ServiceTestsResults(index).IncrementDownCount()
+        End If
+        ProcessServiceResults(ServiceType)
+    End Sub
+
+    Private Sub ProcessServiceResults(ByVal ServiceType As String)
+        Dim index As Integer = ServiceResults.FindIndex(Function(x) x.ServiceType = ServiceType.ToString())
+        Dim IsResponding As Boolean = Not (ServiceTestsResults.Exists(Function(x) x.ServiceType = ServiceType.ToString() And x.isResponding = False))
+        If index <= -1 Then
+            Dim temp As New MonitoredItems.Office365Server.ServiceTests() With {.isResponding = IsResponding, .ServiceType = ServiceType.ToString()}
+            ServiceResults.Add(temp)
+            temp.isResponding = IsResponding
+            If IsResponding Then
+                temp.IncrementUpCount()
+            Else
+                temp.IncrementDownCount()
+            End If
+        Else
+
+            ServiceResults(index).isResponding = IsResponding
+            If IsResponding Then
+                ServiceResults(index).IncrementUpCount()
+            Else
+                ServiceResults(index).IncrementDownCount()
+            End If
+        End If
+    End Sub
+
+    Public Class ServiceTests
+        Public Property ServiceType As String
+        Public Property TestName As String
+        Public Property isResponding As Boolean
+
+        Private mLastStatusUpdate As DateTime = DateTime.Now
+        Dim mDownMinutes As Double = 0
+        Dim mUpMinutes As Double = 0
+        Dim mDownPercentMinutes As Double = 0
+
+        Public Sub IncrementUpCount()
+            Try
+
+                Dim ts As New TimeSpan
+                Dim dtNow As DateTime = Date.Now
+                ts = dtNow.Subtract(mLastStatusUpdate)
+                IncrementUpMinutes(System.Math.Abs(ts.TotalMinutes))
+                ts = Nothing
+                dtNow = Nothing
+            Catch ex As Exception
+
+            End Try
+            mLastStatusUpdate = Date.Now
+        End Sub
+
+        Public Sub IncrementDownCount()
+            If mLastStatusUpdate <> Nothing Then
+                Try
+                    Dim ts As New TimeSpan
+                    Dim dtNow As DateTime = Date.Now
+                    ts = dtNow.Subtract(mLastStatusUpdate)
+                    IncrementDownMinutes(System.Math.Abs(ts.TotalMinutes))
+                    ts = Nothing
+                    dtNow = Nothing
+                Catch ex As Exception
+
+                End Try
+
+            End If
+            mLastStatusUpdate = Date.Now
+        End Sub
+
+        Private Sub IncrementDownMinutes(ByVal Minutes As Double)
+            mDownMinutes += Minutes
+            CalculateDownPercentMinutes()
+
+        End Sub
+
+        Private Sub IncrementUpMinutes(ByVal Minutes As Double)
+            mUpMinutes += Minutes
+            CalculateDownPercentMinutes()
+
+        End Sub
+
+        Private Sub CalculateDownPercentMinutes()
+            Try
+                mDownPercentMinutes = (DownMinutes / (DownMinutes + UpMinutes))
+            Catch ex As Exception
+                mDownPercentMinutes = 1
+            End Try
+        End Sub
+
+        Public ReadOnly Property DownMinutes() As Double
+            Get
+                Dim downMinsTemp As Double = mDownMinutes
+                If Not isResponding Then
+                    downMinsTemp += Math.Abs(DateTime.Now.Subtract(mLastStatusUpdate).TotalMinutes)
+                End If
+
+                If downMinsTemp > 58.25 Or downMinsTemp > 60 Then
+                    Return 60
+                Else
+                    Return downMinsTemp
+                End If
+
+            End Get
+        End Property
+        Public ReadOnly Property UpMinutes() As Double
+            Get
+                Dim upMinsTemp As Double = mUpMinutes
+                If isResponding Then
+                    upMinsTemp += Math.Abs(DateTime.Now.Subtract(mLastStatusUpdate).TotalMinutes)
+                End If
+
+                If upMinsTemp > 58.25 Or upMinsTemp > 60 Then
+                    Return 60
+                Else
+                    Return upMinsTemp
+                End If
+
+            End Get
+        End Property
+        Public Function UpPercentMinutes() As Double
+            Try
+                If Not Double.IsNaN((DownMinutes / (DownMinutes + UpMinutes))) Then
+                    Return 1 - (DownMinutes / (DownMinutes + UpMinutes))
+                Else
+                    If Not isResponding Then
+                        Return 0
+                    Else
+                        Return 1
+                    End If
+                End If
+            Catch ex As Exception
+                Return 0
+            End Try
+
+        End Function
+        Public Function DownPercentMinutes() As Double
+            Try
+                If Not Double.IsNaN((DownMinutes / (DownMinutes + UpMinutes))) Then
+                    Return (DownMinutes / (DownMinutes + UpMinutes))
+                Else
+                    If isResponding Then
+                        Return 0
+                    Else
+                        Return 1
+                    End If
+                End If
+            Catch ex As Exception
+                Return 0
+            End Try
+
+        End Function
+
+        Public Sub ResetUpandDownCounts()
+            mDownMinutes = 0
+            mUpMinutes = 0
+            mDownPercentMinutes = 0
+
+            mLastStatusUpdate = DateTime.Now.Date.AddHours(DateTime.Now.Hour)
+        End Sub
+
+
+    End Class
+
+    Public Enum ServiceTypes
+        Exchange
+        SharePoint
+        OneDrive
+        SkypeForBusiness
+    End Enum
 
 End Class
 Public Class ActiveDirectoryServer
