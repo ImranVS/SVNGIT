@@ -1119,6 +1119,23 @@ namespace VitalSignsMicrosoftClasses
 							myDevice.DeviceAccessState = ps.Properties["DeviceAccessState"].Value == null ? "" : ps.Properties["DeviceAccessState"].Value.ToString();
 							if (myDevice.DeviceAccessState == "Allowed") { myDevice.DeviceAccessState = "Allow"; }
                            
+                            try
+                            {
+                                myDevice.DeviceOS = new System.Text.RegularExpressions.Regex(@"\w+ \d+\.\d+\.\d+").Match(myDevice.DeviceOS).Value;
+                            }
+                            catch(Exception ex)
+                            {
+
+                            }
+
+                            try
+                            {
+                                myDevice.DeviceOSMin = new System.Text.RegularExpressions.Regex(@"\w+ \d+\.\d+").Match(myDevice.DeviceOS).Value;
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
 
                             MongoStatementsUpsert<VSNext.Mongo.Entities.MobileDevices> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.MobileDevices>();
                             mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DeviceID == myDevice.DeviceID && i.ServerName == myServer.Name);
@@ -1131,7 +1148,7 @@ namespace VitalSignsMicrosoftClasses
                                 .Set(i => i.ConnectionState, myDevice.Status)
                                 .Set(i => i.LastSyncTime, myDevice.LastSuccessSync == "" ? null : (DateTime?)DateTime.Parse(myDevice.LastSuccessSync))
                                 .Set(i => i.OSType, myDevice.DeviceOS)
-                                .Set(i => i.OSTypeMin, TranslatedValue)
+                                .Set(i => i.OSTypeMin, myDevice.DeviceOSMin)
                                 .Set(i => i.ClientBuild, myDevice.DeviceActiveSyncVersion)
                                 .Set(i => i.DeviceType, myDevice.DeviceType)
                                 .Set(i => i.Access, myDevice.DeviceAccessState)

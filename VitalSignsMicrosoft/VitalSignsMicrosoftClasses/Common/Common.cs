@@ -2252,6 +2252,7 @@ namespace VitalSignsMicrosoftClasses
         public string Status;  //DeviceOk
         public string DeviceModel;  //SPH-L710
         public string DeviceOS;  //Android
+        public string DeviceOSMin;
         public string DeviceType;  //iPhone
         public string DeviceOSLanguage; //English
         public string DeviceMobileOperator;  //Sprint
