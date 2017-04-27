@@ -112,5 +112,15 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         [BsonRepresentation(BsonType.ObjectId)]
         public string EscalationId { get; set; }
+
+        [DataMember]
+        [BsonElement("script_command")]
+        [BsonIgnoreIfNullAttribute]
+        public string ScriptCommand { get; set; }
+
+        [DataMember]
+        [BsonElement("script_location")]
+        [BsonIgnoreIfNullAttribute]
+        public string ScriptLocation { get; set; }
     }
 }
