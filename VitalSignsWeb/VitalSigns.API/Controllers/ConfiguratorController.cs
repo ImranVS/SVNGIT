@@ -4708,7 +4708,7 @@ namespace VitalSigns.API.Controllers
                         {
                             BusinessHoursId = bushrsid,
                             SendVia = notificationDefinition.SendVia,
-                            SendTo = notificationDefinition.ScriptName
+                            SendTo = notificationDefinition.SendTo
                         };
                     }
                     else
@@ -4893,7 +4893,7 @@ namespace VitalSigns.API.Controllers
                        .Set(x => x.ScriptCommand, scriptDefinition.ScriptCommand)
                        .Set(x => x.ScriptLocation, scriptDefinition.ScriptLocation);
                     result = scriptsRepository.Update(filterDef, updateScripts);
-                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Script updated successfully");
+                    Response = Common.CreateResponse(scriptDefinition.Id, Common.ResponseStatus.Success.ToDescription(), "Script updated successfully");
                 }
             }
             catch (Exception ex)
@@ -7921,11 +7921,13 @@ namespace VitalSigns.API.Controllers
                     System.Net.Mime.ContentDisposition c = new System.Net.Mime.ContentDisposition();
                     string fileName = fi.ContentDisposition.Substring(fi.ContentDisposition.IndexOf("filename=") + 10).Replace("\\", "");
                     fileName = fileName.Substring(0, fileName.Length - 1);
+                    System.IO.Directory.CreateDirectory(filePath);
                     System.IO.FileStream fs = new System.IO.FileStream(filePath + fileName, System.IO.FileMode.Create, System.IO.FileAccess.Write);
-
+                    //uploadedFile = "~/" + filePath + fileName;
+                    uploadedFile = fs.Name;
                     f.CopyTo(fs);
                     fs.Dispose();
-                    uploadedFile = "~/" + filePath + fileName;
+                    
                     //uploadedFile = System.Web.Hosting.HostingEnvironment.MapPath(filePath + fileName);
                     Response = Common.CreateResponse(uploadedFile, Common.ResponseStatus.Success.ToDescription(), "Script uploaded successfully");
                 }

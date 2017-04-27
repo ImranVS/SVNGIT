@@ -1018,7 +1018,7 @@ namespace VitalSigns.API.Controllers
                         StatName = uc.GetUserFriendlyStatName(x.StatName),
                         StatValue = x.StatValue
 
-                    }).OrderBy(x => x.StatName).Take(500).ToList();
+                    }).OrderBy(x => x.StatName).ToList();             //.Take(500).ToList(); - commented out by NS
 
                     foreach (string currString in statNames.Where(i => i.Contains("*")))
                     {
@@ -1039,7 +1039,7 @@ namespace VitalSigns.API.Controllers
                                 StatName = uc.GetUserFriendlyStatName(x.StatName),
                                 StatValue = x.StatValue
 
-                            }).OrderBy(x => x.StatName).Take(500).ToList()
+                            }).OrderBy(x => x.StatName).ToList()                 //.Take(500).ToList() - commented out by NS
                         );
 
                     }
@@ -1089,14 +1089,14 @@ namespace VitalSigns.API.Controllers
                                 row.StatName,
                                 row.DeviceName
                             })
-                            .Select(row => new 
+                            .Select(row => new
                             {
                                 Date = row.Key.Date,
                                 Value = Math.Round(row.Average(x => x.StatValue), 2),
                                 StatName = row.Key.StatName,
                                 DeviceName = row.Key.DeviceName
 
-                            }).Take(500).ToList()
+                            }).ToList()                               //.Take(500).ToList() - commented out by NS
                         );
                     }
 
