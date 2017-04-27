@@ -82,6 +82,8 @@ namespace VitalSigns.API.Controllers
         [HttpGet("reset_password")]
         public APIResponse ResetPassword(string emailId, string password)
         {
+            bool emptyPwd = false;
+
             try
             {
                 maintainUsersRepository = new Repository<Users>(ConnectionString);
@@ -89,7 +91,10 @@ namespace VitalSigns.API.Controllers
                 if (user != null)
                 {
                     if (string.IsNullOrEmpty(password))
+                    {
+                        emptyPwd = true;
                         password = Membership.GeneratePassword(6, 2);
+                    }
                     string hashedPassword = Startup.SignData(password);
                     maintainUsersRepository = new Repository<Users>(ConnectionString);
                     FilterDefinition<Users> filterDefination = Builders<Users>.Filter.Where(x => x.Email == emailId);
@@ -97,17 +102,18 @@ namespace VitalSigns.API.Controllers
                                                                         .Set(y => y.IsPasswordResetRequired, true);
                     var result = maintainUsersRepository.Update(filterDefination, updatePassword);
 
-                  (new Common()).SendPasswordEmail(emailId, password);
-                    Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Password reset successful. Please check your email.");
+                    if (emptyPwd)
+                        (new Common()).SendPasswordEmail(emailId, password);
+                    Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Password reset successful");
                 }
                 else
                 {
-                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "User is not available in the database");
+                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "User is not in the database");
                 }
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Error occured while resetting the password: " + exception);
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Error occurred while resetting the password: " + exception);
             }
             return Response;
         }
