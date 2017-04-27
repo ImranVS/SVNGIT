@@ -164,6 +164,11 @@ namespace VSNext.Mongo.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         public List<string> MaintenanceWindows { get; set; }
 
+        [DataMember]
+        [BsonElement("os")]
+        [BsonIgnoreIfNull]
+        public string OS { get; set; }
+
     }
 
 
