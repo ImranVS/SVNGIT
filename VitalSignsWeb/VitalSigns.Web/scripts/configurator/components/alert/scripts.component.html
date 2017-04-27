@@ -27,21 +27,28 @@
         </div>
         <form (ngSubmit)="saveScripts(frmDialog)" #frmUser="ngForm">
             <div class="modal-body">
+                <div id="infoDiv1" class="alert alert-info">When passing parameters to your custom scripts, the following variables can be used. At run time, the variables will be substituted for their current values.<br /><br />
+
+%Name% - the of the server, device, or application<br />
+%Type% - the type of device, i.e., Domino, IBM Connections, etc.<br />
+%EventType% - the type of exception, i.e., Dead Mail, Not Responding, Memory, etc.<br />
+%DTD% - the date and time the alert condition was detected<br />
+%Details% - the details of the alert condition</div>
                 <div class="form-group">
                     <label for="script_name">Script Name</label>
                     <input type="text" class="form-control" id="script_name" required name="script_name" [(ngModel)]="formObject.script_name">
                 </div>
                 <div class="form-group">
-                    <label for="script_name">Command</label>
+                    <label for="script_command">Command</label>
                     <input type="text" class="form-control" id="script_command" required name="script_command" [(ngModel)]="formObject.script_command">
                 </div>
                 <div class="form-group">
-                    <label for="script_name">Upload Script</label>
-                    <input type="file" class="form-control" required name="script_location" (change)="changeListener($event)">
+                    <label for="script_location">Upload Script</label>
+                    <input type="file" class="form-control" id="script_location" name="script_location" (change)="changeListener($event)">
                     <!--<button class="btn btn-primary" name="upload_script" (click)="uploadScript($event)">Upload</button>-->
                 </div>
                 <div class="form-group">
-                    <label for="script_name">Location</label>
+                    <label for="scriptLocation">Location</label>
                     <!--<input type="text" class="form-control" id="script_location" required name="script_location" [(ngModel)]="formObject.script_location">-->
                     <span id="scriptLocation"></span>
                 </div>

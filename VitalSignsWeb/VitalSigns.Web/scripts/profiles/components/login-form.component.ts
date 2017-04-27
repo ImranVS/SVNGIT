@@ -50,19 +50,19 @@ export class LoginForm {
     changePassword(dialog: wijmo.input.Popup) {
         var email = this.emailid.first.nativeElement.value;
         if (email == "") {
-            this.appComponentService.showErrorMessage("Email is Empty");
+            this.appComponentService.showErrorMessage("E-mail is empty");
         }
         else {
             this.service.get(`/Token/reset_password?emailId=${email}`)
                 .subscribe(
                 response => {
                     if (response.status == "Success") {
-                        this.appComponentService.showSuccessMessage("Password sent to your email");
+                        this.appComponentService.showSuccessMessage("Password has been sent to your e-mail address");
                         this.emailid.first.nativeElement.value = "";
                     }
                     else
                     {
-                        this.appComponentService.showErrorMessage("The EmailId is does not exist");
+                        this.appComponentService.showErrorMessage("The e-mail does not exist");
                     }
                 },
                 error => this.errorMessage = <any>error

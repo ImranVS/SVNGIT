@@ -94,7 +94,7 @@ export class AppHeader implements OnChanges,OnInit {
             this.service.get('/Token/reset_password?emailId=' + this.authService.CurrentUser.email + '&password=' + passwordVal)
                 .subscribe(
                 response => {
-                    this.appComponentService.showSuccessMessage("Password changed successfuly");
+                    this.appComponentService.showSuccessMessage("Password changed successfully");
                     this.password = "";                  
                 },
                 error => {
