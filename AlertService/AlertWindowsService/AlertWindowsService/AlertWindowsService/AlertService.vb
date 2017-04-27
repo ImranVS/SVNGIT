@@ -585,6 +585,7 @@ Public Class VitalSignsAlertService
         Dim repoServers As New Repository(Of Server)(connString)
         Dim repoBusHrs As New Repository(Of BusinessHours)(connString)
         Dim repoEventsDetected As New Repository(Of EventsDetected)(connString)
+        Dim repoScripts As New Repository(Of Scripts)(connString)
 
         Dim filterNotifications As FilterDefinition(Of Notifications)
         Dim filterNotificationDest As FilterDefinition(Of NotificationDestinations)
@@ -593,6 +594,7 @@ Public Class VitalSignsAlertService
         Dim filterBusHrs As FilterDefinition(Of BusinessHours)
         Dim filterEventsDetected As FilterDefinition(Of EventsDetected)
         Dim updateEventsDetected As UpdateDefinition(Of EventsDetected)
+        Dim filterScripts As FilterDefinition(Of Scripts)
 
         Dim eventsEntity() As EventsMaster
         Dim serversEntity() As Server
@@ -603,6 +605,7 @@ Public Class VitalSignsAlertService
         Dim eventsCreated() As EventsDetected
         Dim eventsEscalated() As EventsDetected
         Dim notificationsSent() As NotificationsSent
+        Dim scriptsEntity() As Scripts
 
         Dim alertAboutRecurrences As Boolean
         Dim numberOfRecurrences As Integer
@@ -708,9 +711,14 @@ Public Class VitalSignsAlertService
                                         ElseIf sendlist.SendVia = "SMS" Then
                                             dr("SMSTo") = sendlist.SendTo
                                         ElseIf sendlist.SendVia = "Script" Then
+                                            'Look up Script command and location info
                                             dr("ScriptName") = sendlist.SendTo
-                                            dr("ScriptCommand") = sendlist.ScriptCommand
-                                            dr("ScriptLocation") = sendlist.ScriptLocation
+                                            filterScripts = repoScripts.Filter.Eq(Of String)(Function(j) j.ScriptName, sendlist.SendTo)
+                                            scriptsEntity = repoScripts.Find(filterScripts).ToArray()
+                                            If scriptsEntity.Length > 0 Then
+                                                dr("ScriptCommand") = scriptsEntity(0).ScriptCommand
+                                                dr("ScriptLocation") = scriptsEntity(0).ScriptLocation
+                                            End If
                                         ElseIf sendlist.SendVia = "SNMP Trap" Then
                                             dr("SendSNMPTrap") = True
                                         End If
@@ -771,6 +779,7 @@ Public Class VitalSignsAlertService
                         keyArr(c) = ADef.AlertKey
                         ReDim Preserve ADefArr(c)
                         ADefArr(c) = ADef
+                        WriteServiceHistoryEntry(Now.ToString & " Processed record " & c & ", EventName: " & dt.Rows(i)("EventName") & ", ServerName: " & dt.Rows(i)("ServerName") & ", SendTo: " & dt.Rows(i)("SendTo") & ", ScriptName: " & dt.Rows(i)("ScriptName"), LogLevel.Verbose)
                         c = c + 1
                     Next
                 End If
@@ -1122,6 +1131,7 @@ Public Class VitalSignsAlertService
                     Catch ex As ApplicationException
                         WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsSendNotification: Error occurred at the time of getting records from events_detected " & ex.Message, LogLevel.Normal)
                     End Try
+                    WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - the values are " & " SendTo: " & SendTo & ", ScriptName: " & ScriptName, LogLevel.Verbose)
                     ADef.Resent = resend
                     mailsent = False
                     smssent = False
@@ -1216,8 +1226,7 @@ Public Class VitalSignsAlertService
                                     WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - attempting to send new alert via Script", LogLevel.Verbose)
                                     WriteServiceHistoryEntry(Now.ToString & " Attempting to send a new alert via Script:", LogLevel.Normal)
                                     WriteServiceHistoryEntry(Now.ToString & "   ScriptName = " & ScriptName & ",   ServerName = " & ADef.ServerName & ",    AlertKey = " & ADef.AlertKey, LogLevel.Normal)
-                                    SendScript(ScriptName, ScriptCommand, ScriptLocation, ADef.ServerName, ADef.ServerType, ADef.EventName, ADef.Details, "")
-                                    scriptsent = True
+                                    scriptsent = SendScript(ScriptName, ScriptCommand, ScriptLocation, ADef.ServerName, ADef.ServerType, ADef.EventName, ADef.Details, "")
                                     ADef.ScriptSent = scriptsent
                                 End If
                             End If
@@ -1275,7 +1284,7 @@ Public Class VitalSignsAlertService
                     Try
                         If smssent = True Then
                             WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to insert sent SMS info", LogLevel.Verbose)
-                            InsertingSentMails(ADef.AlertHistoryId, SMSTo, "", "", resend, ADef.AlertKey)
+                            InsertingSentMails(ADef.AlertHistoryId, ADef.SMSTo, "", "", resend, ADef.AlertKey)
                         End If
                     Catch ex As Exception
                         WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsSendNotification: Error while attempting to insert Alert Mail history for SMS " & ex.ToString, LogLevel.Normal)
@@ -1284,7 +1293,8 @@ Public Class VitalSignsAlertService
                     Try
                         If scriptsent = True Then
                             WriteServiceHistoryEntry(Now.ToString & " ProcessAlertsSendNotification - trying to insert sent Script info", LogLevel.Verbose)
-                            InsertingSentMails(ADef.AlertHistoryId, ScriptName, "", "", resend, ADef.AlertKey)
+                            WriteServiceHistoryEntry(Now.ToString & "   ScriptName: " & ScriptName & ", ScriptCommand: " & ScriptCommand & ", ScriptLocation: " & ScriptLocation, LogLevel.Verbose)
+                            InsertingSentMails(ADef.AlertHistoryId, ADef.ScriptName, "", "", resend, ADef.AlertKey, ADef.ScriptCommand, ADef.ScriptLocation)
                         End If
                     Catch ex As Exception
                         WriteServiceHistoryEntry(Now.ToString & " In ProcessAlertsSendNotification: Error while attempting to insert Alert Mail history for Script " & ex.ToString, LogLevel.Normal)
@@ -1602,7 +1612,7 @@ Public Class VitalSignsAlertService
                                             ADefOut.EnablePersistentAlert = ADef.EnablePersistentAlert
                                             ADefOut.DateCreated = AHist.DateCreated
                                             ADefOut.SMSTo = AHist.SMSTo
-                                            ADefOut.ScriptName = ADef.ScriptName
+                                            ADefOut.ScriptName = AHist.SendTo
                                             ADefOut.ScriptCommand = AHist.ScriptCommand
                                             ADefOut.ScriptLocation = AHist.ScriptLocation
                                             ReDim Preserve ADefArrOut(c)
@@ -2093,7 +2103,8 @@ Public Class VitalSignsAlertService
         End Try
     End Function
     Private Sub InsertingSentMails(ByVal AlertID As String, ByVal SentTo As String, ByVal CcdTo As String, ByVal BccdTo As String,
-                                   ByVal resent As Boolean, ByVal AlertKey As String)
+                                   ByVal resent As Boolean, ByVal AlertKey As String, Optional ByVal ScriptCommand As String = "",
+                                   Optional ByVal ScriptLocation As String = "")
         Dim connString As String = GetDBConnection()
         Dim repoEventsDetected As New Repository(Of EventsDetected)(connString)
         Dim filterEventsDetected As FilterDefinition(Of EventsDetected)
@@ -2102,9 +2113,10 @@ Public Class VitalSignsAlertService
         Dim strdt As String
         Dim oid As String
         Dim nid As New ObjectId
+        Dim notificationentity As New NotificationsSent
 
         Try
-
+            WriteServiceHistoryEntry(Now.ToString & " Updating sent event for " & SentTo & IIf(ScriptLocation <> "", ", " & ScriptLocation & ", " & ScriptCommand, ""), LogLevel.Verbose)
             strdt = Date.Now
             oid = AlertKey
             nid = ObjectId.GenerateNewId()
@@ -2113,7 +2125,11 @@ Public Class VitalSignsAlertService
                                                                      repoEventsDetected.Filter.Eq(Of String)(Function(j) j.Id, AlertID))
                 eventsCreated = repoEventsDetected.Find(filterEventsDetected).ToArray()
                 If eventsCreated.Length > 0 Then
-                    Dim notificationentity As New NotificationsSent With {.Id = nid.ToString(), .NotificationId = oid, .NotificationSentTo = SentTo, .NotificationCcdTo = CcdTo, .NotificationBccdTo = BccdTo, .EventDetectedSent = strdt}
+                    If ScriptLocation = "" Or ScriptCommand = "" Then
+                        notificationentity = New NotificationsSent With {.Id = nid.ToString(), .NotificationId = oid, .NotificationSentTo = SentTo, .NotificationCcdTo = CcdTo, .NotificationBccdTo = BccdTo, .EventDetectedSent = strdt}
+                    Else
+                        notificationentity = New NotificationsSent With {.Id = nid.ToString(), .NotificationId = oid, .NotificationSentTo = SentTo, .NotificationCcdTo = CcdTo, .NotificationBccdTo = BccdTo, .EventDetectedSent = strdt, .ScriptCommand = ScriptCommand, .ScriptLocation = ScriptLocation}
+                    End If
                     eventsCreated(0).NotificationsSent.Add(notificationentity)
                     repoEventsDetected.Replace(eventsCreated(0))
                 End If
@@ -2121,7 +2137,11 @@ Public Class VitalSignsAlertService
                 filterEventsDetected = repoEventsDetected.Filter.Eq(Of String)(Function(j) j.Id, AlertID)
                 eventsCreated = repoEventsDetected.Find(filterEventsDetected).ToArray()
                 If eventsCreated.Length > 0 Then
-                    Dim notificationentity As New NotificationsSent With {.Id = nid.ToString(), .NotificationId = oid, .NotificationSentTo = SentTo, .NotificationCcdTo = CcdTo, .NotificationBccdTo = BccdTo, .EventDetectedSent = strdt}
+                    If ScriptLocation = "" Or ScriptCommand = "" Then
+                        notificationentity = New NotificationsSent With {.Id = nid.ToString(), .NotificationId = oid, .NotificationSentTo = SentTo, .NotificationCcdTo = CcdTo, .NotificationBccdTo = BccdTo, .EventDetectedSent = strdt}
+                    Else
+                        notificationentity = New NotificationsSent With {.Id = nid.ToString(), .NotificationId = oid, .NotificationSentTo = SentTo, .NotificationCcdTo = CcdTo, .NotificationBccdTo = BccdTo, .EventDetectedSent = strdt, .ScriptCommand = ScriptCommand, .ScriptLocation = ScriptLocation}
+                    End If
                     If eventsCreated(0).NotificationsSent Is Nothing Then
                         notificationsSent = New List(Of NotificationsSent)
                         notificationsSent.Add(notificationentity)
