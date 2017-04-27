@@ -1338,28 +1338,24 @@ namespace VitalSignsMicrosoftClasses
 						myDevice.DeviceAccessState = ps.Properties["DeviceAccessState"].Value == null ? "" : ps.Properties["DeviceAccessState"].Value.ToString();
 						if (myDevice.DeviceAccessState == "Allowed") { myDevice.DeviceAccessState = "Allow"; }
 
-						//Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMobileUsers Results: DeviceId:" + DeviceId, Common.LogLevel.Normal);
-						//Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMobileUsers Results: DeviceMobileOperator:" + DeviceMobileOperator, Common.LogLevel.Normal);
-						//Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMobileUsers Results: DeviceOS:" + DeviceOS, Common.LogLevel.Normal);
-						strSQL = "IF EXISTS ( " +
-									"SELECT * FROM [vitalsigns].[dbo].[Traveler_Devices] where " +
-									"DeviceID='" + myDevice.DeviceID + "') " +
-									"begin " +
+                        try
+                        {
+                            myDevice.DeviceOS = new System.Text.RegularExpressions.Regex(@"\w+ \d+\.\d+\.\d+").Match(myDevice.DeviceOS).Value;
+                        }
+                        catch (Exception ex)
+                        {
 
-									"update [vitalsigns].[dbo].[Traveler_Devices] set " +
-									"[UserName]='" + Username + "',  [Security_Policy]='" + myDevice.DevicePolicyApplied + "', [DeviceName]='" + myDevice.DeviceModel + "', [ConnectionState]='" + myDevice.Status + "', " +
-									"[LastSyncTime]='" + myDevice.LastSuccessSync + "', [OS_Type]= '" + myDevice.DeviceOS + "',[OS_Type_Min]='" + TranslatedValue + "', [Client_Build]='" + myDevice.DeviceActiveSyncVersion + "', [device_type]='" + myDevice.DeviceType + "', " +
-									"[ServerName]='" + myServer.Name + "', [Access]='" + myDevice.DeviceAccessState + "', [DeviceID]='" + myDevice.DeviceID + "', [LastUpdated]='" + DateTime.Now + "' " +
-									"where DeviceID='" + myDevice.DeviceID + "' " +
+                        }
 
-									"end  else " +
+                        try
+                        {
+                            myDevice.DeviceOSMin = new System.Text.RegularExpressions.Regex(@"\w+ \d+\.\d+").Match(myDevice.DeviceOS).Value;
+                        }
+                        catch (Exception ex)
+                        {
 
-									"begin " +
-									"INSERT INTO vitalsigns.dbo.Traveler_Devices (UserName, Security_Policy, DeviceName, ConnectionState, LastSyncTime, OS_Type,OS_Type_Min, Client_Build, device_type, ServerName, Access, DeviceID, LastUpdated, IsActive) " +
-									" VALUES ('" + Username + "', '" + myDevice.DevicePolicyApplied + "', '" + myDevice.DeviceModel + "', '" + myDevice.Status + "','" + myDevice.LastSuccessSync + "', '" + myDevice.DeviceOS + "','" + TranslatedValue + "', '" +
-									myDevice.DeviceActiveSyncVersion + "', '" + myDevice.DeviceType + "', '" + myServer.Name + "', '" + myDevice.DeviceAccessState + "', '" + myDevice.DeviceID + "', '" + DateTime.Now + "', 1) end";
+                        }
 
-						//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = strSQL + strSQLValues });
                         MongoStatementsUpsert<VSNext.Mongo.Entities.MobileDevices> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.MobileDevices>();
                         mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DeviceID == myDevice.DeviceID && i.ServerName == myServer.Name);
                         mongoStatement.updateDef = mongoStatement.repo.Updater
