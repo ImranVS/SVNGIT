@@ -6696,6 +6696,19 @@ namespace VitalSigns.API.Controllers
                 IsResartLater = false,
                 IsDisallow = false
             }).OrderBy(x => x.TaskName).ToList();
+
+
+            foreach (var attri in model.DeviceAttributes)
+            {
+                if (attri.DataType == "bool" && (attri.DefaultValue == "false" || attri.DefaultValue == "0"))
+                {
+                    attri.DefaultboolValues = false;
+                }
+                else
+                {
+                    attri.DefaultboolValues = true;
+                }
+            }
             return Common.CreateResponse(model);
         }
 
