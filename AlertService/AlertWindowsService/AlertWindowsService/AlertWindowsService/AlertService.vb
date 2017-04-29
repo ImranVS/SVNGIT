@@ -1511,6 +1511,9 @@ Public Class VitalSignsAlertService
                 Historytable.Columns.Add("Details")
                 Historytable.Columns.Add("DateTimeAlertCleared")
                 Historytable.Columns.Add("DateTimeOfAlert")
+                Historytable.Columns.Add("ScriptName")
+                Historytable.Columns.Add("ScriptCommand")
+                Historytable.Columns.Add("ScriptLocation")
 
                 'filterEventsDetected = repoEventsDetected.Filter.And(repoEventsDetected.Filter.ElemMatch(Of NotificationsSent)(Function(j) j.NotificationsSent, New FilterDefinitionBuilder(Of NotificationsSent)().Exists(Function(k) k.EventDismissedSent, False)),
                 '                                                     repoEventsDetected.Filter.Exists(Function(j) j.EventDismissed, True))
@@ -1541,6 +1544,17 @@ Public Class VitalSignsAlertService
                                     dr("Details") = eventsCreated(i).Details
                                     dr("DateTimeAlertCleared") = eventsCreated(i).EventDismissed
                                     dr("DateTimeOfAlert") = eventsCreated(i).EventDetected
+                                    dr("ScriptName") = ""
+                                    dr("ScriptCommand") = ""
+                                    dr("ScriptLocation") = ""
+                                    If Not notificationsSent(k).ScriptCommand Is Nothing Then
+                                        dr("ScriptName") = notificationsSent(k).NotificationSentTo
+                                        dr("ScriptCommand") = notificationsSent(k).ScriptCommand
+                                    End If
+                                    If Not notificationsSent(k).ScriptLocation Is Nothing Then
+                                        dr("ScriptName") = notificationsSent(k).NotificationSentTo
+                                        dr("ScriptLocation") = notificationsSent(k).ScriptLocation
+                                    End If
                                     Historytable.Rows.Add(dr)
                                 End If
                             Next
@@ -1569,6 +1583,9 @@ Public Class VitalSignsAlertService
                             ADef.Details = Historytable.Rows(hst)("Details").ToString() & vbCrLf & vbCrLf &
                                 "Alert condition was cleared at " & Historytable.Rows(hst)("DateTimeAlertCleared").ToString() &
                                 vbCrLf & vbCrLf & "Detected: " & Historytable.Rows(hst)("DateTimeOfAlert").ToString()
+                            ADef.ScriptName = Historytable.Rows(hst)("ScriptName").ToString()
+                            ADef.ScriptCommand = Historytable.Rows(hst)("ScriptCommand").ToString()
+                            ADef.ScriptLocation = Historytable.Rows(hst)("ScriptLocation").ToString()
                             ReDim Preserve AHistArr(c)
                             AHistArr(c) = ADef
                             c = c + 1
@@ -1600,7 +1617,6 @@ Public Class VitalSignsAlertService
                                             ADefOut.ServerType = AHist.ServerType
                                             ADefOut.ServerName = AHist.ServerName
                                             'ADefOut.SendTo = ADef.SendTo
-                                            ADefOut.SendTo = AHist.SendTo
                                             ADefOut.CopyTo = AHist.CopyTo
                                             ADefOut.BlindCopyTo = AHist.BlindCopyTo
                                             ADefOut.StartTime = ADef.StartTime
@@ -1612,14 +1628,22 @@ Public Class VitalSignsAlertService
                                             ADefOut.EnablePersistentAlert = ADef.EnablePersistentAlert
                                             ADefOut.DateCreated = AHist.DateCreated
                                             ADefOut.SMSTo = AHist.SMSTo
-                                            ADefOut.ScriptName = AHist.SendTo
-                                            ADefOut.ScriptCommand = AHist.ScriptCommand
-                                            ADefOut.ScriptLocation = AHist.ScriptLocation
+                                            If AHist.ScriptCommand <> "" And AHist.ScriptLocation <> "" Then
+                                                ADefOut.SendTo = ""
+                                                ADefOut.ScriptName = AHist.SendTo
+                                                ADefOut.ScriptCommand = AHist.ScriptCommand
+                                                ADefOut.ScriptLocation = AHist.ScriptLocation
+                                            Else
+                                                ADefOut.SendTo = AHist.SendTo
+                                                ADefOut.ScriptName = ""
+                                                ADefOut.ScriptCommand = ""
+                                                ADefOut.ScriptLocation = ""
+                                            End If
                                             ReDim Preserve ADefArrOut(c)
                                             ADefArrOut(c) = ADefOut
                                             c = c + 1
                                         End If
-                                    End If
+                                        End If
                                 Next
                             Next
                         End If
