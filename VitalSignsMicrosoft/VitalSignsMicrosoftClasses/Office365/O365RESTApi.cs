@@ -704,23 +704,24 @@ namespace VitalSignsMicrosoftClasses
 				Common.makeAlert(elapsed.TotalMilliseconds, myServer.MailFlowThreshold, myServer, commonEnums.AlertType.Mail_flow, ref AllTestsList, "Mail was not delivered in the specified threshold time plus additional 30 secs", "Performance");
 			else
 			{
-				double totalElapsedTime = (elapsed.TotalMilliseconds - myServer.MailFlowThreshold);
+				double totalElapsedTime = elapsed.TotalMilliseconds;
 
-				if ((myServer.MailFlowThreshold!=0)&&(myServer.MailFlowThreshold>0)&&(myServer.MailFlowThreshold < totalElapsedTime))
-				{
-					DateTime dtNow = DateTime.Now;
-					int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
-					string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
-							+ " values('" + myServer.Name + "','" + myServer.ServerTypeId + "',GetDate(),'MailLatency" + "@" + nodeName + "'" + " ," + totalElapsedTime.ToString() +
-						   "," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
-					//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
-                    AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "MailLatency" + "@" + nodeName, elapsed.TotalMilliseconds.ToString()));
-					//Common.makeAlert(elapsed.TotalMilliseconds, myServer.MailFlowThreshold, myServer, commonEnums.AlertType.Mail_flow, ref AllTestsList, "Mail was delivered, but it did not meet the threshold value of " + myServer.MailFlowThreshold+" ms", "Performance");
-					Common.makeAlert(elapsed.TotalMilliseconds, myServer.MailFlowThreshold, myServer, commonEnums.AlertType.Mail_flow, ref AllTestsList, "Mail flow: The Mail was delivered in " + totalElapsedTime + " ms at " + time.ToString(format) + ", but it did not meet the threshold of " + myServer.MailFlowThreshold + " ms", "Performance");
+				
+				DateTime dtNow = DateTime.Now;
+				int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
+				string sqlQuery = "Insert into VSS_Statistics.dbo.MicrosoftDailyStats(ServerName,ServerTypeId,Date,StatName,StatValue,WeekNumber,MonthNumber,YearNumber,DayNumber, HourNumber, Details) "
+						+ " values('" + myServer.Name + "','" + myServer.ServerTypeId + "',GetDate(),'MailLatency" + "@" + nodeName + "'" + " ," + totalElapsedTime.ToString() +
+						"," + weekNumber + ", " + dtNow.Month.ToString() + ", " + dtNow.Year.ToString() + ", " + dtNow.Day.ToString() + ", " + dtNow.Hour.ToString() + ", '')";
+				//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "VSS_Statistics" });
+                AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "MailLatency" + "@" + nodeName, elapsed.TotalMilliseconds.ToString()));
+                //Common.makeAlert(elapsed.TotalMilliseconds, myServer.MailFlowThreshold, myServer, commonEnums.AlertType.Mail_flow, ref AllTestsList, "Mail was delivered, but it did not meet the threshold value of " + myServer.MailFlowThreshold+" ms", "Performance");
+                if ((myServer.MailFlowThreshold != 0) && (myServer.MailFlowThreshold > 0) && (myServer.MailFlowThreshold < totalElapsedTime))
+                {
+                    Common.makeAlert(totalElapsedTime, myServer.MailFlowThreshold, myServer, commonEnums.AlertType.Mail_flow, ref AllTestsList, "The mail was delivered in " + totalElapsedTime + " ms at " + time.ToString(format) + ", but it did not meet the threshold of " + myServer.MailFlowThreshold + " ms", "Performance");
 				}
 				else
 				{
-					Common.makeAlert(elapsed.TotalMilliseconds, myServer.MailFlowThreshold, myServer, commonEnums.AlertType.Mail_flow, ref AllTestsList, "Mail was delivered" + myServer.MailFlowThreshold + " ms", "Performance");
+					Common.makeAlert(totalElapsedTime, myServer.MailFlowThreshold, myServer, commonEnums.AlertType.Mail_flow, ref AllTestsList, "The mail was successfully delivered in " + myServer.MailFlowThreshold + " ms", "Performance");
 				}
 			
 			}

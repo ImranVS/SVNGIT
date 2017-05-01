@@ -1680,13 +1680,15 @@ Partial Public Class VitalSignsPlusDomino
             WriteDeviceHistoryEntry("All", "Traveler_Users", Now.ToString & " Raw OS Type : " & OsType, LogLevel.Verbose)
             WriteDeviceHistoryEntry("All", "Traveler_Users", Now.ToString & " Raw Device Type : " & DeviceType, LogLevel.Verbose)
             If ThisDevice.OS_Type.ToLower.Contains("apple") Then
-                ThisDevice.DeviceType = "iPhone"
+                ThisDevice.OS = "iOS"
                 'split the device_type with "/" and the first part will be decoded  and put into DeviceName , the second part will be decoded and put into Os_Type
                 ThisDevice.DeviceName = TranslateAppleDeviceType(DeviceType)
+                ThisDevice.DeviceType = IIf(ThisDevice.DeviceName.ToUpper.Contains("IPAD"), "iPad", "iPhone")
                 If OsType <> "" Then
                     ThisDevice.OS_Type = TranslateAppleOSType(OsType)
                 End If
             ElseIf ThisDevice.OS_Type.ToLower.Contains("android") Then
+                ThisDevice.OS = "Android"
                 ThisDevice.DeviceType = "Android"
                 ThisDevice.DeviceName = TranslateAndroidDeviceType(DeviceType)
                 If OsType <> "" Then
@@ -1705,6 +1707,7 @@ Partial Public Class VitalSignsPlusDomino
             End If
         ElseIf ThisDevice.OS_Type.ToLower.Contains("android") Then
             ' DeviceName contains the actual device name of the device like SAMSUNG SGH-M919
+            ThisDevice.OS = "Android"
             ThisDevice.DeviceType = "Android"
             Dim translatedDeviceName As String = TranslateAndroidDeviceType(ThisDevice.DeviceName)
 
@@ -1717,6 +1720,7 @@ Partial Public Class VitalSignsPlusDomino
             'ThisDevice.DeviceName = TranslateAndroidDeviceType(ThisDevice.DeviceName)
             ThisDevice.OS_Type = TranslateAndroidOSType(ThisDevice.OS_Type)
         ElseIf ThisDevice.OS_Type = "8.0" Or ThisDevice.OS_Type = "8.1" Then
+            ThisDevice.OS = "Windows"
             ThisDevice.DeviceType = "Windows"
             ThisDevice.DeviceName = "Windows Phone"
             ThisDevice.OS_Type = "Windows"
@@ -1733,6 +1737,7 @@ Partial Public Class VitalSignsPlusDomino
                 ThisDevice.DeviceName = "BlackBerry Q5"
             End If
             ThisDevice.OS_Type = "BlackBerry " + ThisDevice.OS_Type.ToString
+            ThisDevice.OS = "BlackBerry"
             ThisDevice.DeviceType = "BlackBerry"
         End If
 
@@ -3713,6 +3718,7 @@ Alerts:
         Public Property DeviceName As String = ""
 
         Public Property DeviceType As String = ""
+        Public Property OS As String = ""
 
         Public Property ConnectionState As String = ""
         <DataMember(Name:="notification_type")> Public Property AutoSyncType As String = ""

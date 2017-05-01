@@ -1016,13 +1016,16 @@ namespace VitalSignsMicrosoftClasses
                 if (tempList.Count > 0)
                     listOfOsTranslations = tempList.ToList();
 
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMobileUsers: Starting.", Common.LogLevel.Normal);
+                filterDefTranslations = repoTranslations.Filter.Eq(x => x.Type, "Device");
+                List<VSNext.Mongo.Entities.MobileDeviceTranslations> listOfDeviceTranslations = repoTranslations.Find(filterDefTranslations).ToList();
+
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMobileUsers: Starting.", Common.LogLevel.Normal);
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				//String str = " Get-Mailbox -ResultSize Unlimited | Select Name,Alais,DisplayName,StorageLimitStatus,membertype,servername,ProhibitSendQuota,LastLogonTime";
 				//string str = "Get-MobileDevice";
 				//string str = "$MB = Get-MobileDevice -Resultsize unlimited " + "\n";
 				//str += "$MB | foreach {Get-MobileDeviceStatistics $_.identity} | Select-Object UserDisplayName,FirstSyncTime,LastPolicyUpdateTime,LastSyncAttemptTime,LastSuccessSync,DeviceType,DeviceID,DeviceModel,DeviceFriendlyName,DeviceOS,DeviceOSLanguage,Identity,DeviceAccessState,NumberOfFoldersSynced ,DeviceOSLanguage,DevicePolicyApplied,Status,DeviceUserAgent,DeviceAccessState,DeviceActiveSyncVersion,DeviceMobileOperator" + "\n" ;
-				string str = "Get-MobileDevice | Select-Object UserDisplayName,FirstSyncTime,LastPolicyUpdateTime,LastSyncAttemptTime,LastSuccessSync,DeviceType,DeviceID,DeviceModel,DeviceFriendlyName,DeviceOS,Identity,DeviceAccessState,NumberOfFoldersSynced ,DeviceOSLanguage,DevicePolicyApplied,Status,DeviceUserAgent,DeviceActiveSyncVersion,DeviceMobileOperator";
+				string str = "Get-MobileDevice | Select-Object UserDisplayName,FirstSyncTime,LastPolicyUpdateTime,LastSyncAttemptTime,LastSuccessSync,DeviceType,DeviceID,DeviceModel,FriendlyName,DeviceOS,Identity,DeviceAccessState,NumberOfFoldersSynced ,DeviceOSLanguage,DevicePolicyApplied,Status,DeviceUserAgent,DeviceActiveSyncVersion,DeviceMobileOperator";
 				//str += " $MB | foreach {Get-MobileDevice |Select UserDisplayName} | Select-Object *  ";
 				//Get-MobileDeviceStatistics -Identity joe";
 				//powershellobj.PS.Commands.Clear();
@@ -1047,7 +1050,7 @@ namespace VitalSignsMicrosoftClasses
 							myDevice.DeviceID = ps.Properties["DeviceID"].Value == null ? "" : ps.Properties["DeviceID"].Value.ToString();
 							myDevice.DeviceMobileOperator = ps.Properties["DeviceMobileOperator"].Value == null ? "" : ps.Properties["DeviceMobileOperator"].Value.ToString();
 							myDevice.DeviceActiveSyncVersion = ps.Properties["DeviceActiveSyncVersion"].Value == null ? "" : ps.Properties["DeviceActiveSyncVersion"].Value.ToString();
-							myDevice.DeviceFriendlyName = ps.Properties["DeviceFriendlyName"].Value == null ? "" : ps.Properties["DeviceFriendlyName"].Value.ToString();
+							myDevice.DeviceFriendlyName = ps.Properties["FriendlyName"].Value == null ? "" : ps.Properties["FriendlyName"].Value.ToString();
 							myDevice.DeviceOSLanguage = ps.Properties["DeviceOSLanguage"].Value == null ? "" : ps.Properties["DeviceOSLanguage"].Value.ToString();
 							myDevice.DeviceModel = ps.Properties["DeviceModel"].Value == null ? "" : ps.Properties["DeviceModel"].Value.ToString();
 							myDevice.DeviceType = ps.Properties["DeviceType"].Value == null ? "" : ps.Properties["DeviceType"].Value.ToString();
@@ -1055,16 +1058,21 @@ namespace VitalSignsMicrosoftClasses
 							myDevice.DeviceUserAgent = ps.Properties["DeviceUserAgent"].Value == null ? "" : ps.Properties["DeviceUserAgent"].Value.ToString();
                             myDevice.LastSuccessSync = ps.Properties["LastSuccessSync"].Value == null ? "" : ps.Properties["LastSuccessSync"].Value.ToString();
 
+                            if (myDevice.LastSuccessSync == "")
+                                myDevice.LastSuccessSync = ps.Properties["FirstSyncTime"].Value == null ? "" : ps.Properties["FirstSyncTime"].Value.ToString();
+
                             string[] aDeviceType = null;
 							string DeviceType = "";
 							string OsType = "";
 							string[] DeviceName = null;
 							string OSName = "";
 							string TranslatedValue = "";
+                            string OS = "";
 							if (!string.IsNullOrEmpty(myDevice.DeviceOS))
 							{
 								if ((myDevice.DeviceOS).ToLower().Contains("ios"))
 								{
+                                    OS = "iOS";
 									if (myDevice.DeviceUserAgent.Contains("/"))
 									{
 										DeviceName = (myDevice.DeviceUserAgent).Split('-');
@@ -1082,7 +1090,8 @@ namespace VitalSignsMicrosoftClasses
 								}
 								else if ((myDevice.DeviceOS).ToLower().Contains("android"))
 								{
-									if (!string.IsNullOrEmpty(myDevice.DeviceOS))
+                                    OS = "Android";
+                                    if (!string.IsNullOrEmpty(myDevice.DeviceOS))
 									{
 										string doubleVal = Convert.ToString(myDevice.DeviceOS);
 										TranslatedValue = Convert.ToString(string.Join(".", doubleVal.Split('.').Take(2)));
@@ -1090,20 +1099,36 @@ namespace VitalSignsMicrosoftClasses
 								}
 								else if ((myDevice.DeviceOS).ToLower().Contains("windows"))
 								{
-									if (!string.IsNullOrEmpty(myDevice.DeviceOS))
+                                    OS = "Windows";
+                                    if (!string.IsNullOrEmpty(myDevice.DeviceOS))
 									{
 										string doubleVal = Convert.ToString(myDevice.DeviceOS);
 										TranslatedValue = Convert.ToString(string.Join(".", doubleVal.Split('.').Take(2)));
 									}
 								}
-								TranslatedValue = string.IsNullOrEmpty(TranslatedValue) ? myDevice.DeviceOS : TranslatedValue;
+                                else if (myDevice.DeviceModel.ToLower().Contains("rim") || myDevice.DeviceModel.ToLower().Contains("blackberry") || myDevice.DeviceModel.ToLower().Contains("black berry") || myDevice.DeviceModel.ToLower().Contains("z10")
+                                    || myDevice.DeviceModel.ToLower().Contains("z30") || myDevice.DeviceModel.ToLower().Contains("q10") || myDevice.DeviceModel.ToLower().Contains("q5"))
+                                {
+                                    OS = "BlackBerry";
+                                }
+
+                                TranslatedValue = string.IsNullOrEmpty(TranslatedValue) ? myDevice.DeviceOS : TranslatedValue;
 								if ((myDevice.DeviceOS).ToLower().Contains("ios"))
 								{
 
-                                    tempList = listOfOsTranslations.Where(x => x.OriginalValue == OSName && x.OSType == OsType).ToList();
+                                    tempList = listOfOsTranslations.Where(x => x.OriginalValue == OsType && x.OSType == OSName).ToList();
                                     TranslatedValue = tempList.Count > 0 ? tempList[0].TranslatedValue : myDevice.DeviceOS;
 								}
 							}
+
+                            try
+                            {
+                                myDevice.DeviceModel = listOfDeviceTranslations.Where(x => x.OriginalValue == myDevice.DeviceModel || x.OriginalValue == "Apple-" + myDevice.DeviceModel).First().TranslatedValue;
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
 
 							//soma
 							//myDevice.LastSuccessSync = ps.Properties["LastSuccessSync"].Value == null ? "" : ps.Properties["LastSuccessSync"].Value.ToString();
@@ -1144,7 +1169,7 @@ namespace VitalSignsMicrosoftClasses
                                 .Set(i => i.ServerName, myServer.Name)
                                 .Set(i => i.DeviceID, myDevice.DeviceID)
                                 .Set(i => i.SecurityPolicy, myDevice.DevicePolicyApplied)
-                                .Set(i => i.DeviceName, myDevice.DeviceFriendlyName)
+                                .Set(i => i.DeviceName, myDevice.DeviceModel)
                                 .Set(i => i.ConnectionState, myDevice.Status)
                                 .Set(i => i.LastSyncTime, myDevice.LastSuccessSync == "" ? null : (DateTime?)DateTime.Parse(myDevice.LastSuccessSync))
                                 .Set(i => i.OSType, myDevice.DeviceOS)
@@ -1153,7 +1178,8 @@ namespace VitalSignsMicrosoftClasses
                                 .Set(i => i.DeviceType, myDevice.DeviceType)
                                 .Set(i => i.Access, myDevice.DeviceAccessState)
                                 .Set(i => i.IsActive, true)
-                                .Set(i => i.SyncType, "ActiveSync");
+                                .Set(i => i.SyncType, "ActiveSync")
+                                .Set(i => i.OS, OS);
 
                             AllTestsList.MongoEntity.Add(mongoStatement);
 
@@ -1221,191 +1247,217 @@ namespace VitalSignsMicrosoftClasses
                     if (tempList.Count > 0)
                         listOfOsTranslations = tempList.ToList();
 
+                    filterDefTranslations = repoTranslations.Filter.Eq(x => x.Type, "Device");
+                    List<VSNext.Mongo.Entities.MobileDeviceTranslations> listOfDeviceTranslations = repoTranslations.Find(filterDefTranslations).ToList();
+
                     Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMobileUsersHourly: Starting.", Common.LogLevel.Normal);
-				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
-				//String str = " Get-Mailbox -ResultSize Unlimited | Select Name,Alais,DisplayName,StorageLimitStatus,membertype,servername,ProhibitSendQuota,LastLogonTime";
-				//string str = "Get-MobileDevice";
+                    System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
+                    //String str = " Get-Mailbox -ResultSize Unlimited | Select Name,Alais,DisplayName,StorageLimitStatus,membertype,servername,ProhibitSendQuota,LastLogonTime";
+                    //string str = "Get-MobileDevice";
                     //string str = "$MB = Get-MobileDevice -Resultsize unlimited " + "\n";
                     string str = "";
                     if (keyDevices != "")
                         str = "$MB = Get-MobileDevice |Where-Object DeviceId -In ( " + keyDevices + ")" + "\n";
-				str += "$MB | foreach {Get-MobileDeviceStatistics $_.identity} | Select-Object UserDisplayName,FirstSyncTime,LastPolicyUpdateTime,LastSyncAttemptTime,LastSuccessSync,DeviceType,DeviceID,DeviceModel,DeviceFriendlyName,DeviceOS,DeviceOSLanguage,Identity,DeviceAccessState,NumberOfFoldersSynced ,DevicePolicyApplied,Status,DeviceUserAgent,DeviceActiveSyncVersion,DeviceMobileOperator" + "\n";
-				//string str = "Get-MobileDevice | Select-Object UserDisplayName,FirstSyncTime,LastPolicyUpdateTime,LastSyncAttemptTime,LastSuccessSync,DeviceType,DeviceID,DeviceModel,DeviceFriendlyName,DeviceOS,DeviceOSLanguage,Identity,DeviceAccessState,NumberOfFoldersSynced ,DeviceOSLanguage,DevicePolicyApplied,Status,DeviceUserAgent,DeviceAccessState,DeviceActiveSyncVersion,DeviceMobileOperator";
-				//str += " $MB | foreach {Get-MobileDevice |Select UserDisplayName} | Select-Object *  ";
-				//Get-MobileDeviceStatistics -Identity joe";
-				//powershellobj.PS.Commands.Clear();
-				//powershellobj.PS.Streams.ClearStreams();
-				powershellobj.PS.AddScript(str);
-				results = powershellobj.PS.Invoke();
+                    str += "$MB | foreach {Get-MobileDeviceStatistics $_.identity} | Select-Object UserDisplayName,FirstSyncTime,LastPolicyUpdateTime,LastSyncAttemptTime,LastSuccessSync,DeviceType,DeviceID,DeviceModel,FriendlyName,DeviceOS,DeviceOSLanguage,Identity,DeviceAccessState,NumberOfFoldersSynced ,DevicePolicyApplied,Status,DeviceUserAgent,DeviceActiveSyncVersion,DeviceMobileOperator" + "\n";
+                    //string str = "Get-MobileDevice | Select-Object UserDisplayName,FirstSyncTime,LastPolicyUpdateTime,LastSyncAttemptTime,LastSuccessSync,DeviceType,DeviceID,DeviceModel,DeviceFriendlyName,DeviceOS,DeviceOSLanguage,Identity,DeviceAccessState,NumberOfFoldersSynced ,DeviceOSLanguage,DevicePolicyApplied,Status,DeviceUserAgent,DeviceAccessState,DeviceActiveSyncVersion,DeviceMobileOperator";
+                    //str += " $MB | foreach {Get-MobileDevice |Select UserDisplayName} | Select-Object *  ";
+                    //Get-MobileDeviceStatistics -Identity joe";
+                    //powershellobj.PS.Commands.Clear();
+                    //powershellobj.PS.Streams.ClearStreams();
+                    powershellobj.PS.AddScript(str);
+                    results = powershellobj.PS.Invoke();
 
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMobileUsersHourly Results: " + results.Count.ToString(), Common.LogLevel.Normal);
-				DateTime dtNow = DateTime.Now;
-				int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
-				string strSQL = "";
-				string strSQLValues = "";
-				if (results.Count > 0)
-				{
-					foreach (PSObject ps in results)
-					{
-						//string DeviceId = ps.Properties["DeviceId"].Value == null ? "" : ps.Properties["DeviceId"].Value.ToString();
-						//string DeviceMobileOperator = ps.Properties["DeviceMobileOperator"].Value == null ? "" : ps.Properties["DeviceMobileOperator"].Value.ToString();
-						//string DeviceOS = ps.Properties["DeviceOS"].Value == null ? "" : ps.Properties["DeviceOS"].Value.ToString();
-						//string DeviceModel = ps.Properties["DeviceModel"].Value == null ? "" : ps.Properties["DeviceModel"].Value.ToString();
-						//string DeviceTelephoneNumber = ps.Properties["DeviceTelephoneNumber"].Value == null ? "" : ps.Properties["DeviceTelephoneNumber"].Value.ToString();
-						//string DeviceType = ps.Properties["DeviceType"].Value == null ? "" : ps.Properties["DeviceType"].Value.ToString();
-						//string ClientVersion = ps.Properties["ClientVersion"].Value == null ? "" : ps.Properties["ClientVersion"].Value.ToString();
-						//string FriendlyName = ps.Properties["FriendlyName"].Value == null ? "" : ps.Properties["FriendlyName"].Value.ToString();
-						ActiveSyncDevice myDevice = new ActiveSyncDevice();
-						myDevice.User = ps.Properties["Identity"].Value == null ? "" : ps.Properties["Identity"].Value.ToString();
-						string Username = (myDevice.User).ToLower();
-						try
-						{
-							myDevice.User = myDevice.User.Split('/')[3];
-							Username = (myDevice.User).ToLower();
-						}
-						catch { }
+                    Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMobileUsersHourly Results: " + results.Count.ToString(), Common.LogLevel.Normal);
+                    DateTime dtNow = DateTime.Now;
+                    int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
+                    string strSQL = "";
+                    string strSQLValues = "";
+                    if (results.Count > 0)
+                    {
+                        foreach (PSObject ps in results)
+                        {
+                            //string DeviceId = ps.Properties["DeviceId"].Value == null ? "" : ps.Properties["DeviceId"].Value.ToString();
+                            //string DeviceMobileOperator = ps.Properties["DeviceMobileOperator"].Value == null ? "" : ps.Properties["DeviceMobileOperator"].Value.ToString();
+                            //string DeviceOS = ps.Properties["DeviceOS"].Value == null ? "" : ps.Properties["DeviceOS"].Value.ToString();
+                            //string DeviceModel = ps.Properties["DeviceModel"].Value == null ? "" : ps.Properties["DeviceModel"].Value.ToString();
+                            //string DeviceTelephoneNumber = ps.Properties["DeviceTelephoneNumber"].Value == null ? "" : ps.Properties["DeviceTelephoneNumber"].Value.ToString();
+                            //string DeviceType = ps.Properties["DeviceType"].Value == null ? "" : ps.Properties["DeviceType"].Value.ToString();
+                            //string ClientVersion = ps.Properties["ClientVersion"].Value == null ? "" : ps.Properties["ClientVersion"].Value.ToString();
+                            //string FriendlyName = ps.Properties["FriendlyName"].Value == null ? "" : ps.Properties["FriendlyName"].Value.ToString();
+                            ActiveSyncDevice myDevice = new ActiveSyncDevice();
+                            myDevice.User = ps.Properties["Identity"].Value == null ? "" : ps.Properties["Identity"].Value.ToString();
+                            string Username = (myDevice.User).ToLower();
+                            try
+                            {
+                                myDevice.User = myDevice.User.Split('/')[3];
+                                Username = (myDevice.User).ToLower();
+                            }
+                            catch { }
 
-						myDevice.DeviceID = ps.Properties["DeviceID"].Value == null ? "" : ps.Properties["DeviceID"].Value.ToString();
-						myDevice.DeviceMobileOperator = ps.Properties["DeviceMobileOperator"].Value == null ? "" : ps.Properties["DeviceMobileOperator"].Value.ToString();
-						myDevice.DeviceActiveSyncVersion = ps.Properties["DeviceActiveSyncVersion"].Value == null ? "" : ps.Properties["DeviceActiveSyncVersion"].Value.ToString();
-						myDevice.DeviceFriendlyName = ps.Properties["DeviceFriendlyName"].Value == null ? "" : ps.Properties["DeviceFriendlyName"].Value.ToString();
-						myDevice.DeviceOSLanguage = ps.Properties["DeviceOSLanguage"].Value == null ? "" : ps.Properties["DeviceOSLanguage"].Value.ToString();
-						myDevice.DeviceModel = ps.Properties["DeviceModel"].Value == null ? "" : ps.Properties["DeviceModel"].Value.ToString();
-						myDevice.DeviceType = ps.Properties["DeviceType"].Value == null ? "" : ps.Properties["DeviceType"].Value.ToString();
-						myDevice.DeviceOS = ps.Properties["DeviceOS"].Value == null ? "" : ps.Properties["DeviceOS"].Value.ToString();
-						string[] aDeviceType = null;
-						string DeviceType = "";
-						string OsType = "";
-						string[] DeviceName = null;
-						string OSName = "";
-						string TranslatedValue = "";
-						if (!string.IsNullOrEmpty(myDevice.DeviceOS))
-						{
-							if ((myDevice.DeviceOS).ToLower().Contains("ios"))
-							{
+                            myDevice.DeviceID = ps.Properties["DeviceID"].Value == null ? "" : ps.Properties["DeviceID"].Value.ToString();
+                            myDevice.DeviceMobileOperator = ps.Properties["DeviceMobileOperator"].Value == null ? "" : ps.Properties["DeviceMobileOperator"].Value.ToString();
+                            myDevice.DeviceActiveSyncVersion = ps.Properties["DeviceActiveSyncVersion"].Value == null ? "" : ps.Properties["DeviceActiveSyncVersion"].Value.ToString();
+                            myDevice.DeviceFriendlyName = ps.Properties["FriendlyName"].Value == null ? "" : ps.Properties["FriendlyName"].Value.ToString();
+                            myDevice.DeviceOSLanguage = ps.Properties["DeviceOSLanguage"].Value == null ? "" : ps.Properties["DeviceOSLanguage"].Value.ToString();
+                            myDevice.DeviceModel = ps.Properties["DeviceModel"].Value == null ? "" : ps.Properties["DeviceModel"].Value.ToString();
+                            myDevice.DeviceType = ps.Properties["DeviceType"].Value == null ? "" : ps.Properties["DeviceType"].Value.ToString();
+                            myDevice.DeviceOS = ps.Properties["DeviceOS"].Value == null ? "" : ps.Properties["DeviceOS"].Value.ToString();
+                            string[] aDeviceType = null;
+                            string DeviceType = "";
+                            string OsType = "";
+                            string[] DeviceName = null;
+                            string OSName = "";
+                            string TranslatedValue = "";
+                            string OS = null;
+                            if (!string.IsNullOrEmpty(myDevice.DeviceOS))
+                            {
+                                if ((myDevice.DeviceOS).ToLower().Contains("ios"))
+                                {
+                                    OS = "iOS";
                                     if (myDevice.DeviceUserAgent != null)
                                     {
-								if (myDevice.DeviceUserAgent.Contains("/"))
-								{
-									DeviceName = (myDevice.DeviceUserAgent).Split('-');
-									OSName = DeviceName[0];
-									aDeviceType = (myDevice.DeviceUserAgent).Split('/');
+                                        if (myDevice.DeviceUserAgent.Contains("/"))
+                                        {
+                                            DeviceName = (myDevice.DeviceUserAgent).Split('-');
+                                            OSName = DeviceName[0];
+                                            aDeviceType = (myDevice.DeviceUserAgent).Split('/');
 
-									DeviceType = aDeviceType[0];
-								}
-								if (aDeviceType.Count() > 0)
-								{
-									OsType = aDeviceType[1];
+                                            DeviceType = aDeviceType[0];
+                                        }
+                                        if (aDeviceType.Count() > 0)
+                                        {
+                                            OsType = aDeviceType[1];
 
-								}
+                                        }
                                     }
 
-							}
-							else if ((myDevice.DeviceOS).ToLower().Contains("android"))
-							{
-								if (!string.IsNullOrEmpty(myDevice.DeviceOS))
-								{
-									string doubleVal = Convert.ToString(myDevice.DeviceOS);
-									TranslatedValue = Convert.ToString(string.Join(".", doubleVal.Split('.').Take(2)));
-								}
-							}
-							else if ((myDevice.DeviceOS).ToLower().Contains("windows"))
-							{
-								if (!string.IsNullOrEmpty(myDevice.DeviceOS))
-								{
-									string doubleVal = Convert.ToString(myDevice.DeviceOS);
-									TranslatedValue = Convert.ToString(string.Join(".", doubleVal.Split('.').Take(2)));
-								}
-							}
-							TranslatedValue = string.IsNullOrEmpty(TranslatedValue) ? myDevice.DeviceOS : TranslatedValue;
-							if ((myDevice.DeviceOS).ToLower().Contains("ios"))
-							{
-                                    tempList = listOfOsTranslations.Where(x => x.OriginalValue == OSName && x.OSType == OsType).ToList();
+                                }
+                                else if ((myDevice.DeviceOS).ToLower().Contains("android"))
+                                {
+                                    OS = "Android";
+                                    if (!string.IsNullOrEmpty(myDevice.DeviceOS))
+                                    {
+                                        string doubleVal = Convert.ToString(myDevice.DeviceOS);
+                                        TranslatedValue = Convert.ToString(string.Join(".", doubleVal.Split('.').Take(2)));
+                                    }
+                                }
+                                else if ((myDevice.DeviceOS).ToLower().Contains("windows"))
+                                {
+                                    OS = "Windows";
+                                    if (!string.IsNullOrEmpty(myDevice.DeviceOS))
+                                    {
+                                        string doubleVal = Convert.ToString(myDevice.DeviceOS);
+                                        TranslatedValue = Convert.ToString(string.Join(".", doubleVal.Split('.').Take(2)));
+                                    }
+                                }
+                                else if (myDevice.DeviceModel.ToLower().Contains("rim") || myDevice.DeviceModel.ToLower().Contains("blackberry") || myDevice.DeviceModel.ToLower().Contains("black berry") || myDevice.DeviceModel.ToLower().Contains("z10")
+                                   || myDevice.DeviceModel.ToLower().Contains("z30") || myDevice.DeviceModel.ToLower().Contains("q10") || myDevice.DeviceModel.ToLower().Contains("q5"))
+                                {
+                                    OS = "BlackBerry";
+                                }
+                                TranslatedValue = string.IsNullOrEmpty(TranslatedValue) ? myDevice.DeviceOS : TranslatedValue;
+                                if ((myDevice.DeviceOS).ToLower().Contains("ios"))
+                                {
+                                    tempList = listOfOsTranslations.Where(x => x.OriginalValue == OsType && x.OSType == OSName).ToList();
                                     TranslatedValue = tempList.Count > 0 ? tempList[0].TranslatedValue : myDevice.DeviceOS;
 
+                                }
                             }
-						}
-						myDevice.LastSuccessSync = ps.Properties["LastSuccessSync"].Value == null ? "" : ps.Properties["LastSuccessSync"].Value.ToString();
-						myDevice.DeviceUserAgent = ps.Properties["DeviceType"].Value == null ? "" : ps.Properties["DeviceType"].Value.ToString();
-						myDevice.DevicePolicyApplied = ps.Properties["DevicePolicyApplied"].Value == null ? "" : ps.Properties["DevicePolicyApplied"].Value.ToString();
+                            myDevice.LastSuccessSync = ps.Properties["LastSuccessSync"].Value == null ? "" : ps.Properties["LastSuccessSync"].Value.ToString();
+                            if (myDevice.LastSuccessSync == "")
+                                myDevice.LastSuccessSync = ps.Properties["FirstSyncTime"].Value == null ? "" : ps.Properties["FirstSyncTime"].Value.ToString();
 
-						// Status returns 'DeviceOk', which is a bit nerdy
-						myDevice.Status = ps.Properties["Status"].Value == null ? "" : ps.Properties["Status"].Value.ToString();
-						if (myDevice.Status == "DeviceOk") { myDevice.Status = "OK"; }
+                            myDevice.DeviceUserAgent = ps.Properties["DeviceType"].Value == null ? "" : ps.Properties["DeviceType"].Value.ToString();
+                            myDevice.DevicePolicyApplied = ps.Properties["DevicePolicyApplied"].Value == null ? "" : ps.Properties["DevicePolicyApplied"].Value.ToString();
 
-						myDevice.DeviceUserAgent = ps.Properties["DeviceUserAgent"].Value == null ? "" : ps.Properties["DeviceUserAgent"].Value.ToString();
-						// myDevice.Identity = ps.Properties["Identity"].Value == null ? "" : ps.Properties["Identity"].Value.ToString();
-						myDevice.DeviceAccessState = ps.Properties["DeviceAccessState"].Value == null ? "" : ps.Properties["DeviceAccessState"].Value.ToString();
-						if (myDevice.DeviceAccessState == "Allowed") { myDevice.DeviceAccessState = "Allow"; }
+                            // Status returns 'DeviceOk', which is a bit nerdy
+                            myDevice.Status = ps.Properties["Status"].Value == null ? "" : ps.Properties["Status"].Value.ToString();
+                            if (myDevice.Status == "DeviceOk") { myDevice.Status = "OK"; }
 
-                        try
-                        {
-                            myDevice.DeviceOS = new System.Text.RegularExpressions.Regex(@"\w+ \d+\.\d+\.\d+").Match(myDevice.DeviceOS).Value;
-                        }
-                        catch (Exception ex)
-                        {
+                            myDevice.DeviceUserAgent = ps.Properties["DeviceUserAgent"].Value == null ? "" : ps.Properties["DeviceUserAgent"].Value.ToString();
+                            // myDevice.Identity = ps.Properties["Identity"].Value == null ? "" : ps.Properties["Identity"].Value.ToString();
+                            myDevice.DeviceAccessState = ps.Properties["DeviceAccessState"].Value == null ? "" : ps.Properties["DeviceAccessState"].Value.ToString();
+                            if (myDevice.DeviceAccessState == "Allowed") { myDevice.DeviceAccessState = "Allow"; }
 
-                        }
+                            try
+                            {
+                                myDevice.DeviceOS = new System.Text.RegularExpressions.Regex(@"\w+ \d+\.\d+\.\d+").Match(myDevice.DeviceOS).Value;
+                            }
+                            catch (Exception ex)
+                            {
 
-                        try
-                        {
-                            myDevice.DeviceOSMin = new System.Text.RegularExpressions.Regex(@"\w+ \d+\.\d+").Match(myDevice.DeviceOS).Value;
-                        }
-                        catch (Exception ex)
-                        {
+                            }
 
-                        }
+                            try
+                            {
+                                myDevice.DeviceOSMin = new System.Text.RegularExpressions.Regex(@"\w+ \d+\.\d+").Match(myDevice.DeviceOS).Value;
+                            }
+                            catch (Exception ex)
+                            {
 
-                        MongoStatementsUpsert<VSNext.Mongo.Entities.MobileDevices> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.MobileDevices>();
-                        mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DeviceID == myDevice.DeviceID && i.ServerName == myServer.Name);
-                        mongoStatement.updateDef = mongoStatement.repo.Updater
-                            .Set(i => i.UserName, Username)
-                            .Set(i => i.SecurityPolicy, myDevice.DevicePolicyApplied)
-                            .Set(i => i.DeviceName, myDevice.DeviceModel)
-                            .Set(i => i.ConnectionState, myDevice.Status)
-                            .Set(i => i.LastSyncTime, myDevice.LastSuccessSync == "" ? null : (DateTime?)DateTime.Parse(myDevice.LastSuccessSync))
-                            .Set(i => i.OSType, myDevice.DeviceOS)
-                            .Set(i => i.OSTypeMin, TranslatedValue)
-                            .Set(i => i.ClientBuild, myDevice.DeviceActiveSyncVersion)
-                            .Set(i => i.DeviceType, myDevice.DeviceType)
-                            .Set(i => i.Access, myDevice.DeviceAccessState)
-                            .Set(i => i.IsActive, true)
-                            .Set(i => i.SyncType, "ActiveSync");
+                            }
 
-                        AllTestsList.MongoEntity.Add(mongoStatement);
+                            try
+                            {
+                                myDevice.DeviceModel = listOfDeviceTranslations.Where(x => x.OriginalValue == myDevice.DeviceModel || x.OriginalValue == "Apple-" + myDevice.DeviceModel).First().TranslatedValue;
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+
+                            MongoStatementsUpsert<VSNext.Mongo.Entities.MobileDevices> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.MobileDevices>();
+                            mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DeviceID == myDevice.DeviceID && i.ServerName == myServer.Name);
+                            mongoStatement.updateDef = mongoStatement.repo.Updater
+                                .Set(i => i.UserName, Username)
+                                .Set(i => i.SecurityPolicy, myDevice.DevicePolicyApplied)
+                                .Set(i => i.DeviceName, myDevice.DeviceModel)
+                                .Set(i => i.ConnectionState, myDevice.Status)
+                                .Set(i => i.LastSyncTime, myDevice.LastSuccessSync == "" ? null : (DateTime?)DateTime.Parse(myDevice.LastSuccessSync))
+                                .Set(i => i.OSType, myDevice.DeviceOS)
+                                .Set(i => i.OSTypeMin, myDevice.DeviceOSMin)
+                                .Set(i => i.ClientBuild, myDevice.DeviceActiveSyncVersion)
+                                .Set(i => i.DeviceType, myDevice.DeviceType)
+                                .Set(i => i.Access, myDevice.DeviceAccessState)
+                                .Set(i => i.IsActive, true)
+                                .Set(i => i.SyncType, "ActiveSync")
+                                .Set(i => i.OS, OS);
+
+
+                            AllTestsList.MongoEntity.Add(mongoStatement);
                             string val = dict[myDevice.DeviceID].ToString();
                             DateTime dtNowUtc = DateTime.UtcNow;
                             DateTime dtLastSyncUtc = new DateTime();
                             if (myDevice.LastSuccessSync != "")
-                                 dtLastSyncUtc = Convert.ToDateTime(myDevice.LastSuccessSync);
+                                dtLastSyncUtc = Convert.ToDateTime(myDevice.LastSuccessSync);
                             TimeSpan elapsed = dtNow.Subtract(dtLastSyncUtc);
-//                            string alertDesc= "Active Sync device for user: " + Username  + " and device is overdue. The threshold was set at " + val + " but the device was last synced " +  elapsed.Minutes.ToString() + " ago.";
+                            //                            string alertDesc= "Active Sync device for user: " + Username  + " and device is overdue. The threshold was set at " + val + " but the device was last synced " +  elapsed.Minutes.ToString() + " ago.";
                             string alertDesc = myDevice.DeviceID + " for " + Username + " last synced at: " + dtLastSyncUtc.ToString();
                             MonitoredItems.MicrosoftServer m = new MonitoredItems.MicrosoftServer();
                             m.Name = Username;
                             m.ServerTypeId = 11;
                             m.ServerType = "Mobile Users";
 
-                            if (elapsed.TotalMinutes  > Convert.ToInt32(val))
-                                Common.makeAlert(true, m, commonEnums.AlertType.Active_Sync_Devices, ref AllTestsList, alertDesc,"ActiveSync");
+                            if (elapsed.TotalMinutes > Convert.ToInt32(val))
+                                Common.makeAlert(true, m, commonEnums.AlertType.Active_Sync_Devices, ref AllTestsList, alertDesc, "ActiveSync");
                             else
                                 Common.makeAlert(false, m, commonEnums.AlertType.Active_Sync_Devices, ref AllTestsList, alertDesc, "ActiveSync");
-                            
 
 
-					}
 
-				}
+                        }
 
-			}
-			catch (Exception ex)
-			{
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMobileUsers Results: Exception: " + ex.Message.ToString(), Common.LogLevel.Verbose);
-				//myServer.ADQueryTest = "Fail";
-				//Common.makeAlert(false, myServer, commonEnums.AlertType., ref AllTestsList, myServer.ServerType);
-			}
-		}
-		}
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMobileUsers Results: Exception: " + ex.Message.ToString(), Common.LogLevel.Verbose);
+                    //myServer.ADQueryTest = "Fail";
+                    //Common.makeAlert(false, myServer, commonEnums.AlertType., ref AllTestsList, myServer.ServerType);
+                }
+            }
+        }
 		#endregion
 		#region SendAndReceiveMailStats
 		public void getMailStatusInfo(MonitoredItems.Office365Server myServer, ref TestResults AllTestsList, ReturnPowerShellObjects powershellobj)
