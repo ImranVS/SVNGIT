@@ -1941,7 +1941,7 @@ Partial Public Class VitalSignsPlusDomino
         Try
             Dim n As Long = Now.Ticks
 
-            repository.Delete(repository.Filter.Lt(Function(x) x.LastUpdated, StartOfScan))
+            repository.Delete(repository.Filter.Lt(Function(x) x.LastUpdated, StartOfScan) And repository.Filter.Eq(Function(x) x.ServerName, ServerName))
 
             n = Now.Ticks - n
             WriteDeviceHistoryEntry("All", "Traveler_Users_" & ServerName, Now.ToString & " Time: " & (New TimeSpan(n).TotalSeconds.ToString()), LogUtilities.LogUtils.LogLevel.Verbose)
