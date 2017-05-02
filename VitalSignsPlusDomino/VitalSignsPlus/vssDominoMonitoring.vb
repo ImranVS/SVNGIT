@@ -3699,7 +3699,7 @@ WaitHere:
                     End Try
                     Try
                         ConfiguredTask.Status = "OK"
-                        SearchTask.StatusSummary = "OK"
+                        'SearchTask.StatusSummary = "OK"
                     Catch ex As Exception
                         WriteDeviceHistoryEntry("Domino", DominoServer.Name, Now.ToString & " Error setting status of task " & ex.Message)
                     End Try
@@ -5240,11 +5240,11 @@ Cleanup:
                 MyDominoServer.Status = "Dead Mail Alert"
                 MyDominoServer.AlertType = DeadMail
                 '3/1/2016 NS modified for VSPLUS-2682
-                myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Dead Mail", "The server " & MyDominoServer.Name & " has " & MyDominoServer.DeadMail & " dead messages with an alert threshold of " + MyDominoServer.DeadThreshold + ".", MyDominoServer.Location)
+                myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Dead Mail", "The server " & MyDominoServer.Name & " has " & MyDominoServer.DeadMail & " dead messages with an alert threshold of " & +MyDominoServer.DeadThreshold & ".", MyDominoServer.Location)
                 ' myAlert.QueueAlert("Domino", MyDominoServer.Name, "Dead Mail", "The Domino server " & MyDominoServer.Name & " has " & MyDominoServer.DeadMail & " dead messages.", MyDominoServer.Location)
             Else
                 '3/1/2016 NS modified for VSPLUS-2682
-                myAlert.ResetAlert(MyDominoServer.Name, MyDominoServer.Name, "Dead Mail", MyDominoServer.Location, "The server has " & MyDominoServer.DeadMail & " dead messages with an alert threshold of " + MyDominoServer.DeadThreshold + ".")
+                myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Dead Mail", MyDominoServer.Location, "The server has " & MyDominoServer.DeadMail & " dead messages with an alert threshold of " & MyDominoServer.DeadThreshold & ".")
                 If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " No problem with dead mail, Dead Mail= " & MyDominoServer.DeadMail & " Dead mail threshold= " & MyDominoServer.DeadThreshold)
             End If
         Catch ex As Exception
@@ -5305,13 +5305,13 @@ Cleanup:
                     strmsg = "The server " & MyDominoServer.Name & " has at least " & MyDominoServer.HeldMail.ToString & " held messages.  This server is configured to stop counting when the threshold is exceeded."
                 Else
                     '3/4/2016 NS modified for VSPLUS-2682
-                    strmsg = "The server " & MyDominoServer.Name & " has " & MyDominoServer.HeldMail.ToString & " held messages with an alert threshold of " + MyDominoServer.HeldThreshold + "."
+                    strmsg = "The server " & MyDominoServer.Name & " has " & MyDominoServer.HeldMail.ToString & " held messages with an alert threshold of " & MyDominoServer.HeldThreshold & "."
                 End If
 
-                myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Held Mail", strmsg, MyDominoServer.Location)
+                myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Held Mail", strmsg, MyDominoServer.Location)
             Else
                 '3/1/2016 NS modified for VSPLUS-2682
-                myAlert.ResetAlert(MyDominoServer.Name, MyDominoServer.Name, "Held Mail", MyDominoServer.Location, "The server has " & MyDominoServer.HeldMail & " held messages with an alert threshold of " + MyDominoServer.HeldThreshold + ".")
+                myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Held Mail", MyDominoServer.Location, "The server has " & MyDominoServer.HeldMail & " held messages with an alert threshold of " & MyDominoServer.HeldThreshold & ".")
             End If
         Catch ex As Exception
             If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception calculating Held mail alert: " & ex.ToString)
@@ -5334,7 +5334,7 @@ Cleanup:
                     '3/4/2016 NS modified for VSPLUS-2682
                     strmsg = "The server " & MyDominoServer.Name & " has " & MyDominoServer.PendingMail.ToString & " pending messages."
                 End If
-                myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Pending Mail", strmsg, MyDominoServer.Location)
+                myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Pending Mail", strmsg, MyDominoServer.Location)
 
                 'myAlert.QueueAlert("Domino", MyDominoServer.Name, "Pending Mail", "The Domino server " & MyDominoServer.Name & " has " & MyDominoServer.PendingMail & " pending messages.", MyDominoServer.Location)
                 If MyDominoServer.DeadMail >= MyDominoServer.DeadThreshold Then
@@ -5343,7 +5343,7 @@ Cleanup:
                 End If
 
             Else
-                myAlert.ResetAlert(MyDominoServer.Name, MyDominoServer.Name, "Pending Mail", MyDominoServer.Location, "Server has " & MyDominoServer.PendingMail & " pending messages")
+                myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Pending Mail", MyDominoServer.Location, "Server has " & MyDominoServer.PendingMail & " pending messages")
             End If
 
         Catch ex As Exception

@@ -1747,6 +1747,7 @@ Partial Public Class VitalSignsPlusDomino
 
         WriteDeviceHistoryEntry("All", "Traveler_Users", Now.ToString & " Translated OS Type : " & ThisDevice.OS_Type, LogLevel.Verbose)
         WriteDeviceHistoryEntry("All", "Traveler_Users", Now.ToString & " Translated Device Type : " & ThisDevice.DeviceName, LogLevel.Verbose)
+        WriteDeviceHistoryEntry("All", "Traveler_Users", Now.ToString & " OS : " & ThisDevice.OS, LogLevel.Verbose)
     End Sub
 
     Private Function TrimOsType(ByVal s As String) As String

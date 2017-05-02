@@ -1799,6 +1799,7 @@ Partial Public Class VitalSignsPlusDomino
                 Set(Function(x) x.DeviceType, Device.DeviceType).
                 Set(Function(x) x.LastUpdated, Now).
                 Set(Function(x) x.ModifiedOn, Now).
+                Set(Function(x) x.OS, Device.OS).
                 SetOnInsert(Function(x) x.CreatedOn, Now)
 
 
