@@ -631,8 +631,12 @@ namespace VitalSigns.API.Controllers
             UtilsController uc = new UtilsController();
             dailyRepository = new Repository<DailyStatistics>(ConnectionString);
             statusRepository = new Repository<Status>(ConnectionString);
+            DateTime startDate;
+            DateTime endDate;
             try
             {
+                startDate = DateTime.UtcNow.AddDays(-1).ToUniversalTime();
+                endDate = DateTime.UtcNow.ToUniversalTime();
                 var statNames = statName.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
                 if (!string.IsNullOrEmpty(statName) && getNode)
                 {
@@ -645,7 +649,7 @@ namespace VitalSigns.API.Controllers
                 }
                 if (string.IsNullOrEmpty(deviceId) && !string.IsNullOrEmpty(statName))
                 {
-                    Expression<Func<DailyStatistics, bool>> expression = (p => statNames.Contains(p.StatName));
+                    Expression<Func<DailyStatistics, bool>> expression = (p => statNames.Contains(p.StatName) && p.CreatedOn >= startDate);
 
                     if (string.IsNullOrEmpty(operation))
                     {
@@ -749,56 +753,39 @@ namespace VitalSigns.API.Controllers
                                        .GroupBy(row => new
                                        {
                                            row.CreatedOn.Hour,
+                                           row.CreatedOn.Year,
+                                           row.CreatedOn.Month,
+                                           row.CreatedOn.Day,
                                            row.StatName
                                        })
                                        .Select(row => new
                                        {
                                            Hour = row.Key.Hour,
+                                           Year = row.Key.Year,
+                                           Month = row.Key.Month,
+                                           Day = row.Key.Day,
                                            Value = Math.Round(row.Average(x => x.StatValue), 2),
                                            StatName = row.Key.StatName
 
                                        }).ToList();
 
+                                series = new List<Serie>();
+                                DateTime time = new DateTime();
                                 foreach (var name in statNames)
                                 {
-
-                                    segments = new List<Segment>();
                                     serie = new Serie();
-                                    for (int hour = 24; hour >= 1; hour--)
-                                    {
-                                        var item = result.Where(x => x.Hour == hour).FirstOrDefault();
-                                        var output = result.Where(x => x.Hour == hour && x.StatName == name).ToList();
-                                        DateTime time = new DateTime();
-                                        time = DateTime.UtcNow.AddHours(-hour);
-                                        time = new DateTime(time.Year, time.Month, time.Day, time.Hour, 0, 0, time.Kind);
-                                        string displayTime = "";
-                                        displayTime = time.ToString(DateFormat);
-                                        if (item != null && statNames.Length == 1)
-                                        {
+                                    serie.Title = uc.GetUserFriendlyStatName(name);
+                                    serie.Segments = new List<Segment>();
 
-                                            segments.Add(new Segment { Label = displayTime.ToString(), Value = item.Value });
-                                            serie.Title = uc.GetUserFriendlyStatName(name);
-                                            serie.Segments = segments;
-                                        }
-                                        else if (item != null && output != null && statNames.Length > 1)
-                                        {
-                                            foreach (var statvalue in output)
-                                            {
-                                                segments.Add(new Segment { Label = displayTime, Value = statvalue.Value });
-                                                serie.Title = uc.GetUserFriendlyStatName(name);
-                                                serie.Segments = segments;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            segments.Add(new Segment { Label = displayTime.ToString(), Value = 0 });
-                                            serie.Title = uc.GetUserFriendlyStatName(name);
-                                            serie.Segments = segments;
-                                        }
+                                    for (DateTime date = startDate; date < endDate; date = date.AddHours(1))
+                                    {
+                                        var item = result.Where(x => x.Year == date.Year && x.Month == date.Month && x.Day == date.Day && x.Hour == date.Hour && x.StatName == name).ToList();
+                                        time = item.Count > 0 ? new DateTime(item[0].Year, item[0].Month, item[0].Day, item[0].Hour, 0, 0, time.Kind) :
+                                            new DateTime(date.Year, date.Month, date.Day, date.Hour, 0, 0, date.Kind);
+                                        serie.Segments.Add(new Segment() { Label = time.ToString(DateFormat), Value = item.Count > 0 ? (double?)Math.Round(item[0].Value, 2) : 0 });
                                     }
                                     series.Add(serie);
                                 }
-
                                 chart = new Chart();
                                 chart.Title = uc.GetUserFriendlyStatName(statName);
                                 chart.Series = series;
@@ -809,7 +796,7 @@ namespace VitalSigns.API.Controllers
                 }
                 else
                 {
-                    Expression<Func<DailyStatistics, bool>> expression = (p => statNames.Contains(p.StatName) && p.DeviceId == deviceId);
+                    Expression<Func<DailyStatistics, bool>> expression = (p => statNames.Contains(p.StatName) && p.DeviceId == deviceId && p.CreatedOn >= startDate);
 
                     if (string.IsNullOrEmpty(operation) && !string.IsNullOrEmpty(statName))
                     {
@@ -879,69 +866,40 @@ namespace VitalSigns.API.Controllers
                                 break;
                             case "HOURLY":
                                 var statsHourly = dailyRepository.Find(expression).OrderBy(i => i.CreatedOn);
-
-
                                 var result = statsHourly
                                        .GroupBy(row => new
                                        {
                                            row.CreatedOn.Hour,
+                                           row.CreatedOn.Year,
+                                           row.CreatedOn.Month,
+                                           row.CreatedOn.Day,
                                            row.StatName
 
                                        })
                                        .Select(row => new
                                        {
                                            Hour = row.Key.Hour,
+                                           Year = row.Key.Year,
+                                           Month = row.Key.Month,
+                                           Day = row.Key.Day,
                                            Value = Math.Round(row.Average(x => x.StatValue), 2),
                                            StatName = row.Key.StatName
-
                                        }).ToList();
 
-                                // DateTime moment = DateTime.Now.Hour;
-                                // int onhour = moment.Hour;
                                 List<Serie> series = new List<Serie>();
-
+                                DateTime time = new DateTime();
                                 foreach (var name in statNames)
                                 {
-
-                                    List<Segment> segments = new List<Segment>();
                                     Serie serie = new Serie();
-                                    for (int hour = 24; hour >= 1; hour--)
+                                    serie.Title = uc.GetUserFriendlyStatName(name);
+                                    serie.Segments = new List<Segment>();
+
+                                    for (DateTime date = startDate; date < endDate; date = date.AddHours(1))
                                     {
-                                        // To do
-                                        // string hourString =hour<12?hour.ToString()+ " A.M " 
-
-                                        var item = result.Where(x => x.Hour == hour).FirstOrDefault();
-                                        var output = result.Where(x => x.Hour == hour && x.StatName == name).ToList();
-                                        DateTime time = new DateTime();
-                                        time = DateTime.UtcNow.AddHours(-hour);
-                                        time = new DateTime(time.Year, time.Month, time.Day, time.Hour, 0, 0, time.Kind);
-                                        string displayTime = "";
-                                        displayTime = time.ToString(DateFormat);
-
-
-                                        if (item != null && statNames.Length == 1)
-                                        {
-
-                                            segments.Add(new Segment { Label = displayTime.ToString(), Value = item.Value });
-                                            serie.Title = uc.GetUserFriendlyStatName(name);
-                                            serie.Segments = segments;
-                                        }
-                                        else if (item != null && output != null && statNames.Length > 1)
-                                        {
-                                            foreach (var statvalue in output)
-                                            {
-                                                segments.Add(new Segment { Label = displayTime, Value = statvalue.Value });
-                                                serie.Title = uc.GetUserFriendlyStatName(name);
-                                                serie.Segments = segments;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            // TimeSpan timespan = new TimeSpan(hour);
-                                            segments.Add(new Segment { Label = displayTime.ToString(), Value = 0 });
-                                            serie.Title = uc.GetUserFriendlyStatName(name);
-                                            serie.Segments = segments;
-                                        }
+                                        var item = result.Where(x => x.Year == date.Year && x.Month == date.Month && x.Day == date.Day && x.Hour == date.Hour && x.StatName == name).ToList();
+                                        time = item.Count > 0 ? new DateTime(item[0].Year, item[0].Month, item[0].Day, item[0].Hour, 0, 0, time.Kind) :
+                                            new DateTime(date.Year, date.Month, date.Day, date.Hour, 0, 0, date.Kind);
+                                        serie.Segments.Add(new Segment() { Label = time.ToString(DateFormat), Value = item.Count > 0 ? (double?)Math.Round(item[0].Value, 2) : 0 });
                                     }
                                     series.Add(serie);
                                 }
@@ -981,8 +939,9 @@ namespace VitalSigns.API.Controllers
                 endDate = DateTime.UtcNow.ToString(DateFormat);
 
             //1 day is added to the end so we include that days data
+            //NS - removed adding one day since the summary collection is always 1 day behind
             DateTime dtStart = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture).ToUniversalTime();
-            DateTime dtEnd = DateTime.ParseExact(endDate, DateFormat, CultureInfo.InvariantCulture).AddDays(1).ToUniversalTime();
+            DateTime dtEnd = DateTime.ParseExact(endDate, DateFormat, CultureInfo.InvariantCulture).ToUniversalTime();
 
             summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
             var statNames = statName.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');

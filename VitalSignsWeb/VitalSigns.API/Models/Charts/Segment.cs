@@ -36,6 +36,8 @@ namespace VitalSigns.API.Models.Charts
         [BsonElement("color")]
         public string Color { get; set; }
 
-
+        [JsonProperty("drilldownname")]
+        [BsonElement("drilldownname")]
+        public string DrillDownName { get; set; }
     }
 }

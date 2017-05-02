@@ -344,23 +344,50 @@ namespace VitalSigns.API.Controllers
         public APIResponse CountUserDevicesByOS()
         {
             mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
+            //var alldevices = mobileDevicesRepository.Collection.AsQueryable().ToList();
+
             var result = mobileDevicesRepository.Collection.Aggregate()
-                                           .Group(x => x.OSType, g => new { label = g.Key, value = g.Count() })
-                                           .Project(x => new Segment
-                                           {
-                                               Label = x.label,
-                                               Value = x.value
-                                           });
+                .Group(x => x.OS, g => new { label = g.Key, value = g.Count() })
+                .Project(x => new Segment
+                {
+                    Label = x.label == null || x.label == "" ? "Unknown" : x.label,
+                    Value = x.value,
+                    DrillDownName = x.label == null ? null : x.label
+                }).ToList();
             Serie serie = new Serie();
             serie.Title = "OS Count";
-            serie.Segments = result.ToList();
+            serie.Segments = result;
 
             List<Serie> series = new List<Serie>();
             series.Add(serie);
 
+            Serie subserie = new Serie();
+            List<Serie> subseries = new List<Serie>();
+            foreach (var res in result)
+            {
+                if (res.Label != null)
+                {
+                    var filterDef = mobileDevicesRepository.Filter.Eq(i => i.OS, res.Label);
+                    var subresult = mobileDevicesRepository.Collection.Aggregate()
+                        .Match(filterDef)
+                        .Group(x => new { ParentOS = x.OS, ChildOS = x.OSTypeMin}, g => new { Key = g.Key, Count = g.Count() })
+                        .Project(x => new Segment
+                        {
+                            Label = x.Key.ChildOS == null || x.Key.ChildOS == "" ? "Unknown" : x.Key.ChildOS,
+                            Value = x.Count,
+                            DrillDownName = x.Key.ParentOS
+                        }).ToList();
+                    subserie = new Serie();
+                    subserie.Title = "OS Count";
+                    subserie.Segments = subresult;
+                    subseries.Add(subserie);
+                }               
+            }
+
             Chart chart = new Chart();
             chart.Title = "OS Count";
             chart.Series = series;
+            chart.Series2 = subseries;
             Response = Common.CreateResponse(chart);
             return Response;
         }

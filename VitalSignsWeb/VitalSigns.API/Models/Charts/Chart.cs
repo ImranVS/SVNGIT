@@ -16,5 +16,9 @@ namespace VitalSigns.API.Models.Charts
 
         [JsonProperty("series")]
         public ICollection<Serie> Series { get; set; }
+
+        [JsonProperty("series2")]
+        public ICollection<Serie> Series2 { get; set; }
+
     }
 }
