@@ -52,7 +52,7 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
         this.widgets = [
             {
                 id: 'upTimeHourly',
-                title: 'Today\'s availability',
+                title: 'Last 24 hours availability',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-4',
                 settings: {
