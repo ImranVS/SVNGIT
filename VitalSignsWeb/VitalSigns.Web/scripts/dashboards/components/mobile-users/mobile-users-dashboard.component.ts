@@ -145,6 +145,7 @@ export class MobileUsersDashboard extends WidgetController implements OnInit {
             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
             settings: {
                 url: '/DashBoard/mobile_user_devices/group_by_sync_interval',
+                //url: '/DashBoard/mobile_user_devices/count_total',
                 chart: {
                     chart: {
                         renderTo: 'syncTimeChart',

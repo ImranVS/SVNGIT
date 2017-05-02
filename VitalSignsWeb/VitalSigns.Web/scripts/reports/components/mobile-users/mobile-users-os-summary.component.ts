@@ -23,6 +23,8 @@ export class MobileDevicesSummaryOS extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
     param: string;
+    deviceCount: string;
+    errorMessage: string;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
         private route: ActivatedRoute, protected urlHelpers: helpers.UrlHelperService) {
@@ -39,6 +41,13 @@ export class MobileDevicesSummaryOS extends WidgetController {
             error => console.log(error)
             );
 
+        this.service.get('/DashBoard/mobile_user_devices/count_total')
+            .subscribe(
+            (response) => {
+                this.deviceCount = response.data;
+            },
+            (error) => this.errorMessage = <any>error
+            );
 
         this.widgets = [
             {
@@ -47,6 +56,7 @@ export class MobileDevicesSummaryOS extends WidgetController {
                 name: 'ChartComponent',
                 settings: {
                     url: '/DashBoard/mobile_user_devices/count_by_os',
+                    callback: (chart) => this.widgets[0].title = 'You have ' + this.deviceCount + ' distinct devices',
                     chart: {
                         chart: {
                             renderTo: 'mobileDevicesOSChart',
