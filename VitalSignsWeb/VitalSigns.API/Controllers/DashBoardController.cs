@@ -392,8 +392,17 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-        [HttpGet("overall/disk-space")]
+        [HttpGet("mobile_user_devices/count_total")]
+        public APIResponse CountDevicesTotal()
+        {
+            mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
+            var result = mobileDevicesRepository.Collection.AsQueryable().Select(x => x.DeviceID).Distinct().ToList().Count;
 
+            Response = Common.CreateResponse(result);
+            return Response;
+        }
+
+        [HttpGet("overall/disk-space")]
         public APIResponse GetStatusOfServerDiskDrives(string deviceId = "")
         {
             //List<dynamic> disksizes = new List<dynamic>();
