@@ -9,6 +9,8 @@ import * as helpers from '../../../core/services/helpers/helpers';
 
 import { Chart } from '../models/chart';
 
+import { ChartSeries } from '../models/chart-series';
+
 declare var Highcharts: any;
 
 @Component({
@@ -24,6 +26,7 @@ export class ChartComponent implements WidgetComponent, OnInit {
     
     errorMessage: string;
     chart: any;
+    subseries: any;
 
     constructor(private service: RESTService, private widgetService: WidgetService, protected datetimeHelpers: helpers.DateTimeHelper) { }
 
@@ -99,7 +102,8 @@ export class ChartComponent implements WidgetComponent, OnInit {
                             this.settings.chart.series[length - 1].data.push({
                                 name: category,
                                 y: segment.value,
-                                color: segment.color
+                                color: segment.color,
+                                drilldown: segment.drilldownname
                             });
                         else
                             this.settings.chart.series[length - 1].data.push({
@@ -120,8 +124,55 @@ export class ChartComponent implements WidgetComponent, OnInit {
                     }
 
                 });
-                
+
+                this.subseries = [];
+
+                //START DRILLDOWN
+                if (chart.series2 != null) {
+                    let chart2 = <Chart>data.data;
+
+                    let categories2: string[] = []
+                    chart2.series2.map(serie => {
+
+                        let length = this.subseries.push({
+                            id: null,
+                            data: []
+                        });
+
+                        // First loop to gather all data points labels
+                        serie.segments.map(segment => {
+
+                            if (this.settings.chart.xAxis) {
+                                if (categories2.indexOf(segment.label) == -1)
+                                    categories2.push(segment.label);
+                            }
+
+                        });
+
+                        // Second loop to build data points with actual value or null if missing 
+                        categories2.map(category => {
+
+                            let segment = serie.segments.find(s => s.label == category);
+                            var x = [];
+                            if (segment) {
+                                x.push(segment.label);
+                                x.push(segment.value);
+                                this.subseries[length - 1].name = segment.drilldownname;
+                                this.subseries[length - 1].id = segment.drilldownname;
+                                this.subseries[length - 1].data.push(x);
+                            }
+                        });
+                    });
+                    this.subseries.splice(0, 1);
+                    let chartSeries = new ChartSeries();
+                    chartSeries.series = this.subseries;
+                    chart.drilldown = chartSeries;
+                    this.settings.chart.drilldown = chart.drilldown;
+                }
+                //END DRILLDOWN
+
                 this.chart = new Highcharts.Chart(this.settings.chart);
+                var chartjson = JSON.stringify(this.settings.chart);
 
                 if (this.settings.callback)
                     this.settings.callback(this.settings.chart);
