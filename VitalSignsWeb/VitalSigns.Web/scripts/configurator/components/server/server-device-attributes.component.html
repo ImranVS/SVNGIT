@@ -254,8 +254,8 @@
                         <div class="col-sm-3">&nbsp;</div>
                         <div class="funkyradio col-sm-9">
                             <div class="funkyradio-default">
-                                <input type="checkbox" id="'mailSettings_' + attribute.default_bool_values" [(ngModel)]="attribute.default_bool_values">
-                                <label for="'mailSettings_' + attribute.default_bool_values">{{attribute.attribute_name}}</label>
+                                <input type="checkbox" id="mailSettings_{{attribute.field_name}}" [(ngModel)]="attribute.default_bool_values">
+                                <label [attr.for]="'mailSettings_' + attribute.field_name">{{attribute.attribute_name}}</label>
                             </div>
                         </div>
 
@@ -265,10 +265,10 @@
                 </div>
                 <div class="form-group">
                     <div class="col-sm-3">&nbsp;</div>
-                    <div class="funkyradio col-sm-3">
+                    <div class="funkyradio col-sm-9">
                         <div class="funkyradio-default">
                             <input type="checkbox" id="delete_mail_threshold" [(ngModel)]="delete_mail_threshold" name="delete_mail_threshold" (change)="isChecked($event.target.checked)" />
-                            <label for="delete_mail_threshold">Delete Mail Threshold</label>
+                            <label for="delete_mail_threshold">Delete dead mail if count exceeds the threshold (Dead Mail Delete Threshold)</label>
                         </div>
                     </div>
                 </div>
@@ -298,7 +298,7 @@
                             </div>
                             <div *ngIf="attribute.type=='ComboBox'">
                                 <wj-combo-box id="travelerSettings_{{attribute.field_name}}" displayMemberPath="text" selectedValuePath="value" [itemsSource]="deviceCredentialData"
-                                              [(ngModel)]="attribute.default_value" placeholder="Select Credential" [isEditable]="true" required="false">
+                                              [(ngModel)]="attribute.default_value" placeholder="Select Credentials" [isEditable]="true" required="false">
                                 </wj-combo-box>
                             </div>
                         </div>
@@ -313,7 +313,7 @@
                     </div>
                     <div class="form-group" *ngIf="attribute.type=='CheckBox'">
                         <div class="col-sm-3">&nbsp;</div>
-                        <div class="funkyradio col-sm-8">
+                        <div class="funkyradio col-sm-6">
                             <div class="funkyradio-default">
                                 <input type="checkbox" [(ngModel)]="attribute.default_bool_values" id="travelerSettings_{{attribute.field_name}}" name="travelerSettings_{{attribute.field_name}}">
                                 <label [attr.for]="'travelerSettings_' + attribute.field_name">{{attribute.attribute_name}}</label>
@@ -358,10 +358,10 @@
                     </div>-->
                     <div class="form-group" *ngIf="attribute.type=='CheckBox'">
                         <div class="col-sm-3">&nbsp;</div>
-                        <div class="funkyradio col-sm-8">
+                        <div class="funkyradio col-sm-6">
                             <div class="funkyradio-default">
-                                <input type="checkbox" [(ngModel)]="attribute.default_bool_values" id="'optionalSettings_' + attribute.default_bool_values" name="attribute.default_bool_values">
-                                <label for="'optionalSettings_' + attribute.default_bool_values">{{attribute.attribute_name}}</label>
+                                <input type="checkbox" [(ngModel)]="attribute.default_bool_values" id="optionalSettings_{{attribute.field_name}}" name="optionalSettings_{{attribute.field_name}}">
+                                <label [attr.for]="'optionalSettings_' + attribute.field_name">{{attribute.attribute_name}}</label>
                             </div>
                         </div>
                     </div>
@@ -402,8 +402,8 @@
                         <div class="col-sm-2">&nbsp;</div>
                         <div class="col-sm-3">
                             <div class="funkyradio">
-                                <input type="checkbox" [(ngModel)]="attribute.default_bool_values" id="attribute.default_bool_values" name="attribute.default_bool_values">
-                                <label for="attribute.default_bool_values">{{attribute.attribute_name}}</label>
+                                <input type="checkbox" [(ngModel)]="attribute.default_bool_values" id="chatSettings_{{attribute.field_name}}" name="chatSettings_{{attribute.field_name}}">
+                                <label [attr.for]="'chatSettings_' + attribute.field_name">{{attribute.attribute_name}}</label>
                             </div>
                         </div>
                     </div>
@@ -411,7 +411,7 @@
                 </div>
                 <div class="col-sm-3">
                     <button class="btn btn-primary" (click)="addSametimeCredentials(frmDialog)">
-                        Add Crdentials
+                        Add Credentials
                     </button>
                 </div>
             </div>
@@ -441,8 +441,8 @@
 
                         <div>
 
-                            <input type="checkbox" [(ngModel)]="attribute.default_bool_values" id="attribute.default_bool_values" name="attribute.default_bool_values">
-                            <label for="attribute.default_bool_values">{{attribute.attribute_name}}</label>
+                            <input type="checkbox" [(ngModel)]="attribute.default_bool_values" id="websphereSettings_{{attribute.field_name}}" name="websphereSettings_{{attribute.field_name}}">
+                            <label [attr.for]="'websphereSettings_' + attribute.field_name">{{attribute.attribute_name}}</label>
 
 
                         </div>
@@ -484,8 +484,8 @@
                         <div class="col-sm-2">&nbsp;</div>
                         <div class="col-sm-3">
                             <div class="funkyradio">
-                                <input type="checkbox" [(ngModel)]="attribute.default_bool_values" value="attribute.default_bool_values" id="attribute.default_bool_values" name="attribute.default_bool_values">
-                                <label for="attribute.default_bool_values">{{attribute.attribute_name}}</label>
+                                <input type="checkbox" [(ngModel)]="attribute.default_bool_values" value="attribute.default_bool_values" id="searchtextSettings_{{attribute.field_name}}" name="searchtextSettings_{{attribute.field_name}}">
+                                <label [attr.for]="'searchtextSettings_' + attribute.field_name">{{attribute.attribute_name}}</label>
                             </div>
                         </div>
                     </div>
