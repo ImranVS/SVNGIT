@@ -28,6 +28,16 @@ namespace VitalSignsLicensing
             public string CollectionName;
             public string AssignedNode;
         }
+
+        public Licensing()
+        {
+        }
+
+        public Licensing(string connectionString)
+        {
+            cs = connectionString;
+        }
+
         //string cs = "mongodb://192.168.1.10:27017/vitalsigns_reference";
         string cs = ConfigurationManager.ConnectionStrings["VitalSignsMongo"].ToString();
         //List<ServerType> deviceTypeList;
@@ -134,11 +144,19 @@ namespace VitalSignsLicensing
                         string n = null;
                         double licenseCost = 0;
 
-                        if (s.IsEnabled.HasValue && s.IsEnabled.Value && isFreeLicenseAvailable(s.DeviceType, validUnits, listOfAllServers))
+                        if (s.IsEnabled.HasValue && s.IsEnabled.Value)
                         {
-                            n = getFreeNode(s, nodesListAlive, listOfAllServers);
-                            licenseCost = getLicenseCost(s.DeviceType);
-                            if (n == "")
+                            if (isFreeLicenseAvailable(s.DeviceType, validUnits, listOfAllServers))
+                            {
+                                n = getFreeNode(s, nodesListAlive, listOfAllServers);
+                                licenseCost = getLicenseCost(s.DeviceType);
+                                if (n == "")
+                                {
+                                    n = "-1";
+                                    licenseCost = 0;
+                                }
+                            }
+                            else
                             {
                                 n = "-1";
                                 licenseCost = 0;
@@ -221,7 +239,8 @@ namespace VitalSignsLicensing
             double tempCost = 0;
             try
             {
-                VSNext.Mongo.Entities.Enums.ServerType myServerType = (VSNext.Mongo.Entities.Enums.ServerType)Enum.Parse(typeof(VSNext.Mongo.Entities.Enums.ServerType), deviceType, true);
+                //VSNext.Mongo.Entities.Enums.ServerType myServerType = (VSNext.Mongo.Entities.Enums.ServerType)Enum.Parse(typeof(VSNext.Mongo.Entities.Enums.ServerType), deviceType, true);
+                VSNext.Mongo.Entities.Enums.ServerType myServerType = VSNext.Mongo.Entities.Enums.Utility.getEnumFromDescription<VSNext.Mongo.Entities.Enums.ServerType>(deviceType);
                 tempCost = myServerType.getLicenseCost();
             }
             catch
@@ -314,15 +333,33 @@ namespace VitalSignsLicensing
 
                     if ((nodeLoad < useLoadFactor) || (s1.AssignedNode != "" && isPreferredNodeAlive))
                     {
+                    //    //code to set the preferred node
+                    //    if (isPreferredNodeAlive && s.Name == s1.AssignedNode)
+                    //    {
+                    //        returnNode = s.Name;
+                    //        break;
+                    //    }
+                    //    returnNode = s.Name;
+                    //    break;
+                    //}
                         //code to set the preferred node
-                        if (isPreferredNodeAlive && s.Name == s1.AssignedNode)
+                        if (isPreferredNodeAlive)
+                        {
+                            if (s.Name == s1.AssignedNode)
+                            {
+                                returnNode = s.Name;
+                                break;
+                            }
+                            else
+                            {
+                                //Prefered node is alive so it will wait to assign it
+                            }
+                        }
+                        else
                         {
                             returnNode = s.Name;
                             break;
                         }
-                        returnNode = s.Name;
-                        break;
-
                     }
                 }
             }
@@ -346,9 +383,11 @@ namespace VitalSignsLicensing
                 try
                 {
 
-                    VSNext.Mongo.Entities.Enums.ServerType t = Enum.GetValues(typeof(VSNext.Mongo.Entities.Enums.ServerType))
-                    .Cast<VSNext.Mongo.Entities.Enums.ServerType>()
-                    .FirstOrDefault(v => v.ToDescription() == deviceType);
+                    //VSNext.Mongo.Entities.Enums.ServerType t = Enum.GetValues(typeof(VSNext.Mongo.Entities.Enums.ServerType))
+                    //.Cast<VSNext.Mongo.Entities.Enums.ServerType>()
+                    //.FirstOrDefault(v => v.ToDescription() == deviceType);
+
+                    VSNext.Mongo.Entities.Enums.ServerType t = VSNext.Mongo.Entities.Enums.Utility.getEnumFromDescription<VSNext.Mongo.Entities.Enums.ServerType>(deviceType);
                     tempCost = t.getLicenseCost();
                 }
                 catch (Exception ex)

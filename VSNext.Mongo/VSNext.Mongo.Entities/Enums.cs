@@ -110,7 +110,7 @@ namespace VSNext.Mongo.Entities
             [Description("Office365")]
             [CrossNodeScanning(true)]
             Office365,
-            [LicenseCost(1.33)]
+            [LicenseCost(0)]
             [BaseServerType("WebSphere")]
             [Description("WebSphere")]
             WebSphere,
