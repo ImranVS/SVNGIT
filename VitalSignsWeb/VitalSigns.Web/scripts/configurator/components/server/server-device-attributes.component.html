@@ -288,7 +288,7 @@
             <div class="panel-body">
 
 
-                <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:travelerSettings">
+                <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:travelerSettings; let i=index">
 
                     <div class="form-group" *ngIf="attribute.type!='CheckBox'">
                         <label class="control-label col-sm-3">{{attribute.attribute_name}}</label>
@@ -297,23 +297,17 @@
                                 <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
                             </div>
                             <div *ngIf="attribute.type=='ComboBox'">
-
-                                <div>
-
-                                    <div>
-                                        <wj-combo-box name="attribute.default_value" displayMemberPath="text" selectedValuePath="value" [itemsSource]="deviceCredentialData"
-                                                      [(ngModel)]="attribute.default_value" placeholder="Select Credential" [isEditable]="true" gotFocus="valuechange($event)">
-                                        </wj-combo-box>
-
-                                    </div>
-
-                                </div>
-
+                                <wj-combo-box id="travelerSettings_{{attribute.field_name}}" displayMemberPath="text" selectedValuePath="value" [itemsSource]="deviceCredentialData"
+                                              [(ngModel)]="attribute.default_value" placeholder="Select Credential" [isEditable]="true" required="false">
+                                </wj-combo-box>
                             </div>
                         </div>
-                        <div class="col-sm-3" *ngIf="attribute.type=='ComboBox'">
+                        <div class="col-sm-5" *ngIf="attribute.type=='ComboBox'">
                             <button class="btn btn-primary" (click)="adddominoCredentials(frmDialog)">
                                 Add Credentials
+                            </button>
+                            <button class="btn btn-primary" (click)="clearCredentials()">
+                                Clear Credentials
                             </button>
                         </div>
                     </div>
@@ -321,8 +315,8 @@
                         <div class="col-sm-3">&nbsp;</div>
                         <div class="funkyradio col-sm-8">
                             <div class="funkyradio-default">
-                                <input type="checkbox" [(ngModel)]="attribute.default_bool_values" id="'travelerSettings_' + attribute.default_bool_values" name="attribute.default_bool_values">
-                                <label for="'travelerSettings_' + attribute.default_bool_values">{{attribute.attribute_name}}</label>
+                                <input type="checkbox" [(ngModel)]="attribute.default_bool_values" id="travelerSettings_{{attribute.field_name}}" name="travelerSettings_{{attribute.field_name}}">
+                                <label [attr.for]="'travelerSettings_' + attribute.field_name">{{attribute.attribute_name}}</label>
                             </div>
                         </div>
 

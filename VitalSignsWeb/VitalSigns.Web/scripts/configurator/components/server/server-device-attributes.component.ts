@@ -1,4 +1,4 @@
-﻿import {Component, AfterViewChecked, OnInit, Input} from '@angular/core';
+﻿import {Component, AfterViewChecked, OnInit, Input, ViewChildren} from '@angular/core';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import {ActivatedRoute} from '@angular/router';
 import {Router} from '@angular/router';
@@ -20,6 +20,8 @@ import {AppComponentService} from '../../../core/services';
 })
 //export class ServerDiskSettings implements OnInit, AfterViewInit {
 export class ServerAttribute implements OnInit, AfterViewChecked {
+    @ViewChildren('travelerSettings_credentials_id') credentials: wijmo.input.ComboBox;
+    cmb: wijmo.input.ComboBox;
     devices: string;
     deviceId: any;
     ServerAttributeForm: FormGroup;
@@ -220,4 +222,9 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
     //changeInDevices(server: string) {
     //    this.devices = server;
 
+    clearCredentials() {
+        this.cmb = <wijmo.input.ComboBox>wijmo.input.ComboBox.getControl("#travelerSettings_credentials_id");
+        this.cmb.selectedIndex = -1;
+        this.serverAttributes['credentials_id'] = null;
+    }
 }
