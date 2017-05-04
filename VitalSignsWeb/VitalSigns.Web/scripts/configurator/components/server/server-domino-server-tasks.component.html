@@ -62,50 +62,52 @@ data.pageIndex + 1 | number
 
 
                     <div class="panel-heading">
-                        <b>
-                            {{formTitle}}
-                            <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
-                        </b>
+                        {{formTitle}}
+                        <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
                     </div>
                     <form (ngSubmit)="saveServerTasks(frmDialog)" #frmUser="ngForm" class="form-horizontal">
 
 
                         <div class="panel-body" *ngIf="currentEditItem">
-                            <div class="form-group col-sm-12">
-
-                                <input type="checkbox" class="checkbox-inline" id="is_selected" name="is_selected" [(ngModel)]="currentEditItem.is_selected">
-
-                                <label for="is_selected" class="control-label ">Enabled</label>
-
-                            </div>
-
-                            <div class="form-group col-sm-12">
+                            <div class="form-group col-sm-2">
                                 <label for="task_name">Task Name</label>
-                                <br />
-
+                            </div>
+                            <div class="form-group col-sm-6">
                                 <wj-combo-box name="task_name" [itemsSource]="TaskNames" [(text)]="currentEditItem.task_name"
                                               [(ngModel)]="currentEditItem.task_name">
                                 </wj-combo-box>
-
                             </div>
-
-                            <div class="form-group col-sm-12" *ngIf="currentEditItem">
-                                <input type="checkbox" class="checkbox-inline" id="is_load" name="is_load" [(ngModel)]="currentEditItem.is_load">
-                                <label for="is_load">Load</label>
+                            <div class="funkyradio col-sm-5">
+                                <div class="funkyradio-default">
+                                    <input type="checkbox" id="is_selected" name="is_selected" [(ngModel)]="currentEditItem.is_selected">
+                                    <label for="is_selected">Enabled</label>
+                                </div>
                             </div>
-                            <div class="form-group col-sm-12" *ngIf="currentEditItem">
-                                <input type="checkbox" class="checkbox-inline" id="is_restart_asap" name="is_restart_asap" [(ngModel)]="currentEditItem.is_restart_asap">
-                                <label for="is_restart_asap">Restart ASAP</label>
+                            <div class="col-sm-12">&nbsp;</div>
+                            <div class="funkyradio col-sm-6">
+                                <div class="funkyradio-default">
+                                    <input type="checkbox" id="is_load" name="is_load" [(ngModel)]="currentEditItem.is_load">
+                                    <label for="is_load">Load</label>
+                                </div>
                             </div>
-                            <div class="form-group col-sm-12" *ngIf="currentEditItem">
-                                <input type="checkbox" class="checkbox-inline" id="is_resart_later" name="is_resart_later" [(ngModel)]="currentEditItem.is_resart_later">
-                                <label for="is_resart_later">Resart Later</label>
+                            <div class="funkyradio col-sm-6">
+                                <div class="funkyradio-default">
+                                    <input type="checkbox"id="is_restart_asap" name="is_restart_asap" [(ngModel)]="currentEditItem.is_restart_asap">
+                                    <label for="is_restart_asap">Restart ASAP</label>
+                                </div>
                             </div>
-                            <div class="form-group col-sm-12" *ngIf="currentEditItem">
-                                <input type="checkbox" class="checkbox-inline" id="is_disallow" name="is_disallow" [(ngModel)]="currentEditItem.is_disallow">
-                                <label for="is_disallow">Disallow</label>
+                            <div class="funkyradio col-sm-6">
+                                <div class="funkyradio-default">
+                                    <input type="checkbox" id="is_resart_later" name="is_resart_later" [(ngModel)]="currentEditItem.is_resart_later">
+                                    <label for="is_resart_later">Restart Later</label>
+                                </div>
                             </div>
-
+                            <div class="funkyradio col-sm-6">
+                                <div class="funkyradio-default">
+                                    <input type="checkbox" id="is_disallow" name="is_disallow" [(ngModel)]="currentEditItem.is_disallow">
+                                    <label for="is_disallow">Disallow</label>
+                                </div>
+                            </div>
                         </div>
                         <div class="panel-footer">
                             <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>

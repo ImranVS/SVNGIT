@@ -19,6 +19,7 @@ export class MaintainUser extends GridBase implements OnInit {
     maintainRoles: any;
     usersRoles: any = [];
     checkedItems: any[];
+    loading = false;
 
     constructor(service: RESTService, appComponentService:AppComponentService) {
         super(service, appComponentService);
@@ -59,8 +60,51 @@ export class MaintainUser extends GridBase implements OnInit {
             );
     }
     saveMaintainUser(dlg: wijmo.input.Popup) {
+        this.loading = true;
         this.currentEditItem.roles = this.usersRoles;  
-        this.saveGridRow('/configurator/save_maintain_users', dlg);
+        var saveUrl = '/configurator/save_maintain_users';
+        //this.saveGridRow('/configurator/save_maintain_users', dlg);
+        if (this.currentEditItem.id == "") {
+            this.service.put(saveUrl, this.currentEditItem)
+                .subscribe(
+                response => {
+                    if (response.status == "Success") {
+                        this.currentEditItem.id = response.data;
+                        (<wijmo.collections.CollectionView>this.flex.collectionView).commitNew();
+                        dlg.hide();
+                        this.appComponentService.showSuccessMessage(response.message);
+
+                    } else {
+
+                        this.appComponentService.showErrorMessage(response.message);
+                    }
+                    this.loading = false;
+                }, error => {
+                    var errorMessage = <any>error;
+                    this.appComponentService.showErrorMessage(errorMessage);
+                    this.loading = false;
+                });
+        }
+        else {
+            this.flex.collectionView.currentItem = this.currentEditItem;
+            this.service.put(saveUrl, this.currentEditItem)
+                .subscribe(
+                response => {
+                    if (response.status == "Success") {
+                        (<wijmo.collections.CollectionView>this.flex.collectionView).commitEdit()
+                        dlg.hide();
+                        this.appComponentService.showSuccessMessage(response.message);
+                    } else {
+                        this.appComponentService.showErrorMessage(response.message);
+                    }
+                    this.loading = false;
+                }, error => {
+                    var errorMessage = <any>error;
+                    this.appComponentService.showErrorMessage(errorMessage);
+                    this.loading = false;
+                });
+
+        }
     }
     delteMaintainUsers() {
         this.delteGridRow('/configurator/delete_maintain_users/');
