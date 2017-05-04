@@ -1785,7 +1785,7 @@ Public Class VSMaster
             If NodeName <> "" Then
                 Try
                     Dim vsLic As New VitalSignsLicensing.Licensing
-                    vsLic.doMasterPing(NodeName, hostname)
+                    vsLic.doMasterPing(NodeName, hostname, productVersion)
 
 
                 Catch ex As Exception

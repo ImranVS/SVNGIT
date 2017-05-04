@@ -490,7 +490,7 @@ namespace VitalSignsLicensing
         /// </summary>
         /// <param name="node"></param>
         /// <param name="hostName"></param>
-        public void doMasterPing(string node,string hostName)
+        public void doMasterPing(string node,string hostName, string Version)
         {
             //createLicense();
             createNode(node, hostName);
@@ -512,7 +512,8 @@ namespace VitalSignsLicensing
                     UpdateDefinition<VSNext.Mongo.Entities.Nodes> updatedef = default(UpdateDefinition<VSNext.Mongo.Entities.Nodes>);
                     updatedef = repoNodes.Updater
                         .Set(i => i.IsAlive, true)
-                        .Set(i => i.Pulse, DateTime.UtcNow);
+                        .Set(i => i.Pulse, DateTime.UtcNow)
+                        .Set(i => i.Version, Version);
                     repoNodes.Update(filterdef, updatedef);
                 }
 
