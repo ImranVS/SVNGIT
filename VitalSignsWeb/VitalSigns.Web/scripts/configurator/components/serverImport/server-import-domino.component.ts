@@ -31,6 +31,7 @@ export class DominoServerImport implements OnInit{
     selectedFiles: any;
     isSelected: any;
     selObj: { isChecked: false };
+    loading = false;
 
     constructor(
         private formBuilder: FormBuilder,
@@ -53,12 +54,15 @@ export class DominoServerImport implements OnInit{
             (error) => this.errorMessage = <any>error
             );
     }
-    loadServers(): void {       
+    loadServers(): void {   
+        this.errorMessage = "";
+        this.loading = true;
         this.dataProvider.put('/configurator/load_domino_servers', this.dominoServerImportData)
             .subscribe(
             response => {
                 if (response.status != "Success") {
                     this.errorMessage = response.message;
+                    this.loading = false;
                 }
                 else {
                     this.dominoServerImportData.servers = response.data.serverList;
@@ -66,12 +70,16 @@ export class DominoServerImport implements OnInit{
                     for (let server of this.dominoServerImportData.servers) {
                         server.is_selected = false;
                     }
+                    this.loading = false;
                     //this.resize(this.isSelected, this.dominoServerImportData.servers.length, false);
                 }
 
             },
-            (error) => this.errorMessage = <any>error
-
+            (error) => {
+                this.errorMessage = <any>error;
+                this.loading = false;
+            }
+                
             );
       
     }
@@ -108,6 +116,7 @@ export class DominoServerImport implements OnInit{
      }
      uploadFiles(fileInput: any): void {
          //this.dataProvider.post(this.url, this.formData);
+         this.errorMessage = "";
          this.dataProvider.put(this.url, this.formData)
              .subscribe(
              response => {
@@ -127,6 +136,7 @@ export class DominoServerImport implements OnInit{
 
          this.formData = null;
      }
+
      changeListener(fileInput: any) {
          this.postFile(fileInput);
 
