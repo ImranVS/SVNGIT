@@ -880,22 +880,19 @@ Partial Public Class VitalSignsPlusCore
                 End Try
 
 
-                'Try
-                '    If dr.Item("CurrentNodeID") Is Nothing Then
-                '        .InsufficentLicenses = True
-                '    Else
-                '        If dr.Item("CurrentNodeID").ToString() = "-1" Then
-                '            .InsufficentLicenses = True
-                '        Else
-                '            .InsufficentLicenses = False
-                '        End If
-
-                '    End If
-                'Catch ex As Exception
-                '    '7/8/2015 NS modified for VSPLUS-1959
-                '    WriteAuditEntry(Now.ToString & " " & .Name & " Mail Server insufficient licenses not set.")
-
-                'End Try
+                Try
+                    If entity.CurrentNode Is Nothing Then
+                        .InsufficentLicenses = True
+                    Else
+                        If entity.CurrentNode.ToString() = "-1" Then
+                            .InsufficentLicenses = True
+                        Else
+                            .InsufficentLicenses = False
+                        End If
+                    End If
+                Catch ex As Exception
+                    WriteAuditEntry(Now.ToString & " " & .Name & " Mail Servers insufficient licenses not set.")
+                End Try
 
             End With
         Next
@@ -1744,6 +1741,20 @@ Partial Public Class VitalSignsPlusCore
                         WriteAuditEntry(Now.ToString & " Cannot Set user db2 password ", LogLevel.Normal)
                     End Try
 
+                    Try
+                        If entity.CurrentNode Is Nothing Then
+                            .InsufficentLicenses = True
+                        Else
+                            If entity.CurrentNode.ToString() = "-1" Then
+                                .InsufficentLicenses = True
+                            Else
+                                .InsufficentLicenses = False
+                            End If
+                        End If
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " " & .Name & " Sametime Servers insufficient licenses not set.")
+                    End Try
+
                 End With
                 MySametimeServer = Nothing
             Next
@@ -2081,6 +2092,21 @@ Partial Public Class VitalSignsPlusCore
                     Catch ex As Exception
                         .Location = "URL"
                     End Try
+
+                    Try
+                        If entity.CurrentNode Is Nothing Then
+                            .InsufficentLicenses = True
+                        Else
+                            If entity.CurrentNode.ToString() = "-1" Then
+                                .InsufficentLicenses = True
+                            Else
+                                .InsufficentLicenses = False
+                            End If
+                        End If
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " " & .Name & " URL Servers insufficient licenses not set.")
+                    End Try
+
                 End With
 
                 MyURL = Nothing
@@ -2368,22 +2394,20 @@ Partial Public Class VitalSignsPlusCore
 
                     End If
 
-                    'Try
-                    '    If dr.Item("CurrentNodeID") Is Nothing Then
-                    '        .InsufficentLicenses = True
-                    '    Else
-                    '        If dr.Item("CurrentNodeID").ToString() = "-1" Then
-                    '            .InsufficentLicenses = True
-                    '        Else
-                    '            .InsufficentLicenses = False
-                    '        End If
+                    Try
+                        If entity.CurrentNode Is Nothing Then
+                            .InsufficentLicenses = True
+                        Else
+                            If entity.CurrentNode.ToString() = "-1" Then
+                                .InsufficentLicenses = True
+                            Else
+                                .InsufficentLicenses = False
+                            End If
+                        End If
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " " & .Name & " Cloud Servers insufficient licenses not set.")
+                    End Try
 
-                    '    End If
-                    'Catch ex As Exception
-                    '    '7/8/2015 NS modified for VSPLUS-1959
-                    '    WriteAuditEntry(Now.ToString & " " & .Name & " Cloud insufficient licenses not set.")
-
-                    'End Try
 
                 End With
 
@@ -2905,95 +2929,20 @@ Partial Public Class VitalSignsPlusCore
 
                     End Try
 
-                    'Try
-                    '	If dr.Item("AvgThreadPool") Is Nothing Then
-                    '		.AverageThreadPoolThreshold = 0
-                    '	Else
-                    '		.AverageThreadPoolThreshold = dr.Item("AvgThreadPool")
-                    '	End If
-                    'Catch ex As Exception
-                    '	.AverageThreadPoolThreshold = 0
-                    'End Try
 
-                    'Try
-                    '	If dr.Item("ActiveThreadCount") Is Nothing Then
-                    '		.ActiveThreadCountThreshold = 0
-                    '	Else
-                    '		.ActiveThreadCountThreshold = dr.Item("ActiveThreadCount")
-                    '	End If
-                    'Catch ex As Exception
-                    '	.ActiveThreadCountThreshold = 0
-                    'End Try
-
-                    'Try
-                    '	If dr.Item("CurrentHeap") Is Nothing Then
-                    '		.CurrentHeapThreshold = 0
-                    '	Else
-                    '		.CurrentHeapThreshold = dr.Item("CurrentHeap")
-                    '	End If
-                    'Catch ex As Exception
-                    '	.CurrentHeapThreshold = 0
-                    'End Try
-
-                    'Try
-                    '	If dr.Item("MaxHeap") Is Nothing Then
-                    '		.MaxHeapThreshold = 0
-                    '	Else
-                    '		.MaxHeapThreshold = dr.Item("MaxHeap")
-                    '	End If
-                    'Catch ex As Exception
-                    '	.MaxHeapThreshold = 0
-                    'End Try
-
-                    'Try
-                    '	If dr.Item("UpTime") Is Nothing Then
-                    '		.UpTimeThreshold = 0
-                    '	Else
-                    '		.UpTimeThreshold = dr.Item("UpTime")
-                    '	End If
-                    'Catch ex As Exception
-                    '	.UpTimeThreshold = 0
-                    'End Try
-
-                    'Try
-                    '	If dr.Item("HungThreadCount") Is Nothing Then
-                    '		.HungThreadCountThreshold = 0
-                    '	Else
-                    '		.HungThreadCountThreshold = dr.Item("HungThreadCount")
-                    '	End If
-                    'Catch ex As Exception
-                    '	.HungThreadCountThreshold = 0
-                    'End Try
-
-                    'Try
-                    '    If dr.Item("FreeMemory") Is Nothing Then
-                    '        .Memory_Threshold = 0
-                    '    Else
-                    '        .Memory_Threshold = dr.Item("FreeMemory")
-                    '    End If
-                    'Catch ex As Exception
-                    '    .Memory_Threshold = 0
-                    'End Try
-
-                    'Try
-                    '    If dr.Item("CPUUtilization") Is Nothing Then
-                    '        .CPU_Threshold = 0
-                    '    Else
-                    '        .CPU_Threshold = dr.Item("CPUUtilization")
-                    '    End If
-                    'Catch ex As Exception
-                    '    .CPU_Threshold = 0
-                    'End Try
-
-                    'Try
-                    '	If dr.Item("DumpGenerated") Is Nothing Then
-                    '		.DumpGeneratedThreshold = 0
-                    '	Else
-                    '		.DumpGeneratedThreshold = dr.Item("DumpGenerated")
-                    '	End If
-                    'Catch ex As Exception
-                    '	.DumpGeneratedThreshold = 0
-                    'End Try
+                    Try
+                        If entity.CurrentNode Is Nothing Then
+                            .InsufficentLicenses = True
+                        Else
+                            If entity.CurrentNode.ToString() = "-1" Then
+                                .InsufficentLicenses = True
+                            Else
+                                .InsufficentLicenses = False
+                            End If
+                        End If
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " " & .Name & " Connections Servers insufficient licenses not set.")
+                    End Try
 
                 End With
                 MyWebSphereServer = Nothing
@@ -3640,6 +3589,20 @@ Partial Public Class VitalSignsPlusCore
 
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " IBM Connect Servers exception for tests " & ex.Message)
+                    End Try
+
+                    Try
+                        If entity.CurrentNode Is Nothing Then
+                            .InsufficentLicenses = True
+                        Else
+                            If entity.CurrentNode.ToString() = "-1" Then
+                                .InsufficentLicenses = True
+                            Else
+                                .InsufficentLicenses = False
+                            End If
+                        End If
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " " & .Name & " Connections Servers insufficient licenses not set.")
                     End Try
 
                 End With
