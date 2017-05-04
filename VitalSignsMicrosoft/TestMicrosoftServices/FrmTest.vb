@@ -211,6 +211,6 @@ Public Class FrmTest
         'Dim nodeName As String =System.Configuration.con
         Dim nodeName As String = ConfigurationManager.ConnectionStrings("VitalSignsMongo").ToString()
         Dim vs As New VitalSignsLicensing.Licensing
-        vs.doMasterPing("VSNode2", "VSNode2")
+        vs.doMasterPing("VSNode2", "VSNode2", "4.2.0")
     End Sub
 End Class
