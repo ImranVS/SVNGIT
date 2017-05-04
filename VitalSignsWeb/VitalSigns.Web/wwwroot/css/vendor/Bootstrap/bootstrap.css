@@ -2832,7 +2832,10 @@ fieldset[disabled] .checkbox label {
   top: 0;
   bottom: 0;
   left: 0;
-  content: '';
+  /* NS added 3 lines below to display a faded check box if not selected */
+  content: '\2714';
+  color: #C2C2C2;
+  text-indent: .9em;
   width: 2.5em;
   background: #D1D3D4;
   border-radius: 3px 0 0 3px;
