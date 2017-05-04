@@ -3625,7 +3625,7 @@ Partial Public Class VitalSignsPlusCore
     End Sub
 
     Private Sub InsufficentLicensesTest(ByRef coll As System.Collections.CollectionBase)
-        Return
+        'Return
         If (coll.Count = 0) Then
 			Return
 		End If
