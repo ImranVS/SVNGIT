@@ -1215,7 +1215,8 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-                maintainUsersRepository = new Repository<Users>(ConnectionString);
+                //5/3/2017 NS modified for VSPLUS-3566 - the second parameter is TenantId; hard-coded to 5 for now
+                maintainUsersRepository = new Repository<Users>(ConnectionString, 5);
                 Expression<Func<Users, bool>> filterExpression;
                 if (string.IsNullOrEmpty(maintainuser.Id))
                 {
@@ -1253,7 +1254,7 @@ namespace VitalSigns.API.Controllers
                 }
                 else
                 {
-                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This " + maintainuser.Email + " already exists. Please enter a different one.");
+                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This e-mail (" + maintainuser.Email + ") already exists. Please enter a different one.");
                 }
             }
             catch (Exception exception)
