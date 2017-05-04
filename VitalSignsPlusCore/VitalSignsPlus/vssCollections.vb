@@ -3593,9 +3593,11 @@ Partial Public Class VitalSignsPlusCore
 
                     Try
                         If entity.CurrentNode Is Nothing Then
+                            WriteAuditEntry(Now.ToString & " " & .Name & " Connections Server marked to insufficent licenses due to it not being set.", LogLevel.Verbose)
                             .InsufficentLicenses = True
                         Else
                             If entity.CurrentNode.ToString() = "-1" Then
+                                WriteAuditEntry(Now.ToString & " " & .Name & " Connections Server marked to insufficent licenses due to it being -1.", LogLevel.Verbose)
                                 .InsufficentLicenses = True
                             Else
                                 .InsufficentLicenses = False

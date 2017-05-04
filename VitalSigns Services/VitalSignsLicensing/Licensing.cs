@@ -476,6 +476,7 @@ namespace VitalSignsLicensing
                     n.Pulse = DateTime.UtcNow;
                     n.Name = nodeName;
                     n.HostName = hostName;
+                    n.LoadFactor = 10;
                     repoNodes.Insert(n);
                 }
             }

@@ -215,7 +215,7 @@ namespace RPRWyatt.VitalSigns.Services
                                 .Set(p => p.StatusCode, "Maintenance")
                                 .Set(p => p.TypeAndName, server.Name + "-" + server.ServerType);
                             repository.Upsert(filterDef, updateDef);
-
+                            LogUtilities.LogUtils.WriteDeviceHistoryEntry("All", "InsufficentLicensesCheck", DateTime.Now.ToString() + " " + server.Name + " is being removed from the collection due to insufficent licenses.", LogUtils.LogLevel.Verbose);
                             servers.Delete(server.Name);
                             i--;
                         }
@@ -232,7 +232,7 @@ namespace RPRWyatt.VitalSigns.Services
                                 .Set(p => p.StatusCode, "Maintenance")
                                 .Set(p => p.TypeAndName, server.Name + "-" + server.ServerType);
                             repository.Upsert(filterDef, updateDef);
-                            
+                            LogUtilities.LogUtils.WriteDeviceHistoryEntry("All", "InsufficentLicensesCheck", DateTime.Now.ToString() + " " + server.Name + " is being removed from the collection due to Master Service not running.", LogUtils.LogLevel.Verbose);
                             servers.Delete(server.Name);
                             i--;
                         }
