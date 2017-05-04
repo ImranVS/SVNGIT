@@ -780,8 +780,8 @@ namespace VitalSigns.API.Controllers
                                     for (DateTime date = startDate; date < endDate; date = date.AddHours(1))
                                     {
                                         var item = result.Where(x => x.Year == date.Year && x.Month == date.Month && x.Day == date.Day && x.Hour == date.Hour && x.StatName == name).ToList();
-                                        time = item.Count > 0 ? new DateTime(item[0].Year, item[0].Month, item[0].Day, item[0].Hour, 0, 0, time.Kind) :
-                                            new DateTime(date.Year, date.Month, date.Day, date.Hour, 0, 0, date.Kind);
+                                        time = item.Count > 0 ? new DateTime(item[0].Year, item[0].Month, item[0].Day, item[0].Hour, 0, 0, DateTimeKind.Utc) :
+                                            new DateTime(date.Year, date.Month, date.Day, date.Hour, 0, 0, DateTimeKind.Utc);
                                         serie.Segments.Add(new Segment() { Label = time.ToString(DateFormat), Value = item.Count > 0 ? (double?)Math.Round(item[0].Value, 2) : 0 });
                                     }
                                     series.Add(serie);
@@ -897,8 +897,8 @@ namespace VitalSigns.API.Controllers
                                     for (DateTime date = startDate; date < endDate; date = date.AddHours(1))
                                     {
                                         var item = result.Where(x => x.Year == date.Year && x.Month == date.Month && x.Day == date.Day && x.Hour == date.Hour && x.StatName == name).ToList();
-                                        time = item.Count > 0 ? new DateTime(item[0].Year, item[0].Month, item[0].Day, item[0].Hour, 0, 0, time.Kind) :
-                                            new DateTime(date.Year, date.Month, date.Day, date.Hour, 0, 0, date.Kind);
+                                        time = item.Count > 0 ? new DateTime(item[0].Year, item[0].Month, item[0].Day, item[0].Hour, 0, 0, DateTimeKind.Utc) :
+                                            new DateTime(date.Year, date.Month, date.Day, date.Hour, 0, 0, DateTimeKind.Utc);
                                         serie.Segments.Add(new Segment() { Label = time.ToString(DateFormat), Value = item.Count > 0 ? (double?)Math.Round(item[0].Value, 2) : 0 });
                                     }
                                     series.Add(serie);
@@ -928,8 +928,9 @@ namespace VitalSigns.API.Controllers
         /// <param name="id"></param>
         /// <returns> summary stats data </returns>
         [HttpGet("summarystats")]
-        public APIResponse GetSummaryStat(string deviceId, string statName, string seriesTitle = "", string startDate = "", string endDate = "", bool isChart = true, string regex = "")
+        public APIResponse GetSummaryStat(string deviceId, string statName, string seriesTitle = "", string startDate = "", string endDate = "", bool isChart = true, string regex = "", bool getNode = false)
         {
+            statusRepository = new Repository<Status>(ConnectionString);
             UtilsController uc = new UtilsController();
             //DateFormat is YYYY-MM-DD
             if (startDate == "")
@@ -945,6 +946,15 @@ namespace VitalSigns.API.Controllers
 
             summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
             var statNames = statName.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
+            if (!string.IsNullOrEmpty(statName) && getNode)
+            {
+                Expression<Func<Status, bool>> expressionstatus = (p => p.DeviceId == deviceId);
+                var resultstatus = statusRepository.Find(expressionstatus).ToList();
+                if (resultstatus.Count > 0)
+                {
+                    statNames = statName.Replace("[", "").Replace("]", "").Replace(" ", "").Replace("null", resultstatus[0].Category).Split(',');
+                }
+            }
             try
             {
                 FilterDefinition<SummaryStatistics> filterDefTemp;
