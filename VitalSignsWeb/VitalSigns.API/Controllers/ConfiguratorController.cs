@@ -5624,7 +5624,7 @@ namespace VitalSigns.API.Controllers
                         serverLocation.Id = x["_id"].AsObjectId.ToString();
                         serverLocation.DeviceName = x.GetValue("device_name", BsonString.Create(string.Empty)).ToString();
                         serverLocation.DeviceType = x.GetValue("device_type", BsonString.Create(string.Empty)).ToString();
-                        serverLocation.Description = x.GetValue("description", BsonString.Create(string.Empty)).ToString();
+                        serverLocation.Description = x.Contains("description") ? (x.GetValue("description").IsBsonNull ? "" : x.GetValue("description", BsonString.Create(string.Empty)).ToString()) : "";
                         serverLocation.AssignedNode = x.GetValue("assigned_node", BsonString.Create(string.Empty)).ToString();
                         serverLocation.CurrentNode = x.GetValue("current_node", BsonString.Create(string.Empty)).ToString();
                         if (x.GetValue("result", BsonValue.Create(string.Empty)).AsBsonArray.Values.Count() > 0)
@@ -5632,7 +5632,7 @@ namespace VitalSigns.API.Controllers
                             serverLocation.LocationName = x.GetValue("result", BsonValue.Create(string.Empty))[0]["location_name"].ToString();
                         }
                         serverLocation.IsSelected = false;
-                        serverLocation.Category = x.GetValue("category", BsonString.Create(string.Empty)).ToString();
+                        serverLocation.Category = x.Contains("category") ? (x.GetValue("category").IsBsonNull ? "" : x.GetValue("category", BsonString.Create(string.Empty)).ToString()) : "";
                     }
                     serverLocations.Add(serverLocation);
                 }
@@ -5645,7 +5645,7 @@ namespace VitalSigns.API.Controllers
                         serverLocation.Id = x["_id"].AsObjectId.ToString();
                         serverLocation.DeviceName = x.GetValue("name", BsonString.Create(string.Empty)).ToString();
                         serverLocation.DeviceType = x.GetValue("type", BsonString.Create(string.Empty)).ToString();
-                        serverLocation.Description = x.GetValue("description", BsonString.Create(string.Empty)).ToString();
+                        serverLocation.Description = x.Contains("description") ? (x.GetValue("description").IsBsonNull ? "" : x.GetValue("description", BsonString.Create(string.Empty)).ToString()) : "";
                         serverLocation.AssignedNode = x.GetValue("assigned_node", BsonString.Create(string.Empty)).ToString();
                         serverLocation.CurrentNode = x.GetValue("current_node", BsonString.Create(string.Empty)).ToString();
                         if (x.GetValue("result", BsonValue.Create(string.Empty)).AsBsonArray.Values.Count() > 0)
@@ -5653,7 +5653,7 @@ namespace VitalSigns.API.Controllers
                             serverLocation.LocationName = x.GetValue("result", BsonValue.Create(string.Empty))[0]["location_name"].ToString();
                         }
                         serverLocation.IsSelected = false;
-                        serverLocation.Category = x.GetValue("category", BsonString.Create(string.Empty)).ToString();
+                        serverLocation.Category = x.Contains("category") ? (x.GetValue("category").IsBsonNull ? "" : x.GetValue("category", BsonString.Create(string.Empty)).ToString()) : "";
                     }
                     serverLocations.Add(serverLocation);
                 }
