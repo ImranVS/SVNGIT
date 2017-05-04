@@ -97,7 +97,14 @@
                                       [(ngModel)]="serverAttributes.credentials_id" placeholder="Select Credentials" [isEditable]="true">
                         </wj-combo-box>
                     </div>
-
+                </div>
+                <div class="form-group" *ngIf="serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365'">
+                    <div class="col-sm-2">&nbsp;</div>
+                    <div class="col-sm-5">
+                        <button class="btn btn-primary" (click)="adddominoCredentials(frmDialog)">
+                            Add Credentials
+                        </button>
+                    </div>
                 </div>
                 <div class="form-group" *ngIf="serverAttributes.device_type=='Sametime'">
                     <label class="control-label col-sm-2">Platform</label>
@@ -292,7 +299,7 @@
 
                     <div class="form-group" *ngIf="attribute.type!='CheckBox'">
                         <label class="control-label col-sm-3">{{attribute.attribute_name}}</label>
-                        <div class="col-sm-3">
+                        <div class="col-sm-6">
                             <div *ngIf="attribute.type=='TextBox'">
                                 <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
                             </div>
@@ -302,7 +309,10 @@
                                 </wj-combo-box>
                             </div>
                         </div>
-                        <div class="col-sm-5" *ngIf="attribute.type=='ComboBox'">
+                    </div>
+                    <div class="form-group" *ngIf="attribute.type=='ComboBox'">
+                        <div class="col-sm-3">&nbsp;</div>
+                        <div class="col-sm-6">
                             <button class="btn btn-primary" (click)="adddominoCredentials(frmDialog)">
                                 Add Credentials
                             </button>
@@ -409,11 +419,15 @@
                     </div>
 
                 </div>
-                <div class="col-sm-3">
-                    <button class="btn btn-primary" (click)="addSametimeCredentials(frmDialog)">
-                        Add Credentials
-                    </button>
+                <div class="form-group">
+                    <div class="col-sm-2">&nbsp;</div>
+                    <div class="col-sm-3">
+                        <button class="btn btn-primary" (click)="addSametimeCredentials(frmDialog)">
+                            Add Credentials
+                        </button>
+                    </div>
                 </div>
+                
             </div>
 
         </div>
@@ -546,27 +560,28 @@
 
 <wj-popup class="col-md-6 modal-content" #frmDialog>
     <div class="panel panel-default">
-
-
-
+        <div class="panel-heading">
+            Credentials
+            <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+        </div>
         <form (ngSubmit)="SaveCredential(addCredentialForm.value,frmDialog)" class="form-horizontal" [formGroup]="addCredentialForm">
             <div class="panel-body">
 
                 <div class="form-group col-sm-12">
-                    <label for="alias" class="control-label col-sm-2">Alias:</label>
+                    <label for="alias" class="control-label col-sm-2">Alias</label>
                     <div class="col-sm-4">
                         <input type="text" class="form-control" #name d="alias" required name="alias" formControlName="alias">
                     </div>
                 </div>
                 <div class="form-group col-sm-12">
-                    <label for="user_id" class="control-label col-sm-2">User Id:</label>
+                    <label for="user_id" class="control-label col-sm-2">User Id</label>
                     <div class="col-sm-4">
                         <input type="text" class="form-control" required name="user_id" formControlName="user_id">
                     </div>
                 </div>
 
                 <div class="form-group col-sm-12">
-                    <label for="password" class="control-label col-sm-2">Password:</label>
+                    <label for="password" class="control-label col-sm-2">Password</label>
                     <div class="col-sm-4">
                         <input type="password" class="form-control" name="password" required formControlName="password">
                     </div>
