@@ -160,11 +160,12 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <returns> </returns>
         [HttpGet("mobile_user_devices")]
-        public APIResponse GetAllMobileUserDevices(bool isKey = false)
+        public APIResponse GetAllMobileUserDevices(bool isKey = false, bool isInactive = false)
         {
             List<string> keyUsersList = new List<string>();
             mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
             List<MobileUserDevice> result = null;
+            DateTime dt = new DateTime();
             if (isKey)
             {
                 result = mobileDevicesRepository.Collection
@@ -185,7 +186,9 @@ namespace VitalSigns.API.Controllers
             }
             else
             {
-                result = mobileDevicesRepository.Collection
+                if (!isInactive)
+                {
+                    result = mobileDevicesRepository.Collection
                     .AsQueryable()
                     .Select(x => new MobileUserDevice
                     {
@@ -199,6 +202,27 @@ namespace VitalSigns.API.Controllers
                         DeviceId = x.DeviceID,
                         ThresholdSyncTime = x.ThresholdSyncTime == null ? -1 : x.ThresholdSyncTime
                     }).OrderBy(x => x.UserName).OrderByDescending(x => x.ThresholdSyncTime).ToList();
+                }
+                else
+                {
+                    dt = DateTime.Now.AddDays(-30);
+                    dt = DateTime.SpecifyKind(dt, DateTimeKind.Utc);
+                    result = mobileDevicesRepository.Collection
+                    .AsQueryable()
+                    .Where(x => x.LastSyncTime <= dt)
+                    .Select(x => new MobileUserDevice
+                    {
+                        Id = x.Id,
+                        UserName = x.UserName,
+                        Device = x.DeviceName,
+                        Notification = x.NotificationType,
+                        OperatingSystem = x.OSType,
+                        LastSyncTime = x.LastSyncTime,
+                        Access = x.Access,
+                        DeviceId = x.DeviceID,
+                        ThresholdSyncTime = x.ThresholdSyncTime == null ? -1 : x.ThresholdSyncTime
+                    }).OrderBy(x => x.UserName).OrderByDescending(x => x.ThresholdSyncTime).ToList();
+                }
             }          
             Response = Common.CreateResponse(result);
             return Response;
