@@ -91,7 +91,7 @@ data.pageIndex + 1 | number
                 <div class="panel-heading">Services Status</div>
                 <div class="panel-body">
                     <div class="alert alert-info col-lg-12"><p>Only the "Primary Node", the node marked with the star, will have the "Alerting Service" and the "DB Health" running on it. Also, any service not colored is due to it running only when needed, so it is expected to be in the "Stopped" state.</p></div>
-                    <wj-flex-grid #flex [itemsSource]="services" headersVisibility="Column" [frozenColumns]="1" [isReadOnly]="true">
+                    <wj-flex-grid #flex [itemsSource]="services" headersVisibility="Column" [isReadOnly]="true">
                         <wj-flex-grid-filter></wj-flex-grid-filter>
                         <wj-flex-grid-column [header]="'Alerting'" align="center" [binding]="'VSService_Alerting'" is-read-only="true" [width]="150">
                             <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
