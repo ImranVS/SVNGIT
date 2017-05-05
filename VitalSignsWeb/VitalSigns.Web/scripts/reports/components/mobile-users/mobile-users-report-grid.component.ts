@@ -1,5 +1,6 @@
 ﻿import {Component, Input, Output, OnInit, EventEmitter, ViewChild} from '@angular/core';
 import {HttpModule}    from '@angular/http';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import {WidgetComponent} from '../../../core/widgets';
 import {WidgetService} from '../../../core/widgets/services/widget.service';
@@ -18,7 +19,8 @@ import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
     providers: [
         HttpModule,
         RESTService,
-        helpers.DateTimeHelper
+        helpers.DateTimeHelper,
+        helpers.UrlHelperService
     ]
 })
 export class MobileUsersReportGrid implements WidgetComponent, OnInit {
@@ -32,8 +34,11 @@ export class MobileUsersReportGrid implements WidgetComponent, OnInit {
     data: wijmo.collections.CollectionView;
     errorMessage: string;
     columns: any;
+    paramtype: string;
 
-    constructor(private service: RESTService, private widgetService: WidgetService, protected datetimeHelpers: helpers.DateTimeHelper) { }
+    constructor(private service: RESTService, private widgetService: WidgetService, private router: Router, private route: ActivatedRoute,
+        protected datetimeHelpers: helpers.DateTimeHelper,
+        protected urlHelpers: helpers.UrlHelperService) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -48,7 +53,10 @@ export class MobileUsersReportGrid implements WidgetComponent, OnInit {
      
     ngOnInit() {
         //this.gridUrl = this.widgetService.getProperty('gridUrl');
-        this.gridUrl = `/dashboard/mobile_user_devices`;
+        this.route.queryParams.subscribe(params => {
+            this.paramtype = params['isinactive'];
+        });
+        this.gridUrl = `/dashboard/mobile_user_devices?isInactive=${this.paramtype}`;
         var displayDate = (new Date()).toISOString().slice(0, 10);
         this.service.get(this.gridUrl)
             .subscribe(
