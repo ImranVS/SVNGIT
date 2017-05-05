@@ -1962,29 +1962,26 @@ Partial Public Class VitalSignsPlusDomino
             Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.MobileDevices)
 
 
-            filterDef = repo.Filter.In(Function(x) x.ServerName, MyDominoServers.Cast(Of MonitoredItems.DominoServer)().Select(Function(x) x.Name))
-            Dim list As List(Of VSNext.Mongo.Entities.MobileDevices) = repo.Collection.Find(filterDef) _
-                    .Project((New ProjectionDefinitionBuilder(Of VSNext.Mongo.Entities.MobileDevices)() _
-                    .Include(Function(x) x.DeviceID) _
-                    .Include(Function(x) x.LastSyncTime) _
-                    .Include(Function(x) x.Id) _
-                    .Include(Function(x) x.ServerName))) _
-                    .ToList() _
-                    .Select(Function(x) MongoDB.Bson.Serialization.BsonSerializer.Deserialize(Of VSNext.Mongo.Entities.MobileDevices)(x)) _
+            filterDef = repo.Filter.Where(Function(x) True)
+            Dim list As List(Of VSNext.Mongo.Entities.MobileDevices) = repo.Find(filterDef,
+                    (New ProjectionDefinitionBuilder(Of VSNext.Mongo.Entities.MobileDevices)() _
+                        .Include(Function(x) x.DeviceID) _
+                        .Include(Function(x) x.LastSyncTime) _
+                        .Include(Function(x) x.Id) _
+                        .Include(Function(x) x.ServerName))) _
                     .ToList()
 
-            repo.Collection.Aggregate.SortBy(Function(x) x.CreatedOn).First()
+
             Dim activeList As List(Of VSNext.Mongo.Entities.MobileDevices) = list _
-                    .GroupBy(Function(x) x.ServerName) _
+                    .GroupBy(Function(x) x.Id) _
                     .Select(Function(x) x.Aggregate((Function(max, cur) IIf(max Is Nothing Or cur.LastSyncTime.Value > max.LastSyncTime.Value, cur, max)))) _
                     .ToList()
 
 
-
+            repo.Update(filterDef, repo.Updater.Set(Function(x) x.IsActive, False))
 
             filterDef = repo.Filter.In(Function(x) x.Id, activeList.Select(Function(y) y.Id.ToString()).ToList())
             updateDef = repo.Updater.Set(Function(x) x.IsActive, True)
-
             repo.Update(filterDef, updateDef)
 
 

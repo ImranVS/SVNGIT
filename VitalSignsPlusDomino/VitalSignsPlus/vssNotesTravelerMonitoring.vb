@@ -30,12 +30,14 @@ Partial Public Class VitalSignsPlusDomino
 		Public Property DeviceName As String
         Public Property DeviceOSTypeMin As String
         Public Property DeviceType As String
+        Public Property OS As String
 
-        Public Sub New(ByVal DeviceName As String, ByVal DeviceOSType As String, ByVal DeviceOSTypeMin As String, ByVal DeviceType As String)
+        Public Sub New(ByVal DeviceName As String, ByVal DeviceOSType As String, ByVal DeviceOSTypeMin As String, ByVal DeviceType As String, ByVal OS As String)
             Me.DeviceOSType = DeviceOSType
             Me.DeviceOSTypeMin = DeviceOSTypeMin
             Me.DeviceName = DeviceName
             Me.DeviceType = DeviceType
+            Me.OS = OS
         End Sub
 
 
@@ -1661,6 +1663,7 @@ Partial Public Class VitalSignsPlusDomino
             ThisDevice.OS_Type = obj.DeviceOSType
             ThisDevice.OS_Type_Min = obj.DeviceOSTypeMin
             ThisDevice.DeviceType = obj.DeviceType
+            ThisDevice.OS = obj.OS
             Exit Sub
         End If
 
@@ -1743,7 +1746,7 @@ Partial Public Class VitalSignsPlusDomino
 
         'OS_Type dec precision to 2 : 7.1.2 should be 7.1
         ThisDevice.OS_Type_Min = TrimOsType(ThisDevice.OS_Type)
-        DeviceIDTranslations.TryAdd(ThisDevice.DeviceID, New DeviceIDTranslationsObj(ThisDevice.DeviceName, ThisDevice.OS_Type, ThisDevice.OS_Type_Min, ThisDevice.DeviceType))
+        DeviceIDTranslations.TryAdd(ThisDevice.DeviceID, New DeviceIDTranslationsObj(ThisDevice.DeviceName, ThisDevice.OS_Type, ThisDevice.OS_Type_Min, ThisDevice.DeviceType, ThisDevice.OS))
 
         WriteDeviceHistoryEntry("All", "Traveler_Users", Now.ToString & " Translated OS Type : " & ThisDevice.OS_Type, LogLevel.Verbose)
         WriteDeviceHistoryEntry("All", "Traveler_Users", Now.ToString & " Translated Device Type : " & ThisDevice.DeviceName, LogLevel.Verbose)
