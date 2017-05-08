@@ -344,6 +344,11 @@ export class Maintenance extends GridBase implements OnInit  {
         this.formObject.maintenance_days_list = selectedWeekDays;
         this.formObject.maintain_type = this.selectedSetting;
         this.formObject.duration_type = this.durationSetting;
+        if (this.durationSetting == '2') {
+            var d = new Date();        
+            d.setFullYear(2999, 0, 1);       
+            this.formObject.end_date = d; 
+        }
         this.formObject.key_users = this.keyUsers;
         this.formObject.device_list = this.checkedDevices;
 
