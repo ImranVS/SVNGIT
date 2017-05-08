@@ -17,7 +17,14 @@
     <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="200"> </wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Start Date'" [binding]="'start_date'" [width]="150"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Start Time'" [binding]="'start_time'" [width]="150"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'End Date'" [binding]="'end_date'" [width]="150"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'End Date'" [binding]="'end_date'" [width]="150">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            <div [ngSwitch]="cell.item.duration_type">
+                <span *ngSwitchCase="'1'">{{cell.item.end_date}}</span>
+                <span *ngSwitchCase="'2'"></span>
+            </div>
+        </template>
+    </wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Duration'" [binding]="'duration'" [width]="160"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Maintenance Type'" [binding]="'maintain_type'" [width]="200">
         <!--<template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
