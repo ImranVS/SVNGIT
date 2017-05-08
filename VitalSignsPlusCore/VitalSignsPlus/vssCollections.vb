@@ -647,7 +647,8 @@ Partial Public Class VitalSignsPlusCore
                 .Include(Function(x) x.RetryInterval) _
                 .Include(Function(x) x.ResponseTime) _
                 .Include(Function(x) x.ConsecutiveFailuresBeforeAlert) _
-                .Include(Function(x) x.PortNumber)
+                .Include(Function(x) x.PortNumber) _
+                .Include(Function(x) x.CurrentNode)
 
             listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
@@ -947,7 +948,8 @@ Partial Public Class VitalSignsPlusCore
                 .Include(Function(x) x.TestChatSimulation) _
                 .Include(Function(x) x.DatabaseSettingsHostName) _
                 .Include(Function(x) x.DatabaseSettingsPort) _
-                .Include(Function(x) x.DatabaseSettingsCredentialsId)
+                .Include(Function(x) x.DatabaseSettingsCredentialsId) _
+                .Include(Function(x) x.CurrentNode)
 
             listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
@@ -1799,7 +1801,8 @@ Partial Public Class VitalSignsPlusCore
                 .Include(Function(x) x.ScanInterval) _
                 .Include(Function(x) x.IPAddress) _
                 .Include(Function(x) x.LocationId) _
-                .Include(Function(x) x.PortNumber)
+                .Include(Function(x) x.PortNumber) _
+                .Include(Function(x) x.CurrentNode)
 
             listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
@@ -2149,7 +2152,8 @@ Partial Public Class VitalSignsPlusCore
                 .Include(Function(x) x.ResponseTime) _
                 .Include(Function(x) x.SearchString) _
                 .Include(Function(x) x.ScanInterval) _
-                .Include(Function(x) x.IPAddress)
+                .Include(Function(x) x.IPAddress) _
+                .Include(Function(x) x.CurrentNode)
 
             listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
@@ -2456,7 +2460,8 @@ Partial Public Class VitalSignsPlusCore
                 .Include(Function(x) x.ResponseTime) _
                 .Include(Function(x) x.ConsecutiveFailuresBeforeAlert) _
                 .Include(Function(x) x.ConsecutiveOverThresholdBeforeAlert) _
-                .Include(Function(x) x.Description)
+                .Include(Function(x) x.Description) _
+                .Include(Function(x) x.CurrentNode)
 
             listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
