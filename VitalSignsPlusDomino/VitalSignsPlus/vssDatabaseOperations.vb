@@ -1973,12 +1973,14 @@ Partial Public Class VitalSignsPlusDomino
 
 
             Dim activeList As List(Of VSNext.Mongo.Entities.MobileDevices) = list _
-                    .GroupBy(Function(x) x.Id) _
+                    .GroupBy(Function(x) x.DeviceID) _
                     .Select(Function(x) x.Aggregate((Function(max, cur) IIf(max Is Nothing Or cur.LastSyncTime.Value > max.LastSyncTime.Value, cur, max)))) _
                     .ToList()
 
 
             repo.Update(filterDef, repo.Updater.Set(Function(x) x.IsActive, False))
+
+            WriteAuditEntry(Now.ToString & " Active devices being set to true: " & String.Join(",", activeList.Select(Function(y) y.Id.ToString()).ToList()))
 
             filterDef = repo.Filter.In(Function(x) x.Id, activeList.Select(Function(y) y.Id.ToString()).ToList())
             updateDef = repo.Updater.Set(Function(x) x.IsActive, True)
