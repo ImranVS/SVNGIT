@@ -73,21 +73,19 @@ data.pageIndex + 1 | number
         <wj-menu-item [value]="50">50</wj-menu-item>
     </wj-menu>
 </div>-->
-<wj-popup style="height:70%;overflow:auto" class="col-md-8 modal-content" #frmDialog>
-    <div class="panel panel-default">
-        <div class="panel-heading">
+<wj-popup style="border: 0px; width: 920px" #frmDialog>
+    <div class="modal-content">
+        <div class="modal-header">
             {{formTitle}}
             <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
         </div>
-
-
         <form (ngSubmit)="saveMaintenance(frmDialog)" #frmUser="ngForm" class="form-horizontal">
             <!--<h4 class="modal-header">
                 {{formTitle}}
                 <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
             </h4>-->
 
-            <div class="panel-body">
+            <div class="modal-body">
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         Maintenance Attributes
@@ -191,7 +189,7 @@ data.pageIndex + 1 | number
                         </div>
                         <div class="row col-sm-12" *ngIf="selectedSetting!='1' && selectedSetting!='2'">
                             <div class="form-group col-sm-6" *ngIf="selectedSetting=='3'">
-                                <label for="repeat" class="col-sm-3">Repeat every</label>
+                                <label for="repeat" class="col-sm-4">Repeat every</label>
                                 <div class="form-group col-sm-3">
                                     <input type="number" class="form-control" id="repeat" name="repeat" [(ngModel)]="repeat"
                                            min="0" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
@@ -314,9 +312,10 @@ data.pageIndex + 1 | number
                     </div>
                 </div>
             </div>
-            <div class="panel-footer">
-                <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+            <div class="modal-footer">
+                <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid || loading">Save</button>
                 <button class="btn btn-primary wj-hide" type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
             </div>
         </form>
     </div>

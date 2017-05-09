@@ -39,7 +39,7 @@ export class Maintenance extends GridBase implements OnInit  {
     checkedDevices: any;
     selDeviceTypes: string = "Domino,Sametime,URL,WebSphere,IBM Connections";
     keyUsers: string[] = [];
-
+    loading = false;
 
     formObject: any = {
         id: null,
@@ -301,6 +301,7 @@ export class Maintenance extends GridBase implements OnInit  {
     }
 
     saveMaintenance(dlg: wijmo.input.Popup) {
+        this.loading = true;
         this.keyUsers = [];
         this.refreshCheckedUsers();
         var selectedWeekDays = "";
@@ -364,9 +365,11 @@ export class Maintenance extends GridBase implements OnInit  {
                             //(<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection).moveToFirstPage();    
                             dlg.hide();
                             this.appComponentService.showSuccessMessage(response.message);
+                            this.loading = false;
                         }
                         else {
                             this.appComponentService.showErrorMessage(response.message);
+                            this.loading = false;
                         }
                     });
             }
@@ -381,15 +384,18 @@ export class Maintenance extends GridBase implements OnInit  {
                             //(<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection).moveToFirstPage();    
                             dlg.hide();
                             this.appComponentService.showSuccessMessage(response.message);
+                            this.loading = false;
                         }
                         else {
                             this.appComponentService.showErrorMessage(response.message);
+                            this.loading = false;
                         }
                     });
             }
         }
         else {
             this.appComponentService.showErrorMessage("Please select at least one Key User or one Server");
+            this.loading = false;
         }
     }
 
