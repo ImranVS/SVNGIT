@@ -15,7 +15,7 @@ import {AppComponentService} from '../../../core/services';
     ]
 })
 export class ViewLogs extends GridBase implements OnInit {
-    @ViewChild('combo') combo: wijmo.input.ComboBox;
+    combo: wijmo.input.ComboBox;
     @Output() type = new EventEmitter();
     @Input() currentDeviceType: string;
     devices: string;
@@ -41,17 +41,19 @@ export class ViewLogs extends GridBase implements OnInit {
 
     }
     onDeviceTypeIndexChanged(event: wijmo.EventArgs) {
-        
-        this.currentDeviceType = this.combo.selectedItem.Text;
-        this.type.emit(this.currentDeviceType);
-       // alert(this.currentDeviceType)
-        this.service.get('/configurator/get_read_files/' + this.selectedDeviceType)
-            .subscribe(
-            (response) => {
-               this.logFile = response.data;
-            },
-            (error) => this.errorMessage = <any>error
-            );
+        this.combo = <wijmo.input.ComboBox>wijmo.input.ComboBox.getControl("#combo");
+        if (this.combo != null) {
+            this.currentDeviceType = this.combo.selectedItem.Text;
+            this.type.emit(this.currentDeviceType);
+            // alert(this.currentDeviceType)
+            this.service.get('/configurator/get_read_files/' + this.selectedDeviceType)
+                .subscribe(
+                (response) => {
+                    this.logFile = response.data;
+                },
+                (error) => this.errorMessage = <any>error
+                );
+        }
     }
     ngOnInit() {
        
