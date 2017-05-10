@@ -72,6 +72,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<SummaryStatistics> summaryStatisticsRepository;
         private IRepository<TravelerStatusSummary> travelerSummaryStatsRepository;
         private IRepository<ServerType> serverTypeRepository;
+
         VSFramework.TripleDES tripleDes = new VSFramework.TripleDES();
         string name;
 
@@ -1916,7 +1917,7 @@ namespace VitalSigns.API.Controllers
 
                         var servervalue = serverValues.Where(x => x.Name == attri.FieldName).Select(x => x.Value).FirstOrDefault();
                         attri.DefaultValue = servervalue.ToString();
-                        if (attri.DataType == "bool" && attri.DefaultValue == "false")
+                        if (attri.DataType == "bool" && (attri.DefaultValue == "false" || attri.DefaultValue == "0"))
                         {
                             attri.DefaultboolValues = false;
                         }
@@ -1951,7 +1952,7 @@ namespace VitalSigns.API.Controllers
                     else
                     {
                         attri.DefaultValue = attri.DefaultValue;
-                        if (attri.DataType == "bool" && attri.DefaultValue == "false")
+                        if (attri.DataType == "bool" && (attri.DefaultValue == "false" || attri.DefaultValue == "0"))
                         {
                             attri.DefaultboolValues = false;
                         }
@@ -5851,6 +5852,17 @@ namespace VitalSigns.API.Controllers
                         ibmsimulations.SearchProfileThreshold = Convert.ToInt32(result.SimulationTests.FirstOrDefault(x => x.Name == "Search Profile Threshold").Value);
                     }
                 }
+                else
+                {
+                    //Default threshold values
+                    ibmsimulations.CreateActivityThreshold = 10000;
+                    ibmsimulations.CreateBlogThreshold = 10000;
+                    ibmsimulations.CreateBookmarkThreshold = 10000;
+                    ibmsimulations.CreateCommunityThreshold = 10000;
+                    ibmsimulations.CreateFileThreshold = 10000;
+                    ibmsimulations.CreateWikiThreshold = 10000;
+                    ibmsimulations.SearchProfileThreshold = 10000;
+                }
                 Response = Common.CreateResponse(ibmsimulations);
             }
             catch (Exception exception)
@@ -8072,6 +8084,7 @@ namespace VitalSigns.API.Controllers
         }
 
         #endregion
+
     }
 }
 
