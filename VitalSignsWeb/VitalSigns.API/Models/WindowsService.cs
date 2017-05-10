@@ -35,6 +35,9 @@ namespace VitalSigns.API.Models
 
     public class WindowsServicesValue
     {
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
         [JsonProperty("service_name")]
         public string ServiceName { get; set; }
 

@@ -159,6 +159,40 @@
 
   },
   {
+    "server_type": "Exchange",
+    "icon": "/img/servers/MSExchange.svg",
+    "tabs": [
+      {
+        "tab_id": 1,
+        "title": "Device Attributes",
+        "type": "Configurator",
+        "component": "ServerAttribute",
+        "path": "/app/configurator/components/server/server-device-attributes.component"
+      },
+      {
+        "tab_id": 2,
+        "title": "Windows Services",
+        "type": "Configurator",
+        "component": "Services",
+        "path": "/app/configurator/components/server/server-exchange-services.component"
+      },
+      {
+        "tab_id": 5,
+        "title": "Maintenance Window",
+        "type": "Configurator",
+        "component": "MaintenanceWindows",
+        "path": "/app/configurator/components/server/server-maintenance-windows.component"
+      },
+      {
+        "tab_id": 6,
+        "title": "Events",
+        "type": "Configurator",
+        "component": "ServerEvents",
+        "path": "/app/configurator/components/server/server-events.component"
+      }
+    ]
+  },
+  {
     "server_type": "IBM Connections",
     "icon": "/img/servers/IBMConnections.svg",
     "tabs": [
@@ -644,14 +678,7 @@
 
 //    },
 
-//    {
-//      "server_type": "Exchange",
-//      "icon": "/img/servers/Paintbrush.svg",
-//      "tabs": [
 
-//      ]
-
-//    },
 
 
 
