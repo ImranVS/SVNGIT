@@ -4092,6 +4092,12 @@ namespace VitalSigns.API.Controllers
                                 var result = Common.SaveNameValues(alertData);
                                 Response = Common.CreateResponse(true, "Success", "Password was successfully updated");
                             }
+                            else
+                            {
+                                var alertData = new List<NameValue> { new NameValue { Name = "Primarypwd", Value = "" } };
+                                var result = Common.SaveNameValues(alertData);
+                                Response = Common.CreateResponse(true, "Success", "Password was successfully cleared");
+                            }
                         }
                         catch (Exception exception)
                         {
@@ -4117,6 +4123,12 @@ namespace VitalSigns.API.Controllers
                                 var alertData = new List<NameValue> { new NameValue { Name = "SecondaryPwd", Value = bytepwd } };
                                 var result = Common.SaveNameValues(alertData);
                                 Response = Common.CreateResponse(true, "Success", "Password was successfully updated");
+                            }
+                            else
+                            {
+                                var alertData = new List<NameValue> { new NameValue { Name = "SecondaryPwd", Value = "" } };
+                                var result = Common.SaveNameValues(alertData);
+                                Response = Common.CreateResponse(true, "Success", "Password was successfully cleared");
                             }
                         }
                         catch (Exception exception)
