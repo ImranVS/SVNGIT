@@ -260,6 +260,9 @@
                                 <button #pwd1 type="button" class="btn btn-primary">
                                     Enter Password
                                 </button>
+                                <button #clearpwd1 type="button" class="btn btn-primary" (click)="clearPwd1()">
+                                    Clear Password
+                                </button>
                                 <wj-popup #frmDialog1 class="popover" [owner]="pwd1" [showTrigger]="'Click'" [hideTrigger]="'None'">
                                     <h3 class="popover-title">
                                         Password
@@ -342,6 +345,9 @@
                                 <!--<input type="password" class="form-control" id="secondary_pwd" name="secondary_pwd" formControlName="secondary_pwd" />-->
                                 <button #pwd2 type="button" class="btn btn-primary">
                                     Enter Password
+                                </button>
+                                <button #clearpwd2 type="button" class="btn btn-primary" (click)="clearPwd2()">
+                                    Clear Password
                                 </button>
                                 <wj-popup #frmDialog2 class="popover" [owner]="pwd2" [showTrigger]="'Click'" [hideTrigger]="'None'">
                                     <h3 class="popover-title">
