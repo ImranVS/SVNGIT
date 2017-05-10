@@ -1976,17 +1976,18 @@ Public Class VitalSignsAlertService
         Dim mySecrets As New VSFramework.TripleDES
 
         Try
-            strEncryptedPassword = Ppwd
-            str1 = strEncryptedPassword.Split(",")
-            Dim bstr1(str1.Length - 1) As Byte
-            For j As Integer = 0 To str1.Length - 1
-                bstr1(j) = str1(j).ToString()
-            Next
-            myPass = bstr1
-            If Not strEncryptedPassword Is Nothing Then
-                Password = mySecrets.Decrypt(myPass) 'password in clear text, stored in memory now
-            Else
-                Password = Nothing
+            Password = ""
+            If (Ppwd <> "") Then
+                strEncryptedPassword = Ppwd
+                str1 = strEncryptedPassword.Split(",")
+                Dim bstr1(str1.Length - 1) As Byte
+                For j As Integer = 0 To str1.Length - 1
+                    bstr1(j) = str1(j).ToString()
+                Next
+                myPass = bstr1
+                If Not strEncryptedPassword Is Nothing Then
+                    Password = mySecrets.Decrypt(myPass) 'password in clear text, stored in memory now
+                End If
             End If
         Catch ex As Exception
             Password = ""
