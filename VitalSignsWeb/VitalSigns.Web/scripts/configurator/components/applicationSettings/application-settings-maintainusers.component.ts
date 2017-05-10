@@ -44,19 +44,25 @@ export class MaintainUser extends GridBase implements OnInit {
         }
     }
     resetPassWord() {
+        this.loading = true;
         this.service.get(`/Token/reset_password/?emailId=${this.flex.collectionView.currentItem.email}`)
             .subscribe(
             response => {
                 if (response.status == "Success") {
 
                     this.appComponentService.showSuccessMessage(response.message);
+                    this.loading = false;
 
                 } else {
 
                     this.appComponentService.showErrorMessage(response.message);
+                    this.loading = false;
                 }
             },
-            error => this.errorMessage = <any>error
+            (error) => {
+                this.errorMessage = <any>error;
+                this.loading = false;
+            }
             );
     }
     saveMaintainUser(dlg: wijmo.input.Popup) {

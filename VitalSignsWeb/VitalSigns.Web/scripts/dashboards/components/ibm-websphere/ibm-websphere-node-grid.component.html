@@ -1,4 +1,4 @@
-﻿<wj-flex-grid [itemsSource]="data" control="flex" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" headersVisibility="Column" (itemsSourceChanged)="onItemsSourceChanged()" #flex>
+﻿<wj-flex-grid [itemsSource]="data" control="flex" selectionMode="Row" [isReadOnly]="true" headersVisibility="Column" (itemsSourceChanged)="onItemsSourceChanged()" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'Name'" [binding]="'device_name'" [width]="360"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Status'" [binding]="'status_code'" [width]="180" align="center">
@@ -46,5 +46,7 @@
         <wj-menu-item [value]="10">10</wj-menu-item>
         <wj-menu-item [value]="20">20</wj-menu-item>
         <wj-menu-item [value]="50">50</wj-menu-item>
+        <wj-menu-item [value]="100">100</wj-menu-item>
+        <wj-menu-item [value]="200">200</wj-menu-item>
     </wj-menu>
 </div>

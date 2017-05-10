@@ -29,7 +29,7 @@
                         </button>
                     </div>
                     <div>&nbsp;</div>
-                    <wj-flex-grid #flex [itemsSource]="data" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
+                    <wj-flex-grid #flex [itemsSource]="data" headersVisibility="Column" selectionMode="Row" [isReadOnly]="true">
                         <wj-flex-grid-filter></wj-flex-grid-filter>
                         <wj-flex-grid-column [header]="'User Name'" [binding]="'user_name'" [width]="250"></wj-flex-grid-column>
                         <wj-flex-grid-column [header]="'Device Name'" [binding]="'device_name'" [width]="180"></wj-flex-grid-column>
@@ -83,7 +83,7 @@ data.pageIndex + 1 | number
                         </button>
                     </div>
                     <div>&nbsp;</div>
-                    <wj-flex-grid #mobileDeviceGrid [itemsSource]="mobileDeviceData" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
+                    <wj-flex-grid #mobileDeviceGrid [itemsSource]="mobileDeviceData" headersVisibility="Column" selectionMode="Row" [isReadOnly]="true">
                         <wj-flex-grid-filter></wj-flex-grid-filter>
                         <wj-flex-grid-column [header]="'User Name'" [binding]="'user_name'" [width]="250"></wj-flex-grid-column>
                         <wj-flex-grid-column [header]="'Device Name'" [binding]="'device_name'" [width]="180"></wj-flex-grid-column>
@@ -125,6 +125,8 @@ mobileDeviceData.pageIndex + 1 | number
                             <wj-menu-item [value]="10">10</wj-menu-item>
                             <wj-menu-item [value]="20">20</wj-menu-item>
                             <wj-menu-item [value]="50">50</wj-menu-item>
+                            <wj-menu-item [value]="100">100</wj-menu-item>
+                            <wj-menu-item [value]="200">200</wj-menu-item>
                         </wj-menu>
                     </div>
 

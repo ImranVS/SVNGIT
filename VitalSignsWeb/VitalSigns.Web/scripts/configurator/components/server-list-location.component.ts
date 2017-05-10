@@ -100,19 +100,17 @@ export class ServersLocation implements OnInit {
         }
     }
     selectAll() {
-        for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
-            var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
-            //item.is_selected = true;
-            //this.flex.collectionView.sourceCollection[_i].is_selected = true;
-            this.devices.push(item.id);
+        for (var _i = 0; _i < this.flex.collectionView.items.length; _i++) {
+            var item = this.flex.collectionView.items[_i];
+            this.devices.push(item.id);        
         }  
         this.checkedDevices.emit(this.devices);
         //this.flex.refresh();
     }
 
     deselectAll() {
-        for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
-            var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
+        for (var _i = 0; _i < this.flex.collectionView.items.length; _i++) {
+            var item = this.flex.collectionView.items[_i];
             //item.is_selected = false;
             //this.flex.collectionView.sourceCollection[_i].is_selected = false;
             this.devices.splice(this.devices.indexOf(item.id), 1);

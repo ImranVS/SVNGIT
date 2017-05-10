@@ -1,4 +1,4 @@
-﻿import {Component, OnInit, ViewChild, Input, Output} from '@angular/core';
+﻿import { Component, OnInit, ViewChild, Input, Output, ElementRef} from '@angular/core';
 import {FormBuilder, FormGroup, FormControl, FormsModule, Validators} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import {HttpModule}    from '@angular/http';
@@ -28,6 +28,7 @@ export class AlertDefinitions extends GridBase implements OnInit  {
     @ViewChild('flex4') flex4: wijmo.grid.FlexGrid;  
     @ViewChild('flex5') flex5: wijmo.grid.FlexGrid;  
     @ViewChild('flex6') flex6: wijmo.grid.FlexGrid;  
+    @ViewChild('myModal') myModal: ElementRef;  
     errorMessage: string;
     serversdata: wijmo.collections.CollectionView;
     eventsdata: wijmo.collections.CollectionView;
@@ -323,7 +324,7 @@ export class AlertDefinitions extends GridBase implements OnInit  {
         }
         this._deviceList = this.devices;
         this.checkedDevices = this._deviceList;
-
+        //this.myModal.nativeElement.className = 'modal show';
         this.showDialog(dlg);
 
     }
@@ -445,6 +446,10 @@ export class AlertDefinitions extends GridBase implements OnInit  {
         for (var _i = 0; _i < this.flex3.collectionView.sourceCollection.length; _i++) {
             var item = (<wijmo.collections.CollectionView>this.flex3.collectionView.sourceCollection)[_i];
             item.is_selected_event = true;
+            //if (item.hasClass("wijmo-wijgrid-datarow")) {
+                
+            //}
+            
             //var val = this.selected_events.filter((record) => record == item.id);
             //if (val.length == 0) {
             //    this.selected_events.push(item.id);
@@ -475,5 +480,9 @@ export class AlertDefinitions extends GridBase implements OnInit  {
             var rootRow = rows[rowIdx];
             if (rootRow.hasChildren) { rootRow.isCollapsed = false; }
         }
+    }
+
+    cancelEditAdd() {
+        //this.myModal.nativeElement.className = 'modal fade';
     }
 }

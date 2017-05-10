@@ -17,7 +17,8 @@
             </div>
 
             <div *ngIf="serverAttributes.device_type=='Domino' || serverAttributes.device_type=='WebSphere' || serverAttributes.device_type=='Sametime' || 
-                 serverAttributes.device_type=='URL' || serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365'">
+                 serverAttributes.device_type=='URL' || serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' ||
+                 serverAttributes.device_type=='Exchange'">
                 <div class="form-group">
                     <label class="control-label col-sm-2">Server Name</label>
                     <div class="col-sm-3">
@@ -90,7 +91,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-group" *ngIf="serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365'">
+                <div class="form-group" *ngIf="serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' || 
+                     serverAttributes.device_type=='Exchange'">
                     <label class="control-label col-sm-2">Credentials</label>
                     <div class="col-sm-3">
                         <wj-combo-box name="serverAttributes.credentials_id" displayMemberPath="text" selectedValuePath="value" [itemsSource]="deviceCredentialData"
@@ -98,7 +100,8 @@
                         </wj-combo-box>
                     </div>
                 </div>
-                <div class="form-group" *ngIf="serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365'">
+                <div class="form-group" *ngIf="serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' || 
+                     serverAttributes.device_type=='Exchange'">
                     <div class="col-sm-2">&nbsp;</div>
                     <div class="col-sm-5">
                         <button class="btn btn-primary" (click)="adddominoCredentials(frmDialog)">
@@ -147,7 +150,8 @@
         <div class="panel-heading">Cost Settings</div>
         <div class="panel-body">
             <div *ngIf="serverAttributes.device_type=='Domino' || serverAttributes.device_type=='WebSphere' || serverAttributes.device_type=='Sametime' || 
-                 serverAttributes.device_type =='URL' || serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365'">
+                 serverAttributes.device_type =='URL' || serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' ||
+                 serverAttributes.device_type=='Exchange'">
                 <div class="form-group">
                     <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:costAttr">
                         <label class="control-label col-sm-3">{{attribute.attribute_name}}</label>
@@ -170,7 +174,8 @@
         <div class="panel-body">
 
             <div *ngIf="serverAttributes.device_type=='Domino' || serverAttributes.device_type=='WebSphere' || serverAttributes.device_type=='Sametime' || 
-                 serverAttributes.device_type =='URL' || serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365'">
+                 serverAttributes.device_type =='URL' || serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' ||
+                 serverAttributes.device_type=='Exchange'">
                 <div class="row">
                     <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:scanSettings">
                         <div class="form-group col-sm-12">
@@ -552,20 +557,83 @@
         </div>
     </div>
 </div>
+<!-- Exchange Queue Thresholds -->
+<div *ngIf="serverAttributes" class="form-horizontal">
+    <div *ngIf="serverAttributes.device_type=='Exchange'">
+        <div class="panel panel-default">
+            <div class="panel-heading">Queue Thresholds</div>
+            <div class="panel-body">
+                <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:exchangeSettings">
+
+                    <div class="form-group" *ngIf="attribute.type!='CheckBox'">
+                        <label class="control-label col-sm-4">{{attribute.attribute_name}}</label>
+                        <div class="col-sm-2">
+                            <div *ngIf="attribute.type=='TextBox'">
+                                <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" *ngIf="attribute.type=='CheckBox'">
+                        <div class="col-sm-4">&nbsp;</div>
+                        <div class="col-sm-3">
+                            <div class="funkyradio">
+                                <input type="checkbox" [(ngModel)]="attribute.default_bool_values" id="exchangeSettings_{{attribute.field_name}}">
+                                <label [attr.for]="'exchangeSettings_' + attribute.field_name">{{attribute.attribute_name}}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Exchange Mail Latency Test Settings -->
+<div *ngIf="serverAttributes" class="form-horizontal">
+    <div *ngIf="serverAttributes.device_type=='Exchange'">
+        <div class="panel panel-default">
+            <div class="panel-heading">Mail Latency Test Settings</div>
+            <div class="panel-body">
+                <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:mailLatencySettings">
+
+                    <div class="form-group" *ngIf="attribute.type!='CheckBox'">
+                        <label class="control-label col-sm-4">{{attribute.attribute_name}}</label>
+                        <div class="col-sm-2">
+                            <div *ngIf="attribute.type=='TextBox'">
+                                <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            {{attribute.unit_of_measurement}}
+                        </div>
+                    </div>
+                    <div class="form-group" *ngIf="attribute.type=='CheckBox'">
+                        <div class="col-sm-4">&nbsp;</div>
+                        <div class="col-sm-3">
+                            <div class="funkyradio">
+                                <input type="checkbox" [(ngModel)]="attribute.default_bool_values" value="attribute.default_bool_values" id="mailLatencySettings_{{attribute.field_name}}" name="mailLatencySettings_{{attribute.field_name}}">
+                                <label [attr.for]="'mailLatencySettings_' + attribute.field_name">{{attribute.attribute_name}}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Save -->
 <div class="form-horizontal">
     <button type="button" class="btn btn-primary" (click)="applySetting()">Save</button>
 
 </div>
 
-<wj-popup class="col-md-6 modal-content" #frmDialog>
-    <div class="panel panel-default">
-        <div class="panel-heading">
+<wj-popup style="border: 0px; width: 40%" #frmDialog>
+    <div class="modal-content">
+        <div class="modal-header">
             Credentials
             <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
         </div>
         <form (ngSubmit)="SaveCredential(addCredentialForm.value,frmDialog)" class="form-horizontal" [formGroup]="addCredentialForm">
-            <div class="panel-body">
+            <div class="modal-body">
 
                 <div class="form-group col-sm-12">
                     <label for="alias" class="control-label col-sm-2">Alias</label>
@@ -588,7 +656,7 @@
                 </div>
 
             </div>
-            <div class="panel-footer">
+            <div class="modal-footer">
                 <button type="submit" class="btn btn-primary"> Save </button>
                 <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
             </div>

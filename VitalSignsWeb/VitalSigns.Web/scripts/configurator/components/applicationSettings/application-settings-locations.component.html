@@ -56,18 +56,15 @@ data.pageIndex + 1 | number
         <wj-menu-item [value]="50">50</wj-menu-item>
     </wj-menu>
 </div>
-<wj-popup class="modal-content col-sm-5" #frmDialog>
+<wj-popup style="border: 0px; width: 820px" #frmDialog>
 
-    <div class="panel panel-default">
-        <div class="panel-heading">
+    <div class="modal-content">
+        <div class="modal-header">
             {{formTitle}}
             <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
         </div>
-
-
-
         <form (ngSubmit)="savelocations(frmDialog)" #frmUser="ngForm" class="form-horizontal">
-            <div class="panel-body" *ngIf="currentEditItem">
+            <div class="modal-body" *ngIf="currentEditItem">
                 <div class="form-group col-sm-12">
                     <label for="location_name" class="control-label col-sm-5">Location Name</label>
                     <div class="col-sm-7">
@@ -102,10 +99,10 @@ data.pageIndex + 1 | number
 
                 </div>
             </div>
-            <div class="panel-footer">
+            <div class="modal-footer">
                 <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
                 <button class="btn btn-primary wj-hide " type="button" (click)="cancelEditAdd()" name="cancel">Cancel</button>
             </div>
-        </form>
+        </form>      
     </div>
 </wj-popup>

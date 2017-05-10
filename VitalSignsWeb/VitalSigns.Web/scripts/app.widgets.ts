@@ -84,6 +84,7 @@ export * from './configurator/components/server/server-websphere-settings.compon
 
 
 export * from './configurator/components/server/server-domino-server-tasks.component'
+export * from './configurator/components/server/server-exchange-services.component'
 
 //alerts
 

@@ -53,6 +53,8 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
     usernameorPassword: string = "Optional Username/Password";
     usernamePwd: string = "Username/Password";
     dirsyncAttr: string = "Directory Sync Settings";
+    exchangeSettings: string = "Exchange Settings";
+    mailLatencySettings: string = "Mail Latency Settings";
     mode: string = "";
     visiblity: boolean;
     documentschecked: boolean;

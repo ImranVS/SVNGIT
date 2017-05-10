@@ -24,17 +24,17 @@
             <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [visible]="false"></wj-flex-grid-column>
         </wj-flex-grid>
 
-        <wj-popup class="col-md-8 modal-content" #frmDialogSend>
-            <div class="panel panel-default">
-                <div class="panel-heading">
+        <wj-popup style="border: 0px; width: 820px" #frmDialogSend>
+            <div class="modal-content">
+                <div class="modal-header">
                     {{formTitle}}
                     <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
                 </div>
                 <form (ngSubmit)="saveHoursDestinations(frmDialogSend)" #frmUser="ngForm" class="form-horizontal">
-                    <div class="panel-body">
+                    <div class="modal-body">
                         <div class="row">
                             <div class="form-group col-sm-6">
-                                <label for="business_hour" class="control-label col-sm-4">Hours</label>
+                                <label for="business_hour" class="control-label col-sm-5">Hours</label>
                                 <wj-combo-box name="business_hours_type" [itemsSource]="businesshours" [(text)]="formObject.business_hours_type"
                                               [(ngModel)]="formObject.business_hours_type">
                                 </wj-combo-box>
@@ -62,7 +62,7 @@
                         </div>
                         <div class="row">
                             <div class="form-group col-sm-6">
-                                <label for="alerting_mechanism" class="control-label col-sm-4">Alerting Mechanism</label>
+                                <label for="alerting_mechanism" class="control-label col-sm-5">Alerting Mechanism</label>
                                 <wj-combo-box name="alerting_mechanism" [itemsSource]="sendvia" [(text)]="formObject.send_via" #alerting_mechanism
                                               [(ngModel)]="formObject.send_via" (selectedIndexChanged)="onSendViaSelectedIndexChanged($event)">
                                 </wj-combo-box>
@@ -77,13 +77,14 @@
                         </div>
                         <div class="row">
                             <div class="form-group col-sm-6" *ngIf="isEmail">
-                                <div class="funkyradio col-sm-8">
+                                <div class="col-sm-2">&nbsp;</div>
+                                <div class="funkyradio col-sm-9">
                                     <div class="funkyradio-default">
                                         <input type="checkbox" id="persistent_notification" name="persistent_notification" [(ngModel)]="formObject.persistent_notification" />
                                         <label for="persistent_notification">Enable Persistent Notification</label>
                                     </div>
+                                </div>                    
                                 </div>
-                            </div>
                             <div class="form-group col-sm-6" *ngIf="isEmail">
                                 <label for="blind_copy_to" class="control-label col-sm-4">Blind Copy To</label>
                                 <div class="col-sm-8">
@@ -94,7 +95,7 @@
                         </div>
                     </div>
 
-                    <div class="panel-footer">
+                    <div class="modal-footer">
                         <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
                         <button class="btn btn-primary wj-hide" type="cancel" name="cancel" (click)="cancelEditAdd()">Cancel</button>
                     </div>

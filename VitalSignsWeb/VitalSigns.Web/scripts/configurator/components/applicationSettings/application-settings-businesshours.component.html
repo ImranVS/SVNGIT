@@ -66,17 +66,15 @@ data.pageIndex + 1 | number
     </wj-menu>
 </div>
 
-<wj-popup style="height:80%;overflow:auto" class="modal-content col-sm-8" #frmDialog>
-    <div class="panel panel-default">
-        <div class="panel-heading">
+<wj-popup style="border: 0px; width: 820px" #frmDialog>
+    <div class="modal-content">
+        <div class="modal-header">
             {{formTitle}}
             <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
         </div>
 
         <form (ngSubmit)="saveBusinessHour(frmDialog)" #frmUser="ngForm" class="form-horizontal">
-
-            <div class="panel-body">
-
+            <div class="modal-body">
                 <div class="row">
                     <div class="form-group col-sm-12">
                         <div class="radio radio-info radio-inline col-sm-12">
@@ -99,13 +97,13 @@ data.pageIndex + 1 | number
 
                 <div class="row">
                     <div class="form-group col-sm-4">
-                        <label for="name" class="control-label col-sm-2">Name</label>
-                        <div class="col-sm-7">
+                        <label for="name" class="control-label col-sm-3">Name</label>
+                        <div class="col-sm-9">
                             <input type="text" class="form-control" id="name" required name="name" [(ngModel)]="formObject.name">
                         </div>
                     </div>
                     <div class="form-group col-sm-4">
-                        <label for="start_time" class="control-label col-sm-4">Start Time</label>
+                        <label for="start_time" class="control-label col-sm-5">Start Time</label>
                         <div class="col-sm-7" *ngIf="formObject.start_time != null">
                             <wj-input-time [isEditable]="true" [(value)]="formObject.start_time" format="h:mm tt" id="start_time" name="start_time" #wjTimeCtrl></wj-input-time>
                             <!--<input type="text" class="form-control" id="start_time" required name="start_time" [(ngModel)]="currentEditItem.start_time">-->
@@ -170,13 +168,10 @@ data.pageIndex + 1 | number
                     </div>
                 </div>
             </div>
-
-            <div class="panel-footer">
+            <div class="modal-footer">
                 <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
                 <button class="btn btn-primary wj-hide" type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
             </div>
-
-
         </form>
     </div>
 </wj-popup>

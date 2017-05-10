@@ -18,7 +18,7 @@
         <div class="col-xs-12">
             <div class="widgetWrapper">
                 <div class="widgetContent">
-                    <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" headersVisibility="Column">
+                    <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" headersVisibility="Column">
                         <wj-flex-grid-filter></wj-flex-grid-filter>
                         <wj-flex-grid-column [header]="'Server Name'" [binding]="'device_name'" [width]="180"></wj-flex-grid-column>
 
@@ -128,6 +128,8 @@ data.pageIndex + 1 | number
                             <wj-menu-item [value]="10">10</wj-menu-item>
                             <wj-menu-item [value]="20">20</wj-menu-item>
                             <wj-menu-item [value]="50">50</wj-menu-item>
+                            <wj-menu-item [value]="100">100</wj-menu-item>
+                            <wj-menu-item [value]="200">200</wj-menu-item>
                         </wj-menu>
                     </div>
                 </div>

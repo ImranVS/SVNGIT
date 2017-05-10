@@ -21,9 +21,9 @@
             <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [visible]="false"></wj-flex-grid-column>
         </wj-flex-grid>
 
-        <wj-popup class="col-md-8 modal-content" #frmDialogEscalate>
-            <div class="panel panel-default">
-                <div class="panel-heading">
+        <wj-popup style="border: 0px; width: 820px" #frmDialogEscalate>
+            <div class="modal-content">
+                <div class="modal-header">
                     {{formTitle}}
                     <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
                 </div>
@@ -58,16 +58,17 @@
                         </div>
                         <div class="row">
                             <div class="form-group col-sm-6">
-                                <label for="interval" class="control-label col-sm-5">Escalation Interval (min)</label>
+                                <label for="interval" class="control-label col-sm-5">Escalation Interval</label>
                                 <div class="row col-sm-3">
                                     <input type="text" class="form-control" id="interval" name="interval" required [(ngModel)]="formObject.interval"
                                            onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
                                 </div>
+                                <label for="interval" class="control-label col-sm-3">minutes</label>
                             </div>
                         </div>
                     </div>
 
-                    <div class="panel-footer">
+                    <div class="modal-footer">
                         <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
                         <button class="btn btn-primary wj-hide" type="cancel" name="cancel" (click)="cancelEditAdd()">Cancel</button>
                     </div>

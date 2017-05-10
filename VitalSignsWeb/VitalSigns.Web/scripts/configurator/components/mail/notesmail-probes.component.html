@@ -85,14 +85,14 @@ data.pageIndex + 1 | number
                 </wj-menu>
             </div>
             <div>&nbsp;</div>
-            <wj-popup class="col-md-8 modal-content" style="height: 70%; overflow: auto" #frmDialogSend>
-                <div class="panel panel-default">
-                    <div class="panel-heading">
+            <wj-popup style="border: 0px; width: 80%; height: 80%" #frmDialogSend>
+                <div class="modal-content">
+                    <div class="modal-header">
                         {{formTitle}}
                         <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
                     </div>
                     <form (ngSubmit)="saveNotesMailProbes(frmDialogSend)" #frmUser="ngForm" class="form-horizontal">
-                        <div class="panel-body" *ngIf="currentEditItem">
+                        <div class="modal-body" *ngIf="currentEditItem">
                             <div class="col-sm-12">
                                 <div class="panel panel-default">
                                     <div class="panel-heading">General Attributes</div>
@@ -226,7 +226,7 @@ data.pageIndex + 1 | number
                                 </div>
                             </div>
                         </div>
-                        <div class="panel-footer">
+                        <div class="modal-footer">
                             <button class="btn btn-primary" type="submit" name="submit" [disabled]="!(frmUser.form.valid)">Save</button>
                             <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
                         </div>

@@ -54,6 +54,7 @@ export * from '../configurator/components/server/server-advanced-settings.compon
 export * from '../configurator/components/server/server-device-attributes.component'
 
 export * from '../configurator/components/server/server-domino-server-tasks.component'
+export * from '../configurator/components/server/server-exchange-services.component'
 
 export * from '../configurator/components/server/server-events.component'
 

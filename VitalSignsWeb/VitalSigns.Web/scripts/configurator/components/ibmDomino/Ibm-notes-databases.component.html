@@ -65,14 +65,14 @@ data.pageIndex + 1 | number
             </wj-menu>
         </div>
         <div>&nbsp;</div>
-        <wj-popup style="height:70%;overflow:auto" class="modal-content col-sm-10" #frmDialog>
-            <div class="panel panel-default">
-                <div class="panel-heading">
+        <wj-popup style="border: 0px; width: 80%; height: 70%" #frmDialog>
+            <div class="modal-content">
+                <div class="modal-header">
                     {{formTitle}}
                     <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
                 </div>
                 <form (ngSubmit)="saveNotesDatabase(frmDialog)" #frmUser="ngForm" class="form-horizontal">
-                    <div class="panel-body" *ngIf="currentEditItem">
+                    <div class="modal-body" *ngIf="currentEditItem">
                         <div class="row">
                             <div class="col-sm-7">
                                 <div class="panel panel-default">
@@ -243,7 +243,7 @@ data.pageIndex + 1 | number
                             </div>
                         </div>
                     </div>
-                    <div class="panel-footer">
+                    <div class="modal-footer">
                         <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
                         <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
                     </div>

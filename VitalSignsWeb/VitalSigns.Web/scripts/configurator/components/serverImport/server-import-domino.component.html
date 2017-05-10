@@ -144,8 +144,8 @@
                                         <!--<input type="checkbox" [(ngModel)]="attribute.default_value">-->
                                         <div class="funkyradio col-sm-6">
                                             <div class="funkyradio-default">
-                                                <input type="checkbox" id="'mailSettings_' + attribute.attribute_name" [(ngModel)]="attribute.default_bool_values" />
-                                                <label class="control-label" for="'mailSettings_' + attribute.attribute_name">{{attribute.attribute_name}}</label>
+                                                <input type="checkbox" id="mailSettings_{{attribute.attribute_name}}" [(ngModel)]="attribute.default_bool_values" />
+                                                <label class="control-label" [attr.for]="'mailSettings_' + attribute.attribute_name">{{attribute.attribute_name}}</label>
                                             </div>
                                         </div>
                                     </div>
