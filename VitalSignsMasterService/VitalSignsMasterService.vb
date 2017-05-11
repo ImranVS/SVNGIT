@@ -1993,36 +1993,13 @@ Public Class VSMaster
             Dim sql As String
             Dim isPriamry As Boolean = True
             Try
-
-                If Not (System.Configuration.ConfigurationManager.AppSettings("VSNodeName") Is Nothing) Then
-
-                    'Dim myConnectionString As New VSFramework.XMLOperation
-
-                    Dim NodeName As String = System.Configuration.ConfigurationManager.AppSettings("VSNodeName").ToString()
-                    'sql = "SELECT IsPrimaryNode From Nodes WHERE Name='" & NodeName & "'"
-
-                    'Dim dt As DataTable = vsobj.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), sql)
-                    'If (dt.Rows.Count > 0) Then
-                    '    isPriamry = Convert.ToBoolean(dt.Rows(0)(0).ToString())
-                    'End If
-                    Dim repoLiveNodes As New VSNext.Mongo.Repository.Repository(Of Nodes)(connectionString)
-                    Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Nodes) = repoLiveNodes.Filter.Eq(Function(i) i.Name, NodeName)
-                    Dim nodesListAlive As List(Of Nodes) = repoLiveNodes.Find(filterDef).ToList()
-                    For Each n As Nodes In nodesListAlive
-                        If n.IsPrimary Then
-                            isPriamry = True
-                        End If
-                    Next
+                If Not boolIsPrimary Then
+                    WriteAuditEntry(Now.ToString & " Service will not be started since it is not the primary node", LogUtilities.LogUtils.LogLevel.Verbose)
+                    Return
                 End If
-
             Catch ex As Exception
                 WriteAuditEntry(Now.ToString & " Error in StartService checking if Priamry Node.  Error: " & ex.Message)
             End Try
-
-            If Not isPriamry Then
-                Return
-            End If
-
         End If
         ' Find service
         WriteAuditEntry(Now.ToString & " Starting the " & ServiceName & " service.")
@@ -2446,30 +2423,18 @@ Public Class VSMaster
             '             boolCore64Service = False
             '         End If
             boolDominoService = True
-                boolMicrosoftService = True
+            boolMicrosoftService = True
             boolCore64Service = True
 
             Try
 
                 If Not (System.Configuration.ConfigurationManager.AppSettings("VSNodeName") Is Nothing) Then
-
-                    'Dim myConnectionString As New VSFramework.XMLOperation
-
                     Dim NodeName As String = System.Configuration.ConfigurationManager.AppSettings("VSNodeName").ToString()
-                    'strSQL = "SELECT IsPrimaryNode From Nodes WHERE Name='" & NodeName & "'"
 
-                    'dt = vsobj.FetchData(myConnectionString.GetDBConnectionString("VitalSigns"), strSQL)
-                    'If (dt.Rows.Count > 0) Then
-                    '    boolIsPrimary = Convert.ToBoolean(dt.Rows(0)(0).ToString())
-                    'End If
                     Dim repoLiveNodes As New VSNext.Mongo.Repository.Repository(Of Nodes)(connectionString)
                     Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Nodes) = repoLiveNodes.Filter.Eq(Function(i) i.Name, NodeName)
                     Dim nodesListAlive As List(Of Nodes) = repoLiveNodes.Find(filterDef).ToList()
-                    For Each n As Nodes In nodesListAlive
-                        If n.IsPrimary Then
-                            boolIsPrimary = True
-                        End If
-                    Next
+                    boolIsPrimary = nodesListAlive(0).IsPrimary
                 End If
             Catch ex As Exception
                 WriteAuditEntry(Now.ToString & " Error in SetBooleansOfServices checking if Priamry Node.  Error: " & ex.Message)

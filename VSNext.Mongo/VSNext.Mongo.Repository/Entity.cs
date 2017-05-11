@@ -37,7 +37,7 @@ namespace VSNext.Mongo.Repository
             {
                 if (_createdOn.HasValue)
                     return _createdOn.Value;
-                return ObjectId.CreationTime;
+                return ObjectId.CreationTime.ToLocalTime();
             }
             set
             {

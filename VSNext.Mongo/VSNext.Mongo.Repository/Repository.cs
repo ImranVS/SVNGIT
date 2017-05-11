@@ -153,7 +153,8 @@ namespace VSNext.Mongo.Repository
 
         public virtual void Replace(T entity, UpdateOptions updateOptions)
         {
-            Collection.ReplaceOne(i => i.Id == entity.Id, (T)ConvertDateTimesForReplace(entity), updateOptions);
+            //Collection.ReplaceOne(i => i.Id == entity.Id, (T)ConvertDateTimesForReplace(entity), updateOptions);
+            Collection.ReplaceOne(i => i.Id == entity.Id, entity, updateOptions);
         }
 
         public void Replace(IEnumerable<T> entities, UpdateOptions updateOptions)
@@ -285,9 +286,16 @@ namespace VSNext.Mongo.Repository
                         DateTime? dt = (DateTime?)(prop.GetValue(entity));
                         if (dt.HasValue && !dt.Value.Equals(DateTime.MinValue))
                         {
+                            prop.SetValue(entity, dt.Value.ToLocalTime());
+                        }
+                        /*
+                        DateTime? dt = (DateTime?)(prop.GetValue(entity));
+                        if (dt.HasValue && !dt.Value.Equals(DateTime.MinValue))
+                        {
                             prop.SetValue(entity, dt.Value.Add(dateTimeOffset));
                         }
                         DateTime? dt2 = (DateTime?)(prop.GetValue(entity));
+                        */
                     }
                 }
             }
@@ -321,12 +329,20 @@ namespace VSNext.Mongo.Repository
                 }
                 else
                 {
+
+                    DateTime? dt = (DateTime?)(prop.GetValue(entity));
+                    if (dt.HasValue && !dt.Value.Equals(DateTime.MinValue))
+                    {
+                        prop.SetValue(entity, dt.Value.ToLocalTime());
+                    }
+                    /*
                     DateTime? dt = (DateTime?)(prop.GetValue(entity));
                     if (dt.HasValue && !dt.Value.Equals(DateTime.MinValue))
                     {
                         prop.SetValue(entity, dt.Value.Subtract(dateTimeOffset));
                     }
                     DateTime? dt2 = (DateTime?)(prop.GetValue(entity));
+                    */
                 }
             }
             
