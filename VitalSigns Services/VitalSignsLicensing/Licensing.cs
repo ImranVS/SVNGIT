@@ -554,54 +554,32 @@ namespace VitalSignsLicensing
                 }
                 //appropriately set the primary node. If the configured primary goes down, set the other active node as primary
                 //if the node is configured to be primary and it's down, we need to set another node as primary
-                List<Nodes> nodesListPrimary = repoNodes.Find(i => i.IsAlive == false && i.IsConfiguredPrimary ==true && i.IsPrimary==true ).ToList();
-                if (nodesListPrimary.Count > 0)
+
+                List<Nodes> nodes = repoNodes.Find(x => true).ToList();
+                if(nodes.Where(x => x.IsConfiguredPrimary && x.IsAlive).Count() > 0)
                 {
-                    List<Nodes> nodesListAlive2 = repoNodes.Find(i => i.IsAlive == true && i.IsPrimary == false ).ToList();
-                    foreach (Nodes s in nodesListAlive2)
-                    {
-                            FilterDefinition<VSNext.Mongo.Entities.Nodes> filterdef = repoNodes.Filter.Where(i => i.Name == s.Name);
-                            UpdateDefinition<VSNext.Mongo.Entities.Nodes> updatedef = default(UpdateDefinition<VSNext.Mongo.Entities.Nodes>);
-                            updatedef = repoNodes.Updater
-                                .Set(i => i.IsPrimary, true );
-                            repoNodes.Update(filterdef, updatedef);
-                            break;
-                    }
+                    //Configured Primary is alive. Set to Primary and update rest to Secondary
+                    Nodes primaryNode = nodes.Where(x => x.IsConfiguredPrimary && x.IsAlive).First();
+                    primaryNode.IsPrimary = true;
+                    nodes.Where(x => x.Id != primaryNode.Id).ToList().ForEach(x => x.IsPrimary = false);
+                }
+                else if(nodes.Where(x => x.IsAlive).Count() > 0)
+                {
+                    Nodes primaryNode = nodes.Where(x => x.IsAlive).First();
+                    primaryNode.IsPrimary = true;
+                    nodes.Where(x => x.Id != primaryNode.Id).ToList().ForEach(x => x.IsPrimary = false);
+                }
+                else
+                {
+                    nodes.ForEach(x => x.IsPrimary = false);
                 }
 
-                //set the configured primary node as primary if it was not
-                List<Nodes> nodesListPrimary2 = repoNodes.Find(i => i.IsAlive == true  && i.IsConfiguredPrimary == true && i.IsPrimary == false).ToList();
-                foreach (Nodes s in nodesListPrimary2)
-                {
-                    FilterDefinition<VSNext.Mongo.Entities.Nodes> filterdef = repoNodes.Filter.Where(i => i.Name == s.Name);
-                    UpdateDefinition<VSNext.Mongo.Entities.Nodes> updatedef = default(UpdateDefinition<VSNext.Mongo.Entities.Nodes>);
-                    updatedef = repoNodes.Updater
-                        .Set(i => i.IsPrimary, true);
-                    repoNodes.Update(filterdef, updatedef);
-                    break;
-                }
-                //set rest other not primary
-                List<Nodes> nodesListPrimary3 = repoNodes.Find(i => i.IsAlive == true && i.IsConfiguredPrimary == false  && i.IsPrimary == true ).ToList();
-                foreach (Nodes s in nodesListPrimary3)
-                {
-                    FilterDefinition<VSNext.Mongo.Entities.Nodes> filterdef = repoNodes.Filter.Where(i => i.Name == s.Name);
-                    UpdateDefinition<VSNext.Mongo.Entities.Nodes> updatedef = default(UpdateDefinition<VSNext.Mongo.Entities.Nodes>);
-                    updatedef = repoNodes.Updater
-                        .Set(i => i.IsPrimary, false );
-                    repoNodes.Update(filterdef, updatedef);
-                    break;
-                }
-                List<Nodes> nodesListPrimary4 = repoNodes.Find(i => i.IsAlive == false  && i.IsPrimary == true).ToList();
-                foreach (Nodes s in nodesListPrimary4)
-                {
-                    FilterDefinition<VSNext.Mongo.Entities.Nodes> filterdef = repoNodes.Filter.Where(i => i.Name == s.Name);
-                    UpdateDefinition<VSNext.Mongo.Entities.Nodes> updatedef = default(UpdateDefinition<VSNext.Mongo.Entities.Nodes>);
-                    updatedef = repoNodes.Updater
-                        .Set(i => i.IsPrimary, false);
-                    repoNodes.Update(filterdef, updatedef);
-                    break;
-                }
-
+                foreach (Nodes node in nodes)
+                    repoNodes.Update(
+                        node,
+                        repoNodes.Updater.Set(x => x.IsPrimary, node.IsPrimary)
+                        );
+                
                 //code to trigger system message that master is not running
                 List<Nodes> nodesListAlive = repoNodes.Find(i => i.IsAlive == true).ToList();
                  string msg = "Master Service is not running";
