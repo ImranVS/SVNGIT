@@ -88,7 +88,20 @@ export class Nodes extends GridBase {
 
     }
     saveNodesHealth(dlg: wijmo.input.Popup) {
-        this.saveGridRow('/configurator/save_nodes_health', dlg);
+        //this.saveGridRow('/configurator/save_nodes_health', dlg);
+        this.service.put('/configurator/save_nodes_health', this.currentEditItem)
+            .subscribe(
+            response => {
+                if (response.status == "Success") {
+                    this.nodeNames = this.datetimeHelpers.toLocal(response.data);
+                    (<wijmo.collections.CollectionView>this.flex.collectionView).commitEdit();
+                    dlg.hide();
+                    this.appComponentService.showSuccessMessage(response.message);
+                }
+                else {
+                    this.appComponentService.showErrorMessage(response.message);
+                }
+            });
     }
     deleteNodesHealth() {
         this.delteGridRow('/configurator/delete_nodes_health/');
