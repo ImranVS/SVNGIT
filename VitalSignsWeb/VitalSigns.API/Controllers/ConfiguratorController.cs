@@ -5398,6 +5398,34 @@ namespace VitalSigns.API.Controllers
         }
         #endregion
 
+        [HttpPut("clear_alerts")]
+        public APIResponse ClearAlerts()
+        {
+            UpdateDefinition<EventsDetected> updateDef;
+
+            try
+            {
+                eventsdetectedRepository = new Repository<EventsDetected>(ConnectionString);
+                var builder = Builders<EventsDetected>.Filter;
+                //Find events for which notifications have gone out but which have not been cleared
+                var filter = builder.Exists("notifications_sent", true) & builder.Exists("notifications_sent.event_dismissed_sent", false) & builder.Exists("event_dismissed", false);
+                updateDef = eventsdetectedRepository.Updater
+                        .Set(p => p.NotificationsSent[-1].EventDismissedSent, DateTime.UtcNow)
+                        .Set(p => p.EventDismissed, DateTime.UtcNow);
+                var res = eventsdetectedRepository.Update(filter, updateDef);
+                //Find events for which notifications never went out
+                filter = builder.Exists("notifications_sent", false) & builder.Exists("event_dismissed", false);
+                updateDef = eventsdetectedRepository.Updater
+                        .Set(p => p.EventDismissed, DateTime.UtcNow);
+                res = eventsdetectedRepository.Update(filter, updateDef);
+                Response = Common.CreateResponse(true, "Success", "Past events have been cleared");
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Clearing events has failed .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
         #endregion
 
         #region Mail
