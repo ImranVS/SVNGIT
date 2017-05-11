@@ -1,5 +1,6 @@
 ﻿<form [formGroup]="alertSettings" (ngSubmit)="onSubmit(alertSettings.value)" class="form-horizontal">
     <button type="submit" class="btn btn-primary">Save</button>
+    <button type="button" class="btn btn-primary" (click)="clearEvents()">Clear Past Events</button>
     <div>&nbsp;</div>
     <div class="row">
         <div class="col-xs-12 col-md-4 col-sm-12 col-lg-4">
