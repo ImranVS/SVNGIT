@@ -33,6 +33,8 @@ export class AlertHistory implements OnInit {
     errorMessage: string;
     filterDate: string;
     notification_definitions: any;
+    loading1 = false;
+    loading2 = false;
 
     constructor(private service: RESTService, private route: ActivatedRoute, protected widgetService: WidgetService,
         protected datetimeHelpers: helpers.DateTimeHelper, protected toolTip: helpers.GridTooltip) { }
@@ -44,6 +46,8 @@ export class AlertHistory implements OnInit {
         if (this.data.pageSize != value) {
             this.data.pageSize = value;
             this.data.refresh();
+            this.flex.refresh();
+            this.toolTip.getTooltip(this.flex, 0, 7);
         }
     }
     ngOnInit() {
@@ -71,16 +75,19 @@ export class AlertHistory implements OnInit {
         var today = new Date();
         this.filterDate = today.toISOString().substr(0, 10);
         // Create custom tooltip
-        this.toolTip.getTooltip(this.flex, 0, 6);
+        this.toolTip.getTooltip(this.flex, 0, 7);
     }
 
     filterAlerts() {
+        this.loading1 = true;
         var dt = new Date(this.filterDate);
         this.service.get('/configurator/viewalerts?statdate=' + dt.toISOString().substr(0, 10))
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
                 this.data.pageSize = 10;
+                this.loading1 = false;
+                this.toolTip.getTooltip(this.flex, 0, 7);
             },
             (error) => this.errorMessage = <any>error
             );
@@ -88,11 +95,14 @@ export class AlertHistory implements OnInit {
     }
 
     filterAlertsByDef(notification_sel: wijmo.input.ComboBox) {
+        this.loading2 = true;
         this.service.get('/configurator/notifications_by_id?id=' + notification_sel.selectedValue)
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
                 this.data.pageSize = 10;
+                this.loading2 = false;
+                this.toolTip.getTooltip(this.flex, 0, 7);
             },
             (error) => this.errorMessage = <any>error
             );

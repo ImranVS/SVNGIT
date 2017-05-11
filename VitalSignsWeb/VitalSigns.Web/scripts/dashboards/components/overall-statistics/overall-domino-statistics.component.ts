@@ -23,6 +23,7 @@ export class DominoStatistics implements OnInit {
     errorMessage: string;
     filterDate: string;
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
+    loading = false;
     constructor(private service: RESTService, private route: ActivatedRoute) { }
 
     get pageSize(): number {
@@ -50,12 +51,14 @@ export class DominoStatistics implements OnInit {
 
     filterStats() {
         //console.log(this.filterDate);
+        this.loading = true;
         var dt = new Date(this.filterDate);
         this.service.get('/DashBoard/get_domino_statistics?statdate=' + dt.toISOString().substr(0, 10))
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
                 this.data.pageSize = 50;
+                this.loading = false;
             },
             (error) => this.errorMessage = <any>error
             );
