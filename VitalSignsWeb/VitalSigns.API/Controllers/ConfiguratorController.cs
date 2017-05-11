@@ -6219,28 +6219,48 @@ namespace VitalSigns.API.Controllers
         [HttpPut("save_nodes_health")]
         public APIResponse UpdateNodesHealth([FromBody]NodesModel nodeshealth)
         {
+            FilterDefinition<Nodes> filterDef;
+            UpdateDefinition<Nodes> updateDef;
             try
             {
                 nodesRepository = new Repository<Nodes>(ConnectionString);
+                //First, update all nodes except for the currently edited one, set is_configured_primary to false if nodeshealth.IsConfiguredPrimary == true
+                if (nodeshealth.IsConfiguredPrimary == true)
+                {
+                    filterDef = Builders<Nodes>.Filter.Where(p => p.Id != nodeshealth.Id);
+                    updateDef = nodesRepository.Updater.Set(p => p.IsConfiguredPrimary, false);
+                    var result1 = nodesRepository.Update(filterDef, updateDef);
+                }
+                //Next, update the currently edited node
+                filterDef = Builders<Nodes>.Filter.Where(p => p.Id == nodeshealth.Id);
+                updateDef = nodesRepository.Updater.Set(p => p.Name, nodeshealth.Name)
+                    .Set(p => p.HostName, nodeshealth.HostName)
+                    .Set(p => p.Pulse, nodeshealth.Pulse)
+                    .Set(p => p.IsAlive, nodeshealth.IsAlive)
+                    .Set(p => p.LoadFactor, nodeshealth.LoadFactor)
+                    .Set(p => p.IsConfiguredPrimary, nodeshealth.IsConfiguredPrimary)
+                    .Set(p => p.IsPrimary, nodeshealth.IsPrimary)
+                    .Set(p => p.Version, nodeshealth.Version)
+                    .Set(p => p.NodeType, nodeshealth.NodeType)
+                    .Set(p => p.Location, nodeshealth.Location);
+                var result = nodesRepository.Update(filterDef, updateDef);
 
-
-                FilterDefinition<Nodes> filterDefination = Builders<Nodes>.Filter.Where(p => p.Id == nodeshealth.Id);
-                var updateDefination = nodesRepository.Updater.Set(p => p.Name, nodeshealth.Name)
-                                                         .Set(p => p.HostName, nodeshealth.HostName)
-                                                         .Set(p => p.Pulse, nodeshealth.Pulse)
-                                                         .Set(p => p.IsAlive, nodeshealth.IsAlive)
-                                                         .Set(p => p.LoadFactor, nodeshealth.LoadFactor)
-                                                         .Set(p => p.IsConfiguredPrimary, nodeshealth.IsConfiguredPrimary)
-                                                         .Set(p => p.IsPrimary, nodeshealth.IsPrimary)
-                                                         .Set(p => p.Version, nodeshealth.Version)
-                                                         .Set(p => p.NodeType, nodeshealth.NodeType)
-                                                         .Set(p => p.Location, nodeshealth.Location);
-
-
-
-                var result = nodesRepository.Update(filterDefination, updateDefination);
-                Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Nodes health updated successfully");
-
+                var result_disp = nodesRepository.Collection.AsQueryable().Select(x => new NodesModel
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    HostName = x.HostName,
+                    Pulse = x.Pulse,
+                    IsAlive = x.IsAlive,
+                    Alive = x.IsAlive ? "Yes" : "No",
+                    LoadFactor = x.LoadFactor,
+                    IsConfiguredPrimary = x.IsConfiguredPrimary,
+                    IsPrimary = x.IsPrimary,
+                    Version = x.Version,
+                    NodeType = x.NodeType,
+                    Location = x.Location
+                }).ToList().OrderBy(x => x.Name);
+                Response = Common.CreateResponse(result_disp, Common.ResponseStatus.Success.ToDescription(), "Nodes health updated successfully");
             }
             catch (Exception exception)
             {
