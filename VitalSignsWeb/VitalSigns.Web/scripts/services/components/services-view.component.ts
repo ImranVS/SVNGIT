@@ -4,7 +4,7 @@ import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import {ActivatedRoute} from '@angular/router';
 import {Router} from '@angular/router';
 import {HttpModule}    from '@angular/http';
-
+import { AppComponentService } from '../../core/services';
 import {ServicesViewService} from '../services/services-view.service';
 import * as helpers from '../../core/services/helpers/helpers';
 
@@ -66,7 +66,7 @@ export class ServicesView implements OnInit, AfterViewChecked {
     public get searchLocation(): string {
         return this._searchLocation;
     } 
-
+    deviceId: string;
     errorMessage: string;
     module: string;
     status: string;
@@ -82,11 +82,13 @@ export class ServicesView implements OnInit, AfterViewChecked {
      postData: any;
      url: boolean;
      modal = true;
+     protected appComponentService: AppComponentService;
      constructor(
          private formBuilder: FormBuilder,
          private service: RESTService,
          private router: Router,
          private route: ActivatedRoute,
+         appComponentService: AppComponentService,
          private servicesViewService: ServicesViewService,
          private datetimeHelpers: helpers.DateTimeHelper
      ) {
@@ -103,7 +105,7 @@ export class ServicesView implements OnInit, AfterViewChecked {
             'category':['']
 
         });
-
+        this.appComponentService = appComponentService;
         this.servicesViewService.registerServicesView(this);
 
     }
@@ -185,5 +187,24 @@ export class ServicesView implements OnInit, AfterViewChecked {
             dlg.show();
 
         }
+    }
+
+    scanNow(elem: any) {
+        var deviceId = elem.name;
+        this.service.put('/Configurator/save_scan_now/' + deviceId, deviceId)
+            .subscribe(
+
+            response => {
+
+                if (response.status == "Success") {
+
+                    this.appComponentService.showSuccessMessage(response.message);
+
+                } else {
+
+                    this.appComponentService.showErrorMessage(response.message);
+                }
+            });
+
     }
 }

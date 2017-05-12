@@ -40,7 +40,7 @@
             </div>
         </div>
         <div id="serversListWrapper">
-            <div class="aServer" [class.active]="service.active" attr.data-status="{{service.status}}" *ngFor="let service of services |searchserverlist:searchText :searchType :searchStatus :searchLocation; let i = index;" (click)="selectService(service)">
+            <div class="aServer" [class.active]="service.active" attr.data-status="{{service.status}}" id="{{service.id}}" *ngFor="let service of services |searchserverlist:searchText :searchType :searchStatus :searchLocation; let i = index;" (click)="selectService(service)">
                 <div class="serverIcon">
                     <span class="helper"></span><img class="svgInject" src="{{service.icon}}" title="{{service.name}}" alt="{{service.name}}" />
                 </div>
@@ -51,6 +51,11 @@
                 <div class="statusIndicator"></div>
                 {{setFilterCount(i)}}
             </div>
+        </div>
+        <div class="hide" id="rmenu" #rmenu *ngIf="module == 'dashboard'">
+            <ul>
+                <li> <a (click)="scanNow(rmenu)">Scan Now</a></li>
+            </ul>
         </div>
     </div>
     <div class="twoColumn70 serverDetailWrapper" style="overflow-x: auto;">
