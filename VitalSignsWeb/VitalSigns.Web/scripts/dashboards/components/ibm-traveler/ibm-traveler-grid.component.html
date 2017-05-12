@@ -7,6 +7,7 @@
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
             <div [ngSwitch]="cell.item.traveler_status">
                 <span *ngSwitchCase="'OK'" class="label label-pill label-success">{{cell.item.traveler_status}}</span>
+                <span *ngSwitchCase="'Green'" class="label label-pill label-success">{{cell.item.traveler_status}}</span>
                 <span *ngSwitchCase="'Red'" class="label label-pill label-danger">{{cell.item.traveler_status}}</span>
                 <span *ngSwitchCase="'Fail'" class="label label-pill label-danger">{{cell.item.traveler_status}}</span>
                 <span *ngSwitchCase="'Issue'" class="label label-pill label-warning">{{cell.item.traveler_status}}</span>
