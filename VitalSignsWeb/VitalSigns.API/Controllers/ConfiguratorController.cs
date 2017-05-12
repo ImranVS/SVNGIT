@@ -8108,11 +8108,10 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-
                 FilterDefinition<Status> statusFilterDefination = Builders<Status>.Filter.Where(p => p.DeviceId == id);
                 statusRepository = new Repository<Status>(ConnectionString);
 
-
+                var temp = statusRepository.Find(statusFilterDefination).ToList();
                 var statusUpdateDefination = statusRepository.Updater.Set(p => p.Description, "Queued for immediate scanning...")
                                                                      .Set(p => p.Details, "Queued for immediate scanning...");
 
