@@ -6977,4 +6977,29 @@ button.close {
     display: none !important;
   }
 }
+
+.showcustom {
+    z-index:1000;
+    position: absolute;
+    display: block;
+    padding: 5px 5px 0px 5px;
+    margin: 2px 0 0;
+    float: left;
+    min-width: 160px;
+    font-size: 14px;
+    text-align: left;
+    list-style: none;
+    background-color: #fff;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+    border: 1px solid #ccc;
+    border: 1px solid rgba(0, 0, 0, .15);
+    border-radius: 4px;
+    -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+}
+
+.showcustom li{ list-style: none; }
+.showcustom a { border: 0 !important; text-decoration: none; }
+.showcustom a:hover { text-decoration: underline !important; }
 /*# sourceMappingURL=bootstrap.css.map */
