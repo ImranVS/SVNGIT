@@ -372,9 +372,6 @@ Update:
                                                                                  .[Set](Function(i) i.DeviceId, myURL.ServerObjectID)
             repo.Upsert(filterdef, updatedef)
 
-
-
-            WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " " & strSQL)
             'UpdateStatusTable(strSQL)
         Catch ex As Exception
             WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " URL Monitor Error while creating URL SQL statement: " & ex.Message & vbCrLf & strSQL)
@@ -610,101 +607,108 @@ Update:
         Dim elapsed As TimeSpan
         start = Now.Ticks
         Dim ResponseTime As Double = 0
-        ' Dim ChilkatHTTP As New Chilkat.Http
+        Dim ChilkatHTTP As New Chilkat.Http
         myURL.HTML = ""
-        'Try
-        '    Dim success As Boolean
-        '    success = ChilkatHTTP.UnlockComponent("MZLDADHttp_efwTynJYYR3X")
-        'Catch ex As Exception
-        '    WriteAuditEntry(Now.ToString & " Error unlocking Chilkat component: " & ex.ToString)
-        '    WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " Error unlocking component: " & ex.ToString)
-        'End Try
+        Try
+            Dim success As Boolean
+            success = ChilkatHTTP.UnlockComponent("MZLDADHttp_efwTynJYYR3X")
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Error unlocking Chilkat component: " & ex.ToString)
+            WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " Error unlocking component: " & ex.ToString)
+        End Try
 
-        'Try
-        '    Dim myRegistry As New RegistryHandler
-        '    If myRegistry.ReadFromRegistry("ProxyEnabled") = "True" Then
-        '        WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " Attempting to route through proxy server.")
-        '        ChilkatHTTP.SocksHostname = myRegistry.ReadFromRegistry("ProxyServer")
-        '        ChilkatHTTP.SocksPort = myRegistry.ReadFromRegistry("ProxyPort")
-        '        ChilkatHTTP.SocksUsername = myRegistry.ReadFromRegistry("ProxyUser")
-        '        ChilkatHTTP.SocksPassword = myRegistry.ReadFromRegistry("ProxyPassword")
-        '    End If
-        '    myRegistry = Nothing
-        'Catch ex As Exception
+        Try
+            Dim myRegistry As New RegistryHandler
+            If myRegistry.ReadFromRegistry("ProxyEnabled") = "True" Then
+                WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " Attempting to route through proxy server.")
+                ChilkatHTTP.SocksHostname = myRegistry.ReadFromRegistry("ProxyServer")
+                ChilkatHTTP.SocksPort = myRegistry.ReadFromRegistry("ProxyPort")
+                ChilkatHTTP.SocksUsername = myRegistry.ReadFromRegistry("ProxyUser")
+                ChilkatHTTP.SocksPassword = myRegistry.ReadFromRegistry("ProxyPassword")
+            End If
+            myRegistry = Nothing
+        Catch ex As Exception
 
-        'End Try
+        End Try
 
 
         Try
-            Dim h As System.Net.HttpWebRequest
-            h = CType(System.Net.WebRequest.Create(myURL.URL), System.Net.HttpWebRequest)
+            'Dim h As System.Net.HttpWebRequest
+            'h = CType(System.Net.WebRequest.Create(myURL.URL), System.Net.HttpWebRequest)
             If myURL.UserName <> "" Then
-                Dim c As New System.Net.NetworkCredential
-                c.UserName = myURL.UserName
-                c.Password = myURL.Password
+                'Dim c As New System.Net.NetworkCredential
+                'c.UserName = myURL.UserName
+                'c.Password = myURL.Password
                 WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " This URL requires a username and password.")
-                'ChilkatHTTP.Login = myURL.UserName
-                'ChilkatHTTP.Password = myURL.Password
-                h.Credentials = c
+                ChilkatHTTP.Login = myURL.UserName
+                ChilkatHTTP.Password = myURL.Password
+                ' h.Credentials = c
             End If
 
             Dim n As Integer
-            Dim r As System.Net.HttpWebResponse
+            'Dim r As System.Net.HttpWebResponse
             Do While myURL.HTML = ""
                 'myURL.HTML = ChilkatHTTP.QuickGetStr(myURL.URL)
                 Try
-                    r = h.GetResponse
+                    WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " before getting chilkat response ")
+                    myURL.HTML = ChilkatHTTP.QuickGetStr(myURL.URL)
+                    WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " after getting chilkat response code: " + ChilkatHTTP.LastStatus.ToString())
+                    WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " after getting chilkat response " + Left(myURL.HTML.ToString(), 100))
+                    'WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " before getting other response ")
+                    'r = h.GetResponse
+                    'WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " after getting response ")
                 Catch ex As Exception
+                    WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " exception getting response " + ex.Message.ToString())
                     myURL.ResponseDetails = ex.Message.ToString
                     myURL.Status = "Not Responding"
                     myURL.Description = ex.Message.ToString
                     myURL.ResponseTime = 0
-                    Exit Sub
+                    'Exit Sub
+
                 End Try
-                Dim s As New System.IO.StreamReader(r.GetResponseStream())
-                myURL.HTML = s.ReadToEnd()
+                'Dim s As New System.IO.StreamReader(r.GetResponseStream())
+                'myURL.HTML = s.ReadToEnd()
                 n += 1
                 Thread.Sleep(500)
                 If n > 15 Then Exit Do
             Loop
             If (myURL.HTML = "") Then
-                If (r IsNot Nothing AndAlso (r.StatusCode <> 200)) Then
-                    myURL.ResponseDetails = "Page returned with no data. "
+                If (ChilkatHTTP.LastStatus <> 200) Then
+                    myURL.ResponseDetails = "Page returned with no data."
                     myURL.Status = "Not Responding"
-                    myURL.Description = "Page returned with no data. "
+                    myURL.Description = "Page returned with no data."
                     myURL.ResponseTime = 0
                     Exit Sub
                 End If
             End If
-            'should cover all the 400's and 500's errors
-            'If (ChilkatHTTP.LastStatus > 399 And ChilkatHTTP.LastStatus < 600) Then
 
-            '	myURL.ResponseDetails = "URL returned with error code:" + ChilkatHTTP.LastStatus.ToString() + "."
-            '	myURL.Status = "Not Responding"
-            '	myURL.Description = "URL returned with error code:" + ChilkatHTTP.LastStatus.ToString() + "."
-            '	myURL.ResponseTime = 0
-            '	Exit Sub
-            'End If
+            If (ChilkatHTTP.LastStatus > 399 And ChilkatHTTP.LastStatus < 499) Then
 
-            If (r IsNot Nothing AndAlso (r.StatusCode > 399 And r.StatusCode < 500)) Then
-
-                myURL.ResponseDetails = "URL responded with error code:" + r.StatusCode.ToString() + " (" + r.StatusDescription + ")."
-                myURL.Status = "Issue"
-                myURL.Description = "URL responded with error code:" + r.StatusCode.ToString() + " (" + r.StatusDescription + ")."
+                myURL.ResponseDetails = "URL returned with error code:" + ChilkatHTTP.LastStatus.ToString() + "."
+                myURL.Status = "OK"
+                myURL.Description = "URL returned with error code:" + ChilkatHTTP.LastStatus.ToString() + "."
                 done = Now.Ticks
                 elapsed = New TimeSpan(done - start)
                 myURL.ResponseTime = elapsed.TotalMilliseconds
                 Exit Sub
             End If
+            'should cover all the 400's and 500's errors
+            If (ChilkatHTTP.LastStatus > 500 And ChilkatHTTP.LastStatus < 600) Then
 
-            If (r IsNot Nothing AndAlso (r.StatusCode >= 500 And r.StatusCode < 600)) Then
-
-                myURL.ResponseDetails = "URL returned with error code:" + r.StatusCode.ToString() + " (" + r.StatusDescription + ")."
+                myURL.ResponseDetails = "URL returned with error code:" + ChilkatHTTP.LastStatus.ToString() + "."
                 myURL.Status = "Not Responding"
-                myURL.Description = "URL returned with error code:" + r.StatusCode.ToString() + " (" + r.StatusDescription + ")."
+                myURL.Description = "URL returned with error code:" + ChilkatHTTP.LastStatus.ToString() + "."
                 myURL.ResponseTime = 0
                 Exit Sub
             End If
+            'If (r IsNot Nothing AndAlso (r.StatusCode > 399 And r.StatusCode < 600)) Then
+
+            '    myURL.ResponseDetails = "URL returned with error code:" + r.StatusCode.ToString() + " (" + r.StatusDescription + ")."
+            '    myURL.Status = "Not Responding"
+            '    myURL.Description = "URL returned with error code:" + r.StatusCode.ToString() + " (" + r.StatusDescription + ")."
+            '    myURL.ResponseTime = 0
+            '    Exit Sub
+            'End If
 
             done = Now.Ticks
             elapsed = New TimeSpan(done - start)

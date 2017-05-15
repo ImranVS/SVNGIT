@@ -1044,6 +1044,7 @@ Partial Public Class VitalSignsPlusCore
                         MySametimeServer.AlertCondition = False
                         MySametimeServer.Status = "Not Scanned"
                         MySametimeServer.IncrementUpCount()
+                        MySametimeServer.ServerType = VSNext.Mongo.Entities.Enums.ServerType.Sametime.ToDescription()
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " Error adding new empty stats collection to " & MySametimeServer.Name)
                     End Try
@@ -2015,10 +2016,11 @@ Partial Public Class VitalSignsPlusCore
                     End Try
 
                     Try
+                        Dim mySecrets As New VSFramework.TripleDES()
                         If entity.Password Is Nothing Then
                             .Password = ""
                         Else
-                            .Password = entity.Password
+                            .Password = mySecrets.Decrypt(entity.Password)
                         End If
                     Catch ex As Exception
                         .Password = ""
