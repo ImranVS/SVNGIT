@@ -84,7 +84,7 @@
 
     </div>
     <div class="form-horizontal" *ngIf="deviceType=='Sametime'">
-        <div class="panel panel-default" *ngIf="websphereplatform=='WebSphere'">
+        <!--<div class="panel panel-default" *ngIf="websphereplatform=='WebSphere'">
             <div class="panel-heading">WebSphere Settings</div>
                 <div class="panel-body">
 
@@ -152,9 +152,9 @@
                     <div class="col-sm-12">&nbsp;</div>
                     <wj-flex-grid #flex1 [itemsSource]="webSphereServerNodeData" selectionMode="Row" headersVisibility="Column">
                         <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'">
-                            <!--<template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                            <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
                                 <input type="checkbox" [ngModel]="cell.item.is_selected" (change)="serverCheck(cell.item.id,$event)" />
-                            </template>-->
+                            </template>
                         </wj-flex-grid-column>
                         <wj-flex-grid-column [header]="'Node Name'" [binding]="'node_name'" [visible]="false" [width]="180">
                         </wj-flex-grid-column>
@@ -199,7 +199,7 @@ webSphereServerNodeData.pageIndex + 1 | number
                         </wj-menu>
                     </div>
                 </div>
-            </div>
+            </div>-->
         <div class="panel panel-default">
             <div class="panel-heading"> Proxy Server Settings</div>
 
