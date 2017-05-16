@@ -318,11 +318,6 @@ namespace VitalSignsLicensing
                     List<AllServers> serverListNode = serverListAll.Where(x => x.IsEnabled == true && x.CurrentNode == s.Name && x.DeviceType == s1.DeviceType).ToList();
                     
                     //if load on the node is less or the node is set as preferred node
-                    if (serverListNode.Count == 0)
-                    {
-                        returnNode = s.Name;
-                        break;
-                    }
                     if (isLoadBalanced)
                         useLoadFactor = s.LoadFactor;
                     else
@@ -333,15 +328,6 @@ namespace VitalSignsLicensing
 
                     if ((nodeLoad < useLoadFactor) || (s1.AssignedNode != "" && isPreferredNodeAlive))
                     {
-                    //    //code to set the preferred node
-                    //    if (isPreferredNodeAlive && s.Name == s1.AssignedNode)
-                    //    {
-                    //        returnNode = s.Name;
-                    //        break;
-                    //    }
-                    //    returnNode = s.Name;
-                    //    break;
-                    //}
                         //code to set the preferred node
                         if (isPreferredNodeAlive)
                         {
