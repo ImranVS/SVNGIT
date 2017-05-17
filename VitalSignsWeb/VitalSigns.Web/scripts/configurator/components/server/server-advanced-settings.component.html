@@ -382,7 +382,8 @@ webSphereServerNodeData.pageIndex + 1 | number
                         <div class="col-sm-7">
 
                             <wj-combo-box [itemsSource]="ConnectionsCredentialData" displayMemberPath="text" selectedValuePath="value"
-                                          placeholder="Select Credentials" formControlName="database_settings_credentials_id" name="database_settings_credentials_id" [isEditable]="true" [isRequired]="false">
+                                          placeholder="Select Credentials" formControlName="database_settings_credentials_id" name="database_settings_credentials_id" 
+                                          [(ngModel)]="database_settings_credentials_id" [isEditable]="true" [isRequired]="false">
                             </wj-combo-box>
 
                         </div>

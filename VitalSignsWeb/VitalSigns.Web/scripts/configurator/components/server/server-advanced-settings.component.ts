@@ -34,6 +34,7 @@ export class ServerAdvancedSettings implements OnInit {
     nodes: FormGroup;
     limitsChecked: boolean;
     websphereData: any;
+    database_settings_credentials_id: any;
 
     constructor(
         private formBuilder: FormBuilder,
@@ -119,6 +120,7 @@ export class ServerAdvancedSettings implements OnInit {
                     this.webSphereServerNodeData.groupDescriptions.push(new wijmo.collections.PropertyGroupDescription("node_name"));
                     this.webSphereServerNodeData.pageSize = 10;
                 }
+                this.database_settings_credentials_id = response.data.results.database_settings_credentials_id;
                 this.deviceCredentialData = response.data.credentialsData;
                 this.wsDeviceCredentialData = response.data.wsCredentialsData;
                 this.websphereData = response.data.websphereData;
