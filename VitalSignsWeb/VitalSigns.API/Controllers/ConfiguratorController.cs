@@ -5426,6 +5426,26 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
+
+        [HttpPut("delete_alerts")]
+        public APIResponse DeleteAlerts()
+        {
+            FilterDefinition<EventsDetected> filterDef;
+            
+            try
+            {
+                eventsdetectedRepository = new Repository<EventsDetected>(ConnectionString);
+                Expression<Func<EventsDetected, bool>> expression = (x => x.Id != null);
+                filterDef = eventsdetectedRepository.Filter.Exists(x => x.Id, true);
+                eventsdetectedRepository.Delete(expression);
+                Response = Common.CreateResponse(true, "Success", "Past events have been deleted");
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Deleting events has failed .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
         #endregion
 
         #region Mail
