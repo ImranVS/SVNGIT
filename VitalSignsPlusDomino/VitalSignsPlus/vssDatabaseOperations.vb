@@ -1980,7 +1980,7 @@ Partial Public Class VitalSignsPlusDomino
 
             repo.Update(filterDef, repo.Updater.Set(Function(x) x.IsActive, False))
 
-            WriteAuditEntry(Now.ToString & " Active devices being set to true: " & String.Join(",", activeList.Select(Function(y) y.Id.ToString()).ToList()))
+            'WriteAuditEntry(Now.ToString & " Active devices being set to true: " & String.Join(",", activeList.Select(Function(y) y.Id.ToString()).ToList()))
 
             filterDef = repo.Filter.In(Function(x) x.Id, activeList.Select(Function(y) y.Id.ToString()).ToList())
             updateDef = repo.Updater.Set(Function(x) x.IsActive, True)
