@@ -74,6 +74,35 @@ Public Class TripleDES
         Dim myutf As UTF8Encoding = New UTF8Encoding
         Return myutf.GetString(result)
     End Function
+
+    Public Function Decrypt(ByVal encodedPassword As String) As String
+        Try
+            Dim strEncryptedPassword As String = encodedPassword
+            Dim passByte() As Byte
+            Dim decryptedPassword As String
+            Try
+                Dim str1() As String
+                str1 = strEncryptedPassword.Split(",")
+                Dim bstr1(str1.Length - 1) As Byte
+                For j As Integer = 0 To str1.Length - 1
+                    bstr1(j) = str1(j).ToString()
+                Next
+                passByte = bstr1
+            Catch ex As Exception
+
+            End Try
+
+            If Not passByte Is Nothing Then
+                decryptedPassword = Decrypt(passByte)  'password in clear text, stored in memory now
+            Else
+                decryptedPassword = ""
+            End If
+            Return decryptedPassword
+        Catch ex As Exception
+            Return ""
+        End Try
+    End Function
+
 End Class
 
 Public Class XMLOperation

@@ -2912,12 +2912,12 @@ Partial Public Class VitalSignsPlusCore
 
                     Try
                         If entity.ConsecutiveFailuresBeforeAlert Is Nothing Then
-                            .FailureThreshold = 3
+                            .FailureThreshold = 2
                         Else
                             .FailureThreshold = entity.ConsecutiveFailuresBeforeAlert
                         End If
                     Catch ex As Exception
-                        .FailureThreshold = 3
+                        .FailureThreshold = 2
                     End Try
 
                     Try

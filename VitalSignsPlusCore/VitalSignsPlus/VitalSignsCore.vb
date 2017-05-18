@@ -2831,9 +2831,9 @@ Public Class VitalSignsPlusCore
                         WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " Exception thrown while printing raw xml: " & ex2.Message.ToString())
                     End Try
 
-                    myServer.ResponseDetails = "The server never sent a response back.  Check the status of the server."
-                    myServer.Status = "Issue"
-                    myServer.StatusCode = "Issue"
+                    myServer.ResponseDetails = "The server never sent a response back."
+                    myServer.Status = "Not Responding"
+                    myServer.StatusCode = "Not Responding"
 
                     Cells = New VitalSignsWebSphereDLL.VitalSignsWebSphereDLL.Cells_ServerStats
                     Cells.Connectionstatus = "NOT CONNECTED"
@@ -2857,6 +2857,8 @@ Public Class VitalSignsPlusCore
                     WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " Could not connect to the cell. Name: " & myServer.ServerName)
                     Try
                         WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " raw xml for not connected: " + Cells.rawXml)
+                        WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " raw output for not connected: " + Cells.rawOuput)
+                        WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " raw error for not connected: " + Cells.rawError)
                     Catch ex2 As Exception
                         WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " Exception thrown while printing raw xml: " & ex2.Message.ToString())
                     End Try
@@ -2864,13 +2866,23 @@ Public Class VitalSignsPlusCore
                     myServer.Status = "Not Responding"
                     myServer.StatusCode = "Not Responding"
                     myServer.ResponseDetails = "Could not connect to the cell"
-                    SendWebSphereNotRespondingAlert(myServer, False)
+                    myServer.IncrementDownCount()
+                    myServer.AlertCondition = True
+                    If myServer.FailureCount >= myServer.FailureThreshold Then
+                        WriteAuditEntryWebSphere(Now.ToString & " Server has been down for " & myServer.FailureCount & " times in a row. Will queue an alert")
+                        SendWebSphereNotRespondingAlert(myServer, False)
+                    Else
+                        WriteAuditEntryWebSphere(Now.ToString & " Server has been down for " & myServer.FailureCount & " times in a row with a threshold of " & myServer.FailureThreshold & ". Will NOT queue an alert yet")
+                    End If
+
 
                 Else
                     If Cells.Cell.Nodes.Node.Servers.Server.Stats.Status.Value = "Not Reachable" Then
                         WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " Could not connectto the server. Name: " & myServer.ServerName)
                         Try
                             WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " raw xml for not reachable: " + Cells.rawXml)
+                            WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " raw output for not reachable: " + Cells.rawOuput)
+                            WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " raw error for not reachable: " + Cells.rawError)
                         Catch ex2 As Exception
                             WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " Exception thrown while printing raw xml: " & ex2.Message.ToString())
                         End Try
@@ -2878,10 +2890,19 @@ Public Class VitalSignsPlusCore
                         myServer.Status = "Not Responding"
                         myServer.StatusCode = "Not Responding"
                         myServer.ResponseDetails = "Could not connect to the server"
-                        SendWebSphereNotRespondingAlert(myServer, False)
+                        myServer.IncrementDownCount()
+                        myServer.AlertCondition = True
+                        If myServer.FailureCount >= myServer.FailureThreshold Then
+                            WriteAuditEntryWebSphere(Now.ToString & " Server has been down for " & myServer.FailureCount & " times in a row. Will queue an alert")
+                            SendWebSphereNotRespondingAlert(myServer, False)
+                        Else
+                            WriteAuditEntryWebSphere(Now.ToString & " Server has been down for " & myServer.FailureCount & " times in a row with a threshold of " & myServer.FailureThreshold & ". Will NOT queue an alert yet")
+                        End If
                     Else
 
                         WriteDeviceHistoryEntry("WebSphere", myServer.Name, Now.ToString & " Connected. Name: " & myServer.ServerName)
+                        myServer.IncrementUpCount()
+                        myServer.AlertCondition = False
                         SendWebSphereNotRespondingAlert(myServer, True)
 
                         Dim server As VitalSignsWebSphereDLL.VitalSignsWebSphereDLL.Server_ServerStats = Cells.Cell.Nodes.Node.Servers.Server

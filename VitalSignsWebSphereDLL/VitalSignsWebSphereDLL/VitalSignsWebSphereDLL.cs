@@ -11,7 +11,7 @@ namespace VitalSignsWebSphereDLL
 	public class VitalSignsWebSphereDLL
 	{
 
-		private string ExecuteCommand(string cmd, string AppClientFolder, string ServicePath, int timeoutSec = 60)
+		private Response ExecuteCommand(string cmd, string AppClientFolder, string ServicePath, int timeoutSec = 60)
 		{
 
 			System.Diagnostics.Process process = new System.Diagnostics.Process();
@@ -38,7 +38,12 @@ namespace VitalSignsWebSphereDLL
             LogUtilities.LogUtils.WriteDeviceHistoryEntry("All", "WebSphereDLL", DateTime.Now.ToString() + " Output from console: " + s + "\n\nError from console: " + p);
 
             System.Text.RegularExpressions.Match match = System.Text.RegularExpressions.Regex.Match(s, "<cells>.*<\\/cells>");
-            return match.Groups[0].Value;
+            Response response = new Response();
+            response.rawError = p;
+            response.rawOutput = s;
+            response.rawXml = match.Groups.Count > 0 ? match.Groups[0].Value : "";
+
+            return response;
 			//throw new Exception(cmd + "......" + AppClientFolder + "...." + ServicePath + "....." +s + "...." + p);
 		}
 
@@ -70,7 +75,7 @@ namespace VitalSignsWebSphereDLL
 			return obj;
 		}
 
-		private string ExecuteGetServerListCmd(CellProperties cellProperties, string AppClientFolder, string ServicePath)
+		private Response ExecuteGetServerListCmd(CellProperties cellProperties, string AppClientFolder, string ServicePath)
 		{
 
 			//string AppClientFolder = "C:\\Program Files (x86)\\IBM\\WebSphere\\AppClient\\";
@@ -88,7 +93,7 @@ namespace VitalSignsWebSphereDLL
 			return ExecuteCommand(pathToBatch + "" + arguments, AppClientFolder, ServicePath, 60);
 		}
 
-		private string ExecuteGetServerStatsCmd(MonitoredItems.WebSphere cellProperties, string AppClientFolder, string ServicePath)
+		private Response ExecuteGetServerStatsCmd(MonitoredItems.WebSphere cellProperties, string AppClientFolder, string ServicePath)
 		{
 
 			//string AppClientFolder = "C:\\Program Files (x86)\\IBM\\WebSphere\\AppClient\\";
@@ -164,11 +169,23 @@ namespace VitalSignsWebSphereDLL
 					ServicePath += "\\";
 
 
-				string result = ExecuteGetServerListCmd(cellProperties, AppClientPath, ServicePath);
+				Response result = ExecuteGetServerListCmd(cellProperties, AppClientPath, ServicePath);
 
-				Cells cells = (Cells)DecodeXMLFromString(result, typeof(Cells));
-
-				int id = cellProperties.ID;
+                //Cells cells = (Cells)DecodeXMLFromString(result, typeof(Cells));
+                Cells cells;
+                try
+                {
+                    cells = (Cells)DecodeXMLFromString(result.rawXml, typeof(Cells));
+                }
+                catch (Exception ex)
+                {
+                    cells = new Cells();
+                }
+                cells.rawXml = result.rawXml;
+                cells.rawOuput = result.rawOutput;
+                cells.rawError = result.rawError;
+                return cells;
+                int id = cellProperties.ID;
 
 				return cells;
 			}
@@ -231,10 +248,20 @@ namespace VitalSignsWebSphereDLL
 					ServicePath += "\\";
 
 
-				string result = ExecuteGetServerStatsCmd(serverProperties, AppClientPath, ServicePath);
+                Response result = ExecuteGetServerStatsCmd(serverProperties, AppClientPath, ServicePath);
 
-                Cells_ServerStats cell = (Cells_ServerStats)DecodeXMLFromString(result, typeof(Cells_ServerStats));
-                cell.rawXml = result;
+                Cells_ServerStats cell;
+                try
+                {
+                    cell = (Cells_ServerStats)DecodeXMLFromString(result.rawXml, typeof(Cells_ServerStats));
+                }
+                catch(Exception ex)
+                {
+                    cell = new Cells_ServerStats();
+                }
+                cell.rawXml = result.rawXml;
+                cell.rawOuput = result.rawOutput;
+                cell.rawError = result.rawError;
 				return cell;
 			}
 			catch (Exception ex)
@@ -283,6 +310,14 @@ namespace VitalSignsWebSphereDLL
 
 		#region SupportClasses
 
+
+        private class Response
+        {
+            public string rawResponse;
+            public string rawXml;
+            public string rawOutput;
+            public string rawError;
+        }
 		public class CellProperties
 		{
 			public string HostName;
@@ -356,13 +391,17 @@ namespace VitalSignsWebSphereDLL
 			public string TimeStamp { get; set; }
 			[XmlElement(ElementName = "connection-status")]
 			public string Connection_Status { get; set; }
-		}
 
-		#endregion
+            public string rawXml;
+            public string rawOuput;
+            public string rawError;
+        }
 
-		#region GET_SERVER_STATS
+        #endregion
 
-		[XmlRoot(ElementName = "status")]
+        #region GET_SERVER_STATS
+
+        [XmlRoot(ElementName = "status")]
 		public class Status
 		{
 			[XmlAttribute(AttributeName = "value")]
@@ -565,6 +604,8 @@ namespace VitalSignsWebSphereDLL
 			public Cell_ServerStats Cell { get; set; }
 
             public string rawXml;
+            public string rawOuput;
+            public string rawError;
         }
 
 		#endregion
