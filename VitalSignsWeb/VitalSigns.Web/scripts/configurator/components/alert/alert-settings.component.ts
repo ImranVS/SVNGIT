@@ -335,24 +335,4 @@ export class AlertSettings extends GridBase implements WidgetComponent, OnInit {
             });
     }
 
-    clearEvents() {
-        var selected_events = this.selected_events;
-        var alert_settings = this.alertSettings.value;
-        this.dataProvider.put('/configurator/clear_alerts', {})
-            .subscribe(
-            response => {
-                if (response.status == "Success") {
-                    this.appComponentService.showSuccessMessage(response.message);
-                }
-                else {
-                    this.appComponentService.showErrorMessage(response.message);
-                }
-                this.alertSettings.value.primary_modified = false;
-                this.alertSettings.value.secondary_modified = false;
-            },
-            (error) => {
-                this.errorMessage = <any>error
-                this.appComponentService.showErrorMessage(this.errorMessage);
-            });
-    }
 }

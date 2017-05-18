@@ -5,12 +5,12 @@ import {WidgetComponent} from '../../../core/widgets';
 import {WidgetService} from '../../../core/widgets/services/widget.service';
 import {RESTService} from '../../../core/services';
 import {AppNavigator} from '../../../navigation/app.navigator.component';
-
+import { AppComponentService } from '../../../core/services';
+import { GridBase } from '../../../core/gridBase';
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
 import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
 import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
-
 import * as helpers from '../../../core/services/helpers/helpers';
 
 declare var injectSVG: any;
@@ -25,7 +25,7 @@ declare var injectSVG: any;
         helpers.GridTooltip
     ]
 })
-export class AlertHistory implements OnInit {
+export class AlertHistory extends GridBase implements WidgetComponent, OnInit {
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     @Input() settings: any;
     deviceId: any;
@@ -36,8 +36,10 @@ export class AlertHistory implements OnInit {
     loading1 = false;
     loading2 = false;
 
-    constructor(private service: RESTService, private route: ActivatedRoute, protected widgetService: WidgetService,
-        protected datetimeHelpers: helpers.DateTimeHelper, protected toolTip: helpers.GridTooltip) { }
+    constructor(private dataProvider: RESTService, private route: ActivatedRoute, protected widgetService: WidgetService,
+        protected datetimeHelpers: helpers.DateTimeHelper, protected toolTip: helpers.GridTooltip, appComponentService: AppComponentService) {
+        super(dataProvider, appComponentService);
+    }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -108,7 +110,38 @@ export class AlertHistory implements OnInit {
             );
 
     }
+
+    clearEvents() {
+        this.service.put('/configurator/clear_alerts', {})
+            .subscribe(
+            response => {
+                if (response.status == "Success") {
+                    this.appComponentService.showSuccessMessage(response.message);
+                }
+                else {
+                    this.appComponentService.showErrorMessage(response.message);
+                }
+            },
+            (error) => {
+                this.errorMessage = <any>error
+                this.appComponentService.showErrorMessage(this.errorMessage);
+            });
+    }
+
+    deleteEvents() {
+        this.service.put('/configurator/delete_alerts', {})
+            .subscribe(
+            response => {
+                if (response.status == "Success") {
+                    this.appComponentService.showSuccessMessage(response.message);
+                }
+                else {
+                    this.appComponentService.showErrorMessage(response.message);
+                }
+            },
+            (error) => {
+                this.errorMessage = <any>error
+                this.appComponentService.showErrorMessage(this.errorMessage);
+            });
+    }
 }
-
-
-
