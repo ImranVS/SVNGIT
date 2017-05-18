@@ -1222,7 +1222,7 @@ namespace VitalSignsMicrosoftClasses
 			try
 			{
                 VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.MobileDevices> repositoryMobileDevices = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.MobileDevices>(db.GetMongoConnectionString());
-                List<VSNext.Mongo.Entities.MobileDevices> tempList = repositoryMobileDevices.Find(x => true).ToList();
+                List<VSNext.Mongo.Entities.MobileDevices> tempList = repositoryMobileDevices.Find(repositoryMobileDevices.Filter.Exists(x => x.ThresholdSyncTime)).ToList();
                 foreach(VSNext.Mongo.Entities.MobileDevices entity in tempList)
                 {
                     if (keyDevices == "")
