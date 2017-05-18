@@ -1046,15 +1046,33 @@ Public Class VitalSignsDailyTasks
 
     Public Sub DailyBackup()
         Dim LogFilesToBeRecreated() As String = {"History.txt", "Daily_Tasks_Log.txt"}
+        Dim LogFilePath As String
+        Dim registry As New VSFramework.RegistryHandler
         If MyLogLevel = LogLevel.Verbose Then
             WriteAuditEntry(Now.ToString & " ***** Starting Daily Log File Zip Up ******* ")
             WriteAuditEntry(vbCrLf)
         End If
 
+        Try
+            LogFilePath = registry.ReadFromRegistry("Log Files Path-New")
+            If LogFilePath.Trim() = "" Then
+                LogFilePath = AppDomain.CurrentDomain.BaseDirectory.ToString() + "Log_Files\"
+            End If
+
+            If Not LogFilePath.EndsWith("\") Then
+                LogFilePath += "\"
+            End If
+
+        Catch ex As Exception
+            LogFilePath = AppDomain.CurrentDomain.BaseDirectory.ToString() + "Log_Files\"
+        End Try
+
+
+
         'Create the backup directory
         Try
-            If Not Directory.Exists(strAppPath & "\Log_Files\Backup\") Then
-                Directory.CreateDirectory(strAppPath & "\Log_Files\Backup\")
+            If Not Directory.Exists(LogFilePath & "Backup\") Then
+                Directory.CreateDirectory(LogFilePath & "Backup\")
             End If
         Catch ex As Exception
 
@@ -1074,7 +1092,7 @@ Public Class VitalSignsDailyTasks
             Next
             fileArray = Nothing
 
-            Dim ExchangeFolders As String() = Directory.GetDirectories(strAppPath & "\Log_Files\Backup\")
+            Dim ExchangeFolders As String() = Directory.GetDirectories(LogFilePath & "Backup\")
             Dim myFolder As String
             For Each myFolder In ExchangeFolders
                 My.Computer.FileSystem.DeleteDirectory(myFolder, FileIO.DeleteDirectoryOption.DeleteAllContents)
@@ -1093,11 +1111,11 @@ Public Class VitalSignsDailyTasks
 
             Dim fileArray As String()
             WriteAuditEntry(Now.ToString + " Moving the current log files to the backup folder")
-            fileArray = Directory.GetFiles(strAppPath & "\Log_Files\", "*.txt")
+            fileArray = Directory.GetFiles(LogFilePath & "", "*.txt")
 
             Dim myFile As String
             For Each myFile In fileArray
-                Dim dest As String = Path.Combine(strAppPath & "\Log_Files\backup\", Path.GetFileName(myFile))
+                Dim dest As String = Path.Combine(LogFilePath & "backup\", Path.GetFileName(myFile))
                 WriteAuditEntry(Now.ToString + " Moving " & myFile & " to " & dest)
                 File.Move(myFile, dest)
                 If Array.IndexOf(LogFilesToBeRecreated, Path.GetFileName(myFile)) > -1 Then
@@ -1107,14 +1125,14 @@ Public Class VitalSignsDailyTasks
             Next
             fileArray = Nothing
 
-            Dim ExchangeFolders As String() = Directory.GetDirectories(strAppPath & "\Log_Files\")
+            Dim ExchangeFolders As String() = Directory.GetDirectories(LogFilePath & "")
 
             Dim folder As String
             For Each folder In ExchangeFolders
                 If (Path.GetFileName(folder).ToLower() = "backup") Then
                     Continue For
                 End If
-                Dim destFolder As String = strAppPath & "\Log_Files\backup\" & Path.GetFileName(folder) & ""
+                Dim destFolder As String = LogFilePath & "backup\" & Path.GetFileName(folder) & ""
                 If (My.Computer.FileSystem.DirectoryExists(destFolder) = False) Then
                     My.Computer.FileSystem.CreateDirectory(destFolder)
                 End If
@@ -1132,7 +1150,7 @@ Public Class VitalSignsDailyTasks
         'Delete previous zip file
         Try
             Dim myzipfile As String = ""
-            myzipfile = strAppPath & "\Log_Files\backup\" & Now.DayOfWeek.ToString & ".zip"
+            myzipfile = LogFilePath & "backup\" & Now.DayOfWeek.ToString & ".zip"
             WriteAuditEntry(Now.ToString + " Deleting prior week's zip file, if present.")
             File.Delete(myzipfile)
         Catch ex As Exception
@@ -1145,7 +1163,7 @@ Public Class VitalSignsDailyTasks
             Dim myZip As New ZipFile
             Dim zipFileArray As String()
             WriteAuditEntry(Now.ToString + " Creating new zip file")
-            zipFileArray = Directory.GetFiles(strAppPath & "\Log_Files\backup\", "*.txt")
+            zipFileArray = Directory.GetFiles(LogFilePath & "backup\", "*.txt")
             Dim myFile As String
             Try
                 For Each myFile In zipFileArray
@@ -1158,7 +1176,7 @@ Public Class VitalSignsDailyTasks
             End Try
 
             Dim zipFolderArray As String()
-            zipFolderArray = Directory.GetDirectories(strAppPath & "\Log_Files\backup\")
+            zipFolderArray = Directory.GetDirectories(LogFilePath & "backup\")
             Dim myFolder As String
             Try
                 For Each myFolder In zipFolderArray
@@ -1169,7 +1187,7 @@ Public Class VitalSignsDailyTasks
                 WriteAuditEntry(Now.ToString + " Error zipping folders: " & ex.ToString)
             End Try
 
-            myZip.Save(strAppPath & "\Log_Files\backup\" & Now.DayOfWeek.ToString & ".zip")
+            myZip.Save(LogFilePath & "backup\" & Now.DayOfWeek.ToString & ".zip")
             WriteAuditEntry(Now.ToString + " The zip file is created as " & Now.DayOfWeek.ToString & ".zip")
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Error creating zip file: ")
@@ -1179,7 +1197,7 @@ Public Class VitalSignsDailyTasks
         Try
             WriteAuditEntry(Now.ToString + " Deleting the backup log files. ")
             Dim fileArray As String()
-            fileArray = Directory.GetFiles(strAppPath & "\Log_Files\Backup", "*.txt")
+            fileArray = Directory.GetFiles(LogFilePath & "Backup", "*.txt")
 
             Dim myFile As String
             For Each myFile In fileArray
@@ -1187,7 +1205,7 @@ Public Class VitalSignsDailyTasks
                 File.Delete(myFile)
             Next
 
-            Dim ExchangeFolders As String() = Directory.GetDirectories(strAppPath & "\Log_Files\Backup\")
+            Dim ExchangeFolders As String() = Directory.GetDirectories(LogFilePath & "Backup\")
             Dim myFolder As String
             For Each myFolder In ExchangeFolders
                 WriteAuditEntry(Now.ToString + " Deleting " & myFolder & "...")
@@ -1198,38 +1216,6 @@ Public Class VitalSignsDailyTasks
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Error cleaning up the current log files " & ex.ToString)
         End Try
-
-
-        '' Delete the log files from the current directory as well except the DailyBackup 
-        'Try
-        '	WriteAuditEntry(Now.ToString + " Deleting the backup log files. ")
-        '	Dim fileArray As String()
-        '	fileArray = Directory.GetFiles(strAppPath & "\Log_Files", "*.txt")
-
-        '	Dim myFile As String
-        '	For Each myFile In fileArray
-        '		'If myFile.Contains("Daily_Tasks_Log.txt") Then
-        '		'WriteAuditEntry(Now.ToString + " NOT Deleting " & myFile & "....")
-        '		'Else
-        '		WriteAuditEntry(Now.ToString + " Deleting " & myFile & "....")
-        '		File.Delete(myFile)
-        '		'End If
-        '	Next
-
-        '	Dim ExchangeFolders As String() = Directory.GetDirectories(strAppPath & "\Log_Files")
-        '	Dim myFolder As String
-        '	For Each myFolder In ExchangeFolders
-        '		If (Path.GetFileName(myFolder).ToLower() = "backup") Then
-        '			Continue For
-        '		End If
-        '		WriteAuditEntry(Now.ToString + " Deleting " & myFolder & "...")
-        '		My.Computer.FileSystem.DeleteDirectory(myFolder, FileIO.DeleteDirectoryOption.DeleteAllContents)
-        '	Next
-        '	ExchangeFolders = Nothing
-        'Catch ex As Exception
-        '	WriteAuditEntry(Now.ToString & " Error cleaning up the current log files " & ex.ToString)
-        'End Try
-
 
         If MyLogLevel = LogLevel.Verbose Then
             WriteAuditEntry(Now.ToString & " Finished Daily log file zip up.")
