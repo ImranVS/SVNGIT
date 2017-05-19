@@ -6959,7 +6959,36 @@ namespace VitalSigns.API.Controllers
                             cellInfo.Password = mySecrets.Decrypt(password);
                             cellInfo.UserName = credential.UserId;
 
-                            var cells = getServerList(cellInfo);
+
+                            VitalSignsWebSphereDLL.VitalSignsWebSphereDLL dll = new VitalSignsWebSphereDLL.VitalSignsWebSphereDLL();
+                            VitalSignsWebSphereDLL.VitalSignsWebSphereDLL.CellProperties cellprop = new VitalSignsWebSphereDLL.VitalSignsWebSphereDLL.CellProperties();
+                            cellprop.HostName = cellInfo.HostName;
+                            cellprop.Port = Convert.ToInt32(cellInfo.PortNo == null ? 0 : cellInfo.PortNo);
+                            cellprop.ConnectionType = cellInfo.ConnectionType;
+                            cellprop.UserName = cellInfo.UserName;
+                            cellprop.Password = cellInfo.Password;
+                            cellprop.Realm = cellInfo.Realm;
+
+                            nameValueRepository = new Repository<NameValue>(ConnectionString);
+                            filterdef = Builders<NameValue>.Filter.Where(p => p.Name == "WebSphereAppClientPath");
+                            var apppath = nameValueRepository.Find(filterdef).Select(x => x.Value).FirstOrDefault();
+                            if (apppath != null)
+                            {
+                                AppClientPath = apppath.ToString();
+                            }
+                            filterdef = Builders<NameValue>.Filter.Where(p => p.Name == "InstallLocation");
+                            var servicepath = nameValueRepository.Find(filterdef).Select(x => x.Value).FirstOrDefault();
+                            if (servicepath != null)
+                            {
+                                ServicePath = servicepath.ToString();
+                            }
+                            var cells = dll.getServerList(cellprop, AppClientPath, ServicePath);
+
+
+
+
+
+                            //var cells = getServerList(cellInfo);
                             foreach (var cell in cells.Cell)
                             {
                                 List<WebSphereNode> nodes = new List<WebSphereNode>();
