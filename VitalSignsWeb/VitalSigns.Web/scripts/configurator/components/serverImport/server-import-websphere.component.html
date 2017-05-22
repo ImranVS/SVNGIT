@@ -29,7 +29,7 @@
                     <wj-flex-grid-column [header]="'Port No.'" [binding]="'port_no'" [width]="100"></wj-flex-grid-column>
                     <wj-flex-grid-column [header]="'Global Security'" [binding]="'global_security'" [width]="150"></wj-flex-grid-column>
                     <wj-flex-grid-column [header]="'Credentials'" [binding]="'credentials_name'" [width]="200"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Realm'" [binding]="'realm'" [width]="200"></wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Realm'" [binding]="'realm'" [visible]="false" [width]="200"></wj-flex-grid-column>
                 </wj-flex-grid>
                 <div class="btn-group" *ngIf="data != null">
                     <button type="button" class="btn btn-default"
@@ -72,6 +72,8 @@ data.pageIndex + 1 | number
                         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
                             <input type="checkbox" [ngModel]="cell.item.is_selected" (change)="serverCheck(cell.item.id,$event)" />
                         </template>
+                    </wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Cell Name'" [binding]="'cell_name'" [visible]="false" [width]="180">
                     </wj-flex-grid-column>
                     <wj-flex-grid-column [header]="'Node Name'" [binding]="'node_name'" [visible]="false" [width]="180">
                     </wj-flex-grid-column>
