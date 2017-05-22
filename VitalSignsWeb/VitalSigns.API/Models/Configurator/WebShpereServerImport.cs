@@ -83,6 +83,10 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("node_name")]
         public string NodeName { get; set; }
+
+        [JsonProperty("cell_name")]
+        public string CellName { get; set; }
+
         [JsonProperty("server_name")]
         public string ServerName { get; set; }
 

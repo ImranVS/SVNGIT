@@ -7011,14 +7011,15 @@ namespace VitalSigns.API.Controllers
                                     }
                                     nodes.Add(node);
                                 }
-                                FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == cellInfo.DeviceId);
+                                FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.DeviceName == cellInfo.Name);
                                 var updateDefination = serversRepository.Updater.Set(p => p.CellName, cell.Name).Set(p => p.Nodes, nodes);
-                                //  var result = serversRepository.Update(filterDefination, updateDefination);
+                                var result = serversRepository.Update(filterDefination, updateDefination);
+                                Response = GetWebSphereImportData();
                             }
                         }
                         else
                         {
-                            errorMessage = "Notes password may not be empty. Please update the password under Stored Passwords & Options\\IBM Domino Settings.";
+                            errorMessage = "Credentials may not be empty. Please enter credentials under Application Settings\\Credentials.";
                             throw new Exception(errorMessage);
                         }
 
@@ -7027,13 +7028,13 @@ namespace VitalSigns.API.Controllers
                 }
                 catch (Exception exception)
                 {
-                    Response = Common.CreateResponse(null, "Error", "Deletion of server credentials has failed.\n Error Message :" + exception.Message);
+                    Response = Common.CreateResponse(null, "Error", "Getting WebSphere nodes has failed.\n Error Message :" + exception.Message);
                 }
 
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Deletion of server credentials has failed.\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Getting WebSphere nodes has failed.\n Error Message :" + exception.Message);
             }
 
             return Response;
@@ -7240,6 +7241,7 @@ namespace VitalSigns.API.Controllers
                                 node.ServerName = webSphereServer.ServerName;
                                 node.HostName = webSphereNode.HostName;
                                 node.CellId = cell.CellId;
+                                node.CellName = cell.Name;
                                 cell.NodesData.Add(node);
                             }
                         }
