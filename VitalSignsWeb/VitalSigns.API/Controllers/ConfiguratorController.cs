@@ -7239,6 +7239,7 @@ namespace VitalSigns.API.Controllers
                 foreach (var server in servers)
                 {
                     CellInfo cell = new CellInfo();
+                    cell.DeviceId = server.Id;
                     cell.CellId = server.Id;
                     cell.CellName = server.CellName;
                     cell.Name = server.DeviceName;
@@ -7248,22 +7249,25 @@ namespace VitalSigns.API.Controllers
                     cell.GlobalSecurity = server.GlobalSecurity;
                     cell.CredentialsId = server.CredentialsId;
                     cell.Realm = server.Realm;
-                    cell.NodesData = new List<NodeInfo>();
-                    foreach (var webSphereNode in server.Nodes)
+                    if (server.Nodes != null)
                     {
-                        foreach (var webSphereServer in webSphereNode.WebSphereServers)
+                        cell.NodesData = new List<NodeInfo>();
+                        foreach (var webSphereNode in server.Nodes)
                         {
-                            if (serversRepository.Collection.AsQueryable().Where(x => x.Id == webSphereServer.ServerId).Count() == 0)
+                            foreach (var webSphereServer in webSphereNode.WebSphereServers)
                             {
-                                NodeInfo node = new NodeInfo();
-                                node.NodeId = webSphereNode.NodeId;
-                                node.NodeName = webSphereNode.NodeName;
-                                node.ServerId = webSphereServer.ServerId;
-                                node.ServerName = webSphereServer.ServerName;
-                                node.HostName = webSphereNode.HostName;
-                                node.CellId = cell.CellId;
-                                node.CellName = cell.Name;
-                                cell.NodesData.Add(node);
+                                if (serversRepository.Collection.AsQueryable().Where(x => x.Id == webSphereServer.ServerId).Count() == 0)
+                                {
+                                    NodeInfo node = new NodeInfo();
+                                    node.NodeId = webSphereNode.NodeId;
+                                    node.NodeName = webSphereNode.NodeName;
+                                    node.ServerId = webSphereServer.ServerId;
+                                    node.ServerName = webSphereServer.ServerName;
+                                    node.HostName = webSphereNode.HostName;
+                                    node.CellId = cell.CellId;
+                                    node.CellName = cell.Name;
+                                    cell.NodesData.Add(node);
+                                }
                             }
                         }
                     }
@@ -7310,117 +7314,6 @@ namespace VitalSigns.API.Controllers
         /// 
         /// </summary>
         /// <author></author>
-        /// <param name="serverImport"></param>
-        /// <returns></returns>
-        [HttpPut("save_webspherecell_nodes")]
-        public APIResponse SaveWebSphereCellNodes([FromBody]DominoServerImportModel serverImport)
-        {
-
-            try
-            {
-                serversRepository = new Repository<Server>(ConnectionString);
-
-                foreach (var serverModel in serverImport.Servers)
-                {
-                    if (serverModel.IsSelected)
-                    {
-                        Server server = new Server();
-                        server.Id = ObjectId.GenerateNewId().ToString();
-                        server.DeviceName = serverModel.DeviceName;
-                        server.DeviceType = "Domino";
-                        server.LocationId = serverImport.Location;
-
-                        List<DominoServerTask> ServerTasks = new List<DominoServerTask>();
-                        foreach (var serverTask in serverImport.ServerTasks)
-                        {
-                            if (serverTask.IsSelected ?? false)
-                            {
-                                DominoServerTask dominoServerTask = new DominoServerTask();
-                                dominoServerTask.Id = ObjectId.GenerateNewId().ToString();
-                                dominoServerTask.TaskId = serverTask.TaskId;
-                                dominoServerTask.TaskName = serverTask.TaskName;
-                                dominoServerTask.SendLoadCmd = false;
-                                dominoServerTask.Monitored = false;
-                                dominoServerTask.SendRestartCmd = false;
-                                dominoServerTask.SendRestartCmdOffhours = false;
-                                dominoServerTask.SendExitCmd = false;
-                                if (server.ServerTasks != null)
-                                    ServerTasks = server.ServerTasks;
-                                ServerTasks.Add(dominoServerTask);
-                            }
-                        }
-                        server.ServerTasks = ServerTasks;
-                        serversRepository.Insert(server);
-
-                        Repository repository = new Repository(Startup.ConnectionString, Startup.DataBaseName, "server");
-
-                        var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(server.Id));
-                        foreach (var attribute in serverImport.DeviceAttributes)
-                        {
-                            if (!string.IsNullOrEmpty(attribute.FieldName))
-                            {
-                                string field = attribute.FieldName;
-                                string value = attribute.DefaultValue;
-                                string datatype = attribute.DataType;
-                                if (datatype == "int")
-                                {
-                                    int outputvalue = Convert.ToInt32(value);
-                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
-                                         .Set(field, outputvalue);
-                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
-                                }
-                                if (datatype == "double")
-                                {
-                                    double outputvalue = Convert.ToDouble(value);
-                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
-                                         .Set(field, outputvalue);
-                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
-                                }
-                                if (datatype == "bool")
-                                {
-                                    bool booloutput;
-                                    if (value == "0")
-                                    {
-                                        booloutput = false;
-                                    }
-                                    else
-                                    {
-                                        booloutput = true;
-                                    }
-                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
-                                                                                                        .Set(field, booloutput);
-                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
-                                }
-
-
-                                if (datatype == "string")
-                                {
-                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
-                                                                                                        .Set(field, value);
-                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
-                                }
-
-
-                            }
-
-                        }
-
-                        // serversRepository.Insert(server);
-                    }
-                }
-                Response = Common.CreateResponse("Success");
-            }
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", exception.Message);
-            }
-            return Response;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <author></author>
         /// <param name="cellInfo"></param>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -7430,7 +7323,7 @@ namespace VitalSigns.API.Controllers
             serversRepository = new Repository<Server>(ConnectionString);
             try
             {
-                if (string.IsNullOrEmpty(cellInfo.DeviceId))
+                if (string.IsNullOrEmpty(cellInfo.CellId))
                 {
                     Server server = new Server();
                     server.Id = ObjectId.GenerateNewId().ToString();
@@ -7447,12 +7340,12 @@ namespace VitalSigns.API.Controllers
 
                     server.DeviceType = Enums.ServerType.WebSphereCell.ToDescription();
                     var serverId = serversRepository.Insert(server);
-                    Response = Common.CreateResponse(serverId, Common.ResponseStatus.Success.ToDescription(), "WebSphereCell inserted successfully");
+                    Response = Common.CreateResponse(serverId, Common.ResponseStatus.Success.ToDescription(), "WebSphere cell inserted successfully");
                 }
                 else
                 {
 
-                    FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == cellInfo.DeviceId);
+                    FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == cellInfo.CellId);
                     var updateDefination = serversRepository.Updater.Set(p => p.CellId, cellInfo.CellId)
                                                              .Set(p => p.CellName, cellInfo.CellName)
                                                              .Set(p => p.DeviceName, cellInfo.Name)
