@@ -5670,9 +5670,11 @@ namespace VitalSigns.API.Controllers
         [HttpGet("device_list")]
         public APIResponse GetAllServersWithLocation()
         {
+            credentialsRepository = new Repository<Credentials>(ConnectionString);
             serversRepository = new Repository<Server>(ConnectionString);
             serverOtherRepository = new Repository<ServerOther>(ConnectionString);
             List<ServerLocation> serverLocations = new List<ServerLocation>();
+            Expression<Func<Credentials, bool>> expression;
             try
             {
 
@@ -5695,6 +5697,15 @@ namespace VitalSigns.API.Controllers
                         serverLocation.IsSelected = false;
                         serverLocation.Category = x.Contains("category") ? (x.GetValue("category").IsBsonNull ? "" : x.GetValue("category", BsonString.Create(string.Empty)).ToString()) : "";
                     }
+                    var cred_id = x.Contains("credentials_id") ? (x.GetValue("credentials_id").IsBsonNull ? "" : x.GetValue("credentials_id", BsonString.Create(string.Empty)).ToString()) : "";
+                    if (cred_id != "")
+                    {
+                        var creds = credentialsRepository.Collection.AsQueryable().Where(p => p.Id == cred_id).ToList();
+                        if (creds.Count > 0)
+                        {
+                            serverLocation.Credentials = creds[0].Alias;
+                        }
+                    }
                     serverLocations.Add(serverLocation);
                 }
                 var result2 = serverOtherRepository.Collection.Aggregate()
@@ -5714,7 +5725,16 @@ namespace VitalSigns.API.Controllers
                             serverLocation.LocationName = x.GetValue("result", BsonValue.Create(string.Empty))[0]["location_name"].ToString();
                         }
                         serverLocation.IsSelected = false;
+                        var cred_id = x.Contains("credentials_id") ? (x.GetValue("credentials_id").IsBsonNull ? "" : x.GetValue("credentials_id", BsonString.Create(string.Empty)).ToString()) : "";
                         serverLocation.Category = x.Contains("category") ? (x.GetValue("category").IsBsonNull ? "" : x.GetValue("category", BsonString.Create(string.Empty)).ToString()) : "";
+                        if (cred_id != "")
+                        {
+                            var creds = credentialsRepository.Collection.AsQueryable().Where(p => p.Id == cred_id).ToList();
+                            if (creds.Count > 0)
+                            {
+                                serverLocation.Credentials = creds[0].Alias;
+                            }
+                        }
                     }
                     serverLocations.Add(serverLocation);
                 }
@@ -6936,7 +6956,6 @@ namespace VitalSigns.API.Controllers
                 byte[] password;
                 string decryptedPassword = string.Empty;
                 string errorMessage = string.Empty;
-
                 serversRepository = new Repository<Server>(ConnectionString);
                 //Get user name and password from credentials
 
@@ -6970,14 +6989,16 @@ namespace VitalSigns.API.Controllers
                             cellprop.Realm = cellInfo.Realm;
 
                             nameValueRepository = new Repository<NameValue>(ConnectionString);
-                            filterdef = Builders<NameValue>.Filter.Where(p => p.Name == "WebSphereAppClientPath");
+                            var filterdef = Builders<NameValue>.Filter.Where(p => p.Name == "WebSphereAppClientPath");
                             var apppath = nameValueRepository.Find(filterdef).Select(x => x.Value).FirstOrDefault();
+                            var AppClientPath = "";
                             if (apppath != null)
                             {
                                 AppClientPath = apppath.ToString();
                             }
                             filterdef = Builders<NameValue>.Filter.Where(p => p.Name == "InstallLocation");
                             var servicepath = nameValueRepository.Find(filterdef).Select(x => x.Value).FirstOrDefault();
+                            var ServicePath = "";
                             if (servicepath != null)
                             {
                                 ServicePath = servicepath.ToString();
