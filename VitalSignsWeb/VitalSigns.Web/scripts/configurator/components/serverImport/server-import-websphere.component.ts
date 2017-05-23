@@ -56,7 +56,7 @@ export class WebSphereServerImport extends GridBase implements OnInit {
 
 
     saveCellInfo(dlg: wijmo.input.Popup) {
-        this.saveGridRow('/configurator/save_webspherecell_nodes', dlg);
+        this.saveGridRow('/configurator/save_websphere_cell', dlg);
     }
     delteCellInfo() {
         this.delteGridRow('/configurator/delete_cellInfo/');

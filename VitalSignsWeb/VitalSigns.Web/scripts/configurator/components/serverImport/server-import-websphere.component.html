@@ -30,6 +30,7 @@
                     <wj-flex-grid-column [header]="'Global Security'" [binding]="'global_security'" [width]="150"></wj-flex-grid-column>
                     <wj-flex-grid-column [header]="'Credentials'" [binding]="'credentials_name'" [width]="200"></wj-flex-grid-column>
                     <wj-flex-grid-column [header]="'Realm'" [binding]="'realm'" [visible]="false" [width]="200"></wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Credentials Id'" [binding]="'credentials_id'" [visible]="false" [width]="200"></wj-flex-grid-column>
                 </wj-flex-grid>
                 <div class="btn-group" *ngIf="data != null">
                     <button type="button" class="btn btn-default"
@@ -287,13 +288,13 @@ webSphereServerNodeData.pageIndex + 1 | number
                                 <div class="form-group col-sm-6" *ngIf="currentEditItem.global_security">
                                     <label for="credentails" class="control-label col-sm-5">Credentials</label>
                                     <div class="col-sm-7">
-                                        <wj-combo-box name="credential" [itemsSource]="deviceCredentialData" displayMemberPath="text" selectedValuePath="value"
-                                                      [(ngModel)]="currentEditItem.credentials_id" [(text)]="currentEditItem.credentials_name" placeholder="Select Credential">
+                                        <wj-combo-box name="credentials" [itemsSource]="deviceCredentialData" displayMemberPath="text" selectedValuePath="value"
+                                                      [(ngModel)]="currentEditItem.credentials_id" [(text)]="currentEditItem.credentials_name" [placeholder]="'Select Credentials'" [isEditable]="true">
                                         </wj-combo-box>
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
+                            <div class="row" style="display: none">
                                 <div class="form-group col-sm-6" *ngIf="currentEditItem.global_security">
                                     <label for="realm" class="control-label col-sm-5">Realm</label>
                                     <div class="col-sm-7">
