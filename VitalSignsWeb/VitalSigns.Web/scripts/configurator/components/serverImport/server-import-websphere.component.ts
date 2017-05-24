@@ -133,4 +133,48 @@ export class WebSphereServerImport extends GridBase implements OnInit {
 
     }
 
+    selectAll() {
+        for (var _i = 0; _i < this.flex1.collectionView.sourceCollection.length; _i++) {
+            var item = (<wijmo.collections.CollectionView>this.flex1.collectionView.sourceCollection)[_i];
+            item.is_selected = true;
+            this.websphereData.selected_servers.push({
+                "cell_id": item.cell_id,
+                "node_id": item.node_id,
+                "server_id": item.server_id,
+                "server_name": item.server_name
+            });
+        }
+        this.flex1.refresh();
+    }
+
+    deselectAll() {
+        for (var _i = 0; _i < this.flex1.collectionView.sourceCollection.length; _i++) {
+            var item = (<wijmo.collections.CollectionView>this.flex1.collectionView.sourceCollection)[_i];
+            item.is_selected = false;
+            this.websphereData.selected_servers.splice(this.websphereData.selected_servers.indexOf(item.id), 1);
+        }
+        this.flex1.refresh();
+    }
+
+    get pageSize(): number {
+        return this.data.pageSize;
+    }
+
+    set pageSize(value: number) {
+        if (this.data.pageSize != value) {
+            this.data.pageSize = value;
+            this.data.refresh();
+        }
+    }
+
+    get srvpageSize(): number {
+        return this.webSphereServerNodeData.pageSize;
+    }
+
+    set srvpageSize(value: number) {
+        if (this.webSphereServerNodeData.pageSize != value) {
+            this.webSphereServerNodeData.pageSize = value;
+            this.webSphereServerNodeData.refresh();
+        }
+    }
 }
