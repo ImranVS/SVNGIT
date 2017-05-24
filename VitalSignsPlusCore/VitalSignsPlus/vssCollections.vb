@@ -2481,7 +2481,7 @@ Partial Public Class VitalSignsPlusCore
             projectionDef = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
-                .Include(Function(x) x.IPAddress) _
+                .Include(Function(x) x.CellHostName) _
                 .Include(Function(x) x.ConnectionType) _
                 .Include(Function(x) x.PortNumber) _
                 .Include(Function(x) x.Realm) _
