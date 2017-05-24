@@ -109,7 +109,8 @@ export class WebSphereServerImport extends GridBase implements OnInit {
                     "cell_id": item.cell_id,
                     "node_id": item.node_id,
                     "server_id": item.server_id,
-                    "server_name": item.server_name
+                    "server_name": item.server_name,
+                    "node_name" : item.node_name
                 });
             }
 

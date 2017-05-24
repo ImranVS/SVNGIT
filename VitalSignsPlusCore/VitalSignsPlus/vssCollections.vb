@@ -2828,7 +2828,7 @@ Partial Public Class VitalSignsPlusCore
                         End Try
 
                         Try
-                            .CellHostName = cell.IPAddress
+                            .CellHostName = cell.CellHostName
                         Catch ex As Exception
                             .CellHostName = ""
                         End Try

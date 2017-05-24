@@ -7411,6 +7411,27 @@ namespace VitalSigns.API.Controllers
                 {
                     //if (serverModel.IsSelected)
                     {
+                        //check to see if the node exists
+                        List<Server> nodes = serversRepository.Find(x => x.Id == serverModel.NodeId).ToList();
+                        if (nodes.Count > 0)
+                        {
+                            //node exists. Push the server id to the document
+                            var updateDef = serversRepository.Updater.AddToSet(x => x.ServerId, serverModel.ServerId);
+                            serversRepository.Update(nodes[0], updateDef);
+                        }
+                        else
+                        {
+                            Server node = new Server();
+                            node.Id = serverModel.NodeId;
+                            node.DeviceName = serverModel.NodeName;
+                            node.DeviceType = Enums.ServerType.WebSphereNode.ToDescription();
+                            node.IPAddress = serverModel.HostName;
+                            node.CellId = serverModel.CellId;
+                            node.ServerId = new string[] { serverModel.ServerId }.ToList();
+                            serversRepository.Insert(node);
+                        }                     
+
+
                         Server server = new Server();
                         server.Id = serverModel.ServerId;
                         server.CellId = serverModel.CellId;
