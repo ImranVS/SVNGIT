@@ -42,7 +42,7 @@ export class WebSphereServerImport extends GridBase implements OnInit {
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data.cellData));
                 if (response.data.cellData.length > 0) {
-                    this.webSphereServerNodeData = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data.cellData[0].nodes_data));
+                    this.webSphereServerNodeData = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data.nodeData));
                     this.webSphereServerNodeData.groupDescriptions.push(new wijmo.collections.PropertyGroupDescription("cell_name"));
                     this.webSphereServerNodeData.groupDescriptions.push(new wijmo.collections.PropertyGroupDescription("node_name"));               
                     this.webSphereServerNodeData.pageSize = 10;                   

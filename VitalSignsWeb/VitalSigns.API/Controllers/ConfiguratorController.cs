@@ -7235,7 +7235,7 @@ namespace VitalSigns.API.Controllers
                 var cellsData = new List<CellInfo>();
                 serversRepository = new Repository<Server>(ConnectionString);
                 var servers = serversRepository.Collection.AsQueryable().Where(x => x.DeviceType == Enums.ServerType.WebSphereCell.ToDescription()).ToList();
-
+                var nodesData = new List<NodeInfo>();
                 foreach (var server in servers)
                 {
                     CellInfo cell = new CellInfo();
@@ -7262,11 +7262,11 @@ namespace VitalSigns.API.Controllers
                                     node.NodeId = webSphereNode.NodeId;
                                     node.NodeName = webSphereNode.NodeName;
                                     node.ServerId = webSphereServer.ServerId;
-                                    node.ServerName = webSphereServer.ServerName;
+                                    node.ServerName = webSphereServer.ServerName + " [" + cell.Name + "~" + node.NodeName + "]";
                                     node.HostName = webSphereNode.HostName;
                                     node.CellId = cell.CellId;
                                     node.CellName = cell.Name;
-                                    cell.NodesData.Add(node);
+                                    nodesData.Add(node);
                                 }
                             }
                         }
@@ -7300,7 +7300,7 @@ namespace VitalSigns.API.Controllers
                         item.CredentialsName = credential.DisplayText;
                 }
                 model.SelectedServers = new List<NodeInfo>();
-                Response = Common.CreateResponse(new { websphereData = model, cellData = cellsData, credentialsData = credentialsData });
+                Response = Common.CreateResponse(new { websphereData = model, cellData = cellsData, credentialsData = credentialsData, nodeData = nodesData });
             }
             catch (Exception exception)
             {
