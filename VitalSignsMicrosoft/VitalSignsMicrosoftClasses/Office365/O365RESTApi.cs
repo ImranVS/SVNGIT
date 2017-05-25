@@ -704,7 +704,7 @@ namespace VitalSignsMicrosoftClasses
 				Common.makeAlert(elapsed.TotalMilliseconds, myServer.MailFlowThreshold, myServer, commonEnums.AlertType.Mail_flow, ref AllTestsList, "Mail was not delivered in the specified threshold time plus additional 30 secs", "Performance");
 			else
 			{
-				double totalElapsedTime = elapsed.TotalMilliseconds;
+				double totalElapsedTime = Math.Round(elapsed.TotalMilliseconds);
 
 				
 				DateTime dtNow = DateTime.Now;

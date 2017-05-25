@@ -194,7 +194,7 @@ namespace VitalSignsMicrosoftClasses
 				Thread.Sleep(2000);
 			}
 			
-
+    
 			
 
 		}
@@ -1028,7 +1028,8 @@ repo.Upsert(filterdef, updatedef);
 		{
 			MonitoredItems.Office365Server DummyServerForLogs = new MonitoredItems.Office365Server() { Name = "HourlyTasks" };
 			Thread HourlyTasksThread = null;
-			int hour = -1;
+            Thread HourlyTasksUpDownTimesThread = null;
+            int hour = -1;
 			while (true)
 			{
 				if (hour == -1 || hour != DateTime.Now.Hour)
@@ -1049,7 +1050,15 @@ repo.Upsert(filterdef, updatedef);
 					HourlyTasksThread.Start();
 					//Thread.Sleep(60 * 60 * 1000); //sleeps for 1 hour
                 skip:
-					hour = DateTime.Now.Hour;
+
+                    HourlyTasksUpDownTimesThread = new Thread(() => HourlyTasksMainThread(DummyServerForLogs));
+                    HourlyTasksUpDownTimesThread.CurrentCulture = c;
+                    HourlyTasksUpDownTimesThread.IsBackground = true;
+                    HourlyTasksUpDownTimesThread.Priority = ThreadPriority.Normal;
+                    HourlyTasksUpDownTimesThread.Name = "HourlyTasksUpDownTimesThread - O365";
+                    HourlyTasksUpDownTimesThread.Start();
+
+                    hour = DateTime.Now.Hour;
 				}
             
 				//sleep for 5 mins
@@ -1058,11 +1067,11 @@ repo.Upsert(filterdef, updatedef);
 			}
 		}
 
-		private void HourlyTasksMainThread(MonitoredItems.Office365Server DummyServerForLogs)
-		{
+        private void HourlyTasksUpDownMainThread(MonitoredItems.Office365Server DummyServerForLogs)
+        {
 
-			Common.WriteDeviceHistoryEntry("All", serverType, " Hourly Task started.", Common.LogLevel.Normal);
-			MonitoredItems.Office365Server testServer = null;
+            Common.WriteDeviceHistoryEntry("All", serverType, " Hourly Task Up Down started.", Common.LogLevel.Normal);
+            MonitoredItems.Office365Server testServer = null;
 
             try
             {
@@ -1074,14 +1083,18 @@ repo.Upsert(filterdef, updatedef);
                 CommonDB db = new CommonDB();
                 db.ProcessMongoStatements(AllTestResults, DummyServerForLogs);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Common.WriteDeviceHistoryEntry(testServer.ServerType, testServer.Name, " Error in Hourly Task. Loop for all servers. Error : " + ex.Message, Common.LogLevel.Normal);
+                Common.WriteDeviceHistoryEntry(testServer.ServerType, testServer.Name, " Error in Hourly Task Up Down. Loop for all servers. Error : " + ex.Message, Common.LogLevel.Normal);
             }
+        }
+
+        private void HourlyTasksMainThread(MonitoredItems.Office365Server DummyServerForLogs)
+		{
+
+			Common.WriteDeviceHistoryEntry("All", serverType, " Hourly Task started.", Common.LogLevel.Normal);
+			MonitoredItems.Office365Server testServer = null;
             
-
-
-
             try
 			{
 				if (myOffice365Servers != null)
