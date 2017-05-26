@@ -84,7 +84,7 @@
                         <input type="text" [(ngModel)]="serverAttributes.ip_address" class="form-control">
                     </div>
                     <div class="col-sm-2">&nbsp;</div>
-                    <div class="col-sm-3" *ngIf="serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Sametime'">
+                    <div class="col-sm-3" *ngIf="serverAttributes.device_type=='Sametime'">
                         <div class="funkyradio">
                             <input type="checkbox" id="serverAttributes.require_ssl" name="serverAttributes.require_ssl" [(ngModel)]="serverAttributes.require_ssl">
                             <label for="serverAttributes.require_ssl">This server requires SSL</label>
