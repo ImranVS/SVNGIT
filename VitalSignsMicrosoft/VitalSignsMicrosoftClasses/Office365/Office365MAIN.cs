@@ -1051,7 +1051,7 @@ repo.Upsert(filterdef, updatedef);
 					//Thread.Sleep(60 * 60 * 1000); //sleeps for 1 hour
                 skip:
 
-                    HourlyTasksUpDownTimesThread = new Thread(() => HourlyTasksMainThread(DummyServerForLogs));
+                    HourlyTasksUpDownTimesThread = new Thread(() => HourlyTasksUpDownMainThread(DummyServerForLogs));
                     HourlyTasksUpDownTimesThread.CurrentCulture = c;
                     HourlyTasksUpDownTimesThread.IsBackground = true;
                     HourlyTasksUpDownTimesThread.Priority = ThreadPriority.Normal;
