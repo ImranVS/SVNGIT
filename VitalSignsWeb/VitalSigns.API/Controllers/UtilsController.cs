@@ -49,6 +49,18 @@ namespace VitalSigns.API.Controllers
                 return translatedstat;
             }
         }
-        
+
+        public bool isRPRWyattMachine()
+        {
+            Repository<License> licenseRepo = new Repository<License>(ConnectionString);
+            try
+            {
+                return licenseRepo.Find(x => true).First().CompanyName == "RPRWyatt";
+            }
+            catch(Exception ex)
+            {
+                return false;
+            }
+        }
     }
 }

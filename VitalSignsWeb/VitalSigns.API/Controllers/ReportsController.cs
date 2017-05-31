@@ -1322,6 +1322,9 @@ namespace VitalSigns.API.Controllers
             try
             {
                 lastXDays = DateTime.Now.AddDays(-7);
+                UtilsController uc = new UtilsController();
+                if (uc.isRPRWyattMachine())
+                    lastXDays = DateTime.Now.AddYears(-5);
                 connectionsObjectsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
                 var listOfCommunity = connectionsObjectsRepository.Find(i => i.Type == "Community")
                     .OrderBy(i => i.Name).OrderBy(i => i.DeviceName).ToList();
@@ -1329,7 +1332,7 @@ namespace VitalSigns.API.Controllers
                 foreach (var community in listOfCommunity)
                 {
                     filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.Eq(i => i.ParentGUID, community.Id),
-                        connectionsObjectsRepository.Filter.Gte(i => i.CreatedOn, lastXDays));
+                        connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays));
                     var res = connectionsObjectsRepository.Find(filterDef)
                         .GroupBy(row => new
                         {
@@ -1385,6 +1388,9 @@ namespace VitalSigns.API.Controllers
             try
             {
                 lastXDays = DateTime.Now.AddDays(-90);
+                UtilsController uc = new UtilsController();
+                if (uc.isRPRWyattMachine())
+                    lastXDays = DateTime.Now.AddYears(-5);
                 //Find all communities
                 connectionsObjectsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
                 if (!string.IsNullOrEmpty(deviceId))
@@ -1401,7 +1407,7 @@ namespace VitalSigns.API.Controllers
                 foreach (var community in listOfCommunity)
                 {
                     filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.Eq(i => i.ParentGUID, community.Id),
-                        connectionsObjectsRepository.Filter.Gte(i => i.CreatedOn, lastXDays));
+                        connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays));
                     var res2 = connectionsObjectsRepository.Collection.Distinct(i => i.Type, filterDef).ToList();
                     foreach (var objType in res2)
                     {
@@ -1423,14 +1429,14 @@ namespace VitalSigns.API.Controllers
                     {
                         listOfDevices = deviceId.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
                         filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.Eq(i => i.OwnerId, userId.Id),
-                        connectionsObjectsRepository.Filter.Gte(i => i.CreatedOn, lastXDays),
+                        connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays),
                         connectionsObjectsRepository.Filter.In(i => i.Type, objectTypes),
                         connectionsObjectsRepository.Filter.In(i => i.DeviceId, listOfDevices));
                     }
                     else
                     {
                         filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.Eq(i => i.OwnerId, userId.Id),
-                        connectionsObjectsRepository.Filter.Gte(i => i.CreatedOn, lastXDays),
+                        connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays),
                         connectionsObjectsRepository.Filter.In(i => i.Type, objectTypes));
                     }
                     var res = connectionsObjectsRepository.Find(filterDef)
@@ -1498,14 +1504,14 @@ namespace VitalSigns.API.Controllers
                         {
                             listOfDevices = deviceId.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
                             filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.Eq(i => i.OwnerId, userId.Id),
-                            connectionsObjectsRepository.Filter.Gte(i => i.CreatedOn, lastXDays),
+                            connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays),
                             connectionsObjectsRepository.Filter.In(i => i.Type, objectTypes),
                             connectionsObjectsRepository.Filter.In(i => i.DeviceId, listOfDevices));
                         }
                         else
                         {
                             filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.Eq(i => i.OwnerId, userId.Id),
-                            connectionsObjectsRepository.Filter.Gte(i => i.CreatedOn, lastXDays),
+                            connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays),
                             connectionsObjectsRepository.Filter.In(i => i.Type, objectTypes));
                         }
                         var res = connectionsObjectsRepository.Find(filterDef)
@@ -1598,6 +1604,9 @@ namespace VitalSigns.API.Controllers
             try
             {
                 lastXDays = DateTime.Now.AddMonths(-6);
+                UtilsController uc = new UtilsController();
+                if (uc.isRPRWyattMachine())
+                    lastXDays = DateTime.Now.AddYears(-5);
                 //Find all communities
                 connectionsObjectsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
                 var listOfCommunity = connectionsObjectsRepository.Find(i => i.Type == "Community").ToList();
@@ -1635,7 +1644,7 @@ namespace VitalSigns.API.Controllers
                 {
                     var userId = listOfUsers.Find(i => i.Name == user);
                     filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.Eq(i => i.OwnerId, userId.Id),
-                        connectionsObjectsRepository.Filter.Gte(i => i.CreatedOn, lastXDays),
+                        connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays),
                         connectionsObjectsRepository.Filter.In(i => i.Type, objectTypes));
                     var res = connectionsObjectsRepository.Find(filterDef)
                         .GroupBy(row => new
