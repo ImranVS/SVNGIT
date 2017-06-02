@@ -943,6 +943,8 @@ namespace VitalSigns.API.Controllers
             //NS - removed adding one day since the summary collection is always 1 day behind
             DateTime dtStart = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture).ToUniversalTime();
             DateTime dtEnd = DateTime.ParseExact(endDate, DateFormat, CultureInfo.InvariantCulture).ToUniversalTime();
+            if (dtStart.CompareTo(dtEnd) == 0)
+                dtEnd = dtEnd.AddDays(1);
 
             summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
             var statNames = statName.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
