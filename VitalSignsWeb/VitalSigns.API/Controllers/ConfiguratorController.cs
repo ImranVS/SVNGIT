@@ -6457,7 +6457,7 @@ namespace VitalSigns.API.Controllers
             try
             {
                 mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
-                var result = mobileDevicesRepository.All().Where(x => x.ThresholdSyncTime == null).Select(x => new MobileUserDevice
+                var result = mobileDevicesRepository.All().Where(x => x.ThresholdSyncTime == null && (x.IsActive.HasValue && x.IsActive.Value)).Select(x => new MobileUserDevice
                 {
                     UserName = x.UserName,
                     DeviceName = x.DeviceName,
@@ -6466,7 +6466,7 @@ namespace VitalSigns.API.Controllers
                     Id = x.Id
 
 
-                }).ToList();
+                }).ToList().OrderBy(x => x.UserName);
 
 
                 Response = Common.CreateResponse(result);

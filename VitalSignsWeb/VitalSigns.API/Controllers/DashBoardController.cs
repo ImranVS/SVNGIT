@@ -189,7 +189,8 @@ namespace VitalSigns.API.Controllers
                 if (!isInactive)
                 {
                     result = mobileDevicesRepository.Collection
-                    .AsQueryable()
+                    .Find(mobileDevicesRepository.Filter.Exists(x => x.IsActive) & mobileDevicesRepository.Filter.Eq(x => x.IsActive, true))
+                    .ToList()
                     .Select(x => new MobileUserDevice
                     {
                         Id = x.Id,
@@ -208,6 +209,8 @@ namespace VitalSigns.API.Controllers
                     dt = DateTime.Now.AddDays(-30);
                     dt = DateTime.SpecifyKind(dt, DateTimeKind.Utc);
                     result = mobileDevicesRepository.Collection
+                    .Find(mobileDevicesRepository.Filter.Exists(x => x.IsActive) & mobileDevicesRepository.Filter.Eq(x => x.IsActive, true))
+                    .ToList()
                     .AsQueryable()
                     .Where(x => x.LastSyncTime <= dt)
                     .Select(x => new MobileUserDevice
