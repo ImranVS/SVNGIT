@@ -3101,15 +3101,17 @@ CleanUp:
 
             actualVal = .Memory_Used
             statName = "Memory Used"
+            thresholdVal = .Memory_Threshold
             SendWebSphereAlert(server, actualVal, thresholdVal, statName)
             InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
+            WriteAuditEntryWebSphere(Now.ToString & " " & statName & " " & thresholdVal & " " & actualVal)
 
             actualVal = .Memory_Free
             thresholdVal = .Memory_Threshold
             statName = "Memory Free"
             'SendWebSphereAlert(server, actualVal, thresholdVal, statName)
             InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
-            WriteAuditEntryWebSphere(Now.ToString & " " & statName & " " & thresholdVal & " " & actualVal)
+
 
             actualVal = .CurrentHeap
             thresholdVal = .CurrentHeapThreshold

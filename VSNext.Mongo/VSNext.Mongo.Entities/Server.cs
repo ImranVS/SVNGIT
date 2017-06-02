@@ -905,8 +905,18 @@ namespace VSNext.Mongo.Entities
 
         [DataMember]
         [BsonIgnoreIfNull]
-        [BsonElement("up_current")]
-        public int? UPCurrent { get; set; }
+        [BsonElement("up_time")]
+        public int? UpTime { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("process_cpu")]
+        public int? ProcessCPU { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("memory_used")]
+        public int? MemoryUsed { get; set; }
 
 
         [DataMember]

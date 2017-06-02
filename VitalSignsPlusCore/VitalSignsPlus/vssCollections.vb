@@ -2463,22 +2463,29 @@ Partial Public Class VitalSignsPlusCore
                 .Include(Function(x) x.ConsecutiveFailuresBeforeAlert) _
                 .Include(Function(x) x.ConsecutiveOverThresholdBeforeAlert) _
                 .Include(Function(x) x.Description) _
-                .Include(Function(x) x.CurrentNode)
+                .Include(Function(x) x.CurrentNode) _
+                .Include(Function(x) x.ActiveThreadCount) _
+                .Include(Function(x) x.HungThreadCount) _
+                .Include(Function(x) x.MemoryUsed) _
+                .Include(Function(x) x.HeapCurrent) _
+                .Include(Function(x) x.AverageThreadPool) _
+                .Include(Function(x) x.UpTime) _
+                .Include(Function(x) x.ProcessCPU)
 
             listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
 
-            filterDef = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphereNode.ToDescription()) ' And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
-            projectionDef = repository.Project _
+                             filterDef = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphereNode.ToDescription()) ' And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
+                             projectionDef = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
                 .Include(Function(x) x.IPAddress)
 
-            listOfNodes = repository.Find(filterDef, projectionDef).ToList()
+                             listOfNodes = repository.Find(filterDef, projectionDef).ToList()
 
 
-            filterDef = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphereCell.ToDescription()) ' And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
-            projectionDef = repository.Project _
+                             filterDef = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphereCell.ToDescription()) ' And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
+                             projectionDef = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
                 .Include(Function(x) x.CellHostName) _
@@ -2487,18 +2494,18 @@ Partial Public Class VitalSignsPlusCore
                 .Include(Function(x) x.Realm) _
                 .Include(Function(x) x.CredentialsId)
 
-            listOfCells = repository.Find(filterDef, projectionDef).ToList()
+                             listOfCells = repository.Find(filterDef, projectionDef).ToList()
 
-            Dim repositoryStatus As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-            Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphere.ToDescription())
-            Dim projectionDefStatus As ProjectionDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Project _
+                             Dim repositoryStatus As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+                             Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphere.ToDescription())
+                             Dim projectionDefStatus As ProjectionDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Project _
                 .Include(Function(x) x.StatusCode) _
                 .Include(Function(x) x.CurrentStatus) _
                 .Include(Function(x) x.LastUpdated) _
                 .Include(Function(x) x.DeviceType) _
                 .Include(Function(x) x.DeviceName)
 
-            listOfStatus = repositoryStatus.Find(filterDefStatus, projectionDefStatus).ToList()
+                             listOfStatus = repositoryStatus.Find(filterDefStatus, projectionDefStatus).ToList()
 
             'WSC: IPAddress, CellName, ConnectionType, PortNumber, Realm, CredentialID
             'WSN: DeviceName
@@ -2950,6 +2957,77 @@ Partial Public Class VitalSignsPlusCore
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " " & .Name & " Connections Servers insufficient licenses not set.")
                     End Try
+
+                    Try
+                        If entity.HeapCurrent Is Nothing Then
+                            .CurrentHeapThreshold = 500
+                        Else
+                            .CurrentHeapThreshold = entity.HeapCurrent
+                        End If
+                    Catch ex As Exception
+                        .CurrentHeapThreshold = 500
+                    End Try
+
+                    Try
+                        If entity.AverageThreadPool Is Nothing Then
+                            .AverageThreadPoolThreshold = 30
+                        Else
+                            .AverageThreadPoolThreshold = entity.AverageThreadPool
+                        End If
+                    Catch ex As Exception
+                        .AverageThreadPoolThreshold = 30
+                    End Try
+
+                    Try
+                        If entity.UpTime Is Nothing Then
+                            .UpTimeThreshold = 45
+                        Else
+                            .UpTimeThreshold = entity.UpTime
+                        End If
+                    Catch ex As Exception
+                        .UpTimeThreshold = 45
+                    End Try
+
+                    Try
+                        If entity.ProcessCPU Is Nothing Then
+                            .CPU_Threshold = 75
+                        Else
+                            .CPU_Threshold = entity.ProcessCPU
+                        End If
+                    Catch ex As Exception
+                        .CPU_Threshold = 75
+                    End Try
+
+                    Try
+                        If entity.ActiveThreadCount Is Nothing Then
+                            .ActiveThreadCountThreshold = 3
+                        Else
+                            .ActiveThreadCountThreshold = entity.ActiveThreadCount
+                        End If
+                    Catch ex As Exception
+                        .ActiveThreadCountThreshold = 3
+                    End Try
+
+                    Try
+                        If entity.HungThreadCount Is Nothing Then
+                            .HungThreadCountThreshold = 10
+                        Else
+                            .HungThreadCountThreshold = entity.HungThreadCount
+                        End If
+                    Catch ex As Exception
+                        .HungThreadCountThreshold = 10
+                    End Try
+
+                    Try
+                        If entity.MemoryUsed Is Nothing Then
+                            .Memory_Threshold = 2048
+                        Else
+                            .Memory_Threshold = entity.MemoryUsed
+                        End If
+                    Catch ex As Exception
+                        .Memory_Threshold = 2048
+                    End Try
+
 
                 End With
                 MyWebSphereServer = Nothing
