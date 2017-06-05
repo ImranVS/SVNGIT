@@ -420,11 +420,11 @@ namespace VitalSignsMicrosoftClasses
 							thisServer.FastScan = true;
 							Common.WriteDeviceHistoryEntry(thisServer.ServerType, thisServer.Name, "Doing a fast scan sicne it is in maintenance", Common.LogLevel.Normal);
 						}
-                        Common.SetupServer(thisServer, thisServer.ServerType);
+                        
 						TestResults AllTestResults = new TestResults();
 						ReturnPowerShellObjects PSO = null;
-
-						bool notResponding = true;
+                        Common.SetupServer(thisServer, thisServer.ServerType, AllTestResults);
+                        bool notResponding = true;
 						
 						using (PSO = Common.TestRepsonding(thisServer, ref notResponding, ref AllTestResults))
 						{

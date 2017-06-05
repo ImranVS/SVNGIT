@@ -110,11 +110,7 @@ namespace VitalSignsMicrosoftClasses
 		private void GetServices(PSCredential creds, MonitoredItems.MicrosoftServer myServer, TestResults AllTestsList, ReturnPowerShellObjects PSO)
 		{
 			Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "In GetServices. ", commonEnums.ServerRoles.Windows, Common.LogLevel.Normal);
-
-			string sql = "Select Service_Name, Monitored from WindowsServices where ServerName='" + myServer.Name + "' and Monitored=1";
-			CommonDB db = new CommonDB();
-			DataTable dt = db.GetData(sql);
-
+            CommonDB db = new CommonDB();
             VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> ServerRepo = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(db.GetMongoConnectionString());
             List<VSNext.Mongo.Entities.Server> listOfServers = ServerRepo.Find(i => i.DeviceName == myServer.Name).ToList();
             List<VSNext.Mongo.Entities.WindowServices> windowsServicesExistingList;
@@ -134,13 +130,6 @@ namespace VitalSignsMicrosoftClasses
 					Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Get-WMIObject Win32_Service output results: " + results.Count.ToString(), commonEnums.ServerRoles.Windows, Common.LogLevel.Normal);
 					foreach (PSObject ps in results)
 					{
-						
-						DataRow[] row = dt.Select("Service_Name='" +ps.Properties["Name"].Value.ToString()+ "'");
-                        if (row.Count() > 0 && ps.Properties["State"].Value.ToString() != "Running")
-                        {
-                            downServices += ps.Properties["Caption"].Value.ToString() + ",";
-                            getdownservices += ps.Properties["Name"].Value.ToString() + ",";
-                        }
 
                         VSNext.Mongo.Entities.WindowServices winService = windowsServicesExistingList.Find(i => i.ServiceName == ps.Properties["Name"].Value.ToString());
                         if (winService != null)
@@ -372,15 +361,19 @@ namespace VitalSignsMicrosoftClasses
             String DrivesOverTheLimit = "";
             String getall="";
             string ThresholdValue = "";
-
+            List<VSNext.Mongo.Entities.DiskSetting> diskSettings = null;
+            
+            
             List<VSNext.Mongo.Entities.DiskStatus> listOfDisks = new List<VSNext.Mongo.Entities.DiskStatus>();
 
             try
             {
-                string drivesSqlStm = "SELECT s.ServerName, ds.DiskName, ds.Threshold, ds.ThresholdType FROM DiskSettings ds, Servers s WHERE s.ServerName = '" + myServer.Name + "' and s.Id = ds.ServerID";
-                dt = DB.GetData(drivesSqlStm);
-                if (dt.Rows.Count != 0 && dt.Rows[0]["DiskName"].ToString().ToLower() == AllDrives.ToLower())
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> repo = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(DB.GetMongoConnectionString());
+                FilterDefinition<VSNext.Mongo.Entities.Server> filterDef = repo.Filter.Eq(x => x.Id, myServer.ServerObjectID);
+                diskSettings = repo.Find(filterDef).First().DiskInfo;
+                if (diskSettings.Count != 0 && diskSettings[0].DiskName.ToString().ToLower() == AllDrives.ToLower())
                     monitorAllSameLevel = true;
+                
             }
             catch (Exception ex)
             {
@@ -404,17 +397,17 @@ namespace VitalSignsMicrosoftClasses
                         {
                             if (monitorAllSameLevel)
                             {
-                                thresholdLevel = dt.Rows[0]["Threshold"].ToString();
-                                thresholdType = dt.Rows[0]["ThresholdType"].ToString();
+                                thresholdLevel = diskSettings[0].Threshold.ToString();
+                                thresholdType = diskSettings[0].ThresholdType.ToString();
                             }
                             else
                             {
-                                foreach (DataRow row in dt.Rows)
+                                foreach (VSNext.Mongo.Entities.DiskSetting diskSetting in diskSettings)
                                 {
-                                    if (row["DiskName"].ToString() == ps.Properties["DeviceID"].Value.ToString())
+                                    if (diskSetting.DiskName.ToString() == ps.Properties["DeviceID"].Value.ToString())
                                     {
-                                        thresholdLevel = row["Threshold"].ToString();
-                                        thresholdType = row["ThresholdType"].ToString();
+                                        thresholdLevel = diskSetting.Threshold.ToString();
+                                        thresholdType = diskSetting.ThresholdType.ToString();
                                     }
                                 }
                             }
@@ -670,8 +663,11 @@ namespace VitalSignsMicrosoftClasses
 		}
 		private void GetEventLog(PSCredential creds, MonitoredItems.MicrosoftServer myServer, TestResults AllTestsList, ReturnPowerShellObjects PSO)
 		{
-			CommonDB DB = new CommonDB();
+            Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "**************In GetEventLog AND EXITING **************", commonEnums.ServerRoles.Windows, Common.LogLevel.Normal);
+            return;
+            CommonDB DB = new CommonDB();
 			string sSQL = "select distinct AliasName,EventName,ELSM.EventId EventId,EventKey,EventLevel,Source,TaskCategory  from ELSDetail ELSD,Servers S,ELSMaster ELSM where S.ID=ELSD.ServerId and ELSD.ELSId=ELSM.ID and S.ServerName='" + myServer.Name + "'";
+            
 			DataTable dtServers = DB.GetData(sSQL.ToString());
 			//Loop through servers
 			string logScript = "";

@@ -426,10 +426,11 @@ namespace VitalSignsMicrosoftClasses
 						Common.WriteDeviceHistoryEntry(thisServer.ServerType, thisServer.Name, "Doing a fast scan sicne it is in maintenance", Common.LogLevel.Normal);
 						thisServer.FastScan = true;
 					}
-                    Common.SetupServer(thisServer, thisServer.ServerType);
+                    
 					TestResults AllTestResults = new TestResults();
 					ActiveDirectoryCommon ADCommon = new ActiveDirectoryCommon();
-					bool notResponding = false;
+                    Common.SetupServer(thisServer, thisServer.ServerType, AllTestResults);
+                    bool notResponding = false;
 
 					//This is to make it so all the cmdlets are not gettign downlaoded to try to cut back on time
 					string cmdList = "-CommandName Get-ADDomainController";

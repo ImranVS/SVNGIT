@@ -66,11 +66,12 @@ namespace VitalSignsMicrosoftClasses
 		
 			try
 			{
+                //Thread.Sleep(5000);
 				Common.WriteDeviceHistoryEntry("All", "Exchange", "Exchagne Service is starting up", Common.LogLevel.Normal);
-				//myExchangeServers = CreateExchangeServersCollection();
-
-				//Sets the log level
-				Common.setLogLevel();
+                //myExchangeServers = CreateExchangeServersCollection();
+                //Thread.Sleep(5000);
+                //Sets the log level
+                Common.setLogLevel();
 
 				try
 				{
@@ -85,22 +86,28 @@ namespace VitalSignsMicrosoftClasses
 				//creates colelction and starts thread to monitor changes for the colelction
 				CommonDB db = new CommonDB();
 
-				if (db.RecordExists("SELECT * FROM SelectedFeatures sf WHERE sf.FeatureID in (SELECT ID FROM Features WHERE Name='Exchange')"))
+				//if (db.RecordExists("SELECT * FROM SelectedFeatures sf WHERE sf.FeatureID in (SELECT ID FROM Features WHERE Name='Exchange')"))
+                if(true)
 				{
 					Common.WriteDeviceHistoryEntry("All", "Exchange", "Exchange is marked for scanning so will start Exchange Related Tasks", Common.LogLevel.Normal);
-
-					CreateExchangeServersCollection();
-					InitStatusTable(myExchangeServers);
+                   // Thread.Sleep(5000);
+                    CreateExchangeServersCollection();
+                    //Thread.Sleep(5000);
+                    Common.InitStatusTable(myExchangeServers);
 					StartExchangeThreads(true);
 
 					//CreateExchangeMailProbeCollection();
 					////set the status for all mail probes
 					//InitStatusTable(myExchangeMailProbes);
+
+
+                    /*
+
 					Thread.Sleep(60 * 1000 * 1);
 					StartMailProbeThreads();
 
 					CreateExchangeDAGCollection();
-					InitStatusTable(myDagCollection);
+					Common.InitStatusTable(myDagCollection);
 					DeleteOldDagDataOnStart();
 					StartDAGThreads();
 
@@ -112,6 +119,9 @@ namespace VitalSignsMicrosoftClasses
                     ExchangeDevices.Start();
                     Thread.Sleep(2000);
 
+
+                    */
+
 				}
 				else
 				{
@@ -119,6 +129,8 @@ namespace VitalSignsMicrosoftClasses
 					Common.WriteDeviceHistoryEntry("All", "Exchange", "Exchange is not marked for scanning", Common.LogLevel.Normal);
 				 }
 
+
+                /*
 				if (db.RecordExists("SELECT * FROM SelectedFeatures sf WHERE sf.FeatureID in (SELECT ID FROM Features WHERE Name='Skype for Business')"))
 				{
 					Common.WriteDeviceHistoryEntry("All", "Skype for Business", "Skype for Business is marked for scanning so will start Skype for Business Related Tasks", Common.LogLevel.Normal);
@@ -144,15 +156,8 @@ namespace VitalSignsMicrosoftClasses
 				HourlyTasksThread.Priority = ThreadPriority.Normal;
 				HourlyTasksThread.Start();
 				Thread.Sleep(2000);
-				/*
-				Thread monitorChanges = new Thread(new ThreadStart(CheckForTableChanges));
-				monitorChanges.CurrentCulture = c;
-				monitorChanges.IsBackground = true;
-				monitorChanges.Priority = ThreadPriority.Normal;
-				monitorChanges.Name = "CheckForTableChanges";
-				monitorChanges.Start();
-				Thread.Sleep(2000);
-				*/
+
+
 				Thread DailyTasksThread = new Thread(new ThreadStart(DailyTasks));
 				DailyTasksThread.CurrentCulture = c;
 				DailyTasksThread.IsBackground = true;
@@ -160,13 +165,14 @@ namespace VitalSignsMicrosoftClasses
 				DailyTasksThread.Name = "DailyTasks - Exchange";
 				DailyTasksThread.Start();
 				Thread.Sleep(2000);
-
+                */
 				Common.WriteDeviceHistoryEntry("All", "Exchange", "All Processes are started in startProcess", Common.LogLevel.Normal);
 			}
 			catch (Exception ex)
 			{
 				Common.WriteDeviceHistoryEntry("All", "Exchange", "Error starting StartProcess exception CreateExchangeServersCollection: " + ex.Message.ToString() + "..." + ex.StackTrace.ToString(), Common.LogLevel.Normal);
-				throw ex;
+                Thread.Sleep(5000);
+                throw ex;
 
 			}
 
@@ -212,7 +218,74 @@ namespace VitalSignsMicrosoftClasses
 			if (myExchangeServers == null)
 				myExchangeServers = new MonitoredItems.ExchangeServersCollection();
 
-			CommonDB DB = new CommonDB();
+            CommonDB DB = new CommonDB();
+            List<VSNext.Mongo.Entities.Server> listOfServers = new List<Server>();
+            List<VSNext.Mongo.Entities.Status> listOfStatus = new List<Status>();
+            List<VSNext.Mongo.Entities.Credentials> listOfCredentials = new List<Credentials>();
+            List<VSNext.Mongo.Entities.Location> listOfLocations = new List<Location>();
+
+            try
+            {
+
+                string NodeName = ConfigurationManager.AppSettings["VSNodeName"].ToString();
+
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(DB.GetMongoConnectionString());
+                FilterDefinition<VSNext.Mongo.Entities.Server> filterDef = repository.Filter.Eq(x => x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Exchange.ToDescription()) &
+                     repository.Filter.In(x => x.CurrentNode, new string[] { NodeName, "-1" });
+
+                ProjectionDefinition<VSNext.Mongo.Entities.Server> projectionDef = repository.Project
+                    .Include(x => x.Id)
+                    .Include(x => x.DeviceName)                    
+                    .Include(x => x.Category)
+                    .Include(x => x.OffHoursScanInterval)
+                    .Include(x => x.RetryInterval)
+                    .Include(x => x.ScanInterval)
+                    .Include(x => x.IPAddress)
+                    .Include(x => x.SubmissionQueueThreshold)
+                    .Include(x => x.PosionQueueThreshold)
+                    .Include(x => x.UnreachableQueueThreshold)
+                    .Include(x => x.ShadowQueueThreshold)
+                    .Include(x => x.TotalQueueThreshold)
+                    .Include(x => x.SoftwareVersion)
+                    .Include(x => x.ResponseTime)
+                    .Include(x => x.CredentialsId)
+                    .Include(x => x.ConsecutiveOverThresholdBeforeAlert)
+                    .Include(x => x.ConsecutiveFailuresBeforeAlert)
+                    .Include(x => x.EnableLatencyTest)
+                    .Include(x => x.CpuThreshold)
+                    .Include(x => x.MemoryThreshold)
+                    .Include(x => x.AuthenticationType)
+                    .Include(x => x.LocationId)
+                    .Include(x => x.DeviceType)
+                    .Include(x => x.CurrentNode)
+                    .Include(x => x.SimulationTests)
+                    .Include(x => x.ArePrerequisitesDone);
+
+
+                listOfServers = repository.Find(filterDef, projectionDef).ToList();
+
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status> repositoryStatus = new VSNext.Mongo.Repository.Repository<Status>(DB.GetMongoConnectionString());
+                FilterDefinition<VSNext.Mongo.Entities.Status> filterDefStatus = repositoryStatus.Filter.Eq(x => x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Office365.ToDescription());
+                ProjectionDefinition<VSNext.Mongo.Entities.Status> projectionDefStatus = repositoryStatus.Project
+                    .Include(x => x.DeviceId)
+                    .Include(x => x.StatusCode)
+                    .Include(x => x.CurrentStatus)
+                    .Include(x => x.LastUpdated)
+                    .Include(x => x.DeviceType)
+                    .Include(x => x.DeviceName);
+
+                listOfStatus = repositoryStatus.Find(filterDefStatus, projectionDefStatus).ToList();
+
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Credentials> repositoryCredentials = new VSNext.Mongo.Repository.Repository<Credentials>(DB.GetMongoConnectionString());
+                listOfCredentials = repositoryCredentials.Find(x => true).ToList();
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Location> repositoryLocation = new VSNext.Mongo.Repository.Repository<Location>(DB.GetMongoConnectionString());
+                listOfLocations = repositoryLocation.Find(x => true).ToList();
+            }
+            catch(Exception ex)
+            {
+                Common.WriteDeviceHistoryEntry("All", "Exchange", "Exception in CreateExchangeServersCollection when getting the data from the db. Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
+            }
+            
 			StringBuilder SQL = new StringBuilder();
 			SQL.Append(" select distinct Sr.ID,Sr.ServerName,S.ServerType,S.ID as ServerTypeId,L.Location,sa.ScanInterval,sa.RetryInterval,sa.OffHourInterval,sa.Enabled,sr.ipaddress,sa.category,cr.UserID,cr.Password, ");
 			SQL.Append(" CASSmtp,CASPop3,CASImap,CASOARPC,CASOWA,CASActiveSync,CASEWS,CASECP,CASAutoDiscovery,CASOAB,SubQThreshold,PoisonQThreshold,UnReachableQThreshold,TotalQThreshold,");
@@ -231,12 +304,13 @@ namespace VitalSignsMicrosoftClasses
 			}
 			SQL.Append(" left outer join Status st on st.Type=S.ServerType and st.Name=Sr.ServerName ");
 			SQL.Append(" where S.ServerType='Exchange' and sa.Enabled = 1 order by sr.id");
-			DataTable dtServers = DB.GetData(SQL.ToString());
+            //DataTable dtServers = DB.GetData(SQL.ToString());
 
-			listOfIdsForExchange = String.Join(",", dtServers.AsEnumerable().Select(r => r.Field<Int32>("ID").ToString()).ToList());
+            //listOfIdsForExchange = String.Join(",", dtServers.AsEnumerable().Select(r => r.Field<Int32>("ID").ToString()).ToList());
+            listOfIdsForExchange = String.Join(",", listOfServers.Select(x => x.Id).ToList());
 			//Loop through servers
 			MonitoredItems.ExchangeThresholdSettings ExchgThreshold = new MonitoredItems.ExchangeThresholdSettings();
-			if (dtServers.Rows.Count > 0)
+			if (listOfServers.Count > 0)
 			{
 				List<string> ServerNameList = new List<string>();
 
@@ -244,23 +318,38 @@ namespace VitalSignsMicrosoftClasses
 				int newServers = 0;
 				int removedServers = 0;
 
-				for (int i = 0; i < dtServers.Rows.Count; i++)
+				for (int i = 0; i < listOfServers.Count; i++)
 				{
-					DataRow DR = dtServers.Rows[i];
-					ServerNameList.Add(DR["ServerName"].ToString());
+					VSNext.Mongo.Entities.Server entity = listOfServers[i];
+					ServerNameList.Add(entity.DeviceName.ToString());
 
 					MonitoredItems.ExchangeServer myExchangeServer = null;// = new MonitoredItems.ExchangeServer();
-
+                    VSNext.Mongo.Entities.Status statusEntry = listOfStatus.Find(x => x.DeviceId == entity.Id);
 					//Checks to see if the server is newly added or exists.  Adds if it is new
 					try
 					{
-						myExchangeServer = myExchangeServers.SearchByName(DR["ServerName"].ToString());
+                        try
+                        {
+                            myExchangeServer = myExchangeServers.SearchByName(entity.DeviceName.ToString());
+                        }
+                        catch(Exception ex)
+                        {
+
+                        }
+
 						if (myExchangeServer == null)
 						{
-							//New server.  Set inits and add to collection
+                            //New server.  Set inits and add to collection
 
-							myExchangeServer = InitForExchangeServers(myExchangeServer, DR);
-							myExchangeServers.Add(myExchangeServer);
+                            myExchangeServer = new MonitoredItems.ExchangeServer();
+                            myExchangeServer.Role = new String[0];
+                            myExchangeServer.ServerType = "Exchange";
+
+                            myExchangeServer.LastScan = statusEntry == null || !statusEntry.LastUpdated.HasValue || statusEntry.LastUpdated.ToString() == "" ? DateTime.Now.AddHours(-1) : statusEntry.LastUpdated.Value;
+                            myExchangeServer.Status = statusEntry == null || statusEntry.CurrentStatus.ToString() == "" ? "Not Scanned" : statusEntry.CurrentStatus;
+                            myExchangeServer.StatusCode = statusEntry == null || statusEntry.StatusCode.ToString() == "" ? "Maintenance" : statusEntry.StatusCode;
+
+                            myExchangeServers.Add(myExchangeServer);
 							newServers++;
 
 						}
@@ -271,16 +360,265 @@ namespace VitalSignsMicrosoftClasses
 					}
 					catch (Exception ex)
 					{
-						//New server.  Set inits and add to collection
-						myExchangeServer = InitForExchangeServers(myExchangeServer, DR);
-						myExchangeServers.Add(myExchangeServer);
-						newServers++;
-					}
+                        Common.WriteDeviceHistoryEntry("All", "Exchange", "Exception in CreateExchangeServersCollection when init new server. Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
+                    }
 
-					ExchgThreshold = GetExhangeThresholdSettings(DR);
-					myExchangeServer.ThresholdSetting = ExchgThreshold;
+                    ExchgThreshold = new MonitoredItems.ExchangeThresholdSettings();
+                    ExchgThreshold.PoisonQThreshold = entity.PosionQueueThreshold.HasValue ? entity.PosionQueueThreshold.Value : -1;
+                    ExchgThreshold.SubQThreshold = entity.SubmissionQueueThreshold.HasValue ? entity.SubmissionQueueThreshold.Value : -1;
+                    ExchgThreshold.TotalQThreshold = entity.TotalQueueThreshold.HasValue ? entity.TotalQueueThreshold.Value : -1;
+                    ExchgThreshold.UnReachableQThreshold = entity.UnreachableQueueThreshold.HasValue ? entity.UnreachableQueueThreshold.Value : -1;
+                    ExchgThreshold.ShadowQThreshold = entity.ShadowQueueThreshold.HasValue ? entity.ShadowQueueThreshold.Value : -1;
+                    myExchangeServer.ThresholdSetting = ExchgThreshold;
 
-					myExchangeServer = SetExchangeServerSettings(myExchangeServer, DR);
+
+
+                    myExchangeServer.ServerObjectID = entity.Id;
+                    myExchangeServer.IPAddress = entity.IPAddress;
+                    myExchangeServer.Name = entity.DeviceName;
+
+                    try
+                    {
+                        var creds = listOfCredentials.Where(x => x.Id == entity.CredentialsId).First();
+                        myExchangeServer.UserName = creds.UserId;
+                        myExchangeServer.Password = decodePasswordFromEncodedString(creds.Password, myExchangeServer.Name);
+                    }                       
+                    catch(Exception ex)
+                    {
+                        
+                    }
+
+                    try
+                    {
+                        var location = listOfLocations.Where(x => x.Id == entity.LocationId).First();
+                        myExchangeServer.Location = location.LocationName;
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+
+                    myExchangeServer.ResponseThreshold = entity.ResponseTime.HasValue ? entity.ResponseTime.Value : -1;
+                    myExchangeServer.ScanInterval = entity.ScanInterval.HasValue ? entity.ScanInterval.Value : 8;
+                    myExchangeServer.OffHoursScanInterval = entity.OffHoursScanInterval.HasValue ? entity.OffHoursScanInterval.Value : 10;
+                    myExchangeServer.RetryInterval = entity.RetryInterval.HasValue ? entity.RetryInterval.Value : 3;
+                    myExchangeServer.CPU_Threshold = entity.CpuThreshold.HasValue ? entity.CpuThreshold.Value : .9;
+                    myExchangeServer.Memory_Threshold = entity.MemoryThreshold.HasValue ? entity.MemoryThreshold.Value : .9;
+
+                    //myExchangeServer.DAGScan = DR["ScanDAGHealth"].ToString() == "" ? fals
+
+                    /*e : bool.Parse(DR["ScanDAGHealth"].ToString());
+                    //myExchangeServer.VersionNo = DR["VersionNo"].ToString();
+                    myExchangeServer.CASActiveSync = DR["CASActiveSync"].ToString() == "" ? false : Convert.ToBoolean(DR["CASActiveSync"]);
+                    MyExchangeServer.CASAutoDiscovery = DR["CASAutoDiscovery"].ToString() == "" ? false : Convert.ToBoolean(DR["CASAutoDiscovery"]);
+                    MyExchangeServer.CASECP = DR["CASECP"].ToString() == "" ? false : Convert.ToBoolean(DR["CASECP"]);
+                    MyExchangeServer.CASEWS = DR["CASEWS"].ToString() == "" ? false : Convert.ToBoolean(DR["CASEWS"]);
+                    MyExchangeServer.CASImap = DR["CASImap"].ToString() == "" ? false : Convert.ToBoolean(DR["CASImap"]);
+                    MyExchangeServer.CASOAB = DR["CASOAB"].ToString() == "" ? false : Convert.ToBoolean(DR["CASOAB"]);
+                    MyExchangeServer.CASOARPC = DR["CASOARPC"].ToString() == "" ? false : Convert.ToBoolean(DR["CASOARPC"]);
+                    MyExchangeServer.CASOWA = DR["CASOWA"].ToString() == "" ? false : Convert.ToBoolean(DR["CASOWA"]);
+                    MyExchangeServer.CASPop3 = DR["CASPop3"].ToString() == "" ? false : Convert.ToBoolean(DR["CASPop3"]);
+                    MyExchangeServer.CASSmtp = DR["CASSmtp"].ToString() == "" ? false : Convert.ToBoolean(DR["CASSmtp"]);
+                    MyExchangeServer.ActiveSyncUserName = DR["ASUserId"].ToString();
+                    MyExchangeServer.ActiveSyncPassword = decodePasswordFromEncodedString(DR["ASPassword"].ToString(), MyExchangeServer.Name);
+                    */
+
+                    myExchangeServer.ServerDaysAlert = entity.ConsecutiveOverThresholdBeforeAlert.HasValue ? "" + entity.ConsecutiveOverThresholdBeforeAlert.Value : "3";
+                    myExchangeServer.FailureThreshold = entity.ConsecutiveFailuresBeforeAlert.HasValue ? entity.ConsecutiveFailuresBeforeAlert.Value : 3;
+                    myExchangeServer.Category = entity.Category;
+                    /*
+                    myExchangeServer.LatencyRedThreshold = (DR["LatencyRedThreshold"] == null || DR["LatencyRedThreshold"].ToString() == "") ? 20000 : int.Parse(DR["LatencyRedThreshold"].ToString());
+                    myExchangeServer.LatencyYellowThreshold = (DR["LatencyYellowThreshold"] == null || DR["LatencyYellowThreshold"].ToString() == "") ? 20000 : int.Parse(DR["LatencyYellowThreshold"].ToString());
+                    MyExchangeServer.EnableLatencyTest = (DR["EnableLatencyTest"] == null || DR["EnableLatencyTest"].ToString() == "") ? false : Convert.ToBoolean(DR["EnableLatencyTest"]);
+                    */
+                    myExchangeServer.Enabled = true;
+                    myExchangeServer.InsufficentLicenses = entity.CurrentNode != null && entity.CurrentNode == "-1" ? true : false;
+                    myExchangeServer.AuthenticationType = entity.AuthenticationType != null && entity.AuthenticationType != "" ? entity.AuthenticationType : "Default";
+                    myExchangeServer.IsPrereqsDone = entity.ArePrerequisitesDone.HasValue ? entity.ArePrerequisitesDone.Value : false;
+                    // MyExchangeServer.TestId = int.Parse(DR["TestId"].ToString());
+                    //MyExchangeServer.CASUserName = DR["CASUserId"].ToString();
+                    //MyExchangeServer.CASPassword = decodePasswordFromEncodedString(DR["CASPassword"].ToString(), MyExchangeServer.Name);
+                    //MyExchangeServer.URLs =  DR["URLs"].ToString();
+                    Common.WriteDeviceHistoryEntry("All", myExchangeServer.ServerType, "In SetExchangeServerSettings: 1", Common.LogLevel.Normal);
+                    /*
+                    CommonDB db = new CommonDB();
+                    DataTable dt = db.GetData("select TestName,cr3.UserID CASUserId,cr3.Password CASPassword,CT.URLs from [ExchangeTestNames] ET inner join [CASServerTests] CT on ET.TestId=CT.TestId left outer join credentials cr3 on cr3.ID=CT.CredentialsId  where ServerId=" + MyExchangeServer.ServerId + "");
+
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        Common.WriteDeviceHistoryEntry("All", MyExchangeServer.ServerType, "In SetExchangeServerSettings: 1" + row["TestName"].ToString(), Common.LogLevel.Normal);
+
+                        switch (row["TestName"].ToString())
+                        {
+                            case "SMTP":
+                                MyExchangeServer.CASSmtp = true;
+                                // MyExchangeServer.CASSmtp = Convert.ToBoolean(DR["CASSmtp"].ToString());
+                                MyExchangeServer.SMTPCASUserName = row["CASUserId"].ToString();
+                                if (MyExchangeServer.SMTPCASUserName == "" || MyExchangeServer.SMTPCASUserName == null)
+                                {
+                                    MyExchangeServer.SMTPCASUserName = MyExchangeServer.UserName;
+                                }
+                                MyExchangeServer.SMTPCASPassword = decodePasswordFromEncodedString(row["CASPassword"].ToString(), MyExchangeServer.Name);
+                                if (MyExchangeServer.SMTPCASPassword == "" || MyExchangeServer.SMTPCASPassword == null)
+                                {
+                                    MyExchangeServer.SMTPCASPassword = MyExchangeServer.Password;
+                                }
+                                MyExchangeServer.SMTPURLs = row["URLs"].ToString();
+                                if (MyExchangeServer.SMTPURLs == "" || MyExchangeServer.SMTPURLs == null)
+                                {
+                                    MyExchangeServer.SMTPURLs = MyExchangeServer.IPAddress;
+                                }
+
+                                break;
+                            case "POP3":
+                                MyExchangeServer.CASPop3 = true;
+                                // MyExchangeServer.CASPop3 = Convert.ToBoolean(DR["CASPop3"].ToString());
+                                MyExchangeServer.POP3CASUserName = row["CASUserId"].ToString();
+                                if (MyExchangeServer.POP3CASUserName == "" || MyExchangeServer.POP3CASUserName == null)
+                                {
+                                    MyExchangeServer.POP3CASUserName = MyExchangeServer.UserName;
+                                }
+                                MyExchangeServer.POP3CASPassword = decodePasswordFromEncodedString(row["CASPassword"].ToString(), MyExchangeServer.Name);
+                                if (MyExchangeServer.POP3CASPassword == "" || MyExchangeServer.POP3CASPassword == null)
+                                {
+                                    MyExchangeServer.POP3CASPassword = MyExchangeServer.Password;
+                                }
+                                MyExchangeServer.POP3URLs = row["URLs"].ToString();
+                                if (MyExchangeServer.POP3URLs == "" || MyExchangeServer.POP3URLs == null)
+                                {
+                                    MyExchangeServer.POP3URLs = MyExchangeServer.IPAddress;
+                                }
+                                break;
+                            case "IMAP":
+                                MyExchangeServer.CASImap = true;
+                                //  MyExchangeServer.CASImap = Convert.ToBoolean(DR["CASImap"].ToString());
+                                MyExchangeServer.IMAPCASUserName = row["CASUserId"].ToString();
+                                if (MyExchangeServer.IMAPCASUserName == "" || MyExchangeServer.IMAPCASUserName == null)
+                                {
+                                    MyExchangeServer.IMAPCASUserName = MyExchangeServer.UserName;
+                                }
+                                MyExchangeServer.IMAPCASPassword = decodePasswordFromEncodedString(row["CASPassword"].ToString(), MyExchangeServer.Name);
+                                if (MyExchangeServer.IMAPCASPassword == "" || MyExchangeServer.IMAPCASPassword == null)
+                                {
+                                    MyExchangeServer.IMAPCASPassword = MyExchangeServer.Password;
+                                }
+                                MyExchangeServer.IMAPURLs = row["URLs"].ToString();
+                                if (MyExchangeServer.IMAPURLs == "" || MyExchangeServer.IMAPURLs == null)
+                                {
+                                    MyExchangeServer.IMAPURLs = MyExchangeServer.IPAddress;
+                                }
+                                break;
+                            case "Outlook Anywhere":
+                                MyExchangeServer.CASEWS = true;
+                                //MyExchangeServer.CASEWS = Convert.ToBoolean(DR["CASEWS"].ToString());
+                                MyExchangeServer.OutlookAnywhereCASUserName = row["CASUserId"].ToString();
+                                if (MyExchangeServer.OutlookAnywhereCASUserName == "" || MyExchangeServer.OutlookAnywhereCASUserName == null)
+                                {
+                                    MyExchangeServer.OutlookAnywhereCASUserName = MyExchangeServer.UserName;
+                                }
+                                MyExchangeServer.OutlookAnywhereCASPassword = decodePasswordFromEncodedString(row["CASPassword"].ToString(), MyExchangeServer.Name);
+                                if (MyExchangeServer.OutlookAnywhereCASPassword == "" || MyExchangeServer.OutlookAnywhereCASPassword == null)
+                                {
+                                    MyExchangeServer.OutlookAnywhereCASPassword = MyExchangeServer.Password;
+                                }
+                                MyExchangeServer.OutlookAnywhereURLs = row["URLs"].ToString();
+                                if (MyExchangeServer.OutlookAnywhereURLs == "" || MyExchangeServer.OutlookAnywhereURLs == null)
+                                {
+                                    MyExchangeServer.OutlookAnywhereURLs = MyExchangeServer.IPAddress;
+                                }
+                                break;
+                            case "Auto Discovery":
+                                MyExchangeServer.CASAutoDiscovery = true;
+                                //MyExchangeServer.CASAutoDiscovery = Convert.ToBoolean(DR["CASAutoDiscovery"].ToString());
+                                MyExchangeServer.AutoDiscoveryCASUserName = row["CASUserId"].ToString();
+
+                                if (MyExchangeServer.AutoDiscoveryCASUserName == "" || MyExchangeServer.AutoDiscoveryCASUserName == null)
+                                {
+                                    MyExchangeServer.AutoDiscoveryCASUserName = MyExchangeServer.UserName;
+                                }
+                                MyExchangeServer.AutoDiscoveryCASPassword = decodePasswordFromEncodedString(row["CASPassword"].ToString(), MyExchangeServer.Name);
+                                if (MyExchangeServer.AutoDiscoveryCASPassword == "" || MyExchangeServer.AutoDiscoveryCASPassword == null)
+                                {
+                                    MyExchangeServer.AutoDiscoveryCASPassword = MyExchangeServer.Password;
+                                }
+                                MyExchangeServer.AutoDiscoveryURLs = row["URLs"].ToString();
+                                if (MyExchangeServer.AutoDiscoveryURLs == "" || MyExchangeServer.AutoDiscoveryURLs == null)
+                                {
+                                    MyExchangeServer.AutoDiscoveryURLs = MyExchangeServer.IPAddress;
+                                }
+                                break;
+
+                            case "Active Sync":
+                                MyExchangeServer.CASActiveSync = true;
+                                //MyExchangeServer.CASActiveSync = Convert.ToBoolean(DR["CASActiveSync"].ToString());
+                                MyExchangeServer.ActiveSyncCASUserName = row["CASUserId"].ToString();
+                                if (MyExchangeServer.ActiveSyncCASUserName == "" || MyExchangeServer.ActiveSyncCASUserName == null)
+                                {
+                                    MyExchangeServer.ActiveSyncCASUserName = MyExchangeServer.UserName;
+                                }
+                                MyExchangeServer.ActiveSyncCASPassword = decodePasswordFromEncodedString(row["CASPassword"].ToString(), MyExchangeServer.Name);
+                                if (MyExchangeServer.ActiveSyncCASPassword == "" || MyExchangeServer.ActiveSyncCASPassword == null)
+                                {
+                                    MyExchangeServer.ActiveSyncCASPassword = MyExchangeServer.Password;
+                                }
+                                MyExchangeServer.ActiveSyncURLs = row["URLs"].ToString();
+                                if (MyExchangeServer.ActiveSyncURLs == "" || MyExchangeServer.ActiveSyncURLs == null)
+                                {
+                                    MyExchangeServer.ActiveSyncURLs = MyExchangeServer.IPAddress;
+                                }
+                                break;
+                            case "OWA (Outlook Web App)":
+                                MyExchangeServer.CASOWA = true;
+                                //MyExchangeServer.CASOWA = Convert.ToBoolean(DR["CASOWA"].ToString());
+                                MyExchangeServer.OWACASUserName = row["CASUserId"].ToString();
+                                if (MyExchangeServer.OWACASUserName == "" || MyExchangeServer.OWACASUserName == null)
+                                {
+                                    MyExchangeServer.OWACASUserName = MyExchangeServer.UserName;
+                                }
+                                MyExchangeServer.OWACASPassword = decodePasswordFromEncodedString(row["CASPassword"].ToString(), MyExchangeServer.Name);
+                                if (MyExchangeServer.OWACASPassword == "" || MyExchangeServer.OWACASPassword == null)
+                                {
+                                    MyExchangeServer.OWACASPassword = MyExchangeServer.Password;
+                                }
+                                MyExchangeServer.OWAURLs = row["URLs"].ToString();
+                                if (MyExchangeServer.OWAURLs == "" || MyExchangeServer.OWAURLs == null)
+                                {
+                                    MyExchangeServer.OWAURLs = MyExchangeServer.IPAddress;
+                                }
+                                break;
+
+                            case "Outlook Native RPC":
+                                MyExchangeServer.CASOARPC = true;
+                                // MyExchangeServer.CASOARPC = Convert.ToBoolean(DR["CASOARPC"].ToString());
+                                MyExchangeServer.RPCCASUserName = row["CASUserId"].ToString();
+                                if (MyExchangeServer.RPCCASUserName == "" || MyExchangeServer.RPCCASUserName == null)
+                                {
+                                    MyExchangeServer.RPCCASUserName = MyExchangeServer.UserName;
+                                }
+                                MyExchangeServer.RPCCASPassword = decodePasswordFromEncodedString(row["CASPassword"].ToString(), MyExchangeServer.Name);
+                                if (MyExchangeServer.RPCCASPassword == "" || MyExchangeServer.RPCCASPassword == null)
+                                {
+                                    MyExchangeServer.RPCCASPassword = MyExchangeServer.Password;
+                                }
+                                MyExchangeServer.RPCURLs = row["URLs"].ToString();
+                                if (MyExchangeServer.RPCURLs == "" || MyExchangeServer.RPCURLs == null)
+                                {
+                                    MyExchangeServer.RPCURLs = MyExchangeServer.IPAddress;
+                                }
+                                break;
+
+                        }
+
+                    }
+                    */
+
+
+
+
+
+
+
+                    //myExchangeServer = SetExchangeServerSettings(myExchangeServer, DR);
 
 					//newCollection.Add(SetExchangeServerSettings(myExchangeServer, DR));
 
@@ -330,245 +668,6 @@ namespace VitalSignsMicrosoftClasses
 			//At this point we have all Servers with ALL the information(including Threshold settings)
 		}
 
-		private MonitoredItems.ExchangeServer InitForExchangeServers(MonitoredItems.ExchangeServer MyExchangeServer, DataRow DR)
-		{
-			MyExchangeServer = new MonitoredItems.ExchangeServer();
-			MyExchangeServer.Role = new String[0];
-			MyExchangeServer.ServerType = "Exchange";
-			MyExchangeServer.LastScan = DR["LastUpdate"] == null || DR["LastUpdate"].ToString() == "" ? DateTime.Now : DateTime.Parse(DR["LastUpdate"].ToString());
-			MyExchangeServer.Status = DR["Status"] == null || DR["Status"].ToString() == "" ? "Not Scanned" : DR["Status"].ToString();
-			MyExchangeServer.StatusCode = DR["StatusCode"] == null || DR["StatusCode"].ToString() == "" ? "Maintenance" : DR["StatusCode"].ToString();
-
-			return MyExchangeServer;
-		}
-
-		private MonitoredItems.ExchangeServer SetExchangeServerSettings(MonitoredItems.ExchangeServer MyExchangeServer, DataRow DR)
-		{
-			MyExchangeServer.ServerId = DR["ID"].ToString();
-			MyExchangeServer.IPAddress = DR["IPAddress"].ToString();
-			MyExchangeServer.Name = DR["ServerName"].ToString();
-			MyExchangeServer.UserName = DR["UserID"].ToString();
-			MyExchangeServer.Password = decodePasswordFromEncodedString(DR["Password"].ToString(), MyExchangeServer.Name);
-			MyExchangeServer.Location = DR["Location"].ToString();
-			MyExchangeServer.ResponseThreshold = long.Parse(DR["ResponseTime"].ToString());
-			MyExchangeServer.ScanInterval = int.Parse(DR["ScanInterval"].ToString());
-			MyExchangeServer.OffHoursScanInterval = int.Parse(DR["OffHourInterval"].ToString());
-			MyExchangeServer.RetryInterval = int.Parse(DR["RetryInterval"].ToString());
-			MyExchangeServer.CPU_Threshold = int.Parse(DR["CPU_Threshold"].ToString());
-			MyExchangeServer.Memory_Threshold = int.Parse(DR["MemThreshold"].ToString());
-
-			MyExchangeServer.DAGScan = DR["ScanDAGHealth"].ToString() == "" ? false : bool.Parse(DR["ScanDAGHealth"].ToString());
-			MyExchangeServer.VersionNo =  DR["VersionNo"].ToString();
-			MyExchangeServer.CASActiveSync = DR["CASActiveSync"].ToString() == "" ? false : Convert.ToBoolean(DR["CASActiveSync"]);
-			MyExchangeServer.CASAutoDiscovery = DR["CASAutoDiscovery"].ToString() == "" ? false : Convert.ToBoolean(DR["CASAutoDiscovery"]);
-			MyExchangeServer.CASECP = DR["CASECP"].ToString() == "" ? false : Convert.ToBoolean(DR["CASECP"]);
-			MyExchangeServer.CASEWS = DR["CASEWS"].ToString() == "" ? false : Convert.ToBoolean(DR["CASEWS"]);
-			MyExchangeServer.CASImap = DR["CASImap"].ToString() == "" ? false : Convert.ToBoolean(DR["CASImap"]);
-			MyExchangeServer.CASOAB = DR["CASOAB"].ToString() == "" ? false : Convert.ToBoolean(DR["CASOAB"]);
-			MyExchangeServer.CASOARPC = DR["CASOARPC"].ToString() == "" ? false : Convert.ToBoolean(DR["CASOARPC"]);
-			MyExchangeServer.CASOWA = DR["CASOWA"].ToString() == "" ? false : Convert.ToBoolean(DR["CASOWA"]);
-			MyExchangeServer.CASPop3 = DR["CASPop3"].ToString() == "" ? false : Convert.ToBoolean(DR["CASPop3"]);
-			MyExchangeServer.CASSmtp = DR["CASSmtp"].ToString() == "" ? false : Convert.ToBoolean(DR["CASSmtp"]);
-			MyExchangeServer.ActiveSyncUserName = DR["ASUserId"].ToString();
-			MyExchangeServer.ActiveSyncPassword = decodePasswordFromEncodedString(DR["ASPassword"].ToString(), MyExchangeServer.Name);
-			MyExchangeServer.ServerDaysAlert = DR["ConsOvrThresholdBefAlert"].ToString();
-			MyExchangeServer.FailureThreshold = int.Parse(DR["ConsFailuresBefAlert"].ToString());
-			MyExchangeServer.Category = DR["Category"].ToString();
-			MyExchangeServer.ServerTypeId =int.Parse( DR["ServerTypeId"].ToString());
-			MyExchangeServer.LatencyRedThreshold = (DR["LatencyRedThreshold"] == null || DR["LatencyRedThreshold"].ToString() == "") ? 20000 : int.Parse(DR["LatencyRedThreshold"].ToString());
-			MyExchangeServer.LatencyYellowThreshold = (DR["LatencyYellowThreshold"] == null || DR["LatencyYellowThreshold"].ToString() == "") ? 20000 : int.Parse(DR["LatencyYellowThreshold"].ToString());
-			MyExchangeServer.EnableLatencyTest = (DR["EnableLatencyTest"] == null || DR["EnableLatencyTest"].ToString() == "") ? false : Convert.ToBoolean(DR["EnableLatencyTest"]);
-			MyExchangeServer.Enabled = true;
-			MyExchangeServer.InsufficentLicenses = DR["CurrentNodeID"] != null && DR["CurrentNodeID"].ToString() == "-1" ? true : false;
-			MyExchangeServer.AuthenticationType = DR["AuthenticationType"] != null && DR["AuthenticationType"].ToString() != "" ? DR["AuthenticationType"].ToString() : "Default";
-           // MyExchangeServer.TestId = int.Parse(DR["TestId"].ToString());
-            //MyExchangeServer.CASUserName = DR["CASUserId"].ToString();
-            //MyExchangeServer.CASPassword = decodePasswordFromEncodedString(DR["CASPassword"].ToString(), MyExchangeServer.Name);
-            //MyExchangeServer.URLs =  DR["URLs"].ToString();
-            Common.WriteDeviceHistoryEntry("All", MyExchangeServer.ServerType, "In SetExchangeServerSettings: 1", Common.LogLevel.Normal);
-            CommonDB db = new CommonDB();
-            DataTable dt = db.GetData("select TestName,cr3.UserID CASUserId,cr3.Password CASPassword,CT.URLs from [ExchangeTestNames] ET inner join [CASServerTests] CT on ET.TestId=CT.TestId left outer join credentials cr3 on cr3.ID=CT.CredentialsId  where ServerId=" + MyExchangeServer.ServerId + "");
-
-            foreach (DataRow row in dt.Rows)
-            {
-                Common.WriteDeviceHistoryEntry("All", MyExchangeServer.ServerType, "In SetExchangeServerSettings: 1" + row["TestName"].ToString(), Common.LogLevel.Normal);
-
-                switch (row["TestName"].ToString())
-                {
-                    case "SMTP":
-                        MyExchangeServer.CASSmtp = true;
-                       // MyExchangeServer.CASSmtp = Convert.ToBoolean(DR["CASSmtp"].ToString());
-                        MyExchangeServer.SMTPCASUserName = row["CASUserId"].ToString();
-                        if (MyExchangeServer.SMTPCASUserName == "" || MyExchangeServer.SMTPCASUserName == null)
-                        {
-                            MyExchangeServer.SMTPCASUserName = MyExchangeServer.UserName;
-                        }                       
-                        MyExchangeServer.SMTPCASPassword = decodePasswordFromEncodedString(row["CASPassword"].ToString(), MyExchangeServer.Name);
-                        if (MyExchangeServer.SMTPCASPassword == "" || MyExchangeServer.SMTPCASPassword == null)
-                        {
-                            MyExchangeServer.SMTPCASPassword = MyExchangeServer.Password;
-                        }
-                        MyExchangeServer.SMTPURLs = row["URLs"].ToString();
-                        if (MyExchangeServer.SMTPURLs == "" || MyExchangeServer.SMTPURLs == null)
-                        {
-                            MyExchangeServer.SMTPURLs = MyExchangeServer.IPAddress;
-                        }
-                       
-                        break;
-                    case "POP3":
-                        MyExchangeServer.CASPop3 = true;
-                       // MyExchangeServer.CASPop3 = Convert.ToBoolean(DR["CASPop3"].ToString());
-                       MyExchangeServer.POP3CASUserName = row["CASUserId"].ToString();
-                       if (MyExchangeServer.POP3CASUserName == "" || MyExchangeServer.POP3CASUserName == null)
-                        {
-                            MyExchangeServer.POP3CASUserName = MyExchangeServer.UserName;
-                        }                       
-                        MyExchangeServer.POP3CASPassword = decodePasswordFromEncodedString(row["CASPassword"].ToString(), MyExchangeServer.Name);
-                        if (MyExchangeServer.POP3CASPassword == "" || MyExchangeServer.POP3CASPassword == null)
-                        {
-                            MyExchangeServer.POP3CASPassword = MyExchangeServer.Password;
-                        }
-                        MyExchangeServer.POP3URLs = row["URLs"].ToString();
-                        if (MyExchangeServer.POP3URLs == "" || MyExchangeServer.POP3URLs == null)
-                        {
-                            MyExchangeServer.POP3URLs = MyExchangeServer.IPAddress;
-                        }
-                        break;
-                    case "IMAP":
-                        MyExchangeServer.CASImap = true;
-                      //  MyExchangeServer.CASImap = Convert.ToBoolean(DR["CASImap"].ToString());
-                       MyExchangeServer.IMAPCASUserName = row["CASUserId"].ToString();
-                       if (MyExchangeServer.IMAPCASUserName == "" || MyExchangeServer.IMAPCASUserName == null)
-                        {
-                            MyExchangeServer.IMAPCASUserName = MyExchangeServer.UserName;
-                        }                       
-                        MyExchangeServer.IMAPCASPassword = decodePasswordFromEncodedString(row["CASPassword"].ToString(), MyExchangeServer.Name);
-                        if (MyExchangeServer.IMAPCASPassword == "" || MyExchangeServer.IMAPCASPassword == null)
-                        {
-                            MyExchangeServer.IMAPCASPassword = MyExchangeServer.Password;
-                        }
-                        MyExchangeServer.IMAPURLs = row["URLs"].ToString();
-                        if (MyExchangeServer.IMAPURLs == "" || MyExchangeServer.IMAPURLs == null)
-                        {
-                            MyExchangeServer.IMAPURLs = MyExchangeServer.IPAddress;
-                        }
-                        break;
-                    case "Outlook Anywhere":
-                        MyExchangeServer.CASEWS = true;
-                        //MyExchangeServer.CASEWS = Convert.ToBoolean(DR["CASEWS"].ToString());
-                       MyExchangeServer.OutlookAnywhereCASUserName = row["CASUserId"].ToString();
-                       if (MyExchangeServer.OutlookAnywhereCASUserName == "" || MyExchangeServer.OutlookAnywhereCASUserName == null)
-                        {
-                            MyExchangeServer.OutlookAnywhereCASUserName = MyExchangeServer.UserName;
-                        }                       
-                        MyExchangeServer.OutlookAnywhereCASPassword = decodePasswordFromEncodedString(row["CASPassword"].ToString(), MyExchangeServer.Name);
-                        if (MyExchangeServer.OutlookAnywhereCASPassword == "" || MyExchangeServer.OutlookAnywhereCASPassword == null)
-                        {
-                            MyExchangeServer.OutlookAnywhereCASPassword = MyExchangeServer.Password;
-                        }
-                        MyExchangeServer.OutlookAnywhereURLs = row["URLs"].ToString();
-                        if (MyExchangeServer.OutlookAnywhereURLs == "" || MyExchangeServer.OutlookAnywhereURLs == null)
-                        {
-                            MyExchangeServer.OutlookAnywhereURLs = MyExchangeServer.IPAddress;
-                        }
-                        break;
-                    case "Auto Discovery":
-                        MyExchangeServer.CASAutoDiscovery = true;
-                        //MyExchangeServer.CASAutoDiscovery = Convert.ToBoolean(DR["CASAutoDiscovery"].ToString());
-                        MyExchangeServer.AutoDiscoveryCASUserName = row["CASUserId"].ToString();
-         
-                        if (MyExchangeServer.AutoDiscoveryCASUserName == "" || MyExchangeServer.AutoDiscoveryCASUserName == null)
-                        {
-                            MyExchangeServer.AutoDiscoveryCASUserName = MyExchangeServer.UserName;
-                        }                       
-                        MyExchangeServer.AutoDiscoveryCASPassword = decodePasswordFromEncodedString(row["CASPassword"].ToString(), MyExchangeServer.Name);
-                        if (MyExchangeServer.AutoDiscoveryCASPassword == "" || MyExchangeServer.AutoDiscoveryCASPassword == null)
-                        {
-                            MyExchangeServer.AutoDiscoveryCASPassword = MyExchangeServer.Password;
-                        }
-                        MyExchangeServer.AutoDiscoveryURLs = row["URLs"].ToString();
-                        if (MyExchangeServer.AutoDiscoveryURLs == "" || MyExchangeServer.AutoDiscoveryURLs == null)
-                        {
-                            MyExchangeServer.AutoDiscoveryURLs = MyExchangeServer.IPAddress;
-                        }
-                        break;
-
-                    case "Active Sync":
-                        MyExchangeServer.CASActiveSync = true;
-                        //MyExchangeServer.CASActiveSync = Convert.ToBoolean(DR["CASActiveSync"].ToString());
-                      MyExchangeServer.ActiveSyncCASUserName = row["CASUserId"].ToString();
-                      if (MyExchangeServer.ActiveSyncCASUserName == "" || MyExchangeServer.ActiveSyncCASUserName == null)
-                        {
-                            MyExchangeServer.ActiveSyncCASUserName = MyExchangeServer.UserName;
-                        }                       
-                        MyExchangeServer.ActiveSyncCASPassword = decodePasswordFromEncodedString(row["CASPassword"].ToString(), MyExchangeServer.Name);
-                        if (MyExchangeServer.ActiveSyncCASPassword == "" || MyExchangeServer.ActiveSyncCASPassword == null)
-                        {
-                            MyExchangeServer.ActiveSyncCASPassword = MyExchangeServer.Password;
-                        }
-                        MyExchangeServer.ActiveSyncURLs = row["URLs"].ToString();
-                        if (MyExchangeServer.ActiveSyncURLs == "" || MyExchangeServer.ActiveSyncURLs == null)
-                        {
-                            MyExchangeServer.ActiveSyncURLs = MyExchangeServer.IPAddress;
-                        }
-                        break;
-                    case "OWA (Outlook Web App)":
-                        MyExchangeServer.CASOWA = true;
-                        //MyExchangeServer.CASOWA = Convert.ToBoolean(DR["CASOWA"].ToString());
-                       MyExchangeServer.OWACASUserName = row["CASUserId"].ToString();
-                       if (MyExchangeServer.OWACASUserName == "" || MyExchangeServer.OWACASUserName == null)
-                        {
-                            MyExchangeServer.OWACASUserName = MyExchangeServer.UserName;
-                        }                       
-                        MyExchangeServer.OWACASPassword = decodePasswordFromEncodedString(row["CASPassword"].ToString(), MyExchangeServer.Name);
-                        if (MyExchangeServer.OWACASPassword == "" || MyExchangeServer.OWACASPassword == null)
-                        {
-                            MyExchangeServer.OWACASPassword = MyExchangeServer.Password;
-                        }
-                        MyExchangeServer.OWAURLs = row["URLs"].ToString();
-                        if (MyExchangeServer.OWAURLs == "" || MyExchangeServer.OWAURLs == null)
-                        {
-                            MyExchangeServer.OWAURLs = MyExchangeServer.IPAddress;
-                        }
-                        break;
-
-                    case "Outlook Native RPC":
-                        MyExchangeServer.CASOARPC = true;
-                       // MyExchangeServer.CASOARPC = Convert.ToBoolean(DR["CASOARPC"].ToString());
-                      MyExchangeServer.RPCCASUserName = row["CASUserId"].ToString();
-                      if (MyExchangeServer.RPCCASUserName == "" || MyExchangeServer.RPCCASUserName == null)
-                        {
-                            MyExchangeServer.RPCCASUserName = MyExchangeServer.UserName;
-                        }                       
-                        MyExchangeServer.RPCCASPassword = decodePasswordFromEncodedString(row["CASPassword"].ToString(), MyExchangeServer.Name);
-                        if (MyExchangeServer.RPCCASPassword == "" || MyExchangeServer.RPCCASPassword == null)
-                        {
-                            MyExchangeServer.RPCCASPassword = MyExchangeServer.Password;
-                        }
-                        MyExchangeServer.RPCURLs = row["URLs"].ToString();
-                        if (MyExchangeServer.RPCURLs == "" || MyExchangeServer.RPCURLs == null)
-                        {
-                            MyExchangeServer.RPCURLs = MyExchangeServer.IPAddress;
-                        }
-                        break;
-
-                }
-
-            }
-
-			return MyExchangeServer;
-		}
-
-		private MonitoredItems.ExchangeThresholdSettings GetExhangeThresholdSettings(DataRow DR)
-		{
-			MonitoredItems.ExchangeThresholdSettings ExchgThreshold = new MonitoredItems.ExchangeThresholdSettings();
-			ExchgThreshold.PoisonQThreshold = DR["PoisonQThreshold"].ToString() == "" ? -1 : Convert.ToInt32(DR["PoisonQThreshold"]);
-			ExchgThreshold.SubQThreshold = DR["SubQThreshold"].ToString() == "" ? -1 : Convert.ToInt32(DR["SubQThreshold"]);
-			ExchgThreshold.TotalQThreshold = DR["TotalQThreshold"].ToString() == "" ? -1 : Convert.ToInt32(DR["TotalQThreshold"]);
-			ExchgThreshold.UnReachableQThreshold = DR["UnReachableQThreshold"].ToString() == "" ? -1 : Convert.ToInt32(DR["UnReachableQThreshold"]);
-			ExchgThreshold.ShadowQThreshold = DR["ShadowQThreshold"].ToString() == "" ? -1 : Convert.ToInt32(DR["ShadowQThreshold"]);
-			return ExchgThreshold;
-		}
 
 		#endregion
 
@@ -883,7 +982,7 @@ namespace VitalSignsMicrosoftClasses
 				MonitoredItems.ExchangeServer thisServer;
 				try
 				{
-					thisServer = SelectExchangeServerToMonitor();
+					thisServer = Common.SelectServerToMonitor(myExchangeServers) as MonitoredItems.ExchangeServer;
 				
 					if (thisServer != null && !thisServer.IsBeingScanned)
 					{
@@ -910,11 +1009,14 @@ namespace VitalSignsMicrosoftClasses
 						Common.ServerInMaintenance(thisServer);
 						goto CleanUp;
 					}
-                    Common.SetupServer(thisServer, thisServer.ServerType);
+                    
 					TestResults AllTestResults = new TestResults();
-					//IServerRole ServerRole = null;
-					// Create Powershell Instance to pass for Check Server
-					ReturnPowerShellObjects results = null;
+
+                    Common.SetupServer(thisServer, thisServer.ServerType, AllTestResults, AuthenticationType: thisServer.AuthenticationType);
+
+                    //IServerRole ServerRole = null;
+                    // Create Powershell Instance to pass for Check Server
+                    ReturnPowerShellObjects results = null;
 					//results = Common.PrereqForExchange(thisServer.Name, thisServer.UserName, thisServer.Password, "Exchange", thisServer.IPAddress);
 
 					//this list will get all the class names
@@ -1116,219 +1218,6 @@ namespace VitalSignsMicrosoftClasses
 
 		}
 
-		public MonitoredItems.ExchangeServer SelectExchangeServerToMonitor()
-		{
-
-			DateTime tNow = DateTime.Now;
-			DateTime tScheduled;
-
-			DateTime timeOne;
-			DateTime timeTwo;
-
-			MonitoredItems.ExchangeServer SelectedServer = null;
-
-			MonitoredItems.ExchangeServer ServerOne = null;
-			MonitoredItems.ExchangeServer ServerTwo = null;
-
-			RegistryHandler myRegistry = new RegistryHandler();
-
-			String ScanASAP = "";
-			String strSQL = "";
-			String ServerType = "Exchange";
-			CommonDB db = new CommonDB();
-			String serverName = "";
-
-			try
-			{
-				
-		
-				strSQL = "Select svalue from ScanSettings where sname = 'Scan" + ServerType + "ASAP'";
-				DataTable dt = db.GetData(strSQL);
-				foreach (DataRow row in dt.Rows)
-				{
-					try
-					{
-						serverName = row[0].ToString();
-					}
-					catch (Exception ex)
-					{
-						continue;
-					}
-
-					for (int n = 0; n < myExchangeServers.Count; n++)
-					{
-						ServerOne = myExchangeServers.get_Item(n);
-						if (ServerOne.Name == serverName && ServerOne.IsBeingScanned == false && ServerOne.Enabled)
-						{
-							Common.WriteDeviceHistoryEntry("All", "Exchange", serverName + " was marked 'Scan ASAP' so it will be scanned next.");
-
-							strSQL = "DELETE FROM ScanSettings where sname = 'Scan" + ServerType + "ASAP' and svalue='" + serverName + "'";
-							db.Execute(strSQL);
-								
-							return ServerOne;
-						}
-
-					}
-				}
-
-			}
-			catch (Exception ex)
-			{
-
-			}
-
-
-
-
-			try
-			{
-				ScanASAP = myRegistry.ReadFromRegistry("ScanExchangeASAP").ToString();
-			}
-			catch (Exception ex)
-			{
-				ScanASAP = "";
-			}
-
-
-			//Searches for the server marked as ScanASAP, if it exists
-			for (int n = 0; n < myExchangeServers.Count; n++)
-			{
-				ServerOne = myExchangeServers.get_Item(n);
-				if (ServerOne.Name == ScanASAP && ServerOne.IsBeingScanned == false && ServerOne.Enabled)
-				{
-					Common.WriteDeviceHistoryEntry("All", "Exchange", ScanASAP + " was marked 'Scan ASAP' so it will be scanned next.");
-					myRegistry.WriteToRegistry("ScanExchangeASAP", "n/a");
-
-					//ServerOne.ScanASAP = true;
-
-					return ServerOne;
-				}
-
-			}
-
-
-			//Searches for the first enounter of a Not Responding server that is due for a scan
-			for (int n = 0; n < myExchangeServers.Count; n++)
-			{
-				ServerOne = myExchangeServers.get_Item(n);
-				if (ServerOne.Status == "Not Responding" && ServerOne.IsBeingScanned == false && ServerOne.Enabled)
-				{
-					tScheduled = ServerOne.NextScan;
-					if (DateTime.Compare(tNow, tScheduled) > 0)
-					{
-						Common.WriteDeviceHistoryEntry("All", "Exchange", "Selecting " + ServerOne.Name + " because the status is " + ServerOne.Status + ".  Next scheduled scan is at " + tScheduled.ToString());
-						return ServerOne;
-					}
-				}
-			}
-
-
-			//Searches for the first encounter of a server that has not been scanned yet
-			for (int n = 0; n < myExchangeServers.Count; n++)
-			{
-				ServerOne = myExchangeServers.get_Item(n);
-                if ((ServerOne.Status == "Not Scanned" || ServerOne.Status == "Master Service Stopped.") && ServerOne.IsBeingScanned == false && ServerOne.Enabled)
-				{
-					Common.WriteDeviceHistoryEntry("All", "Exchange", "Selecting " + ServerOne.Name + " because the status is " + ServerOne.Status + ".");
-					return ServerOne;
-				}
-			}
-
-
-			//Searches for all servers that are due for a scan
-			List<MonitoredItems.ExchangeServer> ScanCanidates = new List<MonitoredItems.ExchangeServer>();
-
-			foreach (MonitoredItems.ExchangeServer srv in myExchangeServers)
-			{
-				if (srv.IsBeingScanned == false && ServerOne.Enabled)
-				{
-					tNow = DateTime.Now;
-					tScheduled = srv.NextScan;
-					if (DateTime.Compare(tNow, tScheduled) > 0)
-					{
-						ScanCanidates.Add(srv);
-					}
-				}
-			}
-
-			if (ScanCanidates.Count == 0)
-			{
-				Thread.Sleep(10000);
-				return null;
-			}
-
-
-
-			//Start with the first two servers
-			ServerOne = ScanCanidates.ElementAt(0);
-			if (ScanCanidates.Count > 1)
-				ServerTwo = ScanCanidates.ElementAt(1);
-
-			if (ScanCanidates.Count > 2)
-			{
-				try
-				{
-					for (int n = 2; n < ScanCanidates.Count - 1; n++)
-					{
-						timeOne = ServerOne.NextScan;
-						timeTwo = ServerTwo.NextScan;
-						if (DateTime.Compare(timeOne, timeTwo) < 0)
-						{
-							//time on one is earlier, so keep one
-							ServerTwo = ScanCanidates.ElementAt(n);
-						}
-						else
-						{
-							//time on two is ealier, so keep two
-							ServerOne = ScanCanidates.ElementAt(n);
-						}
-					}
-				}
-				catch (Exception ex)
-				{
-					Common.WriteDeviceHistoryEntry("All", "Exchange", "Error Selecting Exchange Server... " + ex.Message);
-				}
-			}
-
-			if (ServerTwo != null)
-			{
-				timeOne = ServerOne.NextScan;
-				timeTwo = ServerTwo.NextScan;
-
-				if (DateTime.Compare(timeOne, timeTwo) < 0)
-				{
-					SelectedServer = ServerOne;
-					tScheduled = ServerOne.NextScan;
-				}
-				else
-				{
-					SelectedServer = ServerTwo;
-					tScheduled = ServerTwo.NextScan;
-				}
-				tNow = DateTime.Now;
-			}
-			else
-			{
-				SelectedServer = ServerOne;
-				tScheduled = ServerOne.NextScan;
-			}
-
-			tScheduled = SelectedServer.NextScan;
-			if (DateTime.Compare(tNow, tScheduled) < 0)
-			{
-				if (SelectedServer.Status != "Not Scanned")
-				{
-					SelectedServer = null;
-				}
-			}
-			else
-			{
-				TimeSpan mySpan = tNow - tScheduled;
-			}
-
-			return SelectedServer;
-		}
-
 		int exchangeThreadCount = 0;
 		int initialExchangeThreadCount = 0;
 		System.Collections.ArrayList AliveExchangeMainThreads = new System.Collections.ArrayList();
@@ -1368,10 +1257,6 @@ namespace VitalSignsMicrosoftClasses
 
 			for (int i = startThreads; i < exchangeThreadCount; i++)
 			{
-                ////ThreadPool.QueueUserWorkItem(new WaitCallback(MonitorExchange(i)), i);
-                //ThreadPool.QueueUserWorkItem(new WaitCallback(delegate(object state){ MonitorExchange(i); }), null);
-
-                //workingThread = new Thread(() => RoleMonitoring(ClassName, results, AllTestResults, thisServer, ref AlivePSO));
                 Thread monitorExchange = new Thread(() => MonitorExchange(i));
                 monitorExchange.CurrentCulture = c == null ? new CultureInfo("en-US") : c;  //Should only be null on our local copies if using wrapper
                 monitorExchange.IsBackground = true;

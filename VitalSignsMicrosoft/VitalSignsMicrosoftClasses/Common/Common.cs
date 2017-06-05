@@ -1411,9 +1411,10 @@ namespace VitalSignsMicrosoftClasses
             //    }
             //}
         }
-        public static void SetupServer(MonitoredItems.MicrosoftServer myServer, string ServerType, string cmdList = "", string AuthenticationType = "")
+        public static void SetupServer(MonitoredItems.MicrosoftServer myServer, string ServerType, TestResults AllTestsResults, string cmdList = "", string AuthenticationType = "")
         {
-
+            if (myServer.IsPrereqsDone)
+                return;
             ReturnPowerShellObjects results = null;
             System.Collections.ObjectModel.Collection<PSObject> result = new System.Collections.ObjectModel.Collection<PSObject>();
             Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Starting SetupServer.", Common.LogLevel.Normal);
@@ -1534,14 +1535,21 @@ namespace VitalSignsMicrosoftClasses
 
 
                 }
+
+                bool completed = false;
                 if (results.Connected == true && result.Count > 0)
                 {
-                    UpdateIsPreq(myServer.Name, true);
+                    completed = true;
                 }
                 else
                 {
-                    UpdateIsPreq(myServer.Name, false);
+                    completed = false;
                 }
+                myServer.IsPrereqsDone = completed;
+                MongoStatementsUpdate<VSNext.Mongo.Entities.Server> mongoUpdateStatement = new MongoStatementsUpdate<Server>();
+                mongoUpdateStatement.filterDef = mongoUpdateStatement.repo.Filter.Eq(x => x.Id, myServer.ServerObjectID);
+                mongoUpdateStatement.updateDef = mongoUpdateStatement.repo.Updater.Set(x => x.ArePrerequisitesDone, completed);
+                AllTestsResults.MongoEntity.Add(mongoUpdateStatement);
             }
             catch (Exception ex)
             {
@@ -1549,29 +1557,6 @@ namespace VitalSignsMicrosoftClasses
             }
         }
 
-        public static void UpdateIsPreq(string servername, bool IsPrereqs)
-        {
-            CommonDB db = new CommonDB();
-            string sqlQuery = "select IsPrereqsDone  from ServerAttributes  where ServerId=(Select ID from Servers WHERE ServerName='" + servername + "')";
-            DataTable dtServers = db.GetData(sqlQuery.ToString());
-            dtServers = db.GetData(sqlQuery.ToString());
-            if (dtServers.Rows.Count > 0)
-            {
-                DataRow DR = dtServers.Rows[0];
-                string IsPrereq = DR["IsPrereqsDone"].ToString();
-                if (IsPrereq == "True" && IsPrereqs == true)
-                {
-
-
-                }
-                else
-                {
-                    sqlQuery = "UPDATE ServerAttributes SET IsPrereqsDone='" + IsPrereqs + "' where ServerId=(Select ID from Servers WHERE ServerName='" + servername + "')";
-                    db.Execute(sqlQuery);
-                }
-            }
-
-        }
         public static string ServerStatusCode(string Status)
         {
             string StatusCode = "OK";
@@ -1982,7 +1967,7 @@ namespace VitalSignsMicrosoftClasses
 
         public static void InitStatusTable(MonitoredItems.MicrosoftServersCollection collection)
         {
-            return;
+           // return;
             try
             {
                 TestResults testsList = new TestResults();
@@ -2006,7 +1991,7 @@ namespace VitalSignsMicrosoftClasses
                             " ('" + type + "', '" + server.Location + "', '" + server.Category + "', '" + server.Name + "', '" + server.Status + "', 'This server has not yet been scanned.', " +
                             "'Microsoft " + type + " Server', '" + server.Name + "-" + type + "', '" + server.StatusCode + "') END";
 
-                        db.Execute(sql);
+                       // db.Execute(sql);
 
                         if (list.Where(i => i.DeviceName == server.Name).Count() == 0)
                         {
@@ -2048,48 +2033,48 @@ namespace VitalSignsMicrosoftClasses
 
             try
             {
-                string SqlQuery = "select DisplayName , ItemCount, TotalItemSizeInMB from ExchangeMailFiles Where Server='" + myServer.Name + "'";
-                CommonDB DB = new CommonDB("VSS_STATISTICS");
-                DataTable mailfiles = DB.GetData(SqlQuery.ToString());
-                mailfiles = DB.GetData(SqlQuery.ToString());
-                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "doSummaryStats: Count of Mailboxes." + mailfiles.Rows.Count.ToString(), Common.LogLevel.Normal);
-                if (mailfiles.Rows.Count > 0)
+                CommonDB db = new CommonDB();
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Mailbox> repo = new VSNext.Mongo.Repository.Repository<Mailbox>(db.GetMongoConnectionString());
+                FilterDefinition<VSNext.Mongo.Entities.Mailbox> filterDef = repo.Filter.Eq(x => x.DeviceId, myServer.ServerObjectID);
+                List<VSNext.Mongo.Entities.Mailbox> listOfMailboxes = repo.Find(filterDef).ToList();
+
+               // //string SqlQuery = "select DisplayName , ItemCount, TotalItemSizeInMB from ExchangeMailFiles Where Server='" + myServer.Name + "'";
+               // CommonDB DB = new CommonDB("VSS_STATISTICS");
+                //DataTable mailfiles = DB.GetData(SqlQuery.ToString());
+                //mailfiles = DB.GetData(SqlQuery.ToString());
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "doSummaryStats: Count of Mailboxes." + listOfMailboxes.Count.ToString(), Common.LogLevel.Normal);
+                if (listOfMailboxes.Count > 0)
                 {
-                    for (int i = 0; i < mailfiles.Rows.Count; i++)
+                    for (int i = 0; i < listOfMailboxes.Count; i++)
                     {
-                        DataRow DR = mailfiles.Rows[i];
-                        string DisplayName = DR["DisplayName"].ToString();
-                        string ItemCount = DR["ItemCount"].ToString();
-                        string TotalItemSizeInMB = DR["TotalItemSizeInMB"].ToString();
+                        VSNext.Mongo.Entities.Mailbox mailbox = listOfMailboxes[i];
+                        string DisplayName = mailbox.DisplayName;
+                        string ItemCount = mailbox.ItemCount.HasValue ? mailbox.ItemCount.Value.ToString() : "0";
+                        string TotalItemSizeInMB = mailbox.TotalItemSizeMb.HasValue ? mailbox.TotalItemSizeMb.Value.ToString() : "0";
 
                         AllTestsList.MongoEntity.Add(Common.GetInsertIntoSummaryStats(myServer, "Mailbox." + DisplayName + ".TotalItems.SizeMb", TotalItemSizeInMB));
                         AllTestsList.MongoEntity.Add(Common.GetInsertIntoSummaryStats(myServer, "Mailbox." + DisplayName + ".TotalItems.Count", ItemCount));
                     }
                 }
-                SqlQuery = "select COUNT(DisplayName) NoOfMailBoxes,SUM(itemcount) TotalItemCount,SUM(totalitemsizeinmb) TotalItemSizeInMB,round(AVG(totalitemsizeinmb),2) AvgSizeOfMailBox,round(AVG(itemcount),2) AvgCountOfItems from ExchangeMailFiles Where Server='" + myServer.Name + "'";
-                DataTable dtServers = DB.GetData(SqlQuery.ToString());
-                dtServers = DB.GetData(SqlQuery.ToString());
-                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "doSummaryStats: Count of Mailboxes." + dtServers.Rows.Count.ToString(), Common.LogLevel.Normal);
+                //SqlQuery = "select COUNT(DisplayName) NoOfMailBoxes,SUM(itemcount) TotalItemCount,SUM(totalitemsizeinmb) TotalItemSizeInMB,round(AVG(totalitemsizeinmb),2) AvgSizeOfMailBox,round(AVG(itemcount),2) AvgCountOfItems from ExchangeMailFiles Where Server='" + myServer.Name + "'";
+                //DataTable dtServers = DB.GetData(SqlQuery.ToString());
+               // dtServers = DB.GetData(SqlQuery.ToString());
+                //Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "doSummaryStats: Count of Mailboxes." + dtServers.Rows.Count.ToString(), Common.LogLevel.Normal);
 
-                if (dtServers.Rows.Count > 0)
+                if (listOfMailboxes.Count > 0)
                 {
-                    for (int i = 0; i < dtServers.Rows.Count; i++)
-                    {
-                        DataRow DR = dtServers.Rows[i];
-                        string NoOfMailBoxes = DR["NoOfMailBoxes"].ToString();
-                        string TotalItemCount = DR["TotalItemCount"].ToString();
-                        string TotalItemSizeInMB = DR["TotalItemSizeInMB"].ToString();
-                        string AvgSizeOfMailBox = DR["AvgSizeOfMailBox"].ToString();
-                        string AvgCountOfItems = DR["AvgCountOfItems"].ToString();
 
-                        AllTestsList.MongoEntity.Add(GetInsertIntoSummaryStats(myServer, "NoOfMailBoxes", NoOfMailBoxes));
-                        AllTestsList.MongoEntity.Add(GetInsertIntoSummaryStats(myServer, "SizeOfMailBoxes", TotalItemCount));
-                        AllTestsList.MongoEntity.Add(GetInsertIntoSummaryStats(myServer, "TotalNoOfItems", TotalItemSizeInMB));
-                        AllTestsList.MongoEntity.Add(GetInsertIntoSummaryStats(myServer, "AvgSizeOfMailBoxes", AvgSizeOfMailBox));
-                        AllTestsList.MongoEntity.Add(GetInsertIntoSummaryStats(myServer, "AvgCountOfItems", AvgCountOfItems));
+                    string NoOfMailBoxes = listOfMailboxes.Count.ToString();// DR["NoOfMailBoxes"].ToString();
+                    string TotalItemCount = listOfMailboxes.Where(x => x.ItemCount.HasValue).Sum(x => x.ItemCount).ToString(); // DR["TotalItemCount"].ToString();
+                    string TotalItemSizeInMB = listOfMailboxes.Where(x => x.TotalItemSizeMb.HasValue).Sum(x => x.TotalItemSizeMb).ToString();// DR["TotalItemSizeInMB"].ToString();
+                    string AvgSizeOfMailBox = Math.Round(listOfMailboxes.Where(x => x.TotalItemSizeMb.HasValue).Average(x => x.TotalItemSizeMb.Value), 2).ToString();// DR["AvgSizeOfMailBox"].ToString();
+                    string AvgCountOfItems = Math.Round(listOfMailboxes.Where(x => x.ItemCount.HasValue).Average(x => x.ItemCount.Value), 2).ToString();//DR["AvgCountOfItems"].ToString();
 
-
-                    }
+                    AllTestsList.MongoEntity.Add(GetInsertIntoSummaryStats(myServer, "NoOfMailBoxes", NoOfMailBoxes));
+                    AllTestsList.MongoEntity.Add(GetInsertIntoSummaryStats(myServer, "SizeOfMailBoxes", TotalItemCount));
+                    AllTestsList.MongoEntity.Add(GetInsertIntoSummaryStats(myServer, "TotalNoOfItems", TotalItemSizeInMB));
+                    AllTestsList.MongoEntity.Add(GetInsertIntoSummaryStats(myServer, "AvgSizeOfMailBoxes", AvgSizeOfMailBox));
+                    AllTestsList.MongoEntity.Add(GetInsertIntoSummaryStats(myServer, "AvgCountOfItems", AvgCountOfItems));
                 }
 
 
@@ -2106,10 +2091,15 @@ namespace VitalSignsMicrosoftClasses
             CommonDB db = new CommonDB();
             int numOfThreads = 35;
 
-            string sql = "SELECT SValue FROM Settings WHERE SName = 'ThreadLimit" + ServerType + "'";
-            DataTable dt = db.GetData(sql);
-            if (dt.Rows.Count > 0)
-                numOfThreads = Convert.ToInt32(dt.Rows[0][0].ToString());
+            try
+            {
+                RegistryHandler registry = new RegistryHandler();
+                numOfThreads = Convert.ToInt32(registry.ReadFromRegistry("ThreadLimit" + ServerType));
+
+            }
+            catch (Exception ex)
+            {
+            }
 
             return numOfThreads;
         }
@@ -2240,7 +2230,7 @@ namespace VitalSignsMicrosoftClasses
         #endregion
 
     }
-
+    
     public class ActiveSyncDevice
     {
         public string DeviceID;  //SEC3F41705A7F5BC
