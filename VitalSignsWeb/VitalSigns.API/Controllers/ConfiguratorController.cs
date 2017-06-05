@@ -1849,7 +1849,8 @@ namespace VitalSigns.API.Controllers
                     CellId = s.CellId,
                     NodeId = s.NodeId,
                     CredentialsId = s.CredentialsId,
-                    Mode = s.Mode
+                    Mode = s.Mode,
+                   RequireSSL = s.RequireSSL
 
                     // CellName = serversRepository.Collection.Find(filter).AsQueryable().Select(x => x.NodeId).FirstOrDefault(),
                     //   NodeName = serversRepository.Collection.AsQueryable().Select(x => x.NodeIds).FirstOrDefault()
@@ -2262,7 +2263,7 @@ namespace VitalSigns.API.Controllers
                     {
                         if (!string.IsNullOrEmpty(attribute.FieldName))
                         {
-                            if (attribute.FieldName != "is_enabled")
+                            if (attribute.FieldName != "is_enabled" && attribute.FieldName != "require_ssl")
                             {
                                 string field = attribute.FieldName;
                                 string value = attribute.DefaultValue;
