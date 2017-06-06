@@ -1,7 +1,8 @@
 ﻿import { Component, ComponentFactoryResolver, OnInit, Injector} from '@angular/core';
 
 import {WidgetController, WidgetContainer, WidgetContract} from '../../../core/widgets';
-import {WidgetService} from '../../../core/widgets/services/widget.service';
+import { WidgetService } from '../../../core/widgets/services/widget.service';
+import { RESTService } from '../../../core/services';
 import { AppNavigator } from '../../../navigation/app.navigator.component';
 import { Office365Grid } from './office365-grid.component';
 import { ActivatedRoute } from '@angular/router';
@@ -18,8 +19,10 @@ export class Office365UserScenarioTestsTab extends WidgetController implements O
     widgets: WidgetContract[];
     serviceId: string;
     nodeName: string;
+    service: any;
+    errorMessage: string;
     
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private route: ActivatedRoute) {
+    constructor(private dataProvider: RESTService, protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private route: ActivatedRoute) {
         super(resolver, widgetService);
 
     }
@@ -279,6 +282,24 @@ export class Office365UserScenarioTestsTab extends WidgetController implements O
             }
 
         ]
+
+        //if statements for each widget to check if the test is in the list
+        this.route.params.subscribe(params => {
+
+            this.dataProvider.get(`/services/enabled_office365_tests?deviceId=${this.serviceId}`)
+                .subscribe(
+                data => {
+                    this.service = data.data;
+           
+                    if (this.service.indexOf('OneDrive Upload') == -1 && this.service.indexOf('OneDrive Download') == -1)  {
+                        this.widgets.splice(this.widgets.findIndex(x => x.id == 'oneDriveTests'), 1);
+                    }
+                },
+                error => this.errorMessage = <any>error
+                );
+
+        });
+
         injectSVG();
     }
 
