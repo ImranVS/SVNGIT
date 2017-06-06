@@ -3,7 +3,7 @@
     <div class="visible-xs titleTabMobile">Overall</div>
     <div class="row">
 
-        <div class="{{widget.css}}" *ngFor="let widget of widgets">
+        <div class="{{widget.css}}" *ngFor="let widget of widgets"> <!-- | filterwidgets: 'id' : 'mailServices' --> 
             <div class="widgetWrapper">
                 <div class="widgetTitle" *ngIf="widget.title">
                     {{widget.title}}

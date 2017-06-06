@@ -45,7 +45,8 @@ import {SearchServerList} from './services/components/search-server-list.compone
 import {ServersLocation} from './configurator/components/server-list-location.component';
 
 import {SearchDeviceListPipe} from './services/components/search-server-list.pipe';
-import {FilterDeviceAttributesPipe} from './configurator/components/server/filter-device-attributes.pipe';
+import { FilterDeviceAttributesPipe } from './configurator/components/server/filter-device-attributes.pipe';
+import { FilterWidgetsPipe } from './services/components/filter-widgets.pipe';
 
 import {IBMConnectionsDetails} from './dashboards/components/ibm-connections/ibm-connections-details.component';
 import {IBMSametimeDetails} from './dashboards/components/ibm-sametime/ibm-sametime-details.component';
@@ -168,6 +169,7 @@ import { MobileUsersReport } from './reports/components/mobile-users/mobile-user
         SearchDeviceListPipe,
         FilterByDeviceTypePipe,
         FilterDeviceAttributesPipe,
+        FilterWidgetsPipe,
         ReportsBrowser,
         NoSelectedReport,
         SampleReport,

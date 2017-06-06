@@ -1,5 +1,5 @@
 ﻿import { Component, ComponentFactoryResolver, OnInit, Injector} from '@angular/core';
-
+import { RESTService } from '../../../core/services';
 import {WidgetController, WidgetContainer, WidgetContract} from '../../../core/widgets';
 import {WidgetService} from '../../../core/widgets/services/widget.service';
 import { AppNavigator } from '../../../navigation/app.navigator.component';
@@ -18,8 +18,10 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
     widgets: WidgetContract[];
     serviceId: string;
     nodeName: string;
-    
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private route: ActivatedRoute) {
+    service: any;
+    errorMessage: string;
+
+    constructor(private dataProvider: RESTService, protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private route: ActivatedRoute) {
         super(resolver, widgetService);
 
     }
@@ -322,6 +324,21 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
                 }
             }
         ]
+        //if statements for each widget to check if the test is in the list
+        this.route.params.subscribe(params => {
+
+            this.dataProvider.get(`/services/enabled_office365_tests?deviceId=${this.serviceId}`)
+                .subscribe(
+                data => {
+                    this.service = data.data;
+                    if (this.service.indexOf('SMTP') == -1 && this.service.indexOf('POP3') == -1 && this.service.indexOf('IMAP') == -1) {
+                        this.widgets.splice(this.widgets.findIndex(x => x.id == 'mailServices'), 1);
+                    }
+                },
+                error => this.errorMessage = <any>error
+                );
+
+        });
         injectSVG();
     }
 
