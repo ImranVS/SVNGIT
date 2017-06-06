@@ -129,7 +129,7 @@ namespace VitalSigns.API.Controllers
                     filterDef = msolUsersRepository.Filter.Eq(x => x.DeviceId, deviceId) &
                         msolUsersRepository.Filter.Ne(x => x.StrongPasswordRequired, null);
                 }
-                
+
                 if (!isChart)
                 {
                     var resultlist = msolUsersRepository.Find(filterDef)
@@ -304,7 +304,7 @@ namespace VitalSigns.API.Controllers
                             Name = x.DisplayName,
                             TotalItemSizeMB = x.TotalItemSizeMb
                         }).OrderByDescending(x => x.TotalItemSizeMB).Take(topx).ToList();
-                    
+
                     List<Segment> segments = new List<Segment>();
                     Segment segment = new Segment();
                     foreach (var doc in resultlist)
@@ -312,7 +312,7 @@ namespace VitalSigns.API.Controllers
                         segment = new Segment()
                         {
                             Label = doc.Name,
-                            Value = Math.Round(Convert.ToDouble(doc.TotalItemSizeMB)/1024,1)
+                            Value = Math.Round(Convert.ToDouble(doc.TotalItemSizeMB) / 1024, 1)
                         };
                         segments.Add(segment);
                     }
@@ -358,7 +358,7 @@ namespace VitalSigns.API.Controllers
             int valuemore = 0;
             List<Segment> result = new List<Segment>();
             FilterDefinition<Mailbox> filterDef;
-            
+
             try
             {
                 startDate1 = DateTime.Now.AddDays(-1).ToString(DateFormat);
@@ -422,7 +422,7 @@ namespace VitalSigns.API.Controllers
                         else if (Convert.ToDateTime(item.Label) < dtStart7)
                         {
                             valuemore += 1;
-                        }           
+                        }
                     }
                     segments.Add(new Segment()
                     {
@@ -563,8 +563,8 @@ namespace VitalSigns.API.Controllers
                 {
                     result = mailboxRepository.Collection.Aggregate()
                         .Match(filterDef)
-                        .Project(x => new { inactive = x.InactiveDaysCount > 7 ? "Inactive" : "Active"})
-                        .Group(x => new {x.inactive }, g => new { label = g.Key, value = g.Count() })
+                        .Project(x => new { inactive = x.InactiveDaysCount > 7 ? "Inactive" : "Active" })
+                        .Group(x => new { x.inactive }, g => new { label = g.Key, value = g.Count() })
                         .ToList()
                         .Select(x => new Segment
                         {
@@ -600,6 +600,31 @@ namespace VitalSigns.API.Controllers
             {
                 Response = Common.CreateResponse(null, "Error", exception.Message);
 
+                return Response;
+            }
+        }
+
+        [HttpGet("enabled_office365_tests")]
+        public APIResponse GetEnabledOffice365Tests(string deviceId)
+        {
+            try
+            {
+                serverRepository = new Repository<Server>(ConnectionString);
+                FilterDefinition<Server> filterDef;
+                filterDef = serverRepository.Filter.Eq(x => x.Id, deviceId);
+                var tempres = serverRepository.Find(filterDef).First();
+                var result = new List<string>();
+                foreach (var res in tempres.SimulationTests)
+                {
+                    result.Add(res.Name);
+                }
+                //the result will return a list of all enabled tests
+                Response = Common.CreateResponse(result);
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
                 return Response;
             }
         }

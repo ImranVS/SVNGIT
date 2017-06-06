@@ -189,6 +189,41 @@
         "type": "Configurator",
         "component": "ServerEvents",
         "path": "/app/configurator/components/server/server-events.component"
+      },
+      {
+        "tab_id": 1,
+        "title": "Overall",
+        "type": "Dashboard",
+        "component": "ServiceOverallTab",
+        "path": "/app/services/components/service-overall-tab.component"
+      },
+      {
+        "tab_id": 2,
+        "title": "Health Assessment",
+        "type": "Dashboard",
+        "component": "ServiceMainHealthTab",
+        "path": "/app/services/components/service-mainhealth-tab.component"
+      },
+      {
+        "tab_id": 7,
+        "title": "Maintenance",
+        "type": "Dashboard",
+        "component": "MaintenanceWindows",
+        "path": "/app/configurator/components/server/server-maintenance-windows.component"
+      },
+      {
+        "tab_id": 8,
+        "title": "Events",
+        "type": "Dashboard",
+        "component": "ServiceEventsTab",
+        "path": "/app/services/components/service-events-tab.component"
+      },
+      {
+        "tab_id": 9,
+        "title": "Outages",
+        "type": "Dashboard",
+        "component": "ServiceOutagesTab",
+        "path": "/app/services/components/service-outages-tab.component"
       }
     ]
   },
