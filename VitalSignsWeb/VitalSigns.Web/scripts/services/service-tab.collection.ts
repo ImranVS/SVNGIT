@@ -41,6 +41,7 @@ export * from './components/service-outages-tab.component';
 
 export * from './components/service-travelerhealth-tab.component';
 export * from './components/service-clusterhealth-tab.component';
+export * from './components/service-exchange-mail-tab.component';
 
 //servers
 
