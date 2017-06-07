@@ -1027,6 +1027,8 @@ namespace VitalSignsMicrosoftClasses
 					myServer.UserCount = results.Count();
 
                     AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "CAS@ActiveSync#User.Count", results.Count().ToString()));
+                    AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "Server.Users", results.Count().ToString()));
+
 
                     MongoStatementsDelete<VSNext.Mongo.Entities.MobileDevices> mongoDeleteStatement = new MongoStatementsDelete<VSNext.Mongo.Entities.MobileDevices>();
                     mongoDeleteStatement.filterDef = mongoDeleteStatement.repo.Filter.Where(i => i.ServerName == "Exchange" && i.ModifiedOn < DateTime.Now.AddDays(-1));

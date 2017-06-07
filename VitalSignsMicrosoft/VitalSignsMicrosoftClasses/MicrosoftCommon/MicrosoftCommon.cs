@@ -222,14 +222,14 @@ namespace VitalSignsMicrosoftClasses
 				{
 					DateTime dtNow = DateTime.Now;
 					int weekNumber = CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
-                    if (Convert.ToInt32(ps.Properties["RPC Client Access"].Value.ToString()) < 1000000)
+                    if (Convert.ToInt64(ps.Properties["RPC Client Access"].Value.ToString()) < 1000000)
                     {
-                        AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "CAS@RPCClient#User.Count", ps.Properties["RPC Client Access"].ToString()));
+                        AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "CAS@RPCClient#User.Count", ps.Properties["RPC Client Access"].Value.ToString()));
 
                     }
-                    if (Convert.ToInt32(ps.Properties["Outlook Web App"].Value.ToString()) < 1000000)
+                    if (Convert.ToInt64(ps.Properties["Outlook Web App"].Value.ToString()) < 1000000)
                     {
-                        AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "CAS@OWAClient#User.Count", ps.Properties["Outlook Web App"].ToString()));
+                        AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "CAS@OWAClient#User.Count", ps.Properties["Outlook Web App"].Value.ToString()));
                     }
 					server.OWAUsers = long.Parse(ps.Properties["Outlook Web App"].Value.ToString());
 					server.RPCClientAccesUsers = long.Parse(ps.Properties["RPC Client Access"].Value.ToString());
@@ -237,7 +237,7 @@ namespace VitalSignsMicrosoftClasses
 			}
 			catch (Exception ex)
 			{
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Error in GetActiveConnections: " + ex.Message, commonEnums.ServerRoles.Windows, Common.LogLevel.Normal);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Error in GetActiveConnections: " + ex.ToString(), commonEnums.ServerRoles.Windows, Common.LogLevel.Normal);
 			}
 			finally
 			{
@@ -314,7 +314,7 @@ namespace VitalSignsMicrosoftClasses
 
 				foreach (PSObject ps in results)
 				{
-					DateTime dtNow = DateTime.Now;
+                    DateTime dtNow = DateTime.Now;
 					int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
 					double ActualVal = Math.Round(double.Parse(ps.Properties["Average"].Value.ToString()) / 100, 2);
 
@@ -327,10 +327,10 @@ namespace VitalSignsMicrosoftClasses
                         .Set(i => i.CPUthreshold, myServer.CPU_Threshold);
                     AllTestsList.MongoEntity.Add(mongoUpdate);
 
-					//AllTestsList.StatusDetails.Add(new TestList() { Details = cpuLevel + "% at " + System.DateTime.Now.ToShortTimeString(), TestName = "CPU", Category = commonEnums.ServerRoles.Windows, Result = commonEnums.ServerResult.Pass });
+                    //AllTestsList.StatusDetails.Add(new TestList() { Details = cpuLevel + "% at " + System.DateTime.Now.ToShortTimeString(), TestName = "CPU", Category = commonEnums.ServerRoles.Windows, Result = commonEnums.ServerResult.Pass });
 
-					//Alert call, Mukund 03Apr14
-					string alertMessage = "The CPU is at " + (ActualVal * 100).ToString() + "% and the threshold is set at " + myServer.CPU_Threshold.ToString() + "%";
+                    //Alert call, Mukund 03Apr14
+                    string alertMessage = "The CPU is at " + (ActualVal * 100).ToString() + "% and the threshold is set at " + myServer.CPU_Threshold.ToString() + "%";
 					Common.makeAlert(ActualVal * 100, myServer.CPU_Threshold, myServer, commonEnums.AlertType.CPU, ref AllTestsList, alertMessage, "Windows");
 				}
 
@@ -338,7 +338,7 @@ namespace VitalSignsMicrosoftClasses
 			catch (Exception ex)
 			{
 				//AllTestsList.StatusDetails.Add(new TestList() { Details = "Failed at " + System.DateTime.Now.ToShortTimeString(), TestName = "CPU", Category = commonEnums.ServerRoles.Windows, Result = commonEnums.ServerResult.Fail });
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Error in GetCPU: " + ex.Message, commonEnums.ServerRoles.Windows, Common.LogLevel.Normal);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Error in GetCPU: " + ex.ToString() + "\n\n\n\n\n\n" +  ex.Message, commonEnums.ServerRoles.Windows, Common.LogLevel.Normal);
 				//Common.makeAlert(false, myServer, commonEnums.AlertType.CPU, ref AllTestsList, "Failed at " + System.DateTime.Now.ToShortTimeString(), "Windows");
 			}
 			finally
@@ -377,6 +377,7 @@ namespace VitalSignsMicrosoftClasses
             }
             catch (Exception ex)
             {
+                diskSettings = new List<VSNext.Mongo.Entities.DiskSetting>();
                 Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Error in GetDiskSpace while getting drives: " + ex.Message, commonEnums.ServerRoles.Windows, Common.LogLevel.Normal);
             }
             try
@@ -428,7 +429,7 @@ namespace VitalSignsMicrosoftClasses
                                 PercentFree = Math.Round(Double.Parse(ps.Properties["PercentFree"].Value.ToString()), 2)
                             });
 
-
+                            Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Added disk " + ps.Properties["DeviceID"].Value.ToString(), commonEnums.ServerRoles.Windows, Common.LogLevel.Normal);
                             AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "Disk." + ps.Properties["DeviceID"].Value.ToString() + ".Free", Math.Round(Double.Parse(ps.Properties["FreeSpace"].Value.ToString()) * 1024 * 1024 * 1024, 0).ToString()));
 
                             /////////////////////////////ADD IN DISKSPACE TO STATUS OR SERVERS COLLECTION. NOT DECIDED WHERE///////////////////////////////////////
@@ -500,9 +501,9 @@ namespace VitalSignsMicrosoftClasses
                 }
 
                 MongoStatementsUpdate<VSNext.Mongo.Entities.Status> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
-                mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.DeviceName == myServer.Name);
+                mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.DeviceId == myServer.ServerObjectID);
                 mongoUpdate.updateDef = mongoUpdate.repo.Updater.Set(i => i.Disks, listOfDisks);
-
+                AllTestsList.MongoEntity.Add(mongoUpdate);
 
             }
             catch (Exception ex)

@@ -41,31 +41,31 @@ namespace VitalSignsExchange
                 SharepointMAIN spMain = null;
 
 
-                //exMain = new ExchangeMAIN();
-				//Thread MasterExchangeThread = new Thread(() => exMain.StartProcess(MSObj));
-                //MasterExchangeThread.IsBackground = true;
-                //MasterExchangeThread.Priority = ThreadPriority.Normal;
-				//MasterExchangeThread.Name = "Master Exchange Thread";
-                //MasterExchangeThread.Start();
+                exMain = new ExchangeMAIN();
+                Thread MasterExchangeThread = new Thread(() => exMain.StartProcess(MSObj));
+                MasterExchangeThread.IsBackground = true;
+                MasterExchangeThread.Priority = ThreadPriority.Normal;
+                MasterExchangeThread.Name = "Master Exchange Thread";
+                MasterExchangeThread.Start();
+                Thread.Sleep(2000);
+
+                //adMain = new ActiveDirectoryMAIN();
+                //Thread MasterActiveDirectoryThread = new Thread(() => adMain.StartProcess(MSObj));
+                //MasterActiveDirectoryThread.IsBackground = true;
+                //MasterActiveDirectoryThread.Priority = ThreadPriority.Normal;
+                //MasterActiveDirectoryThread.Name = "Master AD Thread";
+                //MasterActiveDirectoryThread.Start();
                 //Thread.Sleep(2000);
 
-				//adMain = new ActiveDirectoryMAIN();
-				//Thread MasterActiveDirectoryThread = new Thread(() => adMain.StartProcess(MSObj));
-				//MasterActiveDirectoryThread.IsBackground = true;
-				//MasterActiveDirectoryThread.Priority = ThreadPriority.Normal;
-				//MasterActiveDirectoryThread.Name = "Master AD Thread";
-				//MasterActiveDirectoryThread.Start();
-				//Thread.Sleep(2000);
+                //spMain = new SharepointMAIN();
+                //Thread MasterSharePointThread = new Thread(() => spMain.StartProcess(MSObj));
+                //MasterSharePointThread.IsBackground = true;
+                //MasterSharePointThread.Priority = ThreadPriority.Normal;
+                //MasterSharePointThread.Name = "Master SP Thread";
+                //MasterSharePointThread.Start();
+                //Thread.Sleep(2000);
 
-				//spMain = new SharepointMAIN();
-				//Thread MasterSharePointThread = new Thread(() => spMain.StartProcess(MSObj));
-				//MasterSharePointThread.IsBackground = true;
-				//MasterSharePointThread.Priority = ThreadPriority.Normal;
-				//MasterSharePointThread.Name = "Master SP Thread";
-			    //MasterSharePointThread.Start();
-				//Thread.Sleep(2000);
-
-				o365Main = new Office365MAIN();
+                o365Main = new Office365MAIN();
 				Thread MasterO365Thread = new Thread(() => o365Main.StartProcess(MSObj));
 				MasterO365Thread.IsBackground = true;
 				MasterO365Thread.Priority = ThreadPriority.Normal;
@@ -92,7 +92,7 @@ namespace VitalSignsExchange
             }
             catch(Exception ex)
             {
-                VitalSignsMicrosoftClasses.Common.WriteDeviceHistoryEntry("All", "Microsoft", " Exception: " + ex.StackTrace.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Verbose);
+                VitalSignsMicrosoftClasses.Common.WriteDeviceHistoryEntry("All", "Microsoft", " Exception: " + ex.StackTrace.ToString(), commonEnums.ServerRoles.Empty, VitalSignsMicrosoftClasses.Common.LogLevel.Verbose);
             }
         }
     }
