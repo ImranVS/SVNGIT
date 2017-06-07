@@ -697,7 +697,7 @@ namespace VitalSigns.API.Controllers
                                           .Select(grp => new
                                           {
                                               Label = uc.GetUserFriendlyStatName(grp.Key),
-                                              Value = grp.Average(x => x.StatValue)
+                                              Value = Math.Round(grp.Average(x => x.StatValue), 1)
                                           }).ToList();
                                     foreach (var item in statsAvgData)
                                     {
@@ -846,7 +846,7 @@ namespace VitalSigns.API.Controllers
                                           .Select(grp => new
                                           {
                                               StatName = uc.GetUserFriendlyStatName(grp.Key),
-                                              Value = grp.Average(x => x.StatValue),
+                                              Value = Math.Round(grp.Average(x => x.StatValue), 1),
                                               DeviceId = deviceId
                                           }).ToList();
                                 Response = Common.CreateResponse(statsAvgData);

@@ -32,7 +32,8 @@ namespace VitalSigns.API.Controllers
             translatedstat = statname;
             try
             {
-                if (statname.IndexOf('@') != -1)
+                //exclude stat names with # to process Exchange queue stats correctly
+                if (statname.IndexOf('@') != -1 && statname.IndexOf('#') == -1)
                 {
                     statname = statname.Substring(0, statname.IndexOf('@'));
                 }

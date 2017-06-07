@@ -205,6 +205,13 @@
         "path": "/app/services/components/service-mainhealth-tab.component"
       },
       {
+        "tab_id": 3,
+        "title": "Mail",
+        "type": "Dashboard",
+        "component": "ServiceExchangeMailTab",
+        "path": "/app/services/components/service-exchange-mail-tab.component"
+      },
+      {
         "tab_id": 7,
         "title": "Maintenance",
         "type": "Dashboard",
