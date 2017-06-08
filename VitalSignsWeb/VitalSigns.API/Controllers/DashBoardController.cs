@@ -1886,35 +1886,69 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <author>Sowjanya</author>
         /// <returns>List of mail delivery status details</returns>
-        [HttpGet("get_mail_delivery_status/{deviceType}")]
-        public APIResponse GetMailDeliveryStatusData(string deviceType)
+        [HttpGet("get_mail_delivery_status")]
+        public APIResponse GetMailDeliveryStatusData(string deviceType="Domino", string deviceId = "")
         {
-            try
+            if (string.IsNullOrEmpty(deviceId))
             {
-                statusRepository = new Repository<Status>(ConnectionString);
-                Expression<Func<Status, bool>> expression = (p => p.DeviceType == deviceType);
-                var result = statusRepository.Find(expression).Select(x => new MailDeliveryStatusModel
+                try
                 {
-                    DeviceName = x.DeviceName,
-                    Category = x.Category,
-                    LastUpdated = x.LastUpdated,
-                    PendingMail = x.PendingMail,
-                    DeadMail = x.DeadMail,
-                    HeldMail = x.HeldMail,
-                    Location = x.Location,
-                    StatusCode = x.StatusCode,
-                    PendingThreshold = x.PendingThreshold,
-                    DeadThreshold = x.DeadThreshold,
-                    HeldThreshold = x.HeldThreshold
+                    statusRepository = new Repository<Status>(ConnectionString);
+                    Expression<Func<Status, bool>> expression = (p => p.DeviceType == deviceType);
+                    var result = statusRepository.Find(expression).Select(x => new MailDeliveryStatusModel
+                    {
+                        DeviceName = x.DeviceName,
+                        Category = x.Category,
+                        LastUpdated = x.LastUpdated,
+                        PendingMail = x.PendingMail,
+                        DeadMail = x.DeadMail,
+                        HeldMail = x.HeldMail,
+                        Location = x.Location,
+                        StatusCode = x.StatusCode,
+                        PendingThreshold = x.PendingThreshold,
+                        DeadThreshold = x.DeadThreshold,
+                        HeldThreshold = x.HeldThreshold
 
-                }).ToList().OrderBy(x => x.DeviceName).OrderByDescending(x => x.PendingMail);
-                Response = Common.CreateResponse(result);
+                    }).ToList().OrderBy(x => x.DeviceName).OrderByDescending(x => x.PendingMail);
+                    Response = Common.CreateResponse(result);
+                }
+
+                catch (Exception exception)
+                {
+                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Get mail delivery status failed .\n Error Message :" + exception.Message);
+                }
             }
-
-            catch (Exception exception)
+            else
             {
-                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Get mail delivery status failed .\n Error Message :" + exception.Message);
+                try
+                {
+                    statusRepository = new Repository<Status>(ConnectionString);
+                    Expression<Func<Status, bool>> expression = (p => p.DeviceId == deviceId);
+                    var result = statusRepository.Find(expression).Select(x => new MailDeliveryStatusModel
+                    {
+                        DeviceName = x.DeviceName,
+                        Category = x.Category,
+                        LastUpdated = x.LastUpdated,
+                        PendingMail = x.PendingMail,
+                        DeadMail = x.DeadMail,
+                        HeldMail = x.HeldMail,
+                        Location = x.Location,
+                        StatusCode = x.StatusCode,
+                        PendingThreshold = x.PendingThreshold,
+                        DeadThreshold = x.DeadThreshold,
+                        HeldThreshold = x.HeldThreshold
+
+                    }).ToList();
+                    Response = Common.CreateResponse(result);
+                }
+
+                catch (Exception exception)
+                {
+                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Get mail delivery status failed .\n Error Message :" + exception.Message);
+                }
             }
+
+           
             return Response;
         }
 
