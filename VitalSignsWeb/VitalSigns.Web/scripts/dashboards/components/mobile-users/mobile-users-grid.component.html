@@ -1,4 +1,5 @@
-﻿<wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+﻿<button class="btn btn-primary" (click)="ExportExcel()">Export to Excel</button>
+<wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
 <wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" headersVisibility="Column" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'User Name'" [binding]="'user_name'" [width]="240"></wj-flex-grid-column>

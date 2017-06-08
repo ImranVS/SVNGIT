@@ -1,4 +1,4 @@
-﻿import {Component, Input, OnInit} from '@angular/core';
+﻿import { Component, Input, OnInit, ViewChild} from '@angular/core';
 import {HttpModule}    from '@angular/http';
 
 import {WidgetComponent} from '../../../core/widgets';
@@ -21,6 +21,7 @@ import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 })
 export class MobileUsersGrid implements WidgetComponent, OnInit {
     @Input() settings: any;
+    @ViewChild('flex') flex: wijmo.grid.FlexGrid;
 
     data: wijmo.collections.CollectionView;
     errorMessage: string;
@@ -49,6 +50,11 @@ export class MobileUsersGrid implements WidgetComponent, OnInit {
             (error) => this.errorMessage = <any>error
             );
 
+    }
+
+    ExportExcel(event) {
+        let flex = this.flex;
+        wijmo.grid.xlsx.FlexGridXlsxConverter.save(this.flex, { includeColumnHeaders: true, includeCellStyles: false }, "MobileUsers.xlsx");
     }
 
     getAccessColor(access: string) {
