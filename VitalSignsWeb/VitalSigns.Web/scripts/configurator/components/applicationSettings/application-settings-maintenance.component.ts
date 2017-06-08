@@ -154,7 +154,7 @@ export class Maintenance extends GridBase implements OnInit  {
                 }
 
                 this.dataMobileUsers = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(resultData));
-                this.dataMobileUsers.pageSize = 10;
+                //this.dataMobileUsers.pageSize = 10;
             },
             (error) => this.errorMessage = <any>error
             );

@@ -463,7 +463,7 @@
                     </div>
                     <div class="row" *ngIf="recurrencesChecked">
                         <div class="col-sm-12 col-lg-8">
-                            <wj-flex-grid [itemsSource]="data" selectionMode="Row" headersVisibility="Column" #flex>
+                            <wj-flex-grid style="height:400px;" [itemsSource]="data" selectionMode="Row" headersVisibility="Column" #flex>
                                 <wj-flex-grid-column [header]="'Alert about Event Recurrences'" [binding]="'NotificationOnRepeat'" [width]="280"></wj-flex-grid-column>
                                 <wj-flex-grid-column [header]="'Event Type'" [binding]="'EventType'" [width]="280" [isReadOnly]="true"></wj-flex-grid-column>
                                 <wj-flex-grid-column [header]="'Device Type'" [binding]="'DeviceType'" [visible]="false"></wj-flex-grid-column>

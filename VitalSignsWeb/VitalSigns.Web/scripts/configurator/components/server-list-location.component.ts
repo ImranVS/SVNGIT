@@ -131,7 +131,7 @@ export class ServersLocation implements OnInit {
                     
                     this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(resultData));
                     this.data.groupDescriptions.push(new wijmo.collections.PropertyGroupDescription("location_name"));
-                    this.data.pageSize = 10;
+                    //this.data.pageSize = 10;
                 }
             });
         this.flex.refresh(true);
@@ -170,7 +170,7 @@ export class ServersLocation implements OnInit {
                 }           
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(resultData));
                 this.data.groupDescriptions.push(new wijmo.collections.PropertyGroupDescription("location_name"));
-                this.data.pageSize = 10;               
+                //this.data.pageSize = 10;               
             });        
     }  
 }
