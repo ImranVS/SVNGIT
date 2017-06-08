@@ -44,7 +44,7 @@ export class DominoMailDeliveryStatus implements OnInit {
     ngOnInit() {
 
 
-        this.service.get('/DashBoard/get_mail_delivery_status/' + 'Domino')
+        this.service.get('/DashBoard/get_mail_delivery_status')
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));

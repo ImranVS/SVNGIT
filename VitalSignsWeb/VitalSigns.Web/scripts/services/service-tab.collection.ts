@@ -42,6 +42,7 @@ export * from './components/service-outages-tab.component';
 export * from './components/service-travelerhealth-tab.component';
 export * from './components/service-clusterhealth-tab.component';
 export * from './components/service-exchange-mail-tab.component';
+export * from './components/service-domino-mail-tab.component';
 
 //servers
 
@@ -53,6 +54,7 @@ export * from '../configurator/components/server/server-advanced-settings.compon
 //export * from '../configurator/components/server/server-websphere-settings.component'
 
 export * from '../configurator/components/server/server-device-attributes.component'
+
 
 export * from '../configurator/components/server/server-domino-server-tasks.component'
 export * from '../configurator/components/server/server-exchange-services.component'
