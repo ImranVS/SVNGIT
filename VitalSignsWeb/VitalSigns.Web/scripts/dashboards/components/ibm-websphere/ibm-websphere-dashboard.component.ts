@@ -4,7 +4,8 @@ import 'rxjs/Rx';
 
 import {WidgetController, WidgetContainer, WidgetContract} from '../../../core/widgets';
 import {WidgetService} from '../../../core/widgets/services/widget.service';
-import {AppNavigator} from '../../../navigation/app.navigator.component';
+import { AppNavigator } from '../../../navigation/app.navigator.component';
+import { RESTService } from '../../../core/services';
 
 declare var injectSVG: any;
 
@@ -12,20 +13,36 @@ declare var injectSVG: any;
 @Component({
     selector: 'websphere-dashboard',
     templateUrl: '/app/dashboards/components/ibm-websphere/ibm-websphere-dashboard.component.html',
-    providers: [WidgetService]
+    providers: [WidgetService, RESTService]
 })
 
 export class IBMWebsphereDashboard extends WidgetController implements OnInit {
     serviceId: string;
-
-    widgets: WidgetContract[];
+    multiplier: number = 500;
+     data: wijmo.collections.CollectionView;
+     widgets: WidgetContract[];
+     rowCount: number = 25;
     
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService) {
+    constructor(private service: RESTService, protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService) {
         super(resolver, widgetService);
     }
 
     ngOnInit() {
         this.serviceId = this.widgetService.getProperty('serviceId');
+
+        this.service.get('/services/status_list?type=WebSphere')
+            .subscribe(
+            (data) => {
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
+                this.rowCount = this.data.itemCount;
+                console.log("Found " + this.rowCount + " websphere cells");
+            }
+         
+            );
+
+
+
+  
         this.widgets = [
             {
                 id: 'websphereGrid',
@@ -65,7 +82,7 @@ export class IBMWebsphereDashboard extends WidgetController implements OnInit {
                         chart: {
                             renderTo: 'serverStatus',
                             type: 'pie',
-                            height: 240
+                            height: 350
                         },
                         title: { text: '' },
                         subtitle: { text: '' },
@@ -112,7 +129,7 @@ export class IBMWebsphereDashboard extends WidgetController implements OnInit {
                         chart: {
                             renderTo: 'activeThreads',
                             type: 'bar',
-                            height: 240
+                            height: this.rowCount * 15
                         },
                         colors: ['#5fbe7f'],
                         title: { text: '' },
@@ -147,7 +164,7 @@ export class IBMWebsphereDashboard extends WidgetController implements OnInit {
                         chart: {
                             renderTo: 'hungThreads',
                             type: 'bar',
-                            height: 240
+                            height: this.rowCount * 15
                         },
                         colors: ['#5fbe7f'],
                         title: { text: '' },
