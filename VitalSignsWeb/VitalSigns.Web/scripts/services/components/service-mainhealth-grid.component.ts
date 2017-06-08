@@ -71,7 +71,7 @@ export class ServiceMainHealthGrid implements WidgetComponent, OnInit {
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
-                this.data.pageSize = 10;
+                this.data.pageSize = 20;
             },
             (error) => this.errorMessage = <any>error
             );
