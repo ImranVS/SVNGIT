@@ -45,7 +45,7 @@ export class MobileUsersGrid implements WidgetComponent, OnInit {
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(data.data)));
-                this.data.pageSize = 20;
+                this.data.pageSize = 2000;
             },
             (error) => this.errorMessage = <any>error
             );

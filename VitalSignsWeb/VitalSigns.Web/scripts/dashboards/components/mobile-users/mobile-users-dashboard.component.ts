@@ -20,13 +20,7 @@ export class MobileUsersDashboard extends WidgetController implements OnInit {
     dashboardSubtitle: string = 'IBM Mobile Users dashboard';
 
     widgets: WidgetContract[] = [
-        {
-            id: 'mobileUsersGrid',
-            title: 'All Mobile Users',
-            name: 'MobileUsersGrid',
-            css: 'col-xs-12 col-sm-12 col-md-12 col-lg-12',
-            settings: {}
-        },
+       
         //{
         //    id: 'mobileUsersKeyUserGrid',
         //    title: 'Key Mobile Users',
@@ -242,7 +236,14 @@ export class MobileUsersDashboard extends WidgetController implements OnInit {
                     series: []
                 }
             }
-        }
+        },
+        {
+            id: 'mobileUsersGrid',
+            title: 'All Mobile Users',
+            name: 'MobileUsersGrid',
+            css: 'col-xs-12 col-sm-12 col-md-12 col-lg-12',
+            settings: {}
+        },
     ]
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService) {
