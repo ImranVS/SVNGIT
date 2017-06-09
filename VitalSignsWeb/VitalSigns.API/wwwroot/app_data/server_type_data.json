@@ -53,6 +53,13 @@
         "path": "/app/services/components/service-travelerhealth-tab.component",
         "secondary_role": "Traveler"
       },
+            {
+        "tab_id": 2,
+        "title": "Mail",
+        "type": "Dashboard",
+        "component": "ServiceDominoMailTab",
+        "path": "/app/services/components/service-domino-mail-tab.component"
+      },
       {
         "tab_id": 4,
         "title": "Database",
