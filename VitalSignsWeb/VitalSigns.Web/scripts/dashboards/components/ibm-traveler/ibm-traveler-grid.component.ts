@@ -48,6 +48,7 @@ export class IBMTravelerGrid implements WidgetComponent, OnInit {
             (error) => this.errorMessage = <any>error
         );
         this.toolTip.getTooltip(this.flex, 0, 3);
+        this.toolTip.getTooltip(this.flex, 0, 11, 1)
     }
 
     onItemsSourceChanged() {
