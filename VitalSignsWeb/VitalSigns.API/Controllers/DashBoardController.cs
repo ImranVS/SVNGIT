@@ -650,6 +650,7 @@ namespace VitalSigns.API.Controllers
                         TravelerIncrementalSyncs = x.TravelerIncrementalSyncs,
                         HttpStatus = x.HttpStatus,
                         TravelerDevicesAPIStatus = x.TravelerDevicesAPIStatus,
+                        TravelerReasons = x.TravelerStatusReasons != null && x.TravelerStatusReasons.Count >0 ? string.Join ("\n", x.TravelerStatusReasons): "No Traveler-specific issues found"
                     }).ToList();
                 }
                 else
@@ -668,6 +669,7 @@ namespace VitalSigns.API.Controllers
                         TravelerIncrementalSyncs = x.TravelerIncrementalSyncs,
                         HttpStatus = x.HttpStatus,
                         TravelerDevicesAPIStatus = x.TravelerDevicesAPIStatus,
+                        TravelerReasons = x.TravelerStatusReasons != null && x.TravelerStatusReasons.Count > 0 ? string.Join("\n", x.TravelerStatusReasons) : "No issues found"
                     }).ToList();
                 }
                 Response = Common.CreateResponse(result);

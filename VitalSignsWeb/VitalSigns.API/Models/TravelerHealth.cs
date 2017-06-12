@@ -18,6 +18,9 @@ namespace VitalSigns.API.Models
         [JsonProperty("traveler_status")]
         public string TravelerStatus { get; set; }
 
+        [JsonProperty("traveler_reasons")]
+        public string   TravelerReasons { get; set; }
+
         [JsonProperty("resource_constraint")]
         public string ResourceConstraint { get; set; }
 
