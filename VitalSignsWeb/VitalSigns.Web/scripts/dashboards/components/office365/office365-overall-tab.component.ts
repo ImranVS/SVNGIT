@@ -41,6 +41,7 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
         var url = "";
         var urluptimehourly = "";
         var urluptimedaily = "";
+        // Need to add code here to dymamically select only enabled items
         if (this.nodeName) {
             url = `/services/statistics?deviceId=${this.serviceId}&statName=[POP@` + this.nodeName + `,IMAP@` + this.nodeName + `,SMTP@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
             urluptimehourly = `/services/statistics?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@` + this.nodeName + `,Services.HourlyUpTimePercent.Exchange@` + this.nodeName + `,Services.HourlyUpTimePercent.OneDrive@` + this.nodeName + `,Services.HourlyUpTimePercent.SharePoint@` + this.nodeName + `]&operation=HOURLY&isChart=true`;

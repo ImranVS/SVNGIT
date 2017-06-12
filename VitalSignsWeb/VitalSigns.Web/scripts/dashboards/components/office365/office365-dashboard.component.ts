@@ -8,7 +8,8 @@ import {RESTService} from '../../../core/services/rest.service';
 import { Office365Grid } from './office365-grid.component';
 import { Office365Details } from './office365-details.component';
 
-declare var injectSVG: any;
+declare var injectSVG: any;
+
 
 @Component({
     templateUrl: '/app/dashboards/components/office365/office365-dashboard.component.html',
