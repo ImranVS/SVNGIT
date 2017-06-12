@@ -294,6 +294,18 @@ export class Office365UserScenarioTestsTab extends WidgetController implements O
                     if (this.service.indexOf('OneDrive Upload') == -1 && this.service.indexOf('OneDrive Download') == -1)  {
                         this.widgets.splice(this.widgets.findIndex(x => x.id == 'oneDriveTests'), 1);
                     }
+
+                    if (this.service.indexOf('Create Site') == -1)  {
+                        this.widgets.splice(this.widgets.findIndex(x => x.id == 'siteTests'), 1);
+                    }
+
+                    if (this.service.indexOf('Create Folder') == -1) {
+                        this.widgets.splice(this.widgets.findIndex(x => x.id == 'folderTests'), 1);
+                    }
+
+                    if (this.service.indexOf('Create Folder') == -1) {
+                        this.widgets.splice(this.widgets.findIndex(x => x.id == 'mailScenarioTests'), 1);
+                    }
                 },
                 error => this.errorMessage = <any>error
                 );
