@@ -9,6 +9,7 @@ Imports VSNext.Mongo
 Imports VSNext.Mongo.Entities
 Imports VSNext.Mongo.Repository
 Imports MongoDB.Driver
+Imports System.Linq
 
 
 
@@ -30,12 +31,13 @@ Public Class MaintenanceDll
         Dim serversEntity() As Server
         Dim repoMaint As New Repository(Of Maintenance)(connString)
         Dim filterMaint As FilterDefinition(Of Maintenance)
-        Dim maintEntity() As Maintenance
+        Dim maintEntity As New List(Of Maintenance)
         Dim dt As DateTime
         Dim dt1 As DataTable
         Dim dr As DataRow
 
         dt = DateTime.Now
+        Dim dtUTC As DateTime = DateTime.SpecifyKind(dt, DateTimeKind.Utc)
         Try
             dt1 = New DataTable
             dt1.Columns.Add("ID")
@@ -49,15 +51,39 @@ Public Class MaintenanceDll
             dt1.Columns.Add("MaintType")
             dt1.Columns.Add("MaintDaysList")
             filterMaint = repoMaint.Filter.And(repoMaint.Filter.Lte(Function(j) j.StartDate, dt.Date),
-                                                   repoMaint.Filter.Gte(Function(j) j.EndDate, dt.Date))
-            maintEntity = repoMaint.Find(filterMaint).ToArray()
-            If maintEntity.Length > 0 Then
+                                            repoMaint.Filter.Gte(Function(j) j.EndDate, dt.Date))
+
+            Dim t = repoMaint.Find(filterMaint).ToList()
+            For Each entry As Maintenance In t
+                If entry.StartDate.TimeOfDay.CompareTo(New TimeSpan(0)) <> 0 Then
+                    If maintEntity.Where(Function(x) x.Id = entry.Id).Count = 0 Then
+                        maintEntity.Add(entry)
+                    End If
+                End If
+            Next
+            maintEntity = repoMaint.Find(filterMaint).ToList()
+
+            filterMaint = repoMaint.Filter.And(repoMaint.Filter.Lte(Function(j) j.StartDate, dtUTC.Date),
+                                            repoMaint.Filter.Gte(Function(j) j.EndDate, dtUTC.Date))
+
+            t = repoMaint.Find(filterMaint).ToList()
+            For Each entry As Maintenance In t
+                entry.StartDate = DateTime.SpecifyKind(entry.StartDate.ToUniversalTime, DateTimeKind.Local)
+                entry.EndDate = DateTime.SpecifyKind(entry.EndDate.ToUniversalTime, DateTimeKind.Local)
+                If entry.StartDate.TimeOfDay.CompareTo(New TimeSpan(0)) = 0 Then
+                    If maintEntity.Where(Function(x) x.Id = entry.Id).Count = 0 Then
+                        maintEntity.Add(entry)
+                    End If
+                End If
+            Next
+
+            If maintEntity.Count > 0 Then
                 filterServers = repoServers.Filter.And(repoServers.Filter.Eq(Of String)(Function(j) j.DeviceName, DeviceName),
                                                    repoServers.Filter.Eq(Of String)(Function(j) j.DeviceType, DeviceType),
                                                    repoServers.Filter.Exists(Function(j) j.MaintenanceWindows, True))
                 serversEntity = repoServers.Find(filterServers).ToArray()
                 If serversEntity.Length > 0 Then
-                    For x As Integer = 0 To maintEntity.Length - 1
+                    For x As Integer = 0 To maintEntity.Count - 1
                         For i As Integer = 0 To serversEntity.Length - 1
                             For j As Integer = 0 To serversEntity(i).MaintenanceWindows.Count - 1
                                 If serversEntity(i).MaintenanceWindows(j) = maintEntity(x).Id Then

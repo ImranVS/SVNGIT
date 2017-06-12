@@ -99,6 +99,20 @@ export class Maintenance extends GridBase implements OnInit  {
                     this.datetimeHelpers.nameToFormat['end_date'] = "date";
                     this.datetimeHelpers.nameToFormat['end_time'] = "time";
 
+                    response.data.forEach(function (entry) {
+                        var dt = new Date(entry.start_date);
+                        if (dt.getUTCHours() == 0 && dt.getUTCMinutes() == 0 && dt.getUTCSeconds() == 0 && dt.getUTCMilliseconds() == 0) {
+                            var dt2 = new Date(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate());
+                            entry.start_date = dt2.toISOString();
+                        }
+
+                        dt = new Date(entry.end_date);
+                        if (dt.getUTCHours() == 0 && dt.getUTCMinutes() == 0 && dt.getUTCSeconds() == 0 && dt.getUTCMilliseconds() == 0) {
+                            var dt2 = new Date(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate());
+                            entry.end_date = dt2.toISOString();
+                        }
+                    });
+
                     this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocal(response.data)));
                     //this.data.pageSize = 10;
                 } else {
@@ -355,10 +369,32 @@ export class Maintenance extends GridBase implements OnInit  {
 
         if (this.keyUsers.length > 0 || this.checkedDevices.length > 0) {
             if (this.formObject.id == "") {
+                this.formObject.start_date = new Date(Date.UTC(this.formObject.start_date.getFullYear(), this.formObject.start_date.getMonth(), this.formObject.start_date.getDate()));
+                this.formObject.end_date = new Date(Date.UTC(this.formObject.end_date.getFullYear(), this.formObject.end_date.getMonth(), this.formObject.end_date.getDate()));
+
                 this.service.put('/configurator/save_maintenancedata', this.formObject)
                     .subscribe(
                     response => {
                         if (response.status == "Success") {
+
+                            this.datetimeHelpers.nameToFormat['start_date'] = "date";
+                            this.datetimeHelpers.nameToFormat['start_time'] = "time";
+                            this.datetimeHelpers.nameToFormat['end_date'] = "date";
+                            this.datetimeHelpers.nameToFormat['end_time'] = "time";
+
+                            response.data.forEach(function (entry) {
+                                var dt = new Date(entry.start_date);
+                                if (dt.getUTCHours() == 0 && dt.getUTCMinutes() == 0 && dt.getUTCSeconds() == 0 && dt.getUTCMilliseconds() == 0) {
+                                    var dt2 = new Date(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate());
+                                    entry.start_date = dt2.toISOString();
+                                }
+
+                                dt = new Date(entry.end_date);
+                                if (dt.getUTCHours() == 0 && dt.getUTCMinutes() == 0 && dt.getUTCSeconds() == 0 && dt.getUTCMilliseconds() == 0) {
+                                    var dt2 = new Date(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate());
+                                    entry.end_date = dt2.toISOString();
+                                }
+                            });
                             this.data = this.datetimeHelpers.toLocal(response.data);
                             //this.data.pageSize = 10;
                             (<wijmo.collections.CollectionView>this.flex.collectionView).commitNew();
@@ -374,10 +410,33 @@ export class Maintenance extends GridBase implements OnInit  {
                     });
             }
             else {
+                this.formObject.start_date = new Date(Date.UTC(this.formObject.start_date.getFullYear(), this.formObject.start_date.getMonth(), this.formObject.start_date.getDate()));
+                this.formObject.end_date = new Date(Date.UTC(this.formObject.end_date.getFullYear(), this.formObject.end_date.getMonth(), this.formObject.end_date.getDate()));
+
                 this.service.put('/configurator/save_maintenancedata', this.formObject)
                     .subscribe(
                     response => {
                         if (response.status == "Success") {
+
+                            this.datetimeHelpers.nameToFormat['start_date'] = "date";
+                            this.datetimeHelpers.nameToFormat['start_time'] = "time";
+                            this.datetimeHelpers.nameToFormat['end_date'] = "date";
+                            this.datetimeHelpers.nameToFormat['end_time'] = "time";
+
+                            response.data.forEach(function (entry) {
+                                var dt = new Date(entry.start_date);
+                                if (dt.getUTCHours() == 0 && dt.getUTCMinutes() == 0 && dt.getUTCSeconds() == 0 && dt.getUTCMilliseconds() == 0) {
+                                    var dt2 = new Date(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate());
+                                    entry.start_date = dt2.toISOString();
+                                }
+
+                                dt = new Date(entry.end_date);
+                                if (dt.getUTCHours() == 0 && dt.getUTCMinutes() == 0 && dt.getUTCSeconds() == 0 && dt.getUTCMilliseconds() == 0) {
+                                    var dt2 = new Date(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate());
+                                    entry.end_date = dt2.toISOString();
+                                }
+                            });
+
                             this.data = this.datetimeHelpers.toLocal(response.data);
                             //this.data.pageSize = 10;
                             (<wijmo.collections.CollectionView>this.flex.collectionView).commitEdit();

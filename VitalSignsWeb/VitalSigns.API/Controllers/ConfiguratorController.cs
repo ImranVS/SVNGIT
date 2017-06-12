@@ -7831,7 +7831,8 @@ namespace VitalSigns.API.Controllers
                 string id = serversRepository.Insert(servers);
                 Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Server created successfully");
 
-
+                Licensing licensing = new Licensing();
+                licensing.refreshServerCollectionWrapper();
 
             }
             catch (Exception exception)
