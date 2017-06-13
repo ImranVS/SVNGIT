@@ -9,6 +9,7 @@
                 <span *ngSwitchCase="'OK'" class="label label-pill label-success">{{cell.item.traveler_status}}</span>
                 <span *ngSwitchCase="'Green'" class="label label-pill label-success">{{cell.item.traveler_status}}</span>
                 <span *ngSwitchCase="'Red'" class="label label-pill label-danger">{{cell.item.traveler_status}}</span>
+                <span *ngSwitchCase="'Yellow'" class="label label-pill label-warning">{{cell.item.traveler_status}}</span>
                 <span *ngSwitchCase="'Fail'" class="label label-pill label-danger">{{cell.item.traveler_status}}</span>
                 <span *ngSwitchCase="'Issue'" class="label label-pill label-warning">{{cell.item.traveler_status}}</span>
                 <span *ngSwitchCase="'Not Responding'" class="label label-pill label-danger">{{cell.item.traveler_status}}</span>
@@ -37,7 +38,7 @@
             <div [ngSwitch]="cell.item.traveler_servlet">
                 <span *ngSwitchCase="'OK'" class="label label-pill label-success">{{cell.item.traveler_servlet}}</span>
                 <span *ngSwitchCase="'Pass'" class="label label-pill label-success">{{cell.item.traveler_servlet}}</span>
-                <span *ngSwitchCase="'Red'" class="label label-pill label-danger">{{cell.item.traveler_servlet}}</span>
+                <span *ngSwitchCase="'Fail'" class="label label-pill label-danger">{{cell.item.traveler_servlet}}</span>
                 <span *ngSwitchCase="'Not Responding'" class="label label-pill label-danger">{{cell.item.traveler_servlet}}</span>
                 <span *ngSwitchCase="'Issue'" class="label label-pill label-warning">{{cell.item.traveler_servlet}}</span>
                 <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.traveler_servlet}}</span>
@@ -64,7 +65,6 @@
             <div [ngSwitch]="cell.item.traveler_devices_api_status">
                 <span *ngSwitchCase="'OK'" class="label label-pill label-success">{{cell.item.traveler_devices_api_status}}</span>
                 <span *ngSwitchCase="'Pass'" class="label label-pill label-success">{{cell.item.traveler_devices_api_status}}</span>
-                <span *ngSwitchCase="'Red'" class="label label-pill label-danger">{{cell.item.traveler_devices_api_status}}</span>
                 <span *ngSwitchCase="'Fail'" class="label label-pill label-danger">{{cell.item.traveler_devices_api_status}}</span>
                 <span *ngSwitchCase="'Not Responding'" class="label label-pill label-danger">{{cell.item.traveler_devices_api_status}}</span>
                 <span *ngSwitchCase="'Issue'" class="label label-pill label-warning">{{cell.item.traveler_devices_api_status}}</span>
