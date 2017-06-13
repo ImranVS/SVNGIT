@@ -38,14 +38,45 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
                 this.serviceId = res[0];
             }
         });
+
+
         var url = "";
         var urluptimehourly = "";
         var urluptimedaily = "";
-        // Need to add code here to dymamically select only enabled items
+        urluptimehourly = `/services/statistics?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@` + this.nodeName + `,Services.HourlyUpTimePercent.Exchange@` + this.nodeName + `,Services.HourlyUpTimePercent.OneDrive@` + this.nodeName + `,Services.HourlyUpTimePercent.SharePoint@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
+        urluptimedaily = `/services/summarystats?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@` + this.nodeName + `,Services.HourlyUpTimePercent.Exchange@` + this.nodeName + `,Services.HourlyUpTimePercent.OneDrive@` + this.nodeName + `,Services.HourlyUpTimePercent.SharePoint@` + this.nodeName + `]`;
+
+        console.log("Hi Wes");
+        this.dataProvider.get(`/services/enabled_office365_tests?deviceId=${this.serviceId}`)
+            .subscribe(
+            data => {
+                this.service = data.data;
+      
+                if (this.service.indexOf('Create Site') == -1) {
+                    urluptimehourly = `/services/statistics?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@` + this.nodeName + `,Services.HourlyUpTimePercent.Exchange@` + this.nodeName + `,Services.HourlyUpTimePercent.OneDrive@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
+                    urluptimedaily = `/services/summarystats?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@` + this.nodeName + `,Services.HourlyUpTimePercent.Exchange@` + this.nodeName + `,Services.HourlyUpTimePercent.OneDrive@` + this.nodeName +  `]`;
+
+                    console.log("Daily URL");
+                    console.log(urluptimedaily);
+                    this.widgetService.refreshWidget('upTimeDaily', urluptimedaily)
+
+                    console.log("Hourly URL");
+                    console.log(urluptimehourly)
+                    this.widgetService.refreshWidget('upTimeHourly', urluptimehourly);
+                }
+               
+    
+            },
+            error => this.errorMessage = <any>error
+            );
+
+
+
+
         if (this.nodeName) {
             url = `/services/statistics?deviceId=${this.serviceId}&statName=[POP@` + this.nodeName + `,IMAP@` + this.nodeName + `,SMTP@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
-            urluptimehourly = `/services/statistics?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@` + this.nodeName + `,Services.HourlyUpTimePercent.Exchange@` + this.nodeName + `,Services.HourlyUpTimePercent.OneDrive@` + this.nodeName + `,Services.HourlyUpTimePercent.SharePoint@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
-            urluptimedaily = `/services/summarystats?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@` + this.nodeName + `,Services.HourlyUpTimePercent.Exchange@` + this.nodeName + `,Services.HourlyUpTimePercent.OneDrive@` + this.nodeName + `,Services.HourlyUpTimePercent.SharePoint@` + this.nodeName + `]`;
+      //    urluptimehourly = `/services/statistics?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@` + this.nodeName + `,Services.HourlyUpTimePercent.Exchange@` + this.nodeName + `,Services.HourlyUpTimePercent.OneDrive@` + this.nodeName + `,Services.HourlyUpTimePercent.SharePoint@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
+      //      urluptimedaily = `/services/summarystats?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@` + this.nodeName + `,Services.HourlyUpTimePercent.Exchange@` + this.nodeName + `,Services.HourlyUpTimePercent.OneDrive@` + this.nodeName + `,Services.HourlyUpTimePercent.SharePoint@` + this.nodeName + `]`;
         }
         else {
             url = `/services/statistics?deviceId=${this.serviceId}&statName=[POP@null,IMAP@null,SMTP@null]&operation=HOURLY&isChart=true&getNode=true`;
@@ -325,8 +356,18 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
                 }
             }
         ]
+      
+        injectSVG();
+    }
+
+
+    customizeGraphs() {
         //if statements for each widget to check if the test is in the list
         this.route.params.subscribe(params => {
+            var urluptimehourly = "";
+            var urluptimedaily = "";
+            urluptimehourly = `/services/statistics?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@` + this.nodeName + `,Services.HourlyUpTimePercent.Exchange@` + this.nodeName + `,Services.HourlyUpTimePercent.OneDrive@` + this.nodeName + `,Services.HourlyUpTimePercent.SharePoint@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
+            urluptimedaily = `/services/summarystats?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@` + this.nodeName + `,Services.HourlyUpTimePercent.Exchange@` + this.nodeName + `,Services.HourlyUpTimePercent.OneDrive@` + this.nodeName + `,Services.HourlyUpTimePercent.SharePoint@` + this.nodeName + `]`;
 
             this.dataProvider.get(`/services/enabled_office365_tests?deviceId=${this.serviceId}`)
                 .subscribe(
@@ -335,12 +376,25 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
                     if (this.service.indexOf('SMTP') == -1 && this.service.indexOf('POP3') == -1 && this.service.indexOf('IMAP') == -1) {
                         this.widgets.splice(this.widgets.findIndex(x => x.id == 'mailServices'), 1);
                     }
+
+
+                    if (this.service.indexOf('Create Site') == -1) {
+                        urluptimehourly = `/services/statistics?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@` + this.nodeName + `,Services.HourlyUpTimePercent.Exchange@` + this.nodeName + `,Services.HourlyUpTimePercent.OneDrive@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
+                        urluptimedaily = `/services/summarystats?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@` + this.nodeName + `,Services.HourlyUpTimePercent.Exchange@` + this.nodeName + `,Services.HourlyUpTimePercent.OneDrive@` + this.nodeName + `]`;
+
+                    }
+
+                    this.widgetService.refreshWidget('upTimeHourly', urluptimehourly)
+                    this.widgetService.refreshWidget('upTimeDaily', urluptimedaily)
+
+                    .catch(error => console.log(error));
                 },
                 error => this.errorMessage = <any>error
                 );
 
         });
-        injectSVG();
+
+
     }
 
     onPropertyChanged(key: string, value: any) {
@@ -361,7 +415,7 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
             }
             this.widgetService.refreshWidget('mailServices', url)
                 .catch(error => console.log(error));
-
+        this.customizeGraphs;
         }
 
     }
