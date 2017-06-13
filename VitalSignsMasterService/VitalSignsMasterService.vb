@@ -2273,6 +2273,7 @@ Public Class VSMaster
                 Return "Stopped"
             End If
         Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Error in ServiceStatus.  Error: " & ex.Message.ToString())
             Return False
         End Try
     End Function
