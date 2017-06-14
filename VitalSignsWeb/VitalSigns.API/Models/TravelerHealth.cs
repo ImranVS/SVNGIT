@@ -37,6 +37,10 @@ namespace VitalSigns.API.Models
         [JsonProperty("traveler_users")]
         public int? TravelerUsers { get; set; }
 
+        [JsonProperty("traveler_device_count")]
+        public int? TravelerDeviceCount { get; set; }
+   
+
         [JsonProperty("traveler_ha")]
         public Boolean? TravelerHA { get; set; }
 
