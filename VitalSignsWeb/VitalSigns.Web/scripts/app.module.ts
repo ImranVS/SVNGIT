@@ -48,12 +48,13 @@ import {SearchDeviceListPipe} from './services/components/search-server-list.pip
 import { FilterDeviceAttributesPipe } from './configurator/components/server/filter-device-attributes.pipe';
 import { FilterWidgetsPipe } from './services/components/filter-widgets.pipe';
 
-import {IBMConnectionsDetails} from './dashboards/components/ibm-connections/ibm-connections-details.component';
+import { IBMConnectionsDetails } from './dashboards/components/ibm-connections/ibm-connections-details.component';
 import {IBMSametimeDetails} from './dashboards/components/ibm-sametime/ibm-sametime-details.component';
 import {OverallDatabaseDetails} from './dashboards/components/key-metrics/overall-database-details.component';
 import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/device-settings-type.pipe';
 import { DatabaseReplicationDetails } from './dashboards/components/key-metrics/database-replication-details.component';
 import { Office365Details } from './dashboards/components/office365/office365-details.component';
+
 
 import {SampleFiltersBar} from './reports/filters/components/sample-filters-bar.component'
 
@@ -95,7 +96,7 @@ import {ServerListTypeReport} from './reports/components/configuration/server-li
 import {ServerListLocationReport} from './reports/components/configuration/server-list-location-report.component';
 import { ServerFilter } from './reports/filters/components/server-filter.component';
 import { UserFilter } from './reports/filters/components/user-filter.component';
-import {TravelerFilter} from './reports/filters/components/traveler-filter.component';
+import { TravelerFilter } from './reports/filters/components/traveler-filter.component';
 import {ConnectionsServerFilter} from './reports/filters/components/connections-server-filter.component';
 import {ConnectionsActivityReport} from './reports/components/ibm-connections/connections-activity-report.component';
 import {ConnectionsBookmarkReport} from './reports/components/ibm-connections/connections-bookmark-report.component';
@@ -125,6 +126,7 @@ import { Office365UptimeReport } from './reports/components/office365/office365-
 import { MobileDevicesSummaryOS } from './reports/components/mobile-users/mobile-users-os-summary.component';
 import {RepeatableChart} from './reports/components/repeatable-chart.component';
 import { MobileUsersReport } from './reports/components/mobile-users/mobile-users-report.component';
+
 
 @NgModule({
     imports: [
@@ -288,6 +290,7 @@ import { MobileUsersReport } from './reports/components/mobile-users/mobile-user
         widgets.GreetingsWidget,
         widgets.IBMConnectionsGrid,
         widgets.IBMConnectionsStatsGrid,
+        widgets.IBMConnectionsCommunitiesDetailGrid,
         widgets.IBMDominoGrid,
         widgets.IBMSametimeGrid,
         widgets.IBMWebsphereGrid,
@@ -391,6 +394,7 @@ import { MobileUsersReport } from './reports/components/mobile-users/mobile-user
         widgets.MobileUsersReportGrid,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
+        tabs.IBMConnectionsCommunitiesDetailTab,
         tabs.IBMConnectionsOverviewTab,
         tabs.IBMConnectionsProfilesTab,
         tabs.IBMConnectionsActivitiesTab,
@@ -403,6 +407,7 @@ import { MobileUsersReport } from './reports/components/mobile-users/mobile-user
         tabs.IBMSametimeMeetingsTab,
         tabs.IBMSametimeOverallTab,
         tabs.IBMConnectionsBlogsTab,
+        tabs.IBMConnectionsCommunitiesDetailTab,
         tabs.IBMConnectionsFilesTab,
         tabs.IBMConnectionsForumsTab,
         tabs.IBMConnectionsWikisTab,
@@ -471,6 +476,7 @@ import { MobileUsersReport } from './reports/components/mobile-users/mobile-user
         widgets.MobileUsersGrid,
         widgets.MobileUsersKeyUserGrid,
         widgets.MailFileStatisticsList,
+        widgets.IBMConnectionsCommunitiesDetailGrid,
         widgets.DatabaseInventoryList,
         widgets.CostPerUserPivotGrid,
         widgets.NotYetImplemented,
@@ -557,6 +563,7 @@ import { MobileUsersReport } from './reports/components/mobile-users/mobile-user
         widgets.MobileUsersReportGrid,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
+        tabs.IBMConnectionsCommunitiesDetailTab,
         tabs.IBMConnectionsOverviewTab,
         tabs.IBMConnectionsProfilesTab,
         tabs.IBMConnectionsActivitiesTab,
