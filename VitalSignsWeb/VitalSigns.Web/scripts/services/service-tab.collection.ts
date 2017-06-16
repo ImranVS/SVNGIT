@@ -8,6 +8,7 @@ export * from './components/service-notesmail-probe-health.component';
 
 export * from '../dashboards/components/ibm-connections/ibm-connections-overview-tab.component';
 export * from '../dashboards/components/ibm-connections/ibm-connections-communities-tab.component';
+export * from '../dashboards/components/ibm-connections/ibm-connections-communities-detail-tab.component';
 export * from '../dashboards/components/ibm-connections/ibm-connections-profiles-tab.component';
 export * from '../dashboards/components/ibm-connections/ibm-connections-activities-tab.component';
 export * from '../dashboards/components/ibm-connections/ibm-connections-blogs-tab.component';
