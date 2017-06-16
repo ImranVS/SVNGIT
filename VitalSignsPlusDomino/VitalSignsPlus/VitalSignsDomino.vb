@@ -417,7 +417,7 @@ Public Class VitalSignsPlusDomino
         Catch ex As Exception
 
         End Try
-
+        Thread.Sleep(3000)
         'End
         MyBase.OnStop()
     End Sub

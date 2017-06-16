@@ -96,6 +96,8 @@ Public Class VSMaster
     Dim strDateFormat As String
     Dim objDateUtils As New DateUtils.DateUtils
 
+    Dim dtLastDominoStart As DateTime = DateTime.Now
+
     ' Create a socket to be used for listening for connections.
     Dim listenSocket As New Chilkat.Socket
     ' This gets set to True when the service is shutdown.  Threads
@@ -1989,6 +1991,18 @@ Public Class VSMaster
 
     Private Sub StartService(ByVal ServiceName As String)
 
+        If ServiceName = VitalSignsPlusDomino Then
+            Try
+                If (DateTime.Now - dtLastDominoStart).TotalMinutes < 5 Then
+                    WriteAuditEntry(Now.ToString & " Giving it a few minutes before restarting the domino service...", LogUtilities.LogUtils.LogLevel.Normal)
+                    Exit Sub
+                End If
+                dtLastDominoStart = DateTime.Now
+            Catch ex As Exception
+                WriteAuditEntry(Now.ToString & " Exception when giving it a few minutes before restarting the domino service. Exception: " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            End Try
+        End If
+
         If ServiceName = VitalSignsPlusAlerting Or ServiceName = VitalSignsPlusDBHealthService Then
             Dim sql As String
             Dim isPriamry As Boolean = True
@@ -2349,6 +2363,10 @@ Public Class VSMaster
 
 
         Next
+
+        If ServiceName = VitalSignsPlusDomino Or ServiceName = VitalSignsPlusDBHealthService Or ServiceName = VitalSignsConsoleCommands Then
+            KillNotes()
+        End If
 
 
     End Sub
