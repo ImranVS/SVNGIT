@@ -149,4 +149,4 @@ export * from './reports/components/configuration/server-list-location-report-gr
 
 export * from './dashboards/components/ibm-connections/ibm-connections-users-compare.component'
 export * from './dashboards/components/ibm-connections/ibm-connections-community-user.component'
-export * from './dashboards/components/ibm-connections/ibm-connections-communities-detail-grid.component'
+//export * from './dashboards/components/ibm-connections/ibm-connections-communities-detail-grid.component'
