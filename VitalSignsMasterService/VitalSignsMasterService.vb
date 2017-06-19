@@ -276,7 +276,7 @@ Public Class VSMaster
             Try
                 'See if the EXJournal Service needs to be started or not
                 boolDominoConsoleCommands = myRegistry.ReadFromRegistry("Enable Domino Console Commands")
-                If boolDominoConsoleCommands = True Then
+                If boolDominoConsoleCommands = True And ServiceStatus(VitalSignsPlusDomino) = "Running" Then
                     WriteAuditEntry(Now.ToString & " Domino Console Commands are enabled.")
                     StartService(VitalSignsConsoleCommands)
                 Else
@@ -297,7 +297,7 @@ Public Class VSMaster
             Try
                 'See if the EXJournal Service needs to be started or not
                 boolEXJournal = myRegistry.ReadFromRegistry("Enable ExJournal")
-                If boolEXJournal = True Then
+                If boolEXJournal = True And ServiceStatus(VitalSignsPlusDomino) = "Running" Then
                     WriteAuditEntry(Now.ToString & " EXJournal monitoring is enabled.")
                     StartService(EXJournalServiceName)
                 Else
@@ -756,7 +756,7 @@ Public Class VSMaster
                     'End Try
 
                     Try
-                        If boolDominoConsoleCommands = True Then
+                        If boolDominoConsoleCommands = True And ServiceStatus(VitalSignsPlusDomino) = "Running" Then
                             StartService(VitalSignsConsoleCommands)
                         End If
                     Catch ex As Exception
@@ -764,7 +764,7 @@ Public Class VSMaster
                     End Try
 
                     Try
-                        If boolEXJournal = True Then
+                        If boolEXJournal = True And ServiceStatus(VitalSignsPlusDomino) = "Running" Then
                             WriteAuditEntry(Now.ToString & " Attempting to restart the EXJournal monitoring service.")
                             StartService(EXJournalServiceName)
                         End If
@@ -1531,7 +1531,7 @@ Public Class VSMaster
 
 
                 Try
-                    If boolEXJournal = True Then
+                    If boolEXJournal = True And ServiceStatus(VitalSignsPlusDomino) = "Running" Then
                         WriteAuditEntry(Now.ToString & " The status of the EXJournal service is " & ServiceStatus(EXJournalServiceName))
                         If ServiceRunning(EXJournalServiceName) = False Then
                             StartService(EXJournalServiceName)
@@ -1544,7 +1544,7 @@ Public Class VSMaster
 
 
                 Try
-                    If boolDominoConsoleCommands = True Then
+                    If boolDominoConsoleCommands = True And ServiceStatus(VitalSignsPlusDomino) = "Running" Then
                         WriteAuditEntry(Now.ToString & " The status of the Console Command service is " & ServiceStatus(VitalSignsConsoleCommands))
                         If ServiceRunning(VitalSignsConsoleCommands) = False Then
                             StartService(VitalSignsConsoleCommands)
