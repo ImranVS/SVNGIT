@@ -11,7 +11,7 @@
 { "_id" : { "$oid" : "5800807221c5190d7e9a0863" }, "name" : "Enable Domino Console Commands", "value" : "True", "modified_on" : { "$date" : "2017-02-24T21:25:34.234+0000" } }
 { "_id" : { "$oid" : "580081fb21c5190d7e9a0864" }, "name" : "Enable ExJournal", "value" : "True", "modified_on" : { "$date" : "2017-02-24T21:25:34.329+0000" } }
 { "_id" : { "$oid" : "5800823821c5190d7e9a0865" }, "name" : "ExJournal Threshold", "value" : "10", "modified_on" : { "$date" : "2017-02-24T21:25:34.414+0000" } }
-c{ "_id" : { "$oid" : "580492ef740dfb27205ee176" }, "created_on" : { "$date" : "2016-10-17T08:59:27.000+0000" }, "name" : "Currency Symbol", "value" : "$", "modified_on" : { "$date" : "2017-02-03T21:21:01.833+0000" } }
+{ "_id" : { "$oid" : "580492ef740dfb27205ee176" }, "created_on" : { "$date" : "2016-10-17T08:59:27.000+0000" }, "name" : "Currency Symbol", "value" : "$", "modified_on" : { "$date" : "2017-02-03T21:21:01.833+0000" } }
 { "_id" : { "$oid" : "580492f1740dfb27205ee177" }, "created_on" : { "$date" : "2016-10-17T08:59:29.000+0000" }, "name" : "Monitoring Delay", "value" : "13", "modified_on" : { "$date" : "2017-02-03T21:21:01.835+0000" } }
 { "_id" : { "$oid" : "580492f7740dfb27205ee178" }, "created_on" : { "$date" : "2016-10-17T08:59:35.000+0000" }, "name" : "Threshold Show", "value" : "30", "modified_on" : { "$date" : "2017-02-03T21:21:01.838+0000" } }
 { "_id" : { "$oid" : "581739a1740dfb3170c6e033" }, "created_on" : { "$date" : "2016-10-31T12:31:29.000+0000" }, "name" : "Alert Interval", "value" : "11" }

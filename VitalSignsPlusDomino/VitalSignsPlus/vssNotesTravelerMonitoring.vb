@@ -290,27 +290,27 @@ Partial Public Class VitalSignsPlusDomino
 
 		Try
 			With myDominoServer
-				If .HTTP_Actual_Max_Sessions * 1.2 > .HTTP_Configured_Max_Sessions And .HTTP_Actual_Max_Sessions > 1 And .HTTP_Configured_Max_Sessions <> 0 Then
-					.Traveler_Overall_Health = "The maximum number of actual HTTP sessions is approaching the configured limit of " & .HTTP_Configured_Max_Sessions
-					.Description = "The maximum number of actual HTTP sessions is approaching the configured limit of " & .HTTP_Configured_Max_Sessions
-					.Traveler_Status = "HTTP Sessions Warning"
-					Status = "HTTP Sessions Warning"
+                If .Traveler_DeviceCount * 1.2 > .HTTP_Configured_Max_Sessions And .Traveler_DeviceCount > 1 And .HTTP_Configured_Max_Sessions <> 0 Then
+                    .Traveler_Overall_Health = "The maximum number of actual HTTP sessions is approaching the configured limit of " & .HTTP_Configured_Max_Sessions
+                    .Description = "The maximum number of actual HTTP sessions is approaching the configured limit of " & .HTTP_Configured_Max_Sessions
+                    .Traveler_Status = "HTTP Sessions Warning"
+                    Status = "HTTP Sessions Warning"
                     Details = "The maximum number of actual HTTP sessions is approaching the configured server limit of " & .HTTP_Configured_Max_Sessions
                     Details = "Warning"
                     myAlert.QueueAlert(.ServerType, .Name, "Traveler Threads Warning", Details, .Location, "Traveler")
-				Else
+                Else
                     myAlert.ResetAlert(.ServerType, .Name, "Traveler Threads Warning", .Location, "The Traveler server has sufficient HTTP threads", "Traveler")
 				End If
 
-				If .HTTP_Actual_Max_Sessions = .HTTP_Configured_Max_Sessions And .HTTP_Actual_Max_Sessions > 1 And .HTTP_Configured_Max_Sessions <> 0 Then
-					.Traveler_Overall_Health = "The maximum number of actual HTTP sessions has hit the configured limit of " & .HTTP_Configured_Max_Sessions
-					.Description = "The maximum number of actual HTTP sessions has hit the configured limit of " & .HTTP_Configured_Max_Sessions & ". This can affect Traveler performance."
-					.Traveler_Status = "Insufficient HTTP Sessions"
-					Status = "Insufficient HTTP Sessions"
+                If .Traveler_DeviceCount = .HTTP_Configured_Max_Sessions And .Traveler_DeviceCount > 1 And .HTTP_Configured_Max_Sessions <> 0 Then
+                    .Traveler_Overall_Health = "The maximum number of actual HTTP sessions has hit the configured limit of " & .HTTP_Configured_Max_Sessions
+                    .Description = "The maximum number of actual HTTP sessions has hit the configured limit of " & .HTTP_Configured_Max_Sessions & ". This can affect Traveler performance."
+                    .Traveler_Status = "Insufficient HTTP Sessions"
+                    Status = "Insufficient HTTP Sessions"
                     'Details = "The maximum number of actual HTTP sessions has hit the configured limit of " & .HTTP_Configured_Max_Sessions & ". This can adversely affect Traveler performance."
                     Details = "Insufficient"
                     myAlert.QueueAlert(.ServerType, .Name, "Traveler Insufficient Threads", Details, .Location, "Traveler")
-				Else
+                Else
                     myAlert.ResetAlert(.ServerType, .Name, "Traveler Insufficient Threads", .Location)
 				End If
 			End With
