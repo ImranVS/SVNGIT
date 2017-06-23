@@ -71,5 +71,8 @@ namespace VitalSigns.API.Models
         [JsonProperty("tabs")]
         public List<Tab> Tabs { get; set; }
 
+        [JsonProperty("server_other")]
+        public bool ServerOther { get; set; } = false;
+
     }
 }
