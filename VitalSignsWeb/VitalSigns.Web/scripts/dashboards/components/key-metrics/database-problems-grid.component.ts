@@ -48,22 +48,22 @@ export class DatabaseProblemsGrid implements WidgetComponent, OnInit {
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(data.data)));
                 this.data.pageSize = 10;
-                this.flex.columns[2].header = this.data.items[0].domino_server_a + ' (document count)';
-                this.flex.columns[3].header = this.data.items[0].domino_server_b + ' (document count)';
+                this.flex.columns[3].header = this.data.items[0].domino_server_a + ' (document count)';
+                this.flex.columns[4].header = this.data.items[0].domino_server_b + ' (document count)';
                 if (this.data.items[0].domino_server_c == null || this.data.items[0].domino_server_c == "") {
                     var cols = this.flex.columns;
-                    cols[4].visible = false;
-                    cols[7].visible = false;
+                    cols[5].visible = false;
+                    cols[8].visible = false;
                 }
                 else {
                     var cols = this.flex.columns;
-                    cols[4].visible = true;
-                    cols[7].visible = true;
-                    this.flex.columns[4].header = this.data.items[0].domino_server_c + ' (document count)';
-                    this.flex.columns[7].header = this.data.items[0].domino_server_c + ' (database size)';
+                    cols[5].visible = true;
+                    cols[8].visible = true;
+                    this.flex.columns[5].header = this.data.items[0].domino_server_c + ' (document count)';
+                    this.flex.columns[8].header = this.data.items[0].domino_server_c + ' (database size)';
                 }
-                this.flex.columns[5].header = this.data.items[0].domino_server_a + ' (database size)';
-                this.flex.columns[6].header = this.data.items[0].domino_server_b + ' (database size)';
+                this.flex.columns[6].header = this.data.items[0].domino_server_a + ' (database size)';
+                this.flex.columns[7].header = this.data.items[0].domino_server_b + ' (database size)';
             },
             (error) => this.errorMessage = <any>error
         );
@@ -91,22 +91,22 @@ export class DatabaseProblemsGrid implements WidgetComponent, OnInit {
                 (data) => {
                     this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
                     this.data.pageSize = 10;
-                    this.flex.columns[2].header = this.data.items[0].domino_server_a + ' (document count)';
-                    this.flex.columns[3].header = this.data.items[0].domino_server_b + ' (document count)';
+                    this.flex.columns[3].header = this.data.items[0].domino_server_a + ' (document count)';
+                    this.flex.columns[4].header = this.data.items[0].domino_server_b + ' (document count)';
                     if (this.data.items[0].domino_server_c == null || this.data.items[0].domino_server_c == "") {
                         var cols = this.flex.columns;
-                        cols[4].visible = false;
-                        cols[7].visible = false;
+                        cols[5].visible = false;
+                        cols[8].visible = false;
                     }
                     else {
                         var cols = this.flex.columns;
-                        cols[4].visible = true;
-                        cols[7].visible = true;
-                        this.flex.columns[4].header = this.data.items[0].domino_server_c + ' (document count)';
-                        this.flex.columns[7].header = this.data.items[0].domino_server_c + ' (database size)';
+                        cols[5].visible = true;
+                        cols[8].visible = true;
+                        this.flex.columns[5].header = this.data.items[0].domino_server_c + ' (document count)';
+                        this.flex.columns[8].header = this.data.items[0].domino_server_c + ' (database size)';
                     }
-                    this.flex.columns[5].header = this.data.items[0].domino_server_a + ' (database size)';
-                    this.flex.columns[6].header = this.data.items[0].domino_server_b + ' (database size)';
+                    this.flex.columns[6].header = this.data.items[0].domino_server_a + ' (database size)';
+                    this.flex.columns[7].header = this.data.items[0].domino_server_b + ' (database size)';
                 },
                 (error) => this.errorMessage = <any>error
                 );
