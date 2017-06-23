@@ -364,6 +364,28 @@
 
   },
   {
+    "server_type": "Notes Database",
+    "icon": "/img/servers/Paintbrush.svg",
+    "tabs": [
+      {
+        "tab_id": 1,
+        "title": "Overall",
+        "component": "ServiceNotesDatabaseOverallTab",
+        "path": "/app/services/components/service-notes-database-overall-tab.component",
+        "type": "Dashboard"
+      },
+      {
+        "tab_id": 2,
+        "title": "Health Assessment",
+        "type": "Dashboard",
+        "component": "ServiceMainHealthTab",
+        "path": "/app/services/components/service-mainhealth-tab.component"
+      }
+    ]
+
+
+  },
+  {
     "server_type": "NotesMail Probe",
     "icon": "/img/servers/Mail.svg",
     "tabs": [

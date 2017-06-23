@@ -3374,13 +3374,12 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <author>Sowjanya</author>
         [HttpGet("get_notes_databases")]
-        public APIResponse GetAllNotesDatabases()
+        public APIResponse GetAllNotesDatabases(string deviceId)
         {
             try
             {
-
                 serverOtherRepository = new Repository<ServerOther>(ConnectionString);
-                var result = serverOtherRepository.Collection.AsQueryable().Where(x => x.Type == "Notes Database").Select(x => new NotesDatabaseModel
+                var result = serverOtherRepository.Collection.AsQueryable().Where(x => x.Type == "Notes Database" && (deviceId == null || x.Id == deviceId)).Select(x => new NotesDatabaseModel
                 {
                     Id = x.Id,
                     // DominoServerId = x.DominoServerId,

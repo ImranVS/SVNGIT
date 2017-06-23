@@ -23,6 +23,7 @@ namespace VitalSigns.API.Controllers
     {
 
         private IRepository<Server> serverRepository;
+        private IRepository<ServerOther> serverOtherRepository;
         private IRepository<Status> statusRepository;
         private IRepository<DailyStatistics> dailyRepository;
         private IRepository<SummaryStatistics> summaryRepository;
@@ -202,6 +203,7 @@ namespace VitalSigns.API.Controllers
         {
             statusRepository = new Repository<Status>(ConnectionString);
             serverRepository = new Repository<Server>(ConnectionString);
+            serverOtherRepository = new Repository<ServerOther>(ConnectionString);
             try
             {
                 var serviceIcons = Common.GetServerTypeIcons();
@@ -212,7 +214,22 @@ namespace VitalSigns.API.Controllers
                         IsEnabled = x.IsEnabled,
                         Type = x.DeviceType,
                         Name = x.DeviceName,
-                    }).OrderBy(x=>x.Name).ToList(); ;
+                    }).OrderBy(x=>x.Name).ToList();
+
+                var serverOthers = serverOtherRepository.Collection.AsQueryable()
+                    .Where(x => x.Type == Enums.ServerType.NotesDatabase.ToDescription())
+                    .Select(x => new ServerStatus
+                    {
+                        Id = x.Id,
+                        IsEnabled = x.IsEnabled,
+                        Type = x.Type,
+                        Name = x.Name,
+                        ServerOther = true
+                    });
+                servers.AddRange(serverOthers);
+
+                servers = servers.OrderBy(x => x.Name).ToList();
+
                 foreach (var server in servers)
                 {
 
@@ -281,6 +298,7 @@ namespace VitalSigns.API.Controllers
             statusRepository = new Repository<Status>(ConnectionString);
             ServerStatus serverStatus = new ServerStatus();
             serverRepository = new Repository<Server>(ConnectionString);
+            serverOtherRepository = new Repository<ServerOther>(ConnectionString);
 
             try
             {
@@ -302,7 +320,36 @@ namespace VitalSigns.API.Controllers
                     //                         SecondaryRole = x.SecondaryRole
                     //                     })).FirstOrDefault();
                     var serviceIcons = Common.GetServerTypeIcons();
-                    var server = serverRepository.Get(device_id);
+                    Server server = null;
+                    try
+                    { 
+                        server = serverRepository.Get(device_id);
+                    }
+                    catch(Exception ex)
+                    { 
+                        
+                    }
+
+                    if(server == null)
+                    {
+                        try
+                        {
+                            //belongs to the server_other collection
+                            var serverOtherInstance = (serverOtherRepository.Get(device_id));
+                            server = new Server()
+                            {
+                                Id = serverOtherInstance.Id,
+                                IsEnabled = serverOtherInstance.IsEnabled,
+                                DeviceType = serverOtherInstance.Type,
+                                DeviceName = serverOtherInstance.Name
+                            };
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+                    }
+                    
                     if (server != null)
                     {
                         serverStatus.Id = server.Id;
@@ -1390,7 +1437,7 @@ namespace VitalSigns.API.Controllers
             }
         }
 
-    [HttpGet("status_count")]
+        [HttpGet("status_count")]
         public APIResponse GetStatusCount(string type, string docfield)
         {
 

@@ -2671,6 +2671,46 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
+
+        [HttpGet("notes_database_test_result")]
+        public APIResponse GetLastUpdate(string deviceId)
+        {
+            try
+            {
+                serverOtherRepository = new Repository<ServerOther>(ConnectionString);
+                statusRepository = new Repository<Status>(ConnectionString);
+
+                var statusResult = statusRepository.Find(new FilterDefinitionBuilder<Status>().Eq(x => x.DeviceId, deviceId)).ToList();
+                int value;
+                try
+                {
+                    value = statusResult[0].ResponseTime.HasValue ? statusResult[0].ResponseTime.Value : 0;
+                }
+                catch (Exception)
+                {
+                    value = 0;
+                }
+
+                var serverResult = serverOtherRepository.Find(new FilterDefinitionBuilder<ServerOther>().Eq(x => x.Id, deviceId)).ToList();
+                string name;
+                try
+                {
+                    name = serverResult[0].TriggerType;
+                }
+                catch (Exception)
+                {
+                    name = "Unknown";
+                }
+
+                Response = Common.CreateResponse(new { name, value });
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Getting the last update information has failed .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
     }
 }
 

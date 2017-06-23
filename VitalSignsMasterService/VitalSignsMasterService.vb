@@ -2001,6 +2001,13 @@ Public Class VSMaster
             Catch ex As Exception
                 WriteAuditEntry(Now.ToString & " Exception when giving it a few minutes before restarting the domino service. Exception: " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
             End Try
+            Try
+                StopService(VitalSignsConsoleCommands)
+                StopService(EXJournalServiceName)
+                StopService(VitalSignsPlusDBHealthService)
+            Catch ex As Exception
+
+            End Try
         End If
 
         If ServiceName = VitalSignsPlusAlerting Or ServiceName = VitalSignsPlusDBHealthService Then

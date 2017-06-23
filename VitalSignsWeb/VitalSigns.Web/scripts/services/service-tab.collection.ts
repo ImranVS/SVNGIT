@@ -3,6 +3,7 @@ export * from './components/no-selected-service.component';
 export * from './components/service-overall-tab.component';
 export * from './components/service-url-health.component';
 export * from './components/service-websphere-overall-tab.component';
+export * from './components/service-notes-database-overall-tab.component';
 export * from './components/service-notesmail-probe-health.component';
 
 

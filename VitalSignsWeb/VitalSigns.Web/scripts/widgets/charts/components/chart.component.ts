@@ -46,6 +46,9 @@ export class ChartComponent implements WidgetComponent, OnInit {
 
         this.service.get(serviceUrl || this.settings.url)
             .subscribe(data => {
+                if (this.settings.overrideName) {
+                    data.data.series.forEach(serie => serie.title = this.settings.overrideName);
+                }
                 switch (this.settings.dateformat) {
                     case "date":
                         data.data = this.datetimeHelpers.toLocalDate(data.data);
