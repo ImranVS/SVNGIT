@@ -23,6 +23,7 @@ export class ServiceNotesDatabaseOverallTab extends WidgetController implements 
     chartName: any;
     data: any;
     errorMessage: any;
+    messageText: string;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService ) {
         super(resolver, widgetService);
@@ -34,6 +35,8 @@ export class ServiceNotesDatabaseOverallTab extends WidgetController implements 
             .subscribe(
             response => {
                 this.data = response.data;
+           
+                this.messageText = 'Notes Databases can be monitored for replication, response time to open the default view, elapsed time to refresh all views, or based on document count. This graph represents ' + this.data.name + '. The most recent recorded value is ' + this.data.value;
             },
             error => this.errorMessage = <any>error
             );
