@@ -45,7 +45,7 @@ namespace VitalSigns.API.Models
         public List<int> ObjectValues { get; set; }
 
         [JsonProperty("total")]
-        public int Total { get; set; }
+        public int Total { get { return ObjectValues.Sum(); } set { } }
 
         [JsonProperty("object_created_date")]
         public DateTime ObjectCreatedDate { get; set; }

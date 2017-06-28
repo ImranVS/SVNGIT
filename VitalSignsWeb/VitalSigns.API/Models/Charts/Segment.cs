@@ -9,26 +9,27 @@ namespace VitalSigns.API.Models.Charts
 {
 
     [BsonIgnoreExtraElements]
+    
     public class Segment
     {
 
-        [JsonProperty("label")]
+        [JsonProperty("label", NullValueHandling = NullValueHandling.Ignore)]
         [BsonElement("label")]
         public string Label { get; set; }
 
-        [JsonProperty("label2")]
+        [JsonProperty("label2", NullValueHandling = NullValueHandling.Ignore)]
         [BsonElement("label2")]
         public string Label2 { get; set; }
 
-        [JsonProperty("value")]
+        [JsonProperty("value", NullValueHandling = NullValueHandling.Ignore)]
         [BsonElement("value")]
         public double? Value { get; set; }
 
-        [JsonProperty("value1")]
+        [JsonProperty("value1", NullValueHandling = NullValueHandling.Ignore)]
         [BsonElement("value1")]
         public double? Value1 { get; set; }
 
-        [JsonProperty("value2")]
+        [JsonProperty("value2", NullValueHandling = NullValueHandling.Ignore)]
         [BsonElement("value2")]
         public double? Value2 { get; set; }
 
@@ -36,7 +37,7 @@ namespace VitalSigns.API.Models.Charts
         [BsonElement("color")]
         public string Color { get; set; }
 
-        [JsonProperty("drilldownname")]
+        [JsonProperty("drilldownname", NullValueHandling = NullValueHandling.Ignore)]
         [BsonElement("drilldownname")]
         public string DrillDownName { get; set; }
     }

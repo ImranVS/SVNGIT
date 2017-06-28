@@ -1329,31 +1329,32 @@ namespace VitalSigns.API.Controllers
                 var listOfCommunity = connectionsObjectsRepository.Find(i => i.Type == "Community")
                     .OrderBy(i => i.Name).OrderBy(i => i.DeviceName).ToList();
 
-                foreach (var community in listOfCommunity)
-                {
-                    filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.Eq(i => i.ParentGUID, community.Id),
-                        connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays));
-                    var res = connectionsObjectsRepository.Find(filterDef)
-                        .GroupBy(row => new
-                        {
-                            row.DeviceName,
-                            row.Type
-                        })
-                        .Select(x => new CommunityActivity
-                        {
-                            ServerName = x.Key.DeviceName,
-                            Community = community.Name,
-                            ObjectName = x.Key.Type,
-                            ObjectValue = x.Count(),
-                            DateRange = "Last 7 Days"
-                        }).ToList();
-                    foreach (var res1 in res)
-                    {
-                        result.Add(res1);
-                    }
-                }
 
-                Response = Common.CreateResponse(result);
+
+                filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.In(i => i.ParentGUID, listOfCommunity.Select(x => x.Id)),
+                       connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays));
+
+                var res = connectionsObjectsRepository.Collection
+                    .Aggregate()
+                    .Match(filterDef)
+                    .Group(
+                        x => new { DeviceName = x.DeviceName, Type = x.Type, ParentGUID = x.ParentGUID }, 
+                        g => new { Key = g.Key, Count = g.Count()})
+                    .ToList()
+                    .Select(x => new CommunityActivity
+                    {
+                        ServerName = x.Key.DeviceName,
+                        Community = listOfCommunity.Find(y => y.Id == x.Key.ParentGUID).Name,
+                        ObjectName = x.Key.Type,
+                        ObjectValue = x.Count,
+                        DateRange = "Last 7 Days"
+                    })
+                    .OrderBy(x => x.ServerName)
+                    .ThenBy(x => x.Community)
+                    .ThenBy(x => x.ObjectName)
+                    .ToList();
+                                    
+                Response = Common.CreateResponse(res);
                 return Response;
             }
 
@@ -1404,82 +1405,110 @@ namespace VitalSigns.API.Controllers
                 }
 
                 //Iterate through the list of communities and build a list of distinct object types, i.e., blogs, bookmarks, etc.
-                foreach (var community in listOfCommunity)
-                {
-                    filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.Eq(i => i.ParentGUID, community.Id),
+
+                var listOfStr = listOfCommunity.Select(x => x.Id).ToList();
+
+                filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.In(i => i.ParentGUID, listOfCommunity.Select(x => x.Id)),
                         connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays));
-                    var res2 = connectionsObjectsRepository.Collection.Distinct(i => i.Type, filterDef).ToList();
-                    foreach (var objType in res2)
-                    {
-                        if (!objectTypes.Contains(objType))
-                        {
-                            objectTypes.Add(objType);
-                        }
-                    }
-                }
+                objectTypes = connectionsObjectsRepository.Collection.Distinct(i => i.Type, filterDef).ToList();
 
                 //Iterate through the list of users and collect information about each user's activity level for each of the object types above
-                filterDef = connectionsObjectsRepository.Filter.Eq(i => i.Type, "Users");
-                var listOfUsers = connectionsObjectsRepository.Find(filterDef).ToList();
-                var listOfUserNames = connectionsObjectsRepository.Collection.Distinct(i => i.Name, filterDef).ToList();
-                foreach (var user in listOfUserNames)
+                if (!string.IsNullOrEmpty(deviceId))
                 {
-                    var userId = listOfUsers.Find(i => i.Name == user);
-                    if (!string.IsNullOrEmpty(deviceId))
-                    {
-                        listOfDevices = deviceId.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
-                        filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.Eq(i => i.OwnerId, userId.Id),
-                        connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays),
-                        connectionsObjectsRepository.Filter.In(i => i.Type, objectTypes),
-                        connectionsObjectsRepository.Filter.In(i => i.DeviceId, listOfDevices));
-                    }
-                    else
-                    {
-                        filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.Eq(i => i.OwnerId, userId.Id),
+                    filterDef = connectionsObjectsRepository.Filter.Eq(i => i.Type, "Users") & connectionsObjectsRepository.Filter.In(x => x.DeviceId, listOfDevices);
+                }
+                else
+                {
+                    filterDef = connectionsObjectsRepository.Filter.Eq(i => i.Type, "Users");
+                }
+                
+                var listOfUsers = connectionsObjectsRepository.Find(filterDef).ToList();
+                //var listOfUserNames = connectionsObjectsRepository.Collection.Distinct(i => i.Name, filterDef).ToList();
+
+                filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.In(i => i.OwnerId, listOfUsers.Select(x => x.Id)),
                         connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays),
                         connectionsObjectsRepository.Filter.In(i => i.Type, objectTypes));
-                    }
-                    var res = connectionsObjectsRepository.Find(filterDef)
-                        .GroupBy(row => new
-                        {
-                            row.DeviceName,
-                            row.OwnerId,
-                            row.Type
-                        })
-                        .Select(x => new UserAdoption
-                        {
-                            ServerName = x.Key.DeviceName,
-                            ObjectName = x.Key.Type,
-                            ObjectValue = x.Count(),
-                            UserName = user
-                        }).ToList();
-                    if (res.Count > 0)
+                if (!string.IsNullOrEmpty(deviceId))
+                {
+                    filterDef = filterDef & connectionsObjectsRepository.Filter.In(x => x.DeviceId, listOfDevices);
+                }
+
+                var res = connectionsObjectsRepository.Collection.Aggregate()
+                    .Match(filterDef)
+                    .Group(
+                    x => new { DeviceName = x.DeviceName, OwnerId = x.OwnerId, Type = x.Type},
+                    g => new {Key = g.Key , Count = g.Count()})
+                    .ToList()
+                    .Select(x => new UserAdoption
                     {
-                        uaVal = new List<int>();
-                        total = 0;
-                        foreach (var obj in objectTypes)
+                        ServerName = x.Key.DeviceName,
+                        ObjectName = x.Key.Type,
+                        ObjectValue = x.Count,
+                        UserName = listOfUsers.Find(y => y.Id == x.Key.OwnerId).Name
+                    }).ToList();
+
+                if (!isChart)
+                {
+                    foreach (var curr in res)
+                    {
+
+                        var currResults = result.Where(x => x.UserName == curr.UserName && x.ServerName == curr.ServerName).ToList();
+                        UserAdoptionPivot currResult;
+                        if (currResults.Count() == 0)
                         {
-                            var record = res.Find(x => x.ObjectName == obj);
-                            if (record != null)
+                            currResult = new UserAdoptionPivot()
                             {
-                                uaVal.Add(record.ObjectValue);
-                                total += record.ObjectValue;
-                            }
-                            else
-                            {
-                                uaVal.Add(0);
-                            }
+                                ServerName = curr.ServerName,
+                                UserName = curr.UserName,
+                                ObjectValues = Enumerable.Repeat(0, objectTypes.Count()).ToList()
+                            };
+                            result.Add(currResult);
                         }
-                        ua = new UserAdoptionPivot
+                        else
                         {
-                            ServerName = res[0].ServerName,
-                            UserName = res[0].UserName,
-                            ObjectValues = uaVal,
-                            Total = total
-                        };
-                        result.Add(ua);
+                            currResult = currResults[0];
+                        }
+
+                        int currIndex = objectTypes.IndexOf(curr.ObjectName);
+                        currResult.ObjectValues[currIndex] = curr.ObjectValue;
                     }
                 }
+                else
+                {
+                    if(topX != 0)
+                    {
+                        var grouped = res.GroupBy(x => x.UserName).Select(g => new { UserName = g.Key, Sum = g.Sum(x => x.ObjectValue) }).OrderByDescending(x => x.Sum).Take(5);
+                        res = res.Where(x => grouped.Select(y => y.UserName).Contains(x.UserName)).ToList();
+                    }
+
+                    userList = res.GroupBy(x => x.UserName).Select(x => new { UserName = x.Key, Count = x.Sum(y => y.ObjectValue) }).OrderByDescending(x => x.Count).Select(x => x.UserName).Distinct().ToList();
+
+                    foreach(var user in userList)
+                    {
+                        var currList = res.Where(x => x.UserName == user).GroupBy(x => x.ObjectName).Select(x => new { ObjectName = x.Key, Count = x.Sum(y => y.ObjectValue)}).ToList();
+                        foreach(var curr in currList)
+                        {
+                            var currResult = new UserActivityBubble()
+                            {
+                                Y = ycoord,
+                                X = xcoord,
+                                Z = curr.Count,
+                                Name = user,
+                                Activity = curr.ObjectName
+                            };
+                            resultchart.Add(currResult);
+
+                            ycoord += 1;
+                        }
+                        ycoord = 0;
+                        xcoord += 1;
+                    }
+
+                    
+                }
+                
+
+
                 if (topX != 0)
                 {
                     sortedList = result.OrderByDescending(i => i.Total).Take(topX).ToList();
@@ -1488,70 +1517,17 @@ namespace VitalSigns.API.Controllers
                 {
                     sortedList = result.OrderByDescending(i => i.Total).ToList();
                 }
+
+
                 if (!isChart)
                 {
                     resultFinal.Add(sortedList);
                     resultFinal.Add(objectTypes);
-                    resultFinal.Add(listOfUserNames);
+                    resultFinal.Add(listOfUsers.Select(x => x.Name).Distinct().ToList());
                     Response = Common.CreateResponse(resultFinal);
                 }
                 else
                 {
-                    foreach (var user in sortedList)
-                    {
-                        var userId = listOfUsers.Find(i => i.Name == user.UserName);
-                        if (!string.IsNullOrEmpty(deviceId))
-                        {
-                            listOfDevices = deviceId.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
-                            filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.Eq(i => i.OwnerId, userId.Id),
-                            connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays),
-                            connectionsObjectsRepository.Filter.In(i => i.Type, objectTypes),
-                            connectionsObjectsRepository.Filter.In(i => i.DeviceId, listOfDevices));
-                        }
-                        else
-                        {
-                            filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.Eq(i => i.OwnerId, userId.Id),
-                            connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays),
-                            connectionsObjectsRepository.Filter.In(i => i.Type, objectTypes));
-                        }
-                        var res = connectionsObjectsRepository.Find(filterDef)
-                        .GroupBy(row => new
-                        {
-                            row.DeviceName,
-                            row.OwnerId,
-                            row.Type
-                        })
-                        .Select(x => new UserAdoption
-                        {
-                            ServerName = x.Key.DeviceName,
-                            ObjectName = x.Key.Type,
-                            ObjectValue = x.Count(),
-                            UserName = user.UserName
-                        }).ToList();
-                        ycoord = 0;
-                        foreach (var obj in objectTypes)
-                        {
-                            var record = res.Find(x => x.ObjectName == obj);
-                            if (record != null)
-                            {
-                                uab = new UserActivityBubble
-                                {
-                                    X = xcoord,
-                                    Y = ycoord,
-                                    Z = record.ObjectValue,
-                                    Name = user.UserName,
-                                    Activity = obj
-                                };
-                                resultchart.Add(uab);
-                                if (!userList.Contains(user.UserName))
-                                {
-                                    userList.Add(user.UserName);
-                                }
-                            }
-                            ycoord += 1;
-                        }
-                        xcoord += 1;
-                    }
                     List<Serie> series = new List<Serie>();
                     Serie serie = new Serie();
                     serie.Title = "User Activity";
@@ -1568,7 +1544,84 @@ namespace VitalSigns.API.Controllers
                     resultFinal.Add(objectTypes);
                     resultFinal.Add(userList);
                     Response = Common.CreateResponse(resultFinal);
+
                 }
+
+                return Response;
+
+                //}
+                //    foreach (var user in sortedList)
+                //    {
+                //        var userId = listOfUsers.Find(i => i.Name == user.UserName);
+                //        if (!string.IsNullOrEmpty(deviceId))
+                //        {
+                //            listOfDevices = deviceId.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
+                //            filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.Eq(i => i.OwnerId, userId.Id),
+                //            connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays),
+                //            connectionsObjectsRepository.Filter.In(i => i.Type, objectTypes),
+                //            connectionsObjectsRepository.Filter.In(i => i.DeviceId, listOfDevices));
+                //        }
+                //        else
+                //        {
+                //            filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.Eq(i => i.OwnerId, userId.Id),
+                //            connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays),
+                //            connectionsObjectsRepository.Filter.In(i => i.Type, objectTypes));
+                //        }
+                //        var res = connectionsObjectsRepository.Find(filterDef)
+                //        .GroupBy(row => new
+                //        {
+                //            row.DeviceName,
+                //            row.OwnerId,
+                //            row.Type
+                //        })
+                //        .Select(x => new UserAdoption
+                //        {
+                //            ServerName = x.Key.DeviceName,
+                //            ObjectName = x.Key.Type,
+                //            ObjectValue = x.Count(),
+                //            UserName = user.UserName
+                //        }).ToList();
+                //        ycoord = 0;
+                //        foreach (var obj in objectTypes)
+                //        {
+                //            var record = res.Find(x => x.ObjectName == obj);
+                //            if (record != null)
+                //            {
+                //                uab = new UserActivityBubble
+                //                {
+                //                    X = xcoord,
+                //                    Y = ycoord,
+                //                    Z = record.ObjectValue,
+                //                    Name = user.UserName,
+                //                    Activity = obj
+                //                };
+                //                resultchart.Add(uab);
+                //                if (!userList.Contains(user.UserName))
+                //                {
+                //                    userList.Add(user.UserName);
+                //                }
+                //            }
+                //            ycoord += 1;
+                //        }
+                //        xcoord += 1;
+                //    }
+                //    List<Serie> series = new List<Serie>();
+                //    Serie serie = new Serie();
+                //    serie.Title = "User Activity";
+                //    serie.Segments = new List<Segment>();
+                //    foreach (var val in resultchart)
+                //    {
+                //        serie.Segments.Add(new Segment() { Label = val.Name, Label2 = val.Activity, Value = val.Y, Value1 = val.X, Value2 = val.Z });
+                //    }
+                //    series.Add(serie);
+                //    Chart chart = new Chart();
+                //    chart.Title = "";
+                //    chart.Series = series;
+                //    resultFinal.Add(chart);
+                //    resultFinal.Add(objectTypes);
+                //    resultFinal.Add(userList);
+                //    Response = Common.CreateResponse(resultFinal);
+
                 return Response;
             }
 
@@ -1612,18 +1665,9 @@ namespace VitalSigns.API.Controllers
                 var listOfCommunity = connectionsObjectsRepository.Find(i => i.Type == "Community").ToList();
 
                 //Iterate through the list of communities and build a list of distinct object types, i.e., blogs, bookmarks, etc.
-                foreach (var community in listOfCommunity)
-                {
-                    filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.Eq(i => i.ParentGUID, community.Id));
-                    var res2 = connectionsObjectsRepository.Collection.Distinct(i => i.Type, filterDef).ToList();
-                    foreach (var objType in res2)
-                    {
-                        if (!objectTypes.Contains(objType))
-                        {
-                            objectTypes.Add(objType);
-                        }
-                    }
-                }
+                filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.In(i => i.ParentGUID, listOfCommunity.Select(x => x.Id)),
+                        connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays));
+                objectTypes = connectionsObjectsRepository.Collection.Distinct(i => i.Type, filterDef).ToList();
 
                 //Iterate through the list of users and collect information about each user's activity level for each of the object types above
                 if (!string.IsNullOrWhiteSpace(userNames))
@@ -1640,6 +1684,122 @@ namespace VitalSigns.API.Controllers
                     listOfUsers = connectionsObjectsRepository.Find(filterDef).ToList();
                     listOfUserNames = connectionsObjectsRepository.Collection.Distinct(i => i.Name, filterDef).ToList();
                 }
+
+                filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.In(i => i.OwnerId, listOfUsers.Select(x => x.Id)),
+                        connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays),
+                        connectionsObjectsRepository.Filter.In(i => i.Type, objectTypes));
+
+                var res = connectionsObjectsRepository.Find(filterDef)
+                        .GroupBy(row => new
+                        {
+                            row.OwnerId,
+                            row.Type,
+                            row.ObjectCreatedDate.Value.Month,
+                            row.ObjectCreatedDate.Value.Year
+                        })
+                        .ToList()
+                        .Select(x => new UserAdoption
+                        {
+                            ObjectName = x.Key.Type,
+                            ObjectValue = x.Count(),
+                            ObjectCreatedDate = new DateTime(x.Key.Year, x.Key.Month, 1),
+                            UserName = listOfUsers.Find(y => y.Id == x.Key.OwnerId).Name
+                        }).ToList();
+
+                foreach(var curr in res)
+                {
+
+                    ua = new UserAdoptionPivot
+                    {
+                        ServerName = curr.ServerName,
+                        UserName = curr.UserName,
+                        ObjectValue = curr.ObjectValue,
+                        ObjectType = curr.ObjectName,
+                        ObjectCreatedDate = curr.ObjectCreatedDate
+                    };
+                    result.Add(ua);
+                    
+                }
+
+                result = result.OrderBy(i => i.ObjectCreatedDate).ToList();
+                foreach (var record in result)
+                {
+                    if (!userList.Contains(record.UserName))
+                    {
+                        userList.Add(record.UserName);
+                    }
+                    var dt = record.ObjectCreatedDate.ToString("MMM yyyy");
+                    if (!objectList.Contains(dt))
+                    {
+                        objectList.Add(dt);
+                    }
+                }
+                List<Serie> series = new List<Serie>();
+                foreach (var val in result)
+                {
+                    Serie serie = new Serie();
+                    Serie seriefound = series.Find(i => i.Title == val.ObjectType);
+                    ycoord = userList.FindIndex(i => i == val.UserName);
+                    if (ycoord == -1)
+                    {
+                        ycoord = 0;
+                    }
+
+                    var allObjects = result.FindAll(i => i.ObjectCreatedDate == val.ObjectCreatedDate);
+                    var coords = CalculateCoords(allObjects.Count);
+                    var dti = val.ObjectCreatedDate.ToString("MMM yyyy");
+                    xcoord = objectList.FindIndex(i => i == dti);
+                    if (xcoord == -1)
+                    {
+                        xcoord = 0;
+                    }
+                    if (!objectsAdded.ContainsKey(val.ObjectCreatedDate.ToShortDateString()))
+                    {
+                        objectsAdded.Add(val.ObjectCreatedDate.ToShortDateString(), 0);
+                    }
+                    else
+                    {
+                        objectsAdded[val.ObjectCreatedDate.ToShortDateString()] += 1;
+                    }
+                    if (seriefound == null)
+                    {
+                        serie.Title = val.ObjectType;
+                        serie.Segments = new List<Segment>();
+                        Segment segment = new Segment
+                        {
+                            Label = dti,
+                            Label2 = val.UserName,
+                            Value = ycoord,
+                            Value1 = xcoord + coords[objectsAdded[val.ObjectCreatedDate.ToShortDateString()]],
+                            Value2 = val.ObjectValue
+                        };
+                        serie.Segments.Add(segment);
+                        series.Add(serie);
+                    }
+                    else
+                    {
+                        Segment segment = new Segment
+                        {
+                            Label = dti,
+                            Label2 = val.UserName,
+                            Value = ycoord,
+                            Value1 = xcoord + coords[objectsAdded[val.ObjectCreatedDate.ToShortDateString()]],
+                            Value2 = val.ObjectValue
+                        };
+                        seriefound.Segments.Add(segment);
+                    }
+                }
+                Chart chart = new Chart();
+                chart.Title = "";
+                chart.Series = series;
+                resultFinal.Add(chart);
+                resultFinal.Add(userList);
+                resultFinal.Add(objectList);
+                Response = Common.CreateResponse(resultFinal);
+                return Response;
+
+
+                /*
                 foreach (var user in listOfUserNames)
                 {
                     var userId = listOfUsers.Find(i => i.Name == user);
@@ -1765,6 +1925,8 @@ namespace VitalSigns.API.Controllers
                 resultFinal.Add(objectList);
                 Response = Common.CreateResponse(resultFinal);
                 return Response;
+
+    */
             }
 
             catch (Exception exception)
@@ -1795,7 +1957,7 @@ namespace VitalSigns.API.Controllers
             {
                 connectionsObjectsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
                 var listOfObjects = connectionsObjectsRepository.Collection.Aggregate()
-                    .Match(x => (x.Type == "Blog" || x.Type == "Forum") && x.Children != null)
+                    .Match(x => (x.Type == "Community") && x.Children != null)
                     .Unwind(x => x.Children)
                     .Sort(new BsonDocument("children.count", -1)).ToList();
                 List<Segment> segmentList = new List<Segment>();
