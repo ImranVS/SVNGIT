@@ -15,6 +15,7 @@ export class SametimeServerFilter {
     serverType: string;
     statName: string;
     @Input() widgetName: string;
+    @Input() deviceType: string;
     @Input() widgetURL: string;
     @Input() hideStatDropdown: boolean;
     endDate: Date = new Date();

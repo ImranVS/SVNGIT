@@ -25,6 +25,7 @@ export class SametimeStatisticsChartReport extends WidgetController {
     currentHideStatDropdown: boolean = false;
     currentWidgetName: string = `report`;
     currentWidgetURL: string = this.url;
+    currentDeviceType: string = "IBM Sametime";
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
         protected urlHelpers: helpers.UrlHelperService) {
