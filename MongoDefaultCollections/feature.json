@@ -1,18 +1,18 @@
-{ "_id" : { "$oid" : "578e1c8070149b3f6898ff9b" }, "created_on" : { "$date" : "2016-07-19T12:26:40.000+0000" }, "feature_id" : 1, "name" : "Domino", "server_types" : [ 1, 9, 12, 25 ] }
-{ "_id" : { "$oid" : "578e1c8170149b3f6898ff9c" }, "created_on" : { "$date" : "2016-07-19T12:26:41.000+0000" }, "feature_id" : 2, "name" : "Exchange", "server_types" : [ 5, 14, 19, 26 ] }
-{ "_id" : { "$oid" : "578e1c8170149b3f6898ff9d" }, "created_on" : { "$date" : "2016-07-19T12:26:41.000+0000" }, "feature_id" : 3, "name" : "BES", "server_types" : [ 2 ] }
-{ "_id" : { "$oid" : "578e1c8170149b3f6898ff9e" }, "created_on" : { "$date" : "2016-07-19T12:26:41.000+0000" }, "feature_id" : 4, "name" : "NotesMail", "server_types" : [ 6, 13 ] }
-{ "_id" : { "$oid" : "578e1c8270149b3f6898ff9f" }, "created_on" : { "$date" : "2016-07-19T12:26:42.000+0000" }, "feature_id" : 5, "name" : "SharePoint", "server_types" : [ 4 ] }
-{ "_id" : { "$oid" : "578e1c8270149b3f6898ffa0" }, "created_on" : { "$date" : "2016-07-19T12:26:42.000+0000" }, "feature_id" : 6, "name" : "Sametime", "server_types" : [ 3 ] }
-{ "_id" : { "$oid" : "578e1c8270149b3f6898ffa1" }, "created_on" : { "$date" : "2016-07-19T12:26:42.000+0000" }, "feature_id" : 8, "name" : "URLs", "server_types" : [ 7 ] }
-{ "_id" : { "$oid" : "578e1c8270149b3f6898ffa2" }, "created_on" : { "$date" : "2016-07-19T12:26:42.000+0000" }, "feature_id" : 9, "name" : "Mobile Users", "server_types" : [ 11 ] }
-{ "_id" : { "$oid" : "578e1c8270149b3f6898ffa3" }, "created_on" : { "$date" : "2016-07-19T12:26:42.000+0000" }, "feature_id" : 10, "name" : "Network Devices", "server_types" : [ 8, 20 ] }
-{ "_id" : { "$oid" : "578e1c8370149b3f6898ffa4" }, "created_on" : { "$date" : "2016-07-19T12:26:43.000+0000" }, "feature_id" : 11, "name" : "Common Features", "server_types" : [ 10 ] }
-{ "_id" : { "$oid" : "578e1c8370149b3f6898ffa5" }, "created_on" : { "$date" : "2016-07-19T12:26:43.000+0000" }, "feature_id" : 12, "name" : "Mail Services", "server_types" : [  ] }
-{ "_id" : { "$oid" : "578e1c8370149b3f6898ffa6" }, "created_on" : { "$date" : "2016-07-19T12:26:43.000+0000" }, "feature_id" : 13, "name" : "Skype for Business", "server_types" : [ 15 ] }
-{ "_id" : { "$oid" : "578e1c8370149b3f6898ffa7" }, "created_on" : { "$date" : "2016-07-19T12:26:43.000+0000" }, "feature_id" : 14, "name" : "Windows", "server_types" : [ 16, 23 ] }
-{ "_id" : { "$oid" : "578e1c8470149b3f6898ffa8" }, "created_on" : { "$date" : "2016-07-19T12:26:44.000+0000" }, "feature_id" : 15, "name" : "Cloud", "server_types" : [ 17 ] }
-{ "_id" : { "$oid" : "578e1c8470149b3f6898ffa9" }, "created_on" : { "$date" : "2016-07-19T12:26:44.000+0000" }, "feature_id" : 16, "name" : "Active Directory", "server_types" : [ 18 ] }
-{ "_id" : { "$oid" : "578e1c8470149b3f6898ffaa" }, "created_on" : { "$date" : "2016-07-19T12:26:44.000+0000" }, "feature_id" : 18, "name" : "IBM WebSphere", "server_types" : [ 22 ] }
-{ "_id" : { "$oid" : "578e1c8470149b3f6898ffab" }, "created_on" : { "$date" : "2016-07-19T12:26:44.000+0000" }, "feature_id" : 19, "name" : "Office 365", "server_types" : [ 21 ] }
-{ "_id" : { "$oid" : "578e1c8470149b3f6898ffac" }, "created_on" : { "$date" : "2016-07-19T12:26:44.000+0000" }, "feature_id" : 20, "name" : "IBM Connections", "server_types" : [ 27 ] }
+{"_id":{"$oid":"578e1c8070149b3f6898ff9b"},"created_on":{"$date":"2016-07-19T12:26:40.000Z"},"feature_id":1,"name":"Domino","server_types":[1,9,12,25]}
+{"_id":{"$oid":"578e1c8170149b3f6898ff9c"},"created_on":{"$date":"2016-07-19T12:26:41.000Z"},"feature_id":2,"name":"Exchange","server_types":[5,14,19,26]}
+{"_id":{"$oid":"578e1c8170149b3f6898ff9d"},"created_on":{"$date":"2016-07-19T12:26:41.000Z"},"feature_id":3,"name":"BES","server_types":[2]}
+{"_id":{"$oid":"578e1c8170149b3f6898ff9e"},"created_on":{"$date":"2016-07-19T12:26:41.000Z"},"feature_id":4,"name":"NotesMail","server_types":[6,13]}
+{"_id":{"$oid":"578e1c8270149b3f6898ff9f"},"created_on":{"$date":"2016-07-19T12:26:42.000Z"},"feature_id":5,"name":"SharePoint","server_types":[4]}
+{"_id":{"$oid":"578e1c8270149b3f6898ffa0"},"created_on":{"$date":"2016-07-19T12:26:42.000Z"},"feature_id":6,"name":"Sametime","server_types":[3]}
+{"_id":{"$oid":"578e1c8270149b3f6898ffa1"},"created_on":{"$date":"2016-07-19T12:26:42.000Z"},"feature_id":8,"name":"URLs","server_types":[7]}
+{"_id":{"$oid":"578e1c8270149b3f6898ffa2"},"created_on":{"$date":"2016-07-19T12:26:42.000Z"},"feature_id":9,"name":"Mobile Users","server_types":[11]}
+{"_id":{"$oid":"578e1c8270149b3f6898ffa3"},"created_on":{"$date":"2016-07-19T12:26:42.000Z"},"feature_id":10,"name":"Network Devices","server_types":[8,20]}
+{"_id":{"$oid":"578e1c8370149b3f6898ffa4"},"created_on":{"$date":"2016-07-19T12:26:43.000Z"},"feature_id":11,"name":"Common Features","server_types":[10]}
+{"_id":{"$oid":"578e1c8370149b3f6898ffa5"},"created_on":{"$date":"2016-07-19T12:26:43.000Z"},"feature_id":12,"name":"Mail Services","server_types":[]}
+{"_id":{"$oid":"578e1c8370149b3f6898ffa6"},"created_on":{"$date":"2016-07-19T12:26:43.000Z"},"feature_id":13,"name":"Skype for Business","server_types":[15]}
+{"_id":{"$oid":"578e1c8370149b3f6898ffa7"},"created_on":{"$date":"2016-07-19T12:26:43.000Z"},"feature_id":14,"name":"Windows","server_types":[16,23]}
+{"_id":{"$oid":"578e1c8470149b3f6898ffa8"},"created_on":{"$date":"2016-07-19T12:26:44.000Z"},"feature_id":15,"name":"Cloud","server_types":[17]}
+{"_id":{"$oid":"578e1c8470149b3f6898ffa9"},"created_on":{"$date":"2016-07-19T12:26:44.000Z"},"feature_id":16,"name":"Active Directory","server_types":[18]}
+{"_id":{"$oid":"578e1c8470149b3f6898ffaa"},"created_on":{"$date":"2016-07-19T12:26:44.000Z"},"feature_id":18,"name":"IBM WebSphere","server_types":[22]}
+{"_id":{"$oid":"578e1c8470149b3f6898ffab"},"created_on":{"$date":"2016-07-19T12:26:44.000Z"},"feature_id":19,"name":"Office 365","server_types":[21]}
+{"_id":{"$oid":"578e1c8470149b3f6898ffac"},"created_on":{"$date":"2016-07-19T12:26:44.000Z"},"feature_id":20,"name":"IBM Connections","server_types":[27]}

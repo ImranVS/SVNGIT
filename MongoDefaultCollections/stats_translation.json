@@ -1,653 +1,116 @@
-{ 
-    "_id" : ObjectId("58eeb53de172e4fa1b411853"), 
-    "stat_name" : "Services.HourlyUpTimePercent.OneDrive", 
-    "translated_name" : "OneDrive"
-}
-{ 
-    "_id" : ObjectId("58eeb5c2e172e4fa1b411854"), 
-    "stat_name" : "Services.HourlyUpTimePercent.SharePoint", 
-    "translated_name" : "SharePoint"
-}
-{ 
-    "_id" : ObjectId("58eeb5dde172e4fa1b411855"), 
-    "stat_name" : "Services.HourlyUpTimePercent.SkypeForBusiness", 
-    "translated_name" : "Skype for Business"
-}
-{ 
-    "_id" : ObjectId("58eeb5f2e172e4fa1b411856"), 
-    "stat_name" : "Services.HourlyUpTimePercent.Exchange", 
-    "translated_name" : "Exchange"
-}
-{ 
-    "_id" : ObjectId("58eebee1e172e4fa1b411857"), 
-    "stat_name" : "POP", 
-    "translated_name" : "POP"
-}
-{ 
-    "_id" : ObjectId("58eebeeee172e4fa1b411858"), 
-    "stat_name" : "IMAP", 
-    "translated_name" : "IMAP"
-}
-{ 
-    "_id" : ObjectId("58eebefce172e4fa1b411859"), 
-    "stat_name" : "SMTP", 
-    "translated_name" : "SMTP"
-}
-{ 
-    "_id" : ObjectId("58eebf58e172e4fa1b41185a"), 
-    "stat_name" : "MailLatency", 
-    "translated_name" : "Mail Latency"
-}
-{ 
-    "_id" : ObjectId("58eebf72e172e4fa1b41185b"), 
-    "stat_name" : "MailFlow", 
-    "translated_name" : "Mail Flow"
-}
-{ 
-    "_id" : ObjectId("58eebf94e172e4fa1b41185c"), 
-    "stat_name" : "Inbox", 
-    "translated_name" : "Inbox"
-}
-{ 
-    "_id" : ObjectId("58eebfb1e172e4fa1b41185f"), 
-    "stat_name" : "ComposeEmail", 
-    "translated_name" : "Compose Email"
-}
-{ 
-    "_id" : ObjectId("58eebfc5e172e4fa1b411860"), 
-    "stat_name" : "CreateSite", 
-    "translated_name" : "Create Site"
-}
-{ 
-    "_id" : ObjectId("58eebfd6e172e4fa1b411861"), 
-    "stat_name" : "CreateTask", 
-    "translated_name" : "Create Task"
-}
-{ 
-    "_id" : ObjectId("58eebfe4e172e4fa1b411863"), 
-    "stat_name" : "CreateFolder", 
-    "translated_name" : "Create Folder"
-}
-{ 
-    "_id" : ObjectId("58eebffee172e4fa1b411864"), 
-    "stat_name" : "OneDriveUpload", 
-    "translated_name" : "OneDrive Upload"
-}
-{ 
-    "_id" : ObjectId("58eec00de172e4fa1b411865"), 
-    "stat_name" : "OneDriveDownload", 
-    "translated_name" : "OneDrive Download"
-}
-{ 
-    "_id" : ObjectId("58eec1a5e172e4fa1b411868"), 
-    "stat_name" : "COMMUNITY_TYPE_PRIVATE", 
-    "translated_name" : "Private"
-}
-{ 
-    "_id" : ObjectId("58eec1dbe172e4fa1b411869"), 
-    "stat_name" : "COMMUNITY_TYPE_PUBLIC", 
-    "translated_name" : "Public"
-}
-{ 
-    "_id" : ObjectId("58eec20ee172e4fa1b41186a"), 
-    "stat_name" : "COMMUNITY_TYPE_PUBLICINVITEONLY", 
-    "translated_name" : "Public (by invite only)"
-}
-{ 
-    "_id" : ObjectId("58eec298e172e4fa1b41186b"), 
-    "stat_name" : "NUM_OF_PROFILES_WITH_NO_MANAGER", 
-    "translated_name" : "Profiles without manager"
-}
-{ 
-    "_id" : ObjectId("58eec2b5e172e4fa1b41186c"), 
-    "stat_name" : "NUM_OF_PROFILES_WITH_PICTURE", 
-    "translated_name" : "Profiles with picture"
-}
-{ 
-    "_id" : ObjectId("58eec2cde172e4fa1b41186d"), 
-    "stat_name" : "NUM_OF_PROFILES_WITH_NO_PICTURE", 
-    "translated_name" : "Profiles without picture"
-}
-{ 
-    "_id" : ObjectId("58eec2efe172e4fa1b41186e"), 
-    "stat_name" : "NUM_OF_PROFILES_WITH_JOB_HIERARCHY", 
-    "translated_name" : "Profiles with job hierarchy"
-}
-{ 
-    "_id" : ObjectId("58eec302e172e4fa1b41186f"), 
-    "stat_name" : "NUM_OF_PROFILES_WITH_NO_JOB_HIERARCHY", 
-    "translated_name" : "Profiles without job hierarchy"
-}
-{ 
-    "_id" : ObjectId("58eec3cfe172e4fa1b411870"), 
-    "stat_name" : "NUM_OF_PROFILES_WITH_MANAGER", 
-    "translated_name" : "Profiels with manager"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dbec"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_PROFILES_NOT_RECENTLY_UPDATED", 
-    "translated_name" : "Not recently updated"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dbed"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_PROFILES_WITH_NO_PRONUNCIATION", 
-    "translated_name" : "Profiles without pronunciation"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dbee"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_PROFILES_MANAGERS", 
-    "translated_name" : "Managers"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dbef"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_PROFILES_WITH_NO_JOB_TITLE", 
-    "translated_name" : "Profiles without job title"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dbf0"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "PROFILES_AVERAGE_DAYS_SINCE_EDIT", 
-    "translated_name" : "Average days since edit"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dbf1"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_PROFILES_EDITED_YESTERDAY", 
-    "translated_name" : "Edited yesterday"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dbf2"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_PROFILES_PROFILES", 
-    "translated_name" : "Total profiles"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dbf3"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_PROFILES_CREATED_YESTERDAY", 
-    "translated_name" : "Created yesterday"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dbf4"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "COMMUNITY_LOGIN_LAST_MONTH", 
-    "translated_name" : "Logins in the last month"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dbf5"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "COMMUNITY_LOGIN_LAST_WEEK", 
-    "translated_name" : "Logins in the last week"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dbf6"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "COMMUNITY_LOGIN_LAST_DAY", 
-    "translated_name" : "Logins in the last day"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dbf7"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_COMMUNITIES_MADE_IN_LAST_MONTH", 
-    "translated_name" : "Added in the last month"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dbf8"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "COMMUNITY_TAG_COUNT", 
-    "translated_name" : "Total tags"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dbf9"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "DISTINCT_COMMUNITY_TAG_COUNT", 
-    "translated_name" : "Distinct tags"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dbfa"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_COMMUNITIES_COMMUNITIES_CREATED_YESTERDAY", 
-    "translated_name" : "Created yesterday"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dbfb"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "ACTIVITY_LOGINS_LAST_MONTH", 
-    "translated_name" : "Logins in the last month"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dbfc"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "ACTIVITY_LOGINS_LAST_WEEK", 
-    "translated_name" : "Logins in the last week"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dbfd"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "ACTIVITY_LOGINS_LAST_DAY", 
-    "translated_name" : "Logins"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dbfe"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_ACTIVITIES_ACTIVITIES", 
-    "translated_name" : "Total activites"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dbff"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_USERS_FOLLOWING_ACTIVITY", 
-    "translated_name" : "Followers"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc00"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_ACTIVITY_OWNERS", 
-    "translated_name" : "Owners"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc01"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_ACTIVITIES_ACTIVITIES_CREATED_YESTERDAY", 
-    "translated_name" : "Created"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc02"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_ACTIVITIES_ACTIVITIES_FOLLOWED_YESTERDAY", 
-    "translated_name" : "Followed"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc03"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_PUBLISHED_BLOGS", 
-    "translated_name" : "Total blogs"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc04"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_BLOGS_MORE_THAN_ONE_AUTHOR", 
-    "translated_name" : "More than one author"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc05"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "BLOG_LOGINS_LAST_MONTH", 
-    "translated_name" : "Logins in the last month"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc06"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "BLOG_LOGINS_LAST_WEEK", 
-    "translated_name" : "Logins in the last week"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc07"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "BLOG_LOGINS_LAST_DAY", 
-    "translated_name" : "Logins in the last day"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc08"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_BLOGGERS", 
-    "translated_name" : "Bloggers"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc09"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_COMMENTS", 
-    "translated_name" : "Comments"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc0a"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_DISTINCT_BLOG_TAGS", 
-    "translated_name" : "Distinct blog tags"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc0b"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_DISTINCT_ENTRY_TAGS", 
-    "translated_name" : "Distinct entry tags"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc0c"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_NOTIFICATIONS_SENT", 
-    "translated_name" : "Notifcations sent"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc0d"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_ACTIVE_BLOGS", 
-    "translated_name" : "Active blogs"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc0e"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "BLOGS_CREATED_LAST_MONTH", 
-    "translated_name" : "Blogs created last month"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc0f"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "BLOGS_CREATED_LAST_WEEK", 
-    "translated_name" : "Blogs created last week"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc10"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "BLOGS_CREATED_LAST_DAY", 
-    "translated_name" : "Blogs"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc11"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "ENTRY_CREATED_LAST_MONTH", 
-    "translated_name" : "Blog entries created last month"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc12"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "ENTRY_CREATED_LAST_WEEK", 
-    "translated_name" : "Blog entries created last week"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc13"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "ENTRY_CREATED_LAST_DAY", 
-    "translated_name" : "Blog entries"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc14"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "COMMENT_CREATED_LAST_MONTH", 
-    "translated_name" : "Comments"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc15"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "COMMENT_CREATED_LAST_WEEK", 
-    "translated_name" : "Comments"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc16"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "COMMENT_CREATED_LAST_DAY", 
-    "translated_name" : "Comments"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc17"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_BLOGS_BLOGS_CREATED_YESTERDAY", 
-    "translated_name" : "Blogs"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc18"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_BLOGS_ENTRIES_CREATED_YESTERDAY", 
-    "translated_name" : "Entries"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc19"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_BLOGS_COMMENTS_CREATED_YESTERDAY", 
-    "translated_name" : "Comments"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc1a"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_BLOGS_NOTIFICATIONS_CREATED_YESTERDAY", 
-    "translated_name" : "Notifications"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc1b"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_BOOKMARKS_BOOKMARKS", 
-    "translated_name" : "Total bookmarks"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc1c"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_BOOKMARKS_BOOKMARKS_CREATED_YESTERDAY", 
-    "translated_name" : "Bookmarks"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc1d"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_DISTINCT_BOOKMARK_URLS", 
-    "translated_name" : "Distinct URLs"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc1e"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "FILE_LOGIN_LAST_MONTH", 
-    "translated_name" : "Logins in the last month"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc1f"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "FILE_LOGIN_LAST_WEEK", 
-    "translated_name" : "Logins in the last week"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc20"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "FILE_LOGIN_LAST_DAY", 
-    "translated_name" : "Logins in the last day"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc21"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "TOTAL_NUM_OF_FILES", 
-    "translated_name" : "Total files"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc22"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "FILES_OVER_KB", 
-    "translated_name" : "Over 1 KB"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc23"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "FILES_OVER_MB", 
-    "translated_name" : "Over 1 MB"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc24"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "FILES_OVER_GB", 
-    "translated_name" : "Over 1 GB"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc25"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_USERS_WITH_NO_FILES", 
-    "translated_name" : "Users with no files"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc26"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_FILES_IN_TRASH", 
-    "translated_name" : "Total files in trash"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc27"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_FILES_UPDATED_LAST_MONTH", 
-    "translated_name" : "Updated in the last month"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc28"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_FILES_UPDATED_LAST_WEEK", 
-    "translated_name" : "Updated in the last week"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc29"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_FILES_UPDATED_LAST_DAY", 
-    "translated_name" : "Updated in the last day"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc2a"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "FILES_PERMISSIONS_FOR_EVERYONE", 
-    "translated_name" : "Public"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc2b"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "FILES_PERMISSIONS_FOR_ONLYME", 
-    "translated_name" : "Private"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc2c"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "FILES_PERMISSIONS_FOR_SHARED", 
-    "translated_name" : "Shared"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc2d"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_FILES_WITH_A_REVISION", 
-    "translated_name" : "With a revision"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc2e"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "FILES_WITH_COMMENTS", 
-    "translated_name" : "Files with comments"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc2f"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "FILES_WITH_SHARES", 
-    "translated_name" : "Files with shares"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc30"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "FILE_DOWNLOADS_LAST_MONTH", 
-    "translated_name" : "Downloads in the last month"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc31"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "FILE_DOWNLOADS_LAST_WEEK", 
-    "translated_name" : "Downloads in the last week"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc32"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "FILE_DOWNLOADS_LAST_DAY", 
-    "translated_name" : "Downloads in the last day"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc33"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "FILE_TOTAL_NUM_OF_TAGS", 
-    "translated_name" : "Total tags"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc34"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_FILES_FILES_CREATED_YESTERDAY", 
-    "translated_name" : "Created"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc35"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_FILES_FILES_UPDATED_YESTERDAY", 
-    "translated_name" : "Updated"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc36"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_FILES_FILES_DOWNLOADED_YESTERDAY", 
-    "translated_name" : "Downloaded"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc37"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_FILES_FILES_REVISIONED_YESTERDAY", 
-    "translated_name" : "Revisioned"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc38"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_WIKIS_WIKIS", 
-    "translated_name" : "Total wikis"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc39"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_WIKIS_WIKIS_CREATED_YESTERDAY", 
-    "translated_name" : "Wikis created"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc3a"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_WIKIS_PAGES", 
-    "translated_name" : "Total pages"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc3b"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_WIKIS_PAGES_CREATED_YESTERDAY", 
-    "translated_name" : "Pages created"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc3c"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_WIKIS_REVISIONS", 
-    "translated_name" : "Revisioned"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc3d"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_WIKIS_REVISIONS_EDITED_YESTERDAY", 
-    "translated_name" : "Wikis edited"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc3e"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_FORUMS_FORUMS", 
-    "translated_name" : "Total forums"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc3f"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_FORUMS_TOPICS", 
-    "translated_name" : "Total topics"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc40"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_FORUMS_REPLIES", 
-    "translated_name" : "Total replies"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc41"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_FORUMS_FORUMS_CREATED_YESTERDAY", 
-    "translated_name" : "Forums"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc42"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_FORUMS_TOPICS_CREATED_YESTERDAY", 
-    "translated_name" : "Topics"
-}
-{ 
-    "_id" : ObjectId("58f0d62ad6e14d17b087dc43"), 
-    "created_on" : ISODate("2017-04-14T14:01:14.000+0000"), 
-    "stat_name" : "NUM_OF_FORUMS_REPLIES_CREATED_YESTERDAY", 
-    "translated_name" : "Replies"
-}
+{"_id":{"$oid":"58eeb53de172e4fa1b411853"},"stat_name":"Services.HourlyUpTimePercent.OneDrive","translated_name":"OneDrive"}
+{"_id":{"$oid":"58eeb5c2e172e4fa1b411854"},"stat_name":"Services.HourlyUpTimePercent.SharePoint","translated_name":"SharePoint"}
+{"_id":{"$oid":"58eeb5dde172e4fa1b411855"},"stat_name":"Services.HourlyUpTimePercent.SkypeForBusiness","translated_name":"Skype for Business"}
+{"_id":{"$oid":"58eeb5f2e172e4fa1b411856"},"stat_name":"Services.HourlyUpTimePercent.Exchange","translated_name":"Exchange"}
+{"_id":{"$oid":"58eebee1e172e4fa1b411857"},"stat_name":"POP","translated_name":"POP"}
+{"_id":{"$oid":"58eebeeee172e4fa1b411858"},"stat_name":"IMAP","translated_name":"IMAP"}
+{"_id":{"$oid":"58eebefce172e4fa1b411859"},"stat_name":"SMTP","translated_name":"SMTP"}
+{"_id":{"$oid":"58eebf58e172e4fa1b41185a"},"stat_name":"MailLatency","translated_name":"Mail Latency"}
+{"_id":{"$oid":"58eebf72e172e4fa1b41185b"},"stat_name":"MailFlow","translated_name":"Mail Flow"}
+{"_id":{"$oid":"58eebf94e172e4fa1b41185c"},"stat_name":"Inbox","translated_name":"Inbox"}
+{"_id":{"$oid":"58eebfb1e172e4fa1b41185f"},"stat_name":"ComposeEmail","translated_name":"Compose Email"}
+{"_id":{"$oid":"58eebfc5e172e4fa1b411860"},"stat_name":"CreateSite","translated_name":"Create Site"}
+{"_id":{"$oid":"58eebfd6e172e4fa1b411861"},"stat_name":"CreateTask","translated_name":"Create Task"}
+{"_id":{"$oid":"58eebfe4e172e4fa1b411863"},"stat_name":"CreateFolder","translated_name":"Create Folder"}
+{"_id":{"$oid":"58eebffee172e4fa1b411864"},"stat_name":"OneDriveUpload","translated_name":"OneDrive Upload"}
+{"_id":{"$oid":"58eec00de172e4fa1b411865"},"stat_name":"OneDriveDownload","translated_name":"OneDrive Download"}
+{"_id":{"$oid":"58eec1a5e172e4fa1b411868"},"stat_name":"COMMUNITY_TYPE_PRIVATE","translated_name":"Private"}
+{"_id":{"$oid":"58eec1dbe172e4fa1b411869"},"stat_name":"COMMUNITY_TYPE_PUBLIC","translated_name":"Public"}
+{"_id":{"$oid":"58eec20ee172e4fa1b41186a"},"stat_name":"COMMUNITY_TYPE_PUBLICINVITEONLY","translated_name":"Public (by invite only)"}
+{"_id":{"$oid":"58eec298e172e4fa1b41186b"},"stat_name":"NUM_OF_PROFILES_WITH_NO_MANAGER","translated_name":"Profiles without manager"}
+{"_id":{"$oid":"58eec2b5e172e4fa1b41186c"},"stat_name":"NUM_OF_PROFILES_WITH_PICTURE","translated_name":"Profiles with picture"}
+{"_id":{"$oid":"58eec2cde172e4fa1b41186d"},"stat_name":"NUM_OF_PROFILES_WITH_NO_PICTURE","translated_name":"Profiles without picture"}
+{"_id":{"$oid":"58eec2efe172e4fa1b41186e"},"stat_name":"NUM_OF_PROFILES_WITH_JOB_HIERARCHY","translated_name":"Profiles with job hierarchy"}
+{"_id":{"$oid":"58eec302e172e4fa1b41186f"},"stat_name":"NUM_OF_PROFILES_WITH_NO_JOB_HIERARCHY","translated_name":"Profiles without job hierarchy"}
+{"_id":{"$oid":"58eec3cfe172e4fa1b411870"},"stat_name":"NUM_OF_PROFILES_WITH_MANAGER","translated_name":"Profiels with manager"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dbec"},"stat_name":"NUM_OF_PROFILES_NOT_RECENTLY_UPDATED","translated_name":"Not recently updated"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dbed"},"stat_name":"NUM_OF_PROFILES_WITH_NO_PRONUNCIATION","translated_name":"Profiles without pronunciation"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dbee"},"stat_name":"NUM_OF_PROFILES_MANAGERS","translated_name":"Managers"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dbef"},"stat_name":"NUM_OF_PROFILES_WITH_NO_JOB_TITLE","translated_name":"Profiles without job title"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dbf0"},"stat_name":"PROFILES_AVERAGE_DAYS_SINCE_EDIT","translated_name":"Average days since edit"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dbf1"},"stat_name":"NUM_OF_PROFILES_EDITED_YESTERDAY","translated_name":"Edited yesterday"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dbf2"},"stat_name":"NUM_OF_PROFILES_PROFILES","translated_name":"Total profiles"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dbf3"},"stat_name":"NUM_OF_PROFILES_CREATED_YESTERDAY","translated_name":"Created yesterday"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dbf4"},"stat_name":"COMMUNITY_LOGIN_LAST_MONTH","translated_name":"Logins in the last month"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dbf5"},"stat_name":"COMMUNITY_LOGIN_LAST_WEEK","translated_name":"Logins in the last week"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dbf6"},"stat_name":"COMMUNITY_LOGIN_LAST_DAY","translated_name":"Logins in the last day"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dbf7"},"stat_name":"NUM_OF_COMMUNITIES_MADE_IN_LAST_MONTH","translated_name":"Added in the last month"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dbf8"},"stat_name":"COMMUNITY_TAG_COUNT","translated_name":"Total tags"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dbf9"},"stat_name":"DISTINCT_COMMUNITY_TAG_COUNT","translated_name":"Distinct tags"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dbfa"},"stat_name":"NUM_OF_COMMUNITIES_COMMUNITIES_CREATED_YESTERDAY","translated_name":"Created yesterday"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dbfb"},"stat_name":"ACTIVITY_LOGINS_LAST_MONTH","translated_name":"Logins in the last month"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dbfc"},"stat_name":"ACTIVITY_LOGINS_LAST_WEEK","translated_name":"Logins in the last week"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dbfd"},"stat_name":"ACTIVITY_LOGINS_LAST_DAY","translated_name":"Logins"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dbfe"},"stat_name":"NUM_OF_ACTIVITIES_ACTIVITIES","translated_name":"Total activites"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dbff"},"stat_name":"NUM_OF_USERS_FOLLOWING_ACTIVITY","translated_name":"Followers"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc00"},"stat_name":"NUM_OF_ACTIVITY_OWNERS","translated_name":"Owners"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc01"},"stat_name":"NUM_OF_ACTIVITIES_ACTIVITIES_CREATED_YESTERDAY","translated_name":"Created"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc02"},"stat_name":"NUM_OF_ACTIVITIES_ACTIVITIES_FOLLOWED_YESTERDAY","translated_name":"Followed"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc03"},"stat_name":"NUM_OF_PUBLISHED_BLOGS","translated_name":"Total blogs"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc04"},"stat_name":"NUM_OF_BLOGS_MORE_THAN_ONE_AUTHOR","translated_name":"More than one author"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc05"},"stat_name":"BLOG_LOGINS_LAST_MONTH","translated_name":"Logins in the last month"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc06"},"stat_name":"BLOG_LOGINS_LAST_WEEK","translated_name":"Logins in the last week"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc07"},"stat_name":"BLOG_LOGINS_LAST_DAY","translated_name":"Logins in the last day"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc08"},"stat_name":"NUM_OF_BLOGGERS","translated_name":"Bloggers"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc09"},"stat_name":"NUM_OF_COMMENTS","translated_name":"Comments"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc0a"},"stat_name":"NUM_OF_DISTINCT_BLOG_TAGS","translated_name":"Distinct blog tags"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc0b"},"stat_name":"NUM_OF_DISTINCT_ENTRY_TAGS","translated_name":"Distinct entry tags"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc0c"},"stat_name":"NUM_OF_NOTIFICATIONS_SENT","translated_name":"Notifcations sent"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc0d"},"stat_name":"NUM_OF_ACTIVE_BLOGS","translated_name":"Active blogs"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc0e"},"stat_name":"BLOGS_CREATED_LAST_MONTH","translated_name":"Blogs created last month"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc0f"},"stat_name":"BLOGS_CREATED_LAST_WEEK","translated_name":"Blogs created last week"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc10"},"stat_name":"BLOGS_CREATED_LAST_DAY","translated_name":"Blogs"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc11"},"stat_name":"ENTRY_CREATED_LAST_MONTH","translated_name":"Blog entries created last month"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc12"},"stat_name":"ENTRY_CREATED_LAST_WEEK","translated_name":"Blog entries created last week"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc13"},"stat_name":"ENTRY_CREATED_LAST_DAY","translated_name":"Blog entries"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc14"},"stat_name":"COMMENT_CREATED_LAST_MONTH","translated_name":"Comments"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc15"},"stat_name":"COMMENT_CREATED_LAST_WEEK","translated_name":"Comments"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc16"},"stat_name":"COMMENT_CREATED_LAST_DAY","translated_name":"Comments"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc17"},"stat_name":"NUM_OF_BLOGS_BLOGS_CREATED_YESTERDAY","translated_name":"Blogs"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc18"},"stat_name":"NUM_OF_BLOGS_ENTRIES_CREATED_YESTERDAY","translated_name":"Entries"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc19"},"stat_name":"NUM_OF_BLOGS_COMMENTS_CREATED_YESTERDAY","translated_name":"Comments"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc1a"},"stat_name":"NUM_OF_BLOGS_NOTIFICATIONS_CREATED_YESTERDAY","translated_name":"Notifications"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc1b"},"stat_name":"NUM_OF_BOOKMARKS_BOOKMARKS","translated_name":"Total bookmarks"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc1c"},"stat_name":"NUM_OF_BOOKMARKS_BOOKMARKS_CREATED_YESTERDAY","translated_name":"Bookmarks"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc1d"},"stat_name":"NUM_OF_DISTINCT_BOOKMARK_URLS","translated_name":"Distinct URLs"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc1e"},"stat_name":"FILE_LOGIN_LAST_MONTH","translated_name":"Logins in the last month"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc1f"},"stat_name":"FILE_LOGIN_LAST_WEEK","translated_name":"Logins in the last week"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc20"},"stat_name":"FILE_LOGIN_LAST_DAY","translated_name":"Logins in the last day"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc21"},"stat_name":"TOTAL_NUM_OF_FILES","translated_name":"Total files"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc22"},"stat_name":"FILES_OVER_KB","translated_name":"Over 1 KB"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc23"},"stat_name":"FILES_OVER_MB","translated_name":"Over 1 MB"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc24"},"stat_name":"FILES_OVER_GB","translated_name":"Over 1 GB"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc25"},"stat_name":"NUM_OF_USERS_WITH_NO_FILES","translated_name":"Users with no files"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc26"},"stat_name":"NUM_OF_FILES_IN_TRASH","translated_name":"Total files in trash"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc27"},"stat_name":"NUM_OF_FILES_UPDATED_LAST_MONTH","translated_name":"Updated in the last month"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc28"},"stat_name":"NUM_OF_FILES_UPDATED_LAST_WEEK","translated_name":"Updated in the last week"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc29"},"stat_name":"NUM_OF_FILES_UPDATED_LAST_DAY","translated_name":"Updated in the last day"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc2a"},"stat_name":"FILES_PERMISSIONS_FOR_EVERYONE","translated_name":"Public"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc2b"},"stat_name":"FILES_PERMISSIONS_FOR_ONLYME","translated_name":"Private"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc2c"},"stat_name":"FILES_PERMISSIONS_FOR_SHARED","translated_name":"Shared"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc2d"},"stat_name":"NUM_OF_FILES_WITH_A_REVISION","translated_name":"With a revision"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc2e"},"stat_name":"FILES_WITH_COMMENTS","translated_name":"Files with comments"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc2f"},"stat_name":"FILES_WITH_SHARES","translated_name":"Files with shares"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc30"},"stat_name":"FILE_DOWNLOADS_LAST_MONTH","translated_name":"Downloads in the last month"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc31"},"stat_name":"FILE_DOWNLOADS_LAST_WEEK","translated_name":"Downloads in the last week"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc32"},"stat_name":"FILE_DOWNLOADS_LAST_DAY","translated_name":"Downloads in the last day"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc33"},"stat_name":"FILE_TOTAL_NUM_OF_TAGS","translated_name":"Total tags"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc34"},"stat_name":"NUM_OF_FILES_FILES_CREATED_YESTERDAY","translated_name":"Created"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc35"},"stat_name":"NUM_OF_FILES_FILES_UPDATED_YESTERDAY","translated_name":"Updated"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc36"},"stat_name":"NUM_OF_FILES_FILES_DOWNLOADED_YESTERDAY","translated_name":"Downloaded"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc37"},"stat_name":"NUM_OF_FILES_FILES_REVISIONED_YESTERDAY","translated_name":"Revisioned"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc38"},"stat_name":"NUM_OF_WIKIS_WIKIS","translated_name":"Total wikis"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc39"},"stat_name":"NUM_OF_WIKIS_WIKIS_CREATED_YESTERDAY","translated_name":"Wikis created"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc3a"},"stat_name":"NUM_OF_WIKIS_PAGES","translated_name":"Total pages"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc3b"},"stat_name":"NUM_OF_WIKIS_PAGES_CREATED_YESTERDAY","translated_name":"Pages created"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc3c"},"stat_name":"NUM_OF_WIKIS_REVISIONS","translated_name":"Revisioned"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc3d"},"stat_name":"NUM_OF_WIKIS_REVISIONS_EDITED_YESTERDAY","translated_name":"Wikis edited"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc3e"},"stat_name":"NUM_OF_FORUMS_FORUMS","translated_name":"Total forums"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc3f"},"stat_name":"NUM_OF_FORUMS_TOPICS","translated_name":"Total topics"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc40"},"stat_name":"NUM_OF_FORUMS_REPLIES","translated_name":"Total replies"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc41"},"stat_name":"NUM_OF_FORUMS_FORUMS_CREATED_YESTERDAY","translated_name":"Forums"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc42"},"stat_name":"NUM_OF_FORUMS_TOPICS_CREATED_YESTERDAY","translated_name":"Topics"}
+{"_id":{"$oid":"58f0d62ad6e14d17b087dc43"},"stat_name":"NUM_OF_FORUMS_REPLIES_CREATED_YESTERDAY","translated_name":"Replies"}
+{"_id":{"$oid":"5937428359fe2b91e5a26cd9"},"stat_name":"Hub@Unreachable#Queues","translated_name":"Unreachable queue"}
+{"_id":{"$oid":"5937429659fe2b91e5a26cdb"},"stat_name":"Hub@Submission#Queues","translated_name":"Submission queue"}
+{"_id":{"$oid":"593742a059fe2b91e5a26cdc"},"stat_name":"Hub@Shadow#Queues","translated_name":"Shadow queue"}
