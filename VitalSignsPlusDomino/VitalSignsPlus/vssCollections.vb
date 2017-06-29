@@ -186,6 +186,7 @@ Partial Public Class VitalSignsPlusDomino
                     MyNotesDatabase.IncrementUpCount()
                     MyNotesDatabase.AlertCondition = False
                     MyNotesDatabase.Status = "Not Scanned"
+                    MyNotesDatabase.ServerType = VSNext.Mongo.Entities.Enums.ServerType.NotesDatabase.ToDescription()
                     MyNotesDatabases.Add(MyNotesDatabase)
                     WriteAuditEntry(Now.ToString & " Adding new Notes Database -- " & MyNotesDatabase.Name & " -- to the collection.", LogLevel.Verbose)
                 Else
@@ -225,11 +226,11 @@ Partial Public Class VitalSignsPlusDomino
                     End Try
 
                     Try
-                        If entity.Name Is Nothing Then
+                        If entity.DominoServerName Is Nothing Then
                             .ServerName = ""
                             WriteAuditEntry(Now.ToString & " Error: No Server Name specified for " & .Name)
                         Else
-                            .ServerName = entity.Name
+                            .ServerName = entity.DominoServerName
                         End If
                     Catch ex As Exception
                         .ServerName = ""

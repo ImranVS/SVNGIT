@@ -485,16 +485,18 @@ Partial Public Class VitalSignsPlusDomino
 						End Try
 
 
-						Try
-							Percent = MyNotesDatabase.DocumentCount / MyNotesDatabase.DocumentCountTrigger * 100
-							If MyNotesDatabase.AlertType = NotResponding Then
-								Percent = 0
-							End If
-						Catch ex As Exception
-							Percent = 0
-						End Try
+                        Try
+                            Percent = MyNotesDatabase.DocumentCount / MyNotesDatabase.DocumentCountTrigger * 100
+                            If MyNotesDatabase.AlertType = NotResponding Then
+                                Percent = 0
+                            End If
+                        Catch ex As Exception
+                            Percent = 0
+                        End Try
 
-					Case "Database Size"
+                        UpdateNDBStatisticsTable(MyNotesDatabase.ServerObjectID, MyNotesDatabase.ResponseTime)
+
+                    Case "Database Size"
 						Try
 							Dim span As System.TimeSpan
 							db = NotesSession.GetDatabase(MyNotesDatabase.ServerName, MyNotesDatabase.FileName, False)
@@ -544,18 +546,20 @@ Partial Public Class VitalSignsPlusDomino
 							WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " Error setting NDB size values " & ex.Message)
 						End Try
 
-						Try
+                        Try
 
-							Percent = (MyNotesDatabase.DatabaseSize / (MyNotesDatabase.DatabaseSizeTrigger * 1024 * 1024)) * 100
-							If MyNotesDatabase.AlertType = NotResponding Then
-								Percent = 0
-							End If
-						Catch ex As Exception
-							Percent = 0
-						End Try
+                            Percent = (MyNotesDatabase.DatabaseSize / (MyNotesDatabase.DatabaseSizeTrigger * 1024 * 1024)) * 100
+                            If MyNotesDatabase.AlertType = NotResponding Then
+                                Percent = 0
+                            End If
+                        Catch ex As Exception
+                            Percent = 0
+                        End Try
+
+                        UpdateNDBStatisticsTable(MyNotesDatabase.ServerObjectID, MyNotesDatabase.ResponseTime)
 
 
-					Case "Database Response Time"
+                    Case "Database Response Time"
 						Dim start, done, hits As Long
 						Dim elapsed As TimeSpan
 						Dim span As System.TimeSpan
@@ -920,7 +924,7 @@ Partial Public Class VitalSignsPlusDomino
             Dim MyNotesDatabase2 = MyNotesDatabase
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Where(Function(x) x.TypeAndName = MyNotesDatabase2.Name & "-" & MyNotesDatabase2.ServerType)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceId, MyNotesDatabase2.ServerObjectID)
             Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                  .Set(Function(x) x.DownCount, .DownCount) _
                                                                                  .Set(Function(x) x.CurrentStatus, .Status) _
@@ -937,11 +941,13 @@ Partial Public Class VitalSignsPlusDomino
                                                                                  .Set(Function(x) x.Description, .Description) _
                                                                                  .Set(Function(x) x.MyPercent, Percent) _
                                                                                  .Set(Function(x) x.DeviceName, .Name) _
-                                                                                 .Set(Function(x) x.Location, .Location)
+                                                                                 .Set(Function(x) x.Location, .Location) _
+                                                                                 .Set(Function(x) x.TypeAndName, MyNotesDatabase2.Name & "-" & MyNotesDatabase2.ServerType) _
+                                                                                 .Set(Function(x) x.DeviceType, MyNotesDatabase2.ServerType)
 
-            repository.Update(filterDef, updateDef)
+            repository.Upsert(filterDef, updateDef)
 
-		End With
+        End With
 
 		' WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & "*****  Updating NotesDatabase with " & strSQL)
 		'Save it to the Access database
