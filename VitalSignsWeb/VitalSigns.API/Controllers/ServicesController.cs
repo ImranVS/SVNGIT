@@ -1723,10 +1723,43 @@ namespace VitalSigns.API.Controllers
         }
 
 
+        [HttpGet("get_name_value")]
+        public APIResponse GetNameValueAPI(string name)
+        { 
+            try
+            {
+                var nameValue = Common.GetNameValue(name);
+                Response = Common.CreateResponse(new NameValueModel() { Name = nameValue.Name, Value = nameValue.Value });
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+            }
+            return Response;
+        }
+
+        [HttpPut("save_name_value")]
+        public APIResponse SaveNameValueAPI([FromBody]NameValueModel nameValue)
+        {
+            try
+            {
+                Common.SaveNameValue(new NameValue() { Name = nameValue.Name, Value = nameValue.Value });
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Value updated successfully");
+                
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Value update has failed.\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
 
     }
 
-            }
+}
 
 
 
