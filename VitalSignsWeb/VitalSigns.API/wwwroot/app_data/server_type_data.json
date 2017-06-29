@@ -259,57 +259,64 @@
         "path": "/app/dashboards/components/ibm-connections/ibm-connections-communities-tab.component",
         "type": "Dashboard"
       },
-      {
+           {
         "tab_id": 3,
+        "title": "Community Detail",
+        "component": "IBMConnectionsCommunitiesDetailTab",
+        "path": "/app/dashboards/components/ibm-connections/ibm-connections-communities-detail-tab.component",
+        "type": "Dashboard"
+      },
+      {
+        "tab_id": 4,
         "title": "Profiles",
         "component": "IBMConnectionsProfilesTab",
         "path": "/app/dashboards/components/ibm-connections/ibm-connections-profiles-tab.component",
         "type": "Dashboard"
       },
       {
-        "tab_id": 4,
+        "tab_id": 5,
         "title": "Activities",
         "component": "IBMConnectionsActivitiesTab",
         "path": "/app/dashboards/components/ibm-connections/ibm-connections-activities-tab.component",
         "type": "Dashboard"
       },
       {
-        "tab_id": 5,
+        "tab_id": 6,
         "title": "Blogs",
         "component": "IBMConnectionsBlogsTab",
         "path": "/app/dashboards/components/ibm-connections/ibm-connections-blogs-tab.component",
         "type": "Dashboard"
       },
       {
-        "tab_id": 6,
+        "tab_id": 7,
         "title": "Bookmarks",
         "component": "IBMConnectionsBookmarksTab",
         "path": "/app/dashboards/components/ibm-connections/ibm-connections-bookmarks-tab.component",
         "type": "Dashboard"
       },
       {
-        "tab_id": 7,
+        "tab_id": 8,
         "title": "Files",
         "component": "IBMConnectionsFilesTab",
         "path": "/app/dashboards/components/ibm-connections/ibm-connections-files-tab.component",
         "type": "Dashboard"
       },
       {
-        "tab_id": 8,
+        "tab_id": 9,
         "title": "Forums",
         "component": "IBMConnectionsForumsTab",
         "path": "/app/dashboards/components/ibm-connections/ibm-connections-forums-tab.component",
         "type": "Dashboard"
       },
       {
-        "tab_id": 9,
+        "tab_id": 10,
         "title": "Wikis",
         "component": "IBMConnectionsWikisTab",
         "path": "/app/dashboards/components/ibm-connections/ibm-connections-wikis-tab.component",
         "type": "Dashboard"
       },
       {
-        "tab_id": 10,
+        "tab_id": 11,
         "title": "Libraries",
         "component": "IBMConnectionsLibrariesTab",
         "path": "/app/dashboards/components/ibm-connections/ibm-connections-libraries-tab.component",
@@ -365,7 +372,7 @@
   },
   {
     "server_type": "Notes Database",
-    "icon": "/img/servers/Paintbrush.svg",
+     "icon": "/img/servers/IBMDomino.svg",
     "tabs": [
       {
         "tab_id": 1,
