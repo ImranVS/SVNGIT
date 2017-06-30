@@ -2743,6 +2743,29 @@ WaitHere:
         ' Get the IP Address and the Port and create an IPEndpoint (ep)
         WriteDeviceHistoryEntry("Domino", Server.Name, Now.ToString & " The server's IP is " & Server.IPAddress)
 
+
+        With Server
+            Try
+                If .IPAddress.Trim = "" Then
+                    WriteAuditEntry(Now.ToString & " " & .Name & " Domino server does not have an IP or hostname defined.  I am going to try to figure it out.", LogLevel.Verbose)
+                    .IPAddress = GetDominoServerHostName(.Name)
+                    WriteAuditEntry(Now.ToString & " " & .Name & " I figure the host name is " & .IPAddress, LogLevel.Verbose)
+                    If .IPAddress.Length > 4 And .IPAddress <> "Foo" Then
+
+                        Dim repositoryServers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
+                        Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Filter.Eq(Function(x) x.ObjectId, entity.ObjectId)
+                        Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Updater.Set(Function(x) x.IPAddress, .IPAddress)
+                        repositoryServers.Update(filterDef, updateDef)
+
+                    End If
+                Else
+                    WriteAuditEntry(Now.ToString & " " & .Name & " host name is " & .IPAddress, LogLevel.Verbose)
+                End If
+            Catch ex As Exception
+
+            End Try
+        End With
+
         Try
             remoteIPAddress = Net.IPAddress.Parse(Server.IPAddress.Trim)
         Catch ex As FormatException

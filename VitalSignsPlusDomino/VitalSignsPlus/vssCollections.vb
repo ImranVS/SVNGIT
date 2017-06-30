@@ -959,25 +959,7 @@ Partial Public Class VitalSignsPlusDomino
                         .IPAddress = ""
                     End Try
 
-                    Try
-                        If .IPAddress.Trim = "" Then
-                            WriteAuditEntry(Now.ToString & " " & .Name & " Domino server does not have an IP or hostname defined.  I am going to try to figure it out.", LogLevel.Verbose)
-                            .IPAddress = GetDominoServerHostName(.Name)
-                            WriteAuditEntry(Now.ToString & " " & .Name & " I figure the host name is " & .IPAddress, LogLevel.Verbose)
-                            If .IPAddress.Length > 4 Then
 
-                                Dim repositoryServers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-                                Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Filter.Eq(Function(x) x.ObjectId, entity.ObjectId)
-                                Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Updater.Set(Function(x) x.IPAddress, .IPAddress)
-                                repositoryServers.Update(filterDef, updateDef)
-
-                            End If
-                        Else
-                            WriteAuditEntry(Now.ToString & " " & .Name & " host name is " & .IPAddress, LogLevel.Verbose)
-                        End If
-                    Catch ex As Exception
-
-                    End Try
 
                     Try
                         If entity.IsEnabled Is Nothing Then
@@ -2575,6 +2557,7 @@ Partial Public Class VitalSignsPlusDomino
                     WriteDeviceHistoryEntry("Domino", ServerName, Now.ToString & " Querying  'Names.nsf' on " & DirectoryServer)
                     NAB = NotesSession.GetDatabase(DirectoryServer, "names.nsf", False)
                 Catch ex As Exception
+
                 End Try
             End If
 
@@ -2588,6 +2571,7 @@ Partial Public Class VitalSignsPlusDomino
 
             If NAB Is Nothing Then
                 ' MessageBox.Show("Error connecting to 'LocalNames.nsf' ", "Error Retrieving Server Names", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                HostName = "Foo"
                 GoTo CleanUp
             End If
         Catch ex As Exception
@@ -2603,6 +2587,7 @@ Partial Public Class VitalSignsPlusDomino
 
 
             If ServersView Is Nothing Then
+                HostName = "Foo"
                 GoTo CleanUp
             End If
             docServer = ServersView.GetFirstDocument
@@ -2643,6 +2628,7 @@ Partial Public Class VitalSignsPlusDomino
 
         Catch ex As Exception
             WriteDeviceHistoryEntry("Domino", ServerName, Now.ToString & " Exception trying to figure out IP or hostname: " & ex.ToString)
+            HostName = "Foo"
         End Try
 
 
