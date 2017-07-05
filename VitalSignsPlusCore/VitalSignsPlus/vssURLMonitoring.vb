@@ -609,6 +609,10 @@ Update:
         Dim ResponseTime As Double = 0
         Dim ChilkatHTTP As New Chilkat.Http
         myURL.HTML = ""
+        ChilkatHTTP.FollowRedirects = True
+        ChilkatHTTP.SaveCookies = True
+        ChilkatHTTP.SendCookies = True
+        ChilkatHTTP.CookieDir = "memory"
         Try
             Dim success As Boolean
             success = ChilkatHTTP.UnlockComponent("MZLDADHttp_efwTynJYYR3X")
@@ -778,106 +782,6 @@ Update:
         Return returnValue
 
     End Function
-
-
-    Public Sub URLResponseTimeSSL(ByRef myURL As MonitoredItems.URL)
-        'This function returns as the number of milliseconds it takes to open a URL and retrieve its content
-        'returns 0 in case of exception
-        'returns -1 if it cannot connect
-        myURL.PreviousKeyValue = myURL.ResponseTime   'remember what the time was last time, so you can compare
-
-        Dim start, done, hits As Long
-        Dim elapsed As TimeSpan
-        start = Now.Ticks
-        Dim ResponseTime As Double = 0
-        Dim ChilkatHTTP As New Chilkat.Http
-        Dim HTML As String = ""
-        Try
-            Dim success As Boolean
-            success = ChilkatHTTP.UnlockComponent("MZLDADHttp_efwTynJYYR3X")
-        Catch ex As Exception
-
-        End Try
-        WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " Querying " & myURL.URL & " for response time.")
-        Try
-            Try
-                Dim myRegistry As New RegistryHandler
-                If myRegistry.ReadFromRegistry("ProxyEnabled") = "True" Then
-                    WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " Attempting to route through proxy server.")
-                    ChilkatHTTP.SocksHostname = myRegistry.ReadFromRegistry("ProxyServer")
-                    ChilkatHTTP.SocksPort = myRegistry.ReadFromRegistry("ProxyPort")
-                    ChilkatHTTP.SocksUsername = myRegistry.ReadFromRegistry("ProxyUser")
-                    ChilkatHTTP.SocksPassword = myRegistry.ReadFromRegistry("ProxyPassword")
-                End If
-                myRegistry = Nothing
-            Catch ex As Exception
-
-            End Try
-
-            If myURL.UserName <> "" Then
-                ChilkatHTTP.Login = myURL.UserName
-                ChilkatHTTP.Password = myURL.Password
-            End If
-
-            HTML = vbNullString
-            Dim n As Integer
-            Do While HTML = vbNullString
-                HTML = ChilkatHTTP.QuickGetStr(myURL.URL)
-                n += 1
-                Thread.Sleep(500)
-                If n > 15 Then Exit Do
-            Loop
-
-            If (HTML = vbNullString) Then
-                myURL.ResponseDetails = "URL did not respond. "
-                myURL.Status = "Not Responding"
-                myURL.Description = "The URL has timed out without responding. "
-                myURL.ResponseTime = 0
-                Exit Sub
-            End If
-
-            done = Now.Ticks
-            elapsed = New TimeSpan(done - start)
-            WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " Url responded in " & elapsed.TotalMilliseconds & " ms.")
-
-        Catch ex As Exception
-            WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " Error performing HTTP.Get: " & ex.Message)
-            myURL.ResponseDetails = ex.Message
-            myURL.Description = ex.Message
-            myURL.Status = "Error"
-        End Try
-        myURL.ResponseTime = elapsed.TotalMilliseconds
-
-
-        If InStr(HTML, "Lotus Notes Exception") Then
-            WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " This URL has a Lotus Notes Exception error in the response. ")
-            myAlert.QueueAlert("URL", myURL.Name, "Domino Exception", "This URL " & myURL.Name & " at " & myURL.URL & " is returning a Lotus Notes Exception." & vbCrLf & vbCrLf & HTML, myURL.Location)
-            myURL.Status = "Domino Exception"
-            myURL.ResponseDetails = "This URL has a Lotus Notes Exception."
-        Else
-            WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " This URL does not have a Lotus Notes Exception error in the response. ")
-        End If
-
-
-        If myURL.SearchString = "" Then
-            Exit Sub
-        Else
-            WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " This response will be checked for the specified search string of " & myURL.SearchString)
-            If InStr(HTML, myURL.SearchString) Then
-                'myURL.ResponseDetails = myURL.ResponseDetails & " The search string " & myURL.SearchString & " was found."
-                WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " This response contains the correct text.")
-                URLStringFound = True
-            Else
-                WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " The response was " & HTML)
-                URLStringFound = False
-                'instead set it to false after the transfer ended
-                ' WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " This response will 
-            End If
-        End If
-
-        WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " URLStringFound= " & URLStringFound)
-
-    End Sub
 
 #End Region
 
