@@ -2753,7 +2753,7 @@ WaitHere:
                     If .IPAddress.Length > 4 And .IPAddress <> "Foo" Then
 
                         Dim repositoryServers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-                        Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Filter.Eq(Function(x) x.ObjectId, entity.ObjectId)
+                        Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Filter.Eq(Function(x) x.Id, .ServerObjectID)
                         Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Updater.Set(Function(x) x.IPAddress, .IPAddress)
                         repositoryServers.Update(filterDef, updateDef)
 
