@@ -26,6 +26,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<SummaryStatistics> summaryRepository;
         private IRepository<Database> databaseRepository;
         private IRepository<Server> serverRepository;
+        private IRepository<Credentials> credentialsRepository;
         private IRepository<Status> statusRepository;
         private IRepository<DailyStatistics> dailyRepository;
         private IRepository<IbmConnectionsObjects> connectionsObjectsRepository;
@@ -1950,8 +1951,8 @@ namespace VitalSigns.API.Controllers
             return coords;
         }
 
-        [HttpGet("connections/most_popular_content")]
-        public APIResponse ConnectionsPopularContentMonthly(string userNames = "")
+        [HttpGet("connections/most_popular_communities")]
+        public APIResponse ConnectionsPopularCommunitiesMonthly(string userNames = "")
         {
             try
             {
@@ -1991,5 +1992,180 @@ namespace VitalSigns.API.Controllers
                 return Response;
             }
         }
+
+        [HttpGet("connections/executive_overview")]
+        public APIResponse ConnectionsExecutiveOverview(string date = "")
+        {
+            try
+            {
+                connectionsObjectsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
+                credentialsRepository = new Repository<Credentials>(ConnectionString);
+                serverRepository = new Repository<Server>(ConnectionString);
+
+                if (date == "")
+                    date = DateTime.UtcNow.AddDays(-7).ToString(DateFormat);
+
+                DateTime dtStart = DateTime.ParseExact(date, DateFormat, CultureInfo.InvariantCulture).ToUniversalTime();
+                DateTime dtEnd = dtStart.AddDays(7);
+
+                //group aggregation string since cannot use expressions
+                //groups on type nad device_name, aggregates the total count, if it has a parent (in a community), new objects in a community and new objects not in a community
+                var bsonStr = BsonDocument.Parse(@"{ 
+        ""_id"" : {
+                    ""type"" : ""$type"", 
+            ""device_name"" : ""$device_name""
+        },
+        ""count"" : { ""$sum"" : 1 }, 
+        ""has_parent"" : {
+                    ""$sum"" : {
+                        ""$cond"" : [{ 
+                    ""$ifNull"" : [""$parent_guid"", false]
+    }, 1, 0] } 
+         }, 
+         ""new_objects_in_community"" : { 
+             ""$sum"" : { 
+                 ""$cond"" : [{ 
+                     ""$and"" : [
+                        {""$gte"" : [ ""$object_created_date"", ISODate(""" + new BsonDateTime(dtStart).ToString() + @""") ]},
+                        {""$lte"" : [ ""$object_created_date"", ISODate(""" + new BsonDateTime(dtEnd).ToString() + @""") ]},
+                        {""$ifNull"" : [ ""$parent_guid"", false ]}
+                     ] 
+                 }, 1, 0] 
+             },
+         } 
+        ""new_objects_not_in_community"" : { 
+             ""$sum"" : { 
+                 ""$cond"" : [{ 
+                     ""$and"" : [
+                        {""$gte"" : [ ""$object_created_date"", ISODate(""" + new BsonDateTime(dtStart).ToString() + @""") ]},
+                        {""$lte"" : [ ""$object_created_date"", ISODate(""" + new BsonDateTime(dtEnd).ToString() + @""") ]},
+                        {""$ifNull"" : [ ""$parent_guid"", true ]}
+                     ] 
+                 }, 1, 0] 
+             } } }");
+
+                //creates a filter def
+                var types = new List<string>() { "Community", "Blog", "Wiki", "Forum", "Activity" };
+                var filterDef = connectionsObjectsRepository.Filter.In(x => x.Type, types) & connectionsObjectsRepository.Filter.Lte(x => x.ObjectCreatedDate, dtEnd);
+                
+                //excludes the user ID which VS uses to test simulation tests
+                try
+                {
+                    var credIds = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.IBMConnections.ToDescription())).Select(x => new { x.CredentialsId, x.Id }).ToList();
+                    var creds = credentialsRepository.Find(credentialsRepository.Filter.In(x => x.Id, credIds.Select(y => y.CredentialsId))).ToList();
+                    foreach (var curr in credIds)
+                    {
+                        try
+                        {
+                            var userId = creds.Where(x => x.Id == curr.CredentialsId).FirstOrDefault().UserId.ToLower();
+                            var connectionsObjectUserId = connectionsObjectsRepository.Find(
+                                    connectionsObjectsRepository.Filter.Eq(x => x.DeviceId, curr.Id) &
+                                    connectionsObjectsRepository.Filter.Eq(x => x.LogonName, userId)
+                                ).ToList();
+                            if (connectionsObjectUserId.Count() > 0)
+                                filterDef = filterDef & !(connectionsObjectsRepository.Filter.Eq(x => x.DeviceId, curr.Id) & connectionsObjectsRepository.Filter.Eq(x => x.OwnerId, connectionsObjectUserId.First().Id));
+                        }
+                        catch (Exception) { }
+                    }
+                }
+                catch (Exception) { }
+
+                var ffff = filterDef.ToString();
+
+                //does the call to mongo and outputs the data into usable objects from BSONDocuments
+                var resultsFromMongo = connectionsObjectsRepository.Collection.Aggregate()
+                    .Match(filterDef)
+                    .Group(bsonStr)
+                    .ToList()
+                    .Select(x => new
+                    {
+                        Type = x["_id"]["type"].AsString,
+                        DeviceName = x["_id"]["device_name"].AsString,
+                        Count = x["count"].AsInt32,
+                        CountInCommunity = x["has_parent"].AsInt32,
+                        CountNewInCommunity = x["new_objects_in_community"].AsInt32,
+                        CountNewNotInCommunity = x["new_objects_not_in_community"].AsInt32
+                    }).ToList();
+
+                //loops through the results and creates a return reponse
+                List<ConnectionsBreakdown> results = new List<ConnectionsBreakdown>();
+                foreach(string deviceName in resultsFromMongo.Select(x => x.DeviceName).Distinct())
+                {
+                    ConnectionsBreakdown result;
+                   
+                    result = new ConnectionsBreakdown();
+                    result.DeviceName = deviceName;
+                    result.StartDate = dtStart;
+                    result.EndDate = dtEnd;
+                    result.Types = new List<ConnectionsBreakdownType>();
+                    foreach(string type in types)
+                    {
+                        var currTypeFromMongoList = resultsFromMongo.Where(x => x.DeviceName == deviceName && x.Type == type).ToList();
+                        if (currTypeFromMongoList.Count() == 0)
+                        {
+                            currTypeFromMongoList.Add(new
+                            {
+                                Type = type,
+                                DeviceName = deviceName,
+                                Count = 0,
+                                CountInCommunity = 0,
+                                CountNewInCommunity = 0,
+                                CountNewNotInCommunity = 0
+                            });
+                        }
+                        ConnectionsBreakdownType currType = new ConnectionsBreakdownType();
+                        currType.IsInCommunity = false;
+                        currType.NewCount = currTypeFromMongoList.First().CountNewNotInCommunity;
+                        currType.Total = currTypeFromMongoList.First().Count - currTypeFromMongoList.First().CountInCommunity;
+                        currType.Type = type;
+                        result.Types.Add(currType);
+
+                        if (type != "Community")
+                        {
+                            currType = new ConnectionsBreakdownType();
+                            currType.IsInCommunity = true;
+                            currType.NewCount = currTypeFromMongoList.First().CountNewInCommunity;
+                            currType.Total = currTypeFromMongoList.First().CountInCommunity;
+                            currType.Type = "Community " + type;
+                            result.Types.Add(currType);
+                        }
+                        
+
+                    }
+                    results.Add(result);
+                }
+
+                if (results.Count() > 1)
+                {
+                    var totalBreakdown = new ConnectionsBreakdown();
+                    totalBreakdown.DeviceName = "All Environments";
+                    totalBreakdown.StartDate = dtStart;
+                    totalBreakdown.EndDate = dtEnd;
+                    totalBreakdown.Types = new List<ConnectionsBreakdownType>();
+                    foreach (string type in results[0].Types.Select(y => y.Type))
+                    {
+                        ConnectionsBreakdownType currType = new ConnectionsBreakdownType();
+                        currType.IsInCommunity = type.StartsWith("Community ");
+                        currType.NewCount = results.Sum(x => x.Types.Where(y => y.IsInCommunity == currType.IsInCommunity && y.Type == type).First().NewCount);
+                        currType.Total = results.Sum(x => x.Types.Where(y => y.IsInCommunity == currType.IsInCommunity && y.Type == type).First().Total);
+                        currType.Type = type;
+                        totalBreakdown.Types.Add(currType);
+                        
+                    }
+
+                    results.Insert(0, totalBreakdown);
+                }
+
+                Response = Common.CreateResponse(results);
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
     }
+    
 }

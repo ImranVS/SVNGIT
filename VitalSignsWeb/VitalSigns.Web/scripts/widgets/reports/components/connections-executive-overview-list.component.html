@@ -1,0 +1,9 @@
+﻿
+<div *ngIf="data">
+    <h1 >Executive Summary</h1>
+    <h3 style="position: relative; top: -40px;">Week of {{data[0].start_date|date:'MM/dd/yyyy'}}</h3>
+    <div *ngFor="let curr of data">
+        <h2><b>{{curr.device_name}}</b></h2>
+        <p *ngFor="let currType of curr.types">{{currType.type}} = {{currType.total}}, {{currType.new_count}} new in the past week</p>
+    </div>
+</div>

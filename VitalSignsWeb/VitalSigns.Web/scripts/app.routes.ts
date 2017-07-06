@@ -107,7 +107,9 @@ import { ConnectionsCommunityActivityReport } from './reports/components/ibm-con
 import { ConnectionsUserActivityReport } from './reports/components/ibm-connections/connections-user-activity-report.component';
 import { ConnectionsUserActivityChartReport } from './reports/components/ibm-connections/connections-user-activity-chart-report.component';
 import { ConnectionsUserActivityMonthlyChartReport } from './reports/components/ibm-connections/connections-user-activity-monthly-chart-report.component';
-import { ConnectionsPopularContentReport } from './reports/components/ibm-connections/connections-popular-content-report.component';
+//import { ConnectionsPopularContentReport } from './reports/components/ibm-connections/connections-popular-content-report.component';
+import { ConnectionsPopularCommunitiesReport } from './reports/components/ibm-connections/connections-popular-communities-report.component';
+import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-connections/connections-executive-overview-report.component';
 import { TravelerHTTPSessionsReport } from './reports/components/ibm-traveler/traveler-http-sessions.component';
 import { TravelerDeviceSyncReport } from './reports/components/ibm-traveler/traveler-device-syncs.component';
 import { TravelerCPUUtilReport } from './reports/components/ibm-traveler/traveler-cpu-util.component';
@@ -489,7 +491,15 @@ const appRoutes: Routes = [
                     },
                     {
                         path: 'connectionspopularcontent',
-                        component: ConnectionsPopularContentReport
+                        //component: ConnectionsPopularContentReport
+                    },
+                    {
+                        path: 'connectionspopularcommunities',
+                        component: ConnectionsPopularCommunitiesReport
+                    },
+                    {
+                        path: 'connectionsexecutivesummary',
+                        component: ConnectionsExecutiveOverviewReport
                     },
                     {
                         path: 'hourlystatistics',

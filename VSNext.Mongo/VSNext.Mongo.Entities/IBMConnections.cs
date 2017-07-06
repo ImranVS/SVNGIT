@@ -161,6 +161,12 @@ namespace VSNext.Mongo.Entities
         [BsonElement("children")]
         [BsonIgnoreIfNull]
         public List<IbmConnectionChildren> Children { get; set; }
+
+        //Users only
+        [DataMember]
+        [BsonElement("logon_name")]
+        [BsonIgnoreIfNull]
+        public string LogonName { get; set; }
     }
 
     public class IbmConnectionChildren

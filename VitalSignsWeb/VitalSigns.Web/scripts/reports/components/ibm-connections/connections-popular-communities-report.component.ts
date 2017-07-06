@@ -10,19 +10,19 @@ declare var injectSVG: any;
 
 
 @Component({
-    templateUrl: '/app/reports/components/ibm-connections/connections-popular-content-report.component.html',
+    templateUrl: '/app/reports/components/ibm-connections/connections-popular-communities-report.component.html',
     providers: [
         WidgetService,
         RESTService
     ]
 })
-export class ConnectionsPopularContentReport extends WidgetController {
+export class ConnectionsPopularCommunitiesReport extends WidgetController {
     contextMenuSiteMap: any;
     chartData: any;
     errorMessage: string;
     widgets: WidgetContract[];
     currentWidgetName: string = `connectionsPopularContentReport`;
-    currentWidgetURL: string = `/reports/connections/most_popular_content`;
+    currentWidgetURL: string = `/reports/connections/most_popular_communities`;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
 
@@ -40,15 +40,15 @@ export class ConnectionsPopularContentReport extends WidgetController {
             );
         this.widgets = [
             {
-                id: 'connectionsPopularContentReport',
+                id: 'connectionsPopularCommunitiesReport',
                 title: '',
                 name: 'ChartComponent',
                 settings: {
-                    url: `/reports/connections/most_popular_content`,
+                    url: `/reports/connections/most_popular_communities`,
                     dateformat: "date",
                     chart: {
                         chart: {
-                            renderTo: 'connectionsPopularContentReport',
+                            renderTo: 'connectionsPopularCommunitiesReport',
                             type: 'pie',
                             height: 540,
                             plotBorderWidth: 0,

@@ -5212,6 +5212,7 @@ CleanUp:
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created community in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = True
                     InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Community.TimeMs", createTime.ToString(), myServer.ServerObjectID)
+
                 Else
                     'Created wrongly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Community failed to create. It took " & createTime & " ms and produced a status code of " & webResposne.StatusCode & " and description of " & webResposne.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
@@ -5232,7 +5233,8 @@ CleanUp:
                     Dim headers As System.Net.WebHeaderCollection
                     headers = webResposne.Headers
 
-
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Returned with headers of : " & String.Join(",", headers.AllKeys), LogUtilities.LogUtils.LogLevel.Normal)
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Returned with headers of : " & String.Join(",", headers.AllKeys), LogUtilities.LogUtils.LogLevel.Normal)
                     Dim deleteString As String = headers.Get("Location")
 
                     Dim reg As Text.RegularExpressions.Regex = New Text.RegularExpressions.Regex("(?<=communityUuid=)[a-zA-Z0-9-]*")
@@ -6320,6 +6322,15 @@ CleanUp:
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Widget failed to be added. It took " & createTime & " ms and produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
                 Return False
             End If
+        Catch ex As WebException
+            Dim errResp As HttpWebResponse = ex.Response
+            Using respStream As Stream = errResp.GetResponseStream()
+
+                Dim reader As StreamReader = New StreamReader(respStream)
+                Dim text As String = reader.ReadToEnd()
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Widget failed to be added due to " & ex.Message.ToString() & " and a resposne of " & text, LogUtilities.LogUtils.LogLevel.Normal)
+            End Using
+
         Catch ex As Exception
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Widget failed to be added due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
             Return False
@@ -9532,7 +9543,7 @@ CleanUp:
             "SELECT COUNT(*) NUM_OF_PROFILES_EDITED_YESTERDAY FROM EMPINST.EMPLOYEE WHERE DATE(PROF_LAST_UPDATE) = CURRENT_DATE - 1 DAY;" &
             "SELECT COUNT(*) NUM_OF_PROFILES_PROFILES FROM EMPINST.EMPLOYEE;" &
             "SELECT COUNT(*) NUM_OF_PROFILES_CREATED_YESTERDAY FROM EMPINST.EMP_ROLE_MAP E1 INNER JOIN EMPINST.EMPLOYEE E2 ON E1.PROF_KEY = E2.PROF_KEY WHERE DATE(E1.CREATED) = CURRENT_DATE - 1 DAY;" &
-            "SELECT PROF_GUID, PROF_DISPLAY_NAME, PROF_MODE, PROF_STATE FROM EMPINST.EMPLOYEE;" &
+            "SELECT PROF_GUID, PROF_DISPLAY_NAME, PROF_MODE, PROF_STATE, PROF_UID_LOWER FROM EMPINST.EMPLOYEE;" &
             "SELECT COUNT(*) NUM_OF_PROFILES_WITH_PICTURE FROM EMPINST.EMPLOYEE WHERE PROF_KEY IN (SELECT PROF_KEY FROM EMPINST.PHOTO);" &
             "SELECT COUNT(*) NUM_OF_PROFILES_WITH_MANAGER FROM EMPINST.EMPLOYEE WHERE PROF_MANAGER_UID IN (SELECT PROF_UID FROM EMPINST.EMPLOYEE);"
 
@@ -9704,7 +9715,8 @@ CleanUp:
                                             .Set(Function(i) i.Name, row("PROF_DISPLAY_NAME").ToString()) _
                                             .Set(Function(i) i.IsActive, Convert.ToBoolean(IIf(row("PROF_STATE").ToString() = "0", True, False))) _
                                             .Set(Function(i) i.IsInternal, Convert.ToBoolean(IIf(row("PROF_MODE").ToString() = "0", True, False))) _
-                                .Set(Function(i) i.DeviceId, myServer.ServerObjectID)
+                                            .Set(Function(i) i.DeviceId, myServer.ServerObjectID) _
+                                            .Set(Function(i) i.LogonName, row("PROF_UID_LOWER"))
                                 repo.Upsert(filterdef, updatedef)
 
                                 'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Inserting Users in Profile Stats.", LogUtilities.LogUtils.LogLevel.Normal)
@@ -9935,23 +9947,34 @@ CleanUp:
             Dim childrenList As List(Of VSNext.Mongo.Entities.IbmConnectionChildren)
 
             For Each entity As VSNext.Mongo.Entities.IbmConnectionsObjects In entities
-                Dim currEntity As VSNext.Mongo.Entities.IbmConnectionsObjects = entity
-                While currEntity.ParentGUID IsNot Nothing
-                    parentEntity = entities.Where(Function(x) x.Id = currEntity.ParentGUID).First()
-                    childrenList = parentEntity.Children
-                    If childrenList Is Nothing Then
-                        childrenList = New List(Of VSNext.Mongo.Entities.IbmConnectionChildren)()
-                    End If
+                Try
 
-                    If childrenList.Where(Function(x) x.Type = entity.Type).Count = 0 Then
-                        childrenList.Add(New VSNext.Mongo.Entities.IbmConnectionChildren() With {.Count = 0, .Type = entity.Type})
-                    End If
+                    Dim currEntity As VSNext.Mongo.Entities.IbmConnectionsObjects = entity
+                    While currEntity.ParentGUID IsNot Nothing
+                        Try
+                            parentEntity = entities.Where(Function(x) x.Id = currEntity.ParentGUID).First()
+                            childrenList = parentEntity.Children
+                            If childrenList Is Nothing Then
+                                childrenList = New List(Of VSNext.Mongo.Entities.IbmConnectionChildren)()
+                            End If
 
-                    childrenList.Find(Function(x) x.Type = entity.Type).Count += 1
+                            If childrenList.Where(Function(x) x.Type = entity.Type).Count = 0 Then
+                                childrenList.Add(New VSNext.Mongo.Entities.IbmConnectionChildren() With {.Count = 0, .Type = entity.Type})
+                            End If
 
-                    parentEntity.Children = childrenList
-                    currEntity = parentEntity
-                End While
+                            childrenList.Find(Function(x) x.Type = entity.Type).Count += 1
+
+                            parentEntity.Children = childrenList
+                            currEntity = parentEntity
+
+                        Catch ex As Exception
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error in ConsolidateConnectionObjects in While. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                        End Try
+                    End While
+
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error in ConsolidateConnectionObjects in ForEach. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                End Try
             Next
 
             repository.Replace(entities)

@@ -109,7 +109,8 @@ import { ConnectionsCommunityActivityReport } from './reports/components/ibm-con
 import { ConnectionsUserActivityReport } from './reports/components/ibm-connections/connections-user-activity-report.component';
 import { ConnectionsUserActivityChartReport } from './reports/components/ibm-connections/connections-user-activity-chart-report.component';
 import { ConnectionsUserActivityMonthlyChartReport } from './reports/components/ibm-connections/connections-user-activity-monthly-chart-report.component';
-import { ConnectionsPopularContentReport } from './reports/components/ibm-connections/connections-popular-content-report.component';
+//import { ConnectionsPopularContentReport } from './reports/components/ibm-connections/connections-popular-content-report.component';
+import { ConnectionsPopularCommunitiesReport } from './reports/components/ibm-connections/connections-popular-communities-report.component';
 import {ServerConfigurationFilter} from './reports/filters/components/server-configuration-filter.component';
 import {FileUploadSample} from './configurator/components/serverImport/file-upload-sample.component';
 import {SametimeServerFilter} from './reports/filters/components/sametime-server-filter.component';
@@ -126,7 +127,7 @@ import { Office365UptimeReport } from './reports/components/office365/office365-
 import { MobileDevicesSummaryOS } from './reports/components/mobile-users/mobile-users-os-summary.component';
 import {RepeatableChart} from './reports/components/repeatable-chart.component';
 import { MobileUsersReport } from './reports/components/mobile-users/mobile-users-report.component';
-
+import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-connections/connections-executive-overview-report.component';
 
 @NgModule({
     imports: [
@@ -223,7 +224,7 @@ import { MobileUsersReport } from './reports/components/mobile-users/mobile-user
         ConnectionsUserActivityReport,
         ConnectionsUserActivityChartReport,
         ConnectionsUserActivityMonthlyChartReport,
-        ConnectionsPopularContentReport,
+        ConnectionsPopularCommunitiesReport,
         ServerConfigurationFilter,
         FileUploadSample,
         SametimeServerFilter,
@@ -240,6 +241,7 @@ import { MobileUsersReport } from './reports/components/mobile-users/mobile-user
         Office365UptimeReport,
         MobileDevicesSummaryOS,
         MobileUsersReport,
+        ConnectionsExecutiveOverviewReport,
         dashboards.SampleDashboard,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
@@ -388,6 +390,7 @@ import { MobileUsersReport } from './reports/components/mobile-users/mobile-user
         widgets.ServerAvailabilityFilter,
         widgets.CommunityActivityList,
         widgets.UserActivityList,
+        widgets.ConnectionsExecutiveOverviewList,
         widgets.IBMConnectionsUserComparison,
         widgets.IBMConnectionsCommunityUser,
         widgets.NotesMailProbes,
@@ -558,6 +561,7 @@ import { MobileUsersReport } from './reports/components/mobile-users/mobile-user
         widgets.ServerAvailabilityFilter,
         widgets.CommunityActivityList,
         widgets.UserActivityList,
+        widgets.ConnectionsExecutiveOverviewList,
         widgets.IBMConnectionsUserComparison,
         widgets.IBMConnectionsCommunityUser,
         widgets.NotesMailProbes,

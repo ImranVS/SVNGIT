@@ -41,6 +41,7 @@ export * from './widgets/reports/components/domino-server-tasks-list.component';
 export * from './widgets/reports/components/community-users-list.component';
 export * from './widgets/reports/components/community-activity-list.component';
 export * from './widgets/reports/components/user-activity-list.component';
+export * from './widgets/reports/components/connections-executive-overview-list.component';
 export * from './widgets/file-upload/components/file-upload.component';
 
 export * from './widgets/mobile-users/components/console-commands-list.component';

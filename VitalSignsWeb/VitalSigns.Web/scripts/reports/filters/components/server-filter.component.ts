@@ -64,10 +64,10 @@ export class ServerFilter {
             var v1 = <HTMLDivElement>document.getElementById("dtServer");
             v1.style.display = "none";
         }
-        if (this.hideServerControl == true && this.hideServerControl == true) {
-            var v2 = <HTMLDivElement>document.getElementById("dtFilter");
-            v2.style.display = "none";
-        }
+        //if (this.hideServerControl == true && this.hideServerControl == true) {
+        //    var v2 = <HTMLDivElement>document.getElementById("dtFilter");
+        //    v2.style.display = "none";
+        //}
         if (this.showSingleDatePanel == true) {
             var v = <HTMLDivElement>document.getElementById("dtPanel3");
             v.style.display = "inline-block";
