@@ -1740,7 +1740,7 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
-        [HttpPut("save_name_value")]
+        [HttpPut("set_name_value")]
         public APIResponse SaveNameValueAPI([FromBody]NameValueModel nameValue)
         {
             try
