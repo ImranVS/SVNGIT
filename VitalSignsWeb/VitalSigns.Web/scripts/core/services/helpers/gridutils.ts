@@ -4,6 +4,6 @@
 export class CommonUtils {
 
     getGridPageName(gridName, userId) {
-        return "GridePageSize_" + userId + "_" + gridName;
+        return "GridPageSize_" + userId + "_" + gridName;
     }
 }
