@@ -1308,7 +1308,7 @@ Partial Public Class VitalSignsPlusDomino
 
     Private Sub UpdateDominoDailyStatTable(ByRef MyDominoServer As MonitoredItems.DominoServer, ByVal StatName As String, ByVal StatValue As Double)
         Try
-            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " In UpdateDominoDailyStatTable. " & MyDominoServer.ServerObjectID.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+
             If StatValue = -999 Then Exit Sub
 
         '**
