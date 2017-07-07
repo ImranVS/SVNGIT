@@ -1316,7 +1316,7 @@ NextServer:
                 Try
                     .FileSize = db.Size / 1024 / 1024  'size is in bytes
                 Catch ex As Exception
-
+                    .FileSize = 0
                 End Try
 
                 Try

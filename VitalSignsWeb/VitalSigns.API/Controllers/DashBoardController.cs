@@ -999,7 +999,7 @@ namespace VitalSigns.API.Controllers
             }
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", exception.Message);
+                Response = Common.CreateResponse(null, "Error", exception.ToString());
             }
             return Response;
         }
