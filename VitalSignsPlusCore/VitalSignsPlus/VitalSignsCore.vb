@@ -5233,8 +5233,8 @@ CleanUp:
                     Dim headers As System.Net.WebHeaderCollection
                     headers = webResposne.Headers
 
-                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Returned with headers of : " & String.Join(",", headers.AllKeys), LogUtilities.LogUtils.LogLevel.Normal)
-                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Returned with headers of : " & String.Join(",", headers.AllKeys), LogUtilities.LogUtils.LogLevel.Normal)
+                    'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Returned with headers of : " & String.Join(",", headers.AllKeys), LogUtilities.LogUtils.LogLevel.Normal)
+                    'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Returned with headers of : " & String.Join(",", headers.AllKeys), LogUtilities.LogUtils.LogLevel.Normal)
                     Dim deleteString As String = headers.Get("Location")
 
                     Dim reg As Text.RegularExpressions.Regex = New Text.RegularExpressions.Regex("(?<=communityUuid=)[a-zA-Z0-9-]*")
@@ -9716,7 +9716,7 @@ CleanUp:
                                             .Set(Function(i) i.IsActive, Convert.ToBoolean(IIf(row("PROF_STATE").ToString() = "0", True, False))) _
                                             .Set(Function(i) i.IsInternal, Convert.ToBoolean(IIf(row("PROF_MODE").ToString() = "0", True, False))) _
                                             .Set(Function(i) i.DeviceId, myServer.ServerObjectID) _
-                                            .Set(Function(i) i.LogonName, row("PROF_UID_LOWER"))
+                                            .Set(Function(i) i.LogonName, row("PROF_UID_LOWER").ToString())
                                 repo.Upsert(filterdef, updatedef)
 
                                 'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Inserting Users in Profile Stats.", LogUtilities.LogUtils.LogLevel.Normal)
