@@ -5,6 +5,8 @@ import {WidgetComponent} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
 
 import * as helpers from '../../../core/services/helpers/helpers';
+import * as gridHelpers from '../../../core/services/helpers/gridutils';
+import { AuthenticationService } from '../../../profiles/services/authentication.service';
 
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
 import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
@@ -16,7 +18,8 @@ import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
     providers: [
         HttpModule,
         RESTService,
-        helpers.DateTimeHelper
+        helpers.DateTimeHelper,
+        gridHelpers.CommonUtils
     ]
 })
 export class MobileUsersGrid implements WidgetComponent, OnInit {
@@ -25,8 +28,10 @@ export class MobileUsersGrid implements WidgetComponent, OnInit {
 
     data: wijmo.collections.CollectionView;
     errorMessage: string;
+
+    currentPageSize: any = 20;
     
-    constructor(private service: RESTService, protected datetimeHelpers: helpers.DateTimeHelper) { }
+    constructor(private service: RESTService, protected datetimeHelpers: helpers.DateTimeHelper, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -36,6 +41,20 @@ export class MobileUsersGrid implements WidgetComponent, OnInit {
         if (this.data.pageSize != value) {
             this.data.pageSize = value;
             this.data.refresh();
+
+
+            var obj = {
+                name: this.gridHelpers.getGridPageName("MobileUsersGrid", this.authService.CurrentUser.email),
+                value: value
+            };
+
+            this.service.put(`/services/set_name_value`, obj)
+                .subscribe(
+                (data) => {
+                  
+                },
+                (error) => console.log(error)
+                );
         }
     }
 
@@ -45,7 +64,17 @@ export class MobileUsersGrid implements WidgetComponent, OnInit {
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(data.data)));
-                this.data.pageSize = 2000;
+                this.data.pageSize = this.currentPageSize;
+            },
+            (error) => this.errorMessage = <any>error
+            );
+
+        this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("MobileUsersGrid", this.authService.CurrentUser.email)}`)
+            .subscribe(
+            (data) => {
+                this.currentPageSize = Number(data.data.value);
+                this.data.pageSize = this.currentPageSize;
+                this.data.refresh();
             },
             (error) => this.errorMessage = <any>error
             );
