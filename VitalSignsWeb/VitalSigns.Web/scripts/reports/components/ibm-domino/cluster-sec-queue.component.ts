@@ -5,6 +5,8 @@ import {WidgetService} from '../../../core/widgets/services/widget.service';
 
 import {RESTService} from '../../../core/services/rest.service';
 
+import * as helpers from '../../../core/services/helpers/helpers';
+
 declare var injectSVG: any;
 
 
@@ -13,7 +15,8 @@ declare var injectSVG: any;
     templateUrl: '/app/reports/components/ibm-domino/cluster-sec-queue.component.html',
     providers: [
         WidgetService,
-        RESTService
+        RESTService,
+        helpers.UrlHelperService
     ]
 })
 export class ClusterSecQueue extends WidgetController {
@@ -27,7 +30,7 @@ export class ClusterSecQueue extends WidgetController {
     currentWidgetName: string = `clusterQueue`;
     currentWidgetURL: string = `/reports/dailystats_hourly_chart?statName=Replica.Cluster.SecondsOnQueue`;
 
-    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, protected urlHelpers: helpers.UrlHelperService) {
 
         super(resolver, widgetService);
 
