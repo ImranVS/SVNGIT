@@ -24,11 +24,11 @@ export class GridTooltip {
                             cellBounds = wijmo.Rect.fromBoundingRect(cellElement.getBoundingClientRect()),
                             data = '<b>' + wijmo.escapeHtml(flex.getCellData(rng.row, col1, true)) + '</b>: ' + wijmo.escapeHtml(flex.getCellData(rng.row, col2, true)),
                             tipContent = data;
-                        if (cellElement.className.indexOf('wj-cell') > -1) {
+                        //if (cellElement.className.indexOf('wj-cell') > -1) {
                             tip.show(flex.hostElement, tipContent, cellBounds);
-                        } else {
-                            tip.hide(); // cell must be behind scroll bar…
-                        }
+                        //} else {
+                        //    tip.hide(); // cell must be behind scroll bar…
+                       // }
                     }
                     else {
                         if (ht.col === column_index) {
@@ -38,11 +38,11 @@ export class GridTooltip {
                                 cellBounds = wijmo.Rect.fromBoundingRect(cellElement.getBoundingClientRect()),
                                 data = '<b>' + wijmo.escapeHtml(flex.getCellData(rng.row, col1, true)) + '</b>: ' + wijmo.escapeHtml(flex.getCellData(rng.row, col2, true)),
                                 tipContent = data;
-                            if (cellElement.className.indexOf('wj-cell') > -1) {
+                            //if (cellElement.className.indexOf('wj-cell') > -1) {
                                 tip.show(flex.hostElement, tipContent, cellBounds);
-                            } else {
-                                tip.hide(); // cell must be behind scroll bar…
-                            }
+                            //} else {
+                           //     tip.hide(); // cell must be behind scroll bar…
+                           // }
                         }
                     }
                   
