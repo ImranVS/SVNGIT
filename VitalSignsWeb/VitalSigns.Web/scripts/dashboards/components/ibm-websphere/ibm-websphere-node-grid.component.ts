@@ -4,6 +4,8 @@ import {HttpModule}    from '@angular/http';
 import {WidgetComponent} from '../../../core/widgets';
 import {WidgetService} from '../../../core/widgets/services/widget.service';
 import {RESTService} from '../../../core/services';
+import { AuthenticationService } from '../../../profiles/services/authentication.service';
+import * as gridHelpers from '../../../core/services/helpers/gridutils';
 
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
 import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
@@ -14,7 +16,8 @@ import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
     templateUrl: './app/dashboards/components/ibm-websphere/ibm-websphere-node-grid.component.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        gridHelpers.CommonUtils
     ]
 })
 export class IBMWebsphereNodeGrid implements WidgetComponent, OnInit {
@@ -23,8 +26,9 @@ export class IBMWebsphereNodeGrid implements WidgetComponent, OnInit {
     serviceId: string;
     data: wijmo.collections.CollectionView;
     errorMessage: string;
+    currentPageSize: any = 20;
     
-    constructor(private service: RESTService, protected widgetService: WidgetService) { }
+    constructor(private service: RESTService, protected widgetService: WidgetService, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -34,6 +38,18 @@ export class IBMWebsphereNodeGrid implements WidgetComponent, OnInit {
         if (this.data.pageSize != value) {
             this.data.pageSize = value;
             this.data.refresh();
+            var obj = {
+                name: this.gridHelpers.getGridPageName("IBMWebsphereNodeGrid", this.authService.CurrentUser.email),
+                value: value
+            };
+
+            this.service.put(`/services/set_name_value`, obj)
+                .subscribe(
+                (data) => {
+
+                },
+                (error) => console.log(error)
+                );
         }
     }
 
@@ -44,7 +60,17 @@ export class IBMWebsphereNodeGrid implements WidgetComponent, OnInit {
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
-                this.data.pageSize = 10;
+                this.data.pageSize = this.currentPageSize
+;
+            },
+            (error) => this.errorMessage = <any>error
+            );
+        this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("IBMWebsphereNodeGrid", this.authService.CurrentUser.email)}`)
+            .subscribe(
+            (data) => {
+                this.currentPageSize = Number(data.data.value);
+                this.data.pageSize = this.currentPageSize;
+                this.data.refresh();
             },
             (error) => this.errorMessage = <any>error
             );
@@ -86,7 +112,8 @@ export class IBMWebsphereNodeGrid implements WidgetComponent, OnInit {
                 .subscribe(
                 (data) => {
                     this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
-                    this.data.pageSize = 10;
+                    this.data.pageSize = this.currentPageSize
+;
                 },
                 (error) => this.errorMessage = <any>error
                 );
