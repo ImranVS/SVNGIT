@@ -20,6 +20,8 @@ import * as helpers from '../../../core/services/helpers/helpers';
         helpers.GridTooltip,
         helpers.DateTimeHelper,
         gridHelpers.CommonUtils
+    
+        
     ]
 })
 export class DatabaseProblemsGrid implements WidgetComponent, OnInit {
@@ -29,7 +31,8 @@ export class DatabaseProblemsGrid implements WidgetComponent, OnInit {
     errorMessage: string;
     customColumnHeader: boolean = true;
     serviceId: string;
-    currentPageSize: any = 10;
+    currentPageSize: any = 20;
+    
 
     constructor(private service: RESTService, private widgetService: WidgetService, protected toolTip: helpers.GridTooltip,
         protected datetimeHelpers: helpers.DateTimeHelper, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) { }
@@ -54,6 +57,7 @@ export class DatabaseProblemsGrid implements WidgetComponent, OnInit {
                 },
                 (error) => console.log(error)
                 );
+            
         }
     }
     ngOnInit() {
@@ -82,6 +86,16 @@ export class DatabaseProblemsGrid implements WidgetComponent, OnInit {
             },
             (error) => this.errorMessage = <any>error
         );
+
+        this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("DatabaseProblemsGrid", this.authService.CurrentUser.email)}`)
+            .subscribe(
+            (data) => {
+                this.currentPageSize = Number(data.data.value);
+                this.data.pageSize = this.currentPageSize;
+                this.data.refresh();
+            },
+            (error) => this.errorMessage = <any>error
+            );
         this.toolTip.getTooltip(this.flex, 0, 3);
     }
 
@@ -122,15 +136,6 @@ export class DatabaseProblemsGrid implements WidgetComponent, OnInit {
                     }
                     this.flex.columns[6].header = this.data.items[0].domino_server_a + ' (database size)';
                     this.flex.columns[7].header = this.data.items[0].domino_server_b + ' (database size)';
-                },
-                (error) => this.errorMessage = <any>error
-                );
-            this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("DatabaseProblemsGrid", this.authService.CurrentUser.email)}`)
-                .subscribe(
-                (data) => {
-                    this.currentPageSize = Number(data.data.value);
-                    this.data.pageSize = this.currentPageSize;
-                    this.data.refresh();
                 },
                 (error) => this.errorMessage = <any>error
                 );
