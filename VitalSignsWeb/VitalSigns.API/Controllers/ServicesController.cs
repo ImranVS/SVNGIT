@@ -682,8 +682,9 @@ namespace VitalSigns.API.Controllers
             DateTime endDate;
             try
             {
-                startDate = DateTime.UtcNow.AddDays(-1).ToUniversalTime();
-                endDate = DateTime.UtcNow.ToUniversalTime();
+                endDate = DateTime.UtcNow.Date.AddHours(DateTime.UtcNow.Hour).ToUniversalTime();
+                startDate = endDate.AddDays(-1).ToUniversalTime();
+
                 var statNames = statName.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
                 if (!string.IsNullOrEmpty(statName) && getNode)
                 {
@@ -981,10 +982,10 @@ namespace VitalSigns.API.Controllers
             UtilsController uc = new UtilsController();
             //DateFormat is YYYY-MM-DD
             if (startDate == "")
-                startDate = DateTime.UtcNow.AddDays(-7).ToString(DateFormat);
-                
+                startDate = DateTime.UtcNow.Date.AddDays(-7).ToString(DateFormat);
+
             if (endDate == "")
-                endDate = DateTime.UtcNow.ToString(DateFormat);
+                endDate = DateTime.UtcNow.Date.ToString(DateFormat);
 
             //1 day is added to the end so we include that days data
             //NS - removed adding one day since the summary collection is always 1 day behind

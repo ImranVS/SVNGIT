@@ -105,7 +105,7 @@ export class BubbleChartComponent implements WidgetComponent, OnInit {
                             if (serie.segments[i].label == category) {
                                 let segment = serie.segments[i];
                                 this.settings.chart.series[length - 1].data.push({
-                                    name: category,
+                                    name:  { x: category, y: segment.label2 },
                                     y: segment.value,
                                     x: segment.value1,
                                     z: segment.value2

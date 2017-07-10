@@ -1016,6 +1016,8 @@ namespace VitalSigns.API.Controllers
                                      NumOfFollowers = x.NumOfFollowers.Value
                                  }).ToList();
 
+                var listOfUsers = connectionsRepository.Find(connectionsRepository.Filter.Eq(x => x.Type, "Users")).ToList();
+
                 List<IBMConnCommunityUsersList> result2 = new List<IBMConnCommunityUsersList>();
                 foreach (IBMConnCommunityUsersList l in result)
                 {
@@ -1026,10 +1028,8 @@ namespace VitalSigns.API.Controllers
                             IBMConnCommunityUsersList ibm2 = new IBMConnCommunityUsersList();
                             ibm2.ServerName = l.ServerName;
                             ibm2.Name = l.Name;
-                            FilterDefinition<IbmConnectionsObjects> filterDef2 = connectionsRepository.Filter.Eq(x => x.Type, "Users") & connectionsRepository.Filter.Eq(x => x.Id, s);
-                            List<string> us = connectionsRepository.Find(filterDef2)
-                                        .AsQueryable()
-                                        .Select(x => x.Name).ToList();
+                            List<string> us = listOfUsers.Where(x => x.Id == s).Select(x => x.Name).ToList();
+
                             foreach (string s1 in us)
                                 ibm2.user = s1;
                             ibm2.users = us;
@@ -2069,8 +2069,6 @@ namespace VitalSigns.API.Controllers
                     }
                 }
                 catch (Exception) { }
-
-                var ffff = filterDef.ToString();
 
                 //does the call to mongo and outputs the data into usable objects from BSONDocuments
                 var resultsFromMongo = connectionsObjectsRepository.Collection.Aggregate()
