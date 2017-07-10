@@ -3433,6 +3433,10 @@ Alerts:
         End Try
     End Sub
 
+    ''' <summary>
+    ''' 
+    ''' </summary>
+    ''' <param name="MyDominoServer"></param>
     Private Sub CheckTravelerServlet(ByRef MyDominoServer As MonitoredItems.DominoServer)
         WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Checking the Traveler server's servlet availablity....")
 
@@ -3441,7 +3445,14 @@ Alerts:
         End If
 
         Dim myServletURL As New MonitoredItems.URL
+        Try
+            'In case we don't know the hostname already, try to figure it out
+            If MyDominoServer.IPAddress = "" And MyDominoServer.ExternalAlias = "" Then
+                MyDominoServer.IPAddress = GetDominoServerHostName(MyDominoServer.Name)
+            End If
+        Catch ex As Exception
 
+        End Try
 
         With myServletURL
             'Modified for VSPLUS-1933  AF
