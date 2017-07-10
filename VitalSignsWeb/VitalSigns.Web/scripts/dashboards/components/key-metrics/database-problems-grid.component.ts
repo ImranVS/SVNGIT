@@ -29,7 +29,7 @@ export class DatabaseProblemsGrid implements WidgetComponent, OnInit {
     errorMessage: string;
     customColumnHeader: boolean = true;
     serviceId: string;
-    currentPageSize: any = 20;
+    currentPageSize: any = 10;
 
     constructor(private service: RESTService, private widgetService: WidgetService, protected toolTip: helpers.GridTooltip,
         protected datetimeHelpers: helpers.DateTimeHelper, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) { }
