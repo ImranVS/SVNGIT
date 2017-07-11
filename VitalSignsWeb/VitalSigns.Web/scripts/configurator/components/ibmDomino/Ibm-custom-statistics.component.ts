@@ -17,20 +17,20 @@ import {ServersLocationService} from '../serverSettings/serverattributes-view.se
         RESTService,
         ServersLocationService,
         gridHelpers.CommonUtils
- 
+
     ]
 })
 export class CustomStatistics extends GridBase implements OnInit {
     sererNames: any;
     errorMessage: any;
-    devices: string="";
+    devices: string = "";
     deviceTypeData: any;
     currentPageSize: any = 20;
     checkedDevices: any;
     currentDeviceType: string = "Domino";
 
     constructor(service: RESTService, appComponentService: AppComponentService, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) {
-        super(service, appComponentService);    
+        super(service, appComponentService);
         this.formName = "Domino Custom Statistics";
         this.service.get('/Configurator/get_domino_servers')
             .subscribe(
@@ -79,7 +79,7 @@ export class CustomStatistics extends GridBase implements OnInit {
             (error) => this.errorMessage = <any>error
             );
     }
-    
+
 
     saveCustomStatistics(dlg: wijmo.input.Popup) {
         this.currentEditItem.domino_servers = this.devices;
@@ -106,11 +106,11 @@ export class CustomStatistics extends GridBase implements OnInit {
     }
 
     editCustomStat(dlg: wijmo.input.Popup) {
-        this.editGridRow(dlg);        
+        this.editGridRow(dlg);
         this.checkedDevices = this.currentEditItem.domino_servers;
         this.devices = this.currentEditItem.domino_servers;
     }
-   
 
 
+}
 
