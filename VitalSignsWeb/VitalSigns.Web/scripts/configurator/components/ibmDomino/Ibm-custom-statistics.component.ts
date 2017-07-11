@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
-
+import { AuthenticationService } from '../../../profiles/services/authentication.service';
+import * as gridHelpers from '../../../core/services/helpers/gridutils';
 import {AppNavigator} from '../../../navigation/app.navigator.component';
 import {AppComponentService} from '../../../core/services';
 import {ServersLocationService} from '../serverSettings/serverattributes-view.service';
@@ -14,7 +15,9 @@ import {ServersLocationService} from '../serverSettings/serverattributes-view.se
     providers: [
         HttpModule,
         RESTService,
-        ServersLocationService
+        ServersLocationService,
+        gridHelpers.CommonUtils
+ 
     ]
 })
 export class CustomStatistics extends GridBase implements OnInit {
@@ -22,10 +25,11 @@ export class CustomStatistics extends GridBase implements OnInit {
     errorMessage: any;
     devices: string="";
     deviceTypeData: any;
+    currentPageSize: any = 20;
     checkedDevices: any;
     currentDeviceType: string = "Domino";
 
-    constructor(service: RESTService, appComponentService: AppComponentService) {
+    constructor(service: RESTService, appComponentService: AppComponentService, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) {
         super(service, appComponentService);    
         this.formName = "Domino Custom Statistics";
         this.service.get('/Configurator/get_domino_servers')
@@ -40,10 +44,33 @@ export class CustomStatistics extends GridBase implements OnInit {
         this.devices = devices;
         this.checkedDevices = devices;
     }
+    get pageSize(): number {
+        return this.data.pageSize;
+    }
+    set pageSize(value: number) {
+        if (this.data.pageSize != value) {
+            this.data.pageSize = value;
+            this.data.refresh();
+            var obj = {
+                name: this.gridHelpers.getGridPageName("CustomStatistics", this.authService.CurrentUser.email),
+                value: value
+            };
+
+            this.service.put(`/services/set_name_value`, obj)
+                .subscribe(
+                (data) => {
+
+                },
+                (error) => console.log(error)
+                );
+
+        }
+    }
 
     ngOnInit() {
         this.initialGridBind('/configurator/get_custom_statistics');
     }
+
     saveCustomStatistics(dlg: wijmo.input.Popup) {
         this.currentEditItem.domino_servers = this.devices;
         this.saveGridRow('/configurator/save_custom_statistics', dlg);
@@ -51,6 +78,7 @@ export class CustomStatistics extends GridBase implements OnInit {
     delteCustomStatistics() {
         this.delteGridRow('/configurator/delete_custom_statistics/');
     }
+
     addCustomStat(dlg: wijmo.input.Popup) {
         this.addGridRow(dlg);
         this.currentEditItem.domino_servers = "";
@@ -72,6 +100,15 @@ export class CustomStatistics extends GridBase implements OnInit {
         this.checkedDevices = this.currentEditItem.domino_servers;
         this.devices = this.currentEditItem.domino_servers;
     }
+    this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("CustomStatistics", this.authService.CurrentUser.email)}`)
+    .subscribe(
+    (data) => {
+        this.currentPageSize = Number(data.data.value);
+        this.data.pageSize = this.currentPageSize;
+        this.data.refresh();
+    },
+    (error) => this.errorMessage = <any>error
+    );
 }
 
 

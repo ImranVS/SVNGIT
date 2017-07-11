@@ -3,7 +3,9 @@ import {FormBuilder, FormGroup, FormControl, FormsModule, Validators} from '@ang
 import { CommonModule } from '@angular/common';
 import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
-import {AppNavigator} from '../../../navigation/app.navigator.component';
+import { AppNavigator } from '../../../navigation/app.navigator.component';
+import { AuthenticationService } from '../../../profiles/services/authentication.service';
+import * as gridHelpers from '../../../core/services/helpers/gridutils';
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
 import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
 import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
@@ -18,7 +20,8 @@ import {AppComponentService} from '../../../core/services';
     templateUrl: '/app/configurator/components/mail/notesmail-probes.component.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        gridHelpers.CommonUtils
     ]
 })
 export class NotesMailProbes extends GridBase implements OnInit {
@@ -26,12 +29,34 @@ export class NotesMailProbes extends GridBase implements OnInit {
     serverNames: any;
     categories: any;
     errorMessage: string;
+    currentPageSize: any = 20;
+
     
     get pageSize(): number {
         return this.data.pageSize;
     }
+    set pageSize(value: number) {
+        if (this.data.pageSize != value) {
+            this.data.pageSize = value;
+            this.data.refresh();
+            var obj = {
+                name: this.gridHelpers.getGridPageName("NotesMailProbes", this.authService.CurrentUser.email),
+                value: value
+            };
 
-    constructor(service: RESTService, appComponentService: AppComponentService) {
+            this.service.put(`/services/set_name_value`, obj)
+                .subscribe(
+                (data) => {
+
+                },
+                (error) => console.log(error)
+                );
+
+        }
+    }
+
+    constructor(service: RESTService, appComponentService: AppComponentService, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService
+) {
         super(service, appComponentService);
         this.formName = "NotesMail Probe";
         this.categories = ["Domino", "Inbound", "International", "Internet Round Trip", "Domestic", "Between Hubs"];
@@ -45,6 +70,15 @@ export class NotesMailProbes extends GridBase implements OnInit {
     }
 
     ngOnInit() {
+        this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("NotesMailProbes", this.authService.CurrentUser.email)}`)
+            .subscribe(
+            (data) => {
+                this.currentPageSize = Number(data.data.value);
+                this.data.pageSize = this.currentPageSize;
+                this.data.refresh();
+            },
+            (error) => this.errorMessage = <any>error
+            );
         this.initialGridBind('/configurator/notesmail_probes_list');
     }
 

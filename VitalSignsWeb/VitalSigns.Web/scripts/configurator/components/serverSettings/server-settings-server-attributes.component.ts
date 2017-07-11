@@ -8,6 +8,9 @@ import {DeviceAttributeValue} from '../../models/device-attribute';
 import {AppComponentService} from '../../../core/services';
 import {ServersLocationService} from './serverattributes-view.service';
 import { ServersLocation } from '../server-list-location.component';
+import { AuthenticationService } from '../../../profiles/services/authentication.service';
+import * as gridHelpers from '../../../core/services/helpers/gridutils';
+
 
 
 
@@ -16,7 +19,9 @@ import { ServersLocation } from '../server-list-location.component';
     providers: [
         HttpModule,
         RESTService,
-        ServersLocationService
+        ServersLocationService,
+        gridHelpers.CommonUtils
+
     ]
 })
 export class DeviceAttributes implements OnInit {
@@ -27,6 +32,7 @@ export class DeviceAttributes implements OnInit {
     devices: string = "";
     attributes: string[] = [];
     deviceTypeData: any;
+    currentPageSize: any = 20;
     errorMessage: any;
     selectedDeviceType: any;
     checkedDevices: any;
@@ -37,19 +43,9 @@ export class DeviceAttributes implements OnInit {
     data: wijmo.collections.CollectionView;
     public serversLocationsService: ServersLocationService;
     //data: wijmo.collections.CollectionView;
-    get pageSize(): number {
-        return this.data.pageSize;
-    }
-    set pageSize(value: number) {
-        if (this.data.pageSize != value) {
-            this.data.pageSize = value;
-            if (this.flex) {
-                (<wijmo.collections.IPagedCollectionView>this.flex.collectionView).pageSize = value;
-            }
-        }
-    }
+    
     constructor(service: RESTService, serversLocationsService: ServersLocationService,
-        private formBuilder: FormBuilder, appComponentService: AppComponentService) {
+        private formBuilder: FormBuilder, appComponentService: AppComponentService, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) {
        
         this.service = service;
         this.appComponentService = appComponentService; 
@@ -101,7 +97,28 @@ export class DeviceAttributes implements OnInit {
         );
         this.serversLocationsService.refreshServerLocations(this.selectedDeviceType);
     }
- 
+    get pageSize(): number {
+        return this.data.pageSize;
+    }
+    set pageSize(value: number) {
+        if (this.data.pageSize != value) {
+            this.data.pageSize = value;
+            this.data.refresh();
+            var obj = {
+                name: this.gridHelpers.getGridPageName("DeviceAttributes", this.authService.CurrentUser.email),
+                value: value
+            };
+
+            this.service.put(`/services/set_name_value`, obj)
+                .subscribe(
+                (data) => {
+
+                },
+                (error) => console.log(error)
+                );
+
+        }
+    }
     ngOnInit()
     {     
         this.service.get('/Configurator/get_device_attributes?type=' + this.selectedDeviceType)
@@ -125,6 +142,15 @@ export class DeviceAttributes implements OnInit {
             },
             (error) => this.errorMessage = <any>error
         );
+        this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("DeviceAttributes", this.authService.CurrentUser.email)}`)
+            .subscribe(
+            (data) => {
+                this.currentPageSize = Number(data.data.value);
+                this.data.pageSize = this.currentPageSize;
+                this.data.refresh();
+            },
+            (error) => this.errorMessage = <any>error
+            );
  
     }
     applySetting() { 

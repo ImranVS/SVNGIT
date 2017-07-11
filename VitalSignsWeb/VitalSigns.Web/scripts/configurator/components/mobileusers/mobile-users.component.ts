@@ -5,13 +5,16 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { RESTService } from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
-import {AppComponentService} from '../../../core/services';
+import { AppComponentService } from '../../../core/services';
+import { AuthenticationService } from '../../../profiles/services/authentication.service';
+import * as gridHelpers from '../../../core/services/helpers/gridutils';
 
 @Component({
     templateUrl: '/app/configurator/components/mobileusers/mobile-users.component.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        gridHelpers.CommonUtils
     ]
 })
 export class MobileUser extends GridBase implements OnInit {
@@ -19,6 +22,7 @@ export class MobileUser extends GridBase implements OnInit {
     @ViewChild('mobileDeviceGrid') mobileDeviceGrid: wijmo.grid.FlexGrid; 
     sererNames: any;
     errorMessage: any;
+    currentPageSize: any = 20;
     currentEditItem: any;
     mobileDeviceData: wijmo.collections.CollectionView;
     formObject: any = {
@@ -26,12 +30,34 @@ export class MobileUser extends GridBase implements OnInit {
         threshold: null
     };
 
-    constructor(service: RESTService, appComponentService: AppComponentService) {
+    constructor(service: RESTService, appComponentService: AppComponentService, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) {
   
         super(service, appComponentService);
         this.formName = "Critical Device";
         
       
+    }
+    get pageSize(): number {
+        return this.data.pageSize;
+    }
+    set pageSize(value: number) {
+        if (this.data.pageSize != value) {
+            this.data.pageSize = value;
+            this.data.refresh();
+            var obj = {
+                name: this.gridHelpers.getGridPageName("MobileUser", this.authService.CurrentUser.email),
+                value: value
+            };
+
+            this.service.put(`/services/set_name_value`, obj)
+                .subscribe(
+                (data) => {
+
+                },
+                (error) => console.log(error)
+                );
+
+        }
     }
     ngOnInit() {
         this.initialGridBind('/configurator/get_mobile_users');
@@ -39,7 +65,16 @@ export class MobileUser extends GridBase implements OnInit {
             .subscribe(
             (response) => {
                 this.mobileDeviceData = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
-                this.mobileDeviceData.pageSize = 10;
+                this.mobileDeviceData.pageSize = this.currentPageSize;
+            },
+            (error) => this.errorMessage = <any>error
+            );
+        this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("MobileUser", this.authService.CurrentUser.email)}`)
+            .subscribe(
+            (data) => {
+                this.currentPageSize = Number(data.data.value);
+                this.data.pageSize = this.currentPageSize;
+                this.data.refresh();
             },
             (error) => this.errorMessage = <any>error
             );
@@ -57,8 +92,8 @@ export class MobileUser extends GridBase implements OnInit {
                     if (response.status == "Success") {
                         this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data[0]));
                         this.mobileDeviceData = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data[1]));
-                        this.data.pageSize = 10;
-                        this.mobileDeviceData.pageSize = 10;
+                        this.data.pageSize = this.currentPageSize;
+                        this.mobileDeviceData.pageSize = this.currentPageSize;
                         this.appComponentService.showSuccessMessage(response.message);
                     }
                     else {
@@ -83,8 +118,8 @@ export class MobileUser extends GridBase implements OnInit {
                         this.appComponentService.showSuccessMessage(response.message);
                         this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data[0]));
                         this.mobileDeviceData = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data[1]));
-                        this.data.pageSize = 10;
-                        this.mobileDeviceData.pageSize = 10;
+                        this.data.pageSize = this.currentPageSize;
+                        this.mobileDeviceData.pageSize = this.currentPageSize;
                     } else {
                         this.appComponentService.showErrorMessage(response.message);
                     }

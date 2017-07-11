@@ -4,28 +4,54 @@ import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
 import {AppNavigator} from '../../../navigation/app.navigator.component';
-import {AppComponentService} from '../../../core/services';
+import { AppComponentService } from '../../../core/services';
+import { AuthenticationService } from '../../../profiles/services/authentication.service';
+import * as gridHelpers from '../../../core/services/helpers/gridutils';
 
 @Component({
     templateUrl: '/app/configurator/components/ibmDomino/Ibm-travelerdatastore.component.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        gridHelpers.CommonUtils
     ]
 })
 export class TravelerDataStore extends GridBase implements OnInit {
     errorMessage: any;
     travelerServers: any;
+    currentPageSize: any = 20;
     testTravelerServers: any;
     usersByserver: any = [];
     checkedItems: any[];
     @ViewChildren('somespwd') somespwd;
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
 
-    constructor(service: RESTService, appComponentService: AppComponentService) {
+    constructor(service: RESTService, appComponentService: AppComponentService, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) {
         super(service, appComponentService);
         this.formName = "Traveler Data Store";
-    }              
+    }  
+    get pageSize(): number {
+        return this.data.pageSize;
+    }
+    set pageSize(value: number) {
+        if (this.data.pageSize != value) {
+            this.data.pageSize = value;
+            this.data.refresh();
+            var obj = {
+                name: this.gridHelpers.getGridPageName("TravelerDataStore", this.authService.CurrentUser.email),
+                value: value
+            };
+
+            this.service.put(`/services/set_name_value`, obj)
+                .subscribe(
+                (data) => {
+
+                },
+                (error) => console.log(error)
+                );
+
+        }
+    }            
     ngOnInit() {       
         this.service.get('/Configurator/get_travelerdatastore')
             .subscribe(
@@ -33,6 +59,15 @@ export class TravelerDataStore extends GridBase implements OnInit {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data.travellerData));
                 this.travelerServers = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray( response.data.travelerServers));               
                 this.testTravelerServers = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data.travelerServers));
+            },
+            (error) => this.errorMessage = <any>error
+            );
+        this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("TravelerDataStore", this.authService.CurrentUser.email)}`)
+            .subscribe(
+            (data) => {
+                this.currentPageSize = Number(data.data.value);
+                this.data.pageSize = this.currentPageSize;
+                this.data.refresh();
             },
             (error) => this.errorMessage = <any>error
             );

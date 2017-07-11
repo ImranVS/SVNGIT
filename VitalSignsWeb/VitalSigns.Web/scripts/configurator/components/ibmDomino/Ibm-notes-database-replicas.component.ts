@@ -2,17 +2,21 @@
 import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
 import { AppComponentService } from '../../../core/services';
+import { AuthenticationService } from '../../../profiles/services/authentication.service';
+import * as gridHelpers from '../../../core/services/helpers/gridutils';
+
 
 
 @Component({
     templateUrl: '/app/configurator/components/ibmDomino/Ibm-notes-database-replicas.component.html',
-    providers: [RESTService]
+    providers: [RESTService, gridHelpers.CommonUtils]
 })
 export class NotesDatabaseReplica extends GridBase implements OnInit {
     sererNames: any;
     errorMessage: any;
+    currentPageSize: any = 20;
     currentEditItem: any;
-    constructor(service: RESTService, appComponentService: AppComponentService) {
+    constructor(service: RESTService, appComponentService: AppComponentService, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) {
         super(service, appComponentService);
         this.formName = "Notes Database Replica";
         this.service.get('/Configurator/get_domino_servers')
@@ -24,7 +28,38 @@ export class NotesDatabaseReplica extends GridBase implements OnInit {
         );
         this.appComponentService = appComponentService;
     }
+    get pageSize(): number {
+        return this.data.pageSize;
+    }
+    set pageSize(value: number) {
+        if (this.data.pageSize != value) {
+            this.data.pageSize = value;
+            this.data.refresh();
+            var obj = {
+                name: this.gridHelpers.getGridPageName("NotesDatabaseReplica", this.authService.CurrentUser.email),
+                value: value
+            };
+
+            this.service.put(`/services/set_name_value`, obj)
+                .subscribe(
+                (data) => {
+
+                },
+                (error) => console.log(error)
+                );
+
+        }
+    }
     ngOnInit() {
+        this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("NotesDatabaseReplica", this.authService.CurrentUser.email)}`)
+            .subscribe(
+            (data) => {
+                this.currentPageSize = Number(data.data.value);
+                this.data.pageSize = this.currentPageSize;
+                this.data.refresh();
+            },
+            (error) => this.errorMessage = <any>error
+            );
         this.initialGridBind('/configurator/get_notes_database_replica');
     }
     saveNotesDatabaseReplica(dlg: wijmo.input.Popup) {     

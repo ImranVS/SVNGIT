@@ -4,13 +4,17 @@ import {GridBase} from '../../../core/gridBase';
 import {Router, ActivatedRoute} from '@angular/router';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import {AppComponentService} from '../../../core/services';
-import {ServersLocationService} from '../serverSettings/serverattributes-view.service';
+import { ServersLocationService } from '../serverSettings/serverattributes-view.service';
+import { AuthenticationService } from '../../../profiles/services/authentication.service';
+import * as gridHelpers from '../../../core/services/helpers/gridutils';
+
 
 @Component({
     templateUrl: '/app/configurator/components/ibmDomino/Ibm-save-domino-log-file-scanning.component.html',
     providers: [
         RESTService,
-        ServersLocationService
+        ServersLocationService,
+        gridHelpers.CommonUtils
     ]
 })
 export class AddLogFile extends GridBase implements OnInit {
@@ -19,6 +23,7 @@ export class AddLogFile extends GridBase implements OnInit {
     logfiles: any;
     id: string;
     results: any;
+    currentPageSize: any = 20;
     LogFileScan: FormGroup;
     serverLog: FormGroup;
     checkedDevices: any;
@@ -26,7 +31,8 @@ export class AddLogFile extends GridBase implements OnInit {
 
     currentDeviceType: string = "Domino";
 
-    constructor(service: RESTService, private route: ActivatedRoute, private router: Router, private formBuilder: FormBuilder, appComponentService: AppComponentService) {
+    constructor(service: RESTService, private route: ActivatedRoute, private router: Router, private formBuilder: FormBuilder, appComponentService: AppComponentService
+        , protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) {
         super(service, appComponentService);
         this.formName = "Keyword";
         this.LogFileScan = this.formBuilder.group({
@@ -48,6 +54,29 @@ export class AddLogFile extends GridBase implements OnInit {
       
 
     }
+    get pageSize(): number {
+        return this.data.pageSize;
+    }
+    set pageSize(value: number) {
+        if (this.data.pageSize != value) {
+            this.data.pageSize = value;
+            this.data.refresh();
+            var obj = {
+                name: this.gridHelpers.getGridPageName("AddLogFile", this.authService.CurrentUser.email),
+                value: value
+            };
+
+            this.service.put(`/services/set_name_value`, obj)
+                .subscribe(
+                (data) => {
+
+                },
+                (error) => console.log(error)
+                );
+
+        }
+    }
+
     ngOnInit() {
         this.route.params.subscribe(params => {
             this.id = params['id'];
@@ -58,6 +87,15 @@ export class AddLogFile extends GridBase implements OnInit {
            
 
         });
+        this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("AddLogFile", this.authService.CurrentUser.email)}`)
+            .subscribe(
+            (data) => {
+                this.currentPageSize = Number(data.data.value);
+                this.data.pageSize = this.currentPageSize;
+                this.data.refresh();
+            },
+            (error) => this.errorMessage = <any>error
+            );
     }
 
     loadData() {

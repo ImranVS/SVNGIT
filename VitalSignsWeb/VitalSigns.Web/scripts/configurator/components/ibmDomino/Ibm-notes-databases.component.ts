@@ -1,13 +1,17 @@
 ﻿import {Component, OnInit, ViewChild} from '@angular/core';
 import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
-import {AppComponentService} from '../../../core/services';
+import { AppComponentService } from '../../../core/services';
+import { AuthenticationService } from '../../../profiles/services/authentication.service';
+import * as gridHelpers from '../../../core/services/helpers/gridutils';
+
 
 
 @Component({
     templateUrl: '/app/configurator/components/ibmDomino/Ibm-notes-databases.component.html',
     providers: [
-        RESTService
+        RESTService,
+        gridHelpers.CommonUtils
     ]
 })
 export class NotesDatabases extends GridBase implements OnInit {
@@ -20,13 +24,35 @@ export class NotesDatabases extends GridBase implements OnInit {
     serversData: any;
     dominoServer: any;
     dominoServers: any;
+    currentPageSize: any = 20;
    
 
-    constructor(service: RESTService, appComponentService: AppComponentService) {
+    constructor(service: RESTService, appComponentService: AppComponentService, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) {
         super(service, appComponentService);
         this.formName = "Notes Database";
     }
+    get pageSize(): number {
+        return this.data.pageSize;
+    }
+    set pageSize(value: number) {
+        if (this.data.pageSize != value) {
+            this.data.pageSize = value;
+            this.data.refresh();
+            var obj = {
+                name: this.gridHelpers.getGridPageName("NotesDatabases", this.authService.CurrentUser.email),
+                value: value
+            };
 
+            this.service.put(`/services/set_name_value`, obj)
+                .subscribe(
+                (data) => {
+
+                },
+                (error) => console.log(error)
+                );
+
+        }
+    }
     addNotesDatabase(dlg: wijmo.input.Popup) {
         this.addGridRow(dlg);
         this.currentEditItem.name = "";
@@ -42,6 +68,7 @@ export class NotesDatabases extends GridBase implements OnInit {
         this.currentEditItem.replication_destination = "";
         this.checkedItems = [];
         this.usersByserver = [];
+
     }
     ngOnInit() {
        
@@ -52,6 +79,15 @@ export class NotesDatabases extends GridBase implements OnInit {
                 this.sererNames = response.data.serversData;
                 //this.dominoServers = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data.serversData));
                 this.dominoServers = response.data.serversData;
+            },
+            (error) => this.errorMessage = <any>error
+            );
+        this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("NotesDatabases", this.authService.CurrentUser.email)}`)
+            .subscribe(
+            (data) => {
+                this.currentPageSize = Number(data.data.value);
+                this.data.pageSize = this.currentPageSize;
+                this.data.refresh();
             },
             (error) => this.errorMessage = <any>error
             );
