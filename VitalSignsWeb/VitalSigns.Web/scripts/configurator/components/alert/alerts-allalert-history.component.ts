@@ -7,6 +7,8 @@ import {RESTService} from '../../../core/services';
 import {AppNavigator} from '../../../navigation/app.navigator.component';
 import { AppComponentService } from '../../../core/services';
 import { GridBase } from '../../../core/gridBase';
+import { AuthenticationService } from '../../../profiles/services/authentication.service';
+import * as gridHelpers from '../../../core/services/helpers/gridutils';
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
 import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
 import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
@@ -22,7 +24,8 @@ declare var injectSVG: any;
         HttpModule,
         RESTService,
         helpers.DateTimeHelper,
-        helpers.GridTooltip
+        helpers.GridTooltip,
+        gridHelpers.CommonUtils
     ]
 })
 export class AlertHistory extends GridBase implements WidgetComponent, OnInit {
@@ -31,13 +34,14 @@ export class AlertHistory extends GridBase implements WidgetComponent, OnInit {
     deviceId: any;
     data: wijmo.collections.CollectionView;
     errorMessage: string;
+    currentPageSize: any = 20;
     filterDate: string;
     notification_definitions: any;
     loading1 = false;
     loading2 = false;
 
     constructor(private dataProvider: RESTService, private route: ActivatedRoute, protected widgetService: WidgetService,
-        protected datetimeHelpers: helpers.DateTimeHelper, protected toolTip: helpers.GridTooltip, appComponentService: AppComponentService) {
+        protected datetimeHelpers: helpers.DateTimeHelper, protected toolTip: helpers.GridTooltip, appComponentService: AppComponentService, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) {
         super(dataProvider, appComponentService);
     }
 
@@ -48,6 +52,18 @@ export class AlertHistory extends GridBase implements WidgetComponent, OnInit {
         if (this.data.pageSize != value) {
             this.data.pageSize = value;
             this.data.refresh();
+            var obj = {
+                name: this.gridHelpers.getGridPageName("AlertHistory", this.authService.CurrentUser.email),
+                value: value
+            };
+
+            this.service.put(`/services/set_name_value`, obj)
+                .subscribe(
+                (data) => {
+
+                },
+                (error) => console.log(error)
+                );
             this.flex.refresh();
             this.toolTip.getTooltip(this.flex, 0, 7);
         }
@@ -70,10 +86,19 @@ export class AlertHistory extends GridBase implements WidgetComponent, OnInit {
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
-                this.data.pageSize = 10;
+                this.data.pageSize = this.currentPageSize;
             },
             (error) => this.errorMessage = <any>error
         );
+        this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("AlertHistory", this.authService.CurrentUser.email)}`)
+            .subscribe(
+            (data) => {
+                this.currentPageSize = Number(data.data.value);
+                this.data.pageSize = this.currentPageSize;
+                this.data.refresh();
+            },
+            (error) => this.errorMessage = <any>error
+            );
         var today = new Date();
         this.filterDate = today.toISOString().substr(0, 10);
         // Create custom tooltip
@@ -87,7 +112,7 @@ export class AlertHistory extends GridBase implements WidgetComponent, OnInit {
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
-                this.data.pageSize = 10;
+                this.data.pageSize = this.currentPageSize;
                 this.loading1 = false;
                 this.toolTip.getTooltip(this.flex, 0, 7);
             },
@@ -102,7 +127,7 @@ export class AlertHistory extends GridBase implements WidgetComponent, OnInit {
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
-                this.data.pageSize = 10;
+                this.data.pageSize = this.currentPageSize;
                 this.loading2 = false;
                 this.toolTip.getTooltip(this.flex, 0, 7);
             },

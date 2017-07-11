@@ -4,7 +4,9 @@ import { FormsModule } from '@angular/forms';
 import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
 import {GridBase} from '../../../core/gridBase';
-import {AppComponentService} from '../../../core/services';
+import { AppComponentService } from '../../../core/services';
+import { AuthenticationService } from '../../../profiles/services/authentication.service';
+import * as gridHelpers from '../../../core/services/helpers/gridutils';
 
 
 
@@ -12,7 +14,8 @@ import {AppComponentService} from '../../../core/services';
     templateUrl: '/app/configurator/components/applicationSettings/application-settings-locations.component.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        gridHelpers.CommonUtils
     ]
 })
 export class Location extends GridBase implements OnInit  {    
@@ -25,8 +28,11 @@ export class Location extends GridBase implements OnInit  {
     countries: any;
     states: any;
     cities: any;
+    currentPageSize: any = 20;
 
-    constructor(service: RESTService, appComponentService: AppComponentService) {
+    constructor(service: RESTService, appComponentService: AppComponentService,
+        protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService
+) {
         super(service, appComponentService);
 
         this.formName = "Location";
@@ -42,7 +48,28 @@ export class Location extends GridBase implements OnInit  {
 
       
     }
+    get pageSize(): number {
+        return this.data.pageSize;
+    }
 
+    set pageSize(value: number) {
+        if (this.data.pageSize != value) {
+            this.data.pageSize = value;
+            this.data.refresh();
+            var obj = {
+                name: this.gridHelpers.getGridPageName("Location", this.authService.CurrentUser.email),
+                value: value
+            };
+
+            this.service.put(`/services/set_name_value`, obj)
+                .subscribe(
+                (data) => {
+
+                },
+                (error) => console.log(error)
+                );
+        }
+    }
 
     savelocations(dlg: wijmo.input.Popup) {
         this.saveGridRow('/Configurator/save_locations',dlg);
@@ -51,6 +78,15 @@ export class Location extends GridBase implements OnInit  {
 
     ngOnInit() {
         this.initialGridBind('/Configurator/locations');
+        this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("Location", this.authService.CurrentUser.email)}`)
+            .subscribe(
+            (data) => {
+                this.currentPageSize = Number(data.data.value);
+                this.data.pageSize = this.currentPageSize;
+                this.data.refresh();
+            },
+            (error) => this.errorMessage = <any>error
+            );
         }
  
 
