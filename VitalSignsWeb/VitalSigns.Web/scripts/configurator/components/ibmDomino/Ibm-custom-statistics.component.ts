@@ -69,7 +69,17 @@ export class CustomStatistics extends GridBase implements OnInit {
 
     ngOnInit() {
         this.initialGridBind('/configurator/get_custom_statistics');
+        this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("CustomStatistics", this.authService.CurrentUser.email)}`)
+            .subscribe(
+            (data) => {
+                this.currentPageSize = Number(data.data.value);
+                this.data.pageSize = this.currentPageSize;
+                this.data.refresh();
+            },
+            (error) => this.errorMessage = <any>error
+            );
     }
+    
 
     saveCustomStatistics(dlg: wijmo.input.Popup) {
         this.currentEditItem.domino_servers = this.devices;
@@ -100,16 +110,7 @@ export class CustomStatistics extends GridBase implements OnInit {
         this.checkedDevices = this.currentEditItem.domino_servers;
         this.devices = this.currentEditItem.domino_servers;
     }
-    this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("CustomStatistics", this.authService.CurrentUser.email)}`)
-    .subscribe(
-    (data) => {
-        this.currentPageSize = Number(data.data.value);
-        this.data.pageSize = this.currentPageSize;
-        this.data.refresh();
-    },
-    (error) => this.errorMessage = <any>error
-    );
-}
+   
 
 
 
