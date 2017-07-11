@@ -16,8 +16,8 @@ declare var injectSVG: any;
 })
 export class MobileUsersDashboard extends WidgetController implements OnInit {
 
-    dashboardTitle: string = 'IBM Mobile Users';
-    dashboardSubtitle: string = 'IBM Mobile Users dashboard';
+    dashboardTitle: string = ' Mobile Users';
+    dashboardSubtitle: string = ' Mobile Users dashboard';
 
     widgets: WidgetContract[] = [
        
