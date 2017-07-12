@@ -1,4 +1,4 @@
-﻿import {Component, Input, OnInit} from '@angular/core';
+﻿import { Component, Input, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 import {WidgetComponent} from '../../../core/widgets';
@@ -29,6 +29,7 @@ declare var injectSVG: any;
 })
 export class DominoMailDeliveryStatus implements OnInit {
     @Input() settings: any;
+    @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     deviceId: any;
     data: wijmo.collections.CollectionView;
     errorMessage: string;
@@ -60,6 +61,10 @@ export class DominoMailDeliveryStatus implements OnInit {
         }
     }
     
+    ExportExcel(event) {
+        let flex = this.flex;
+        wijmo.grid.xlsx.FlexGridXlsxConverter.save(this.flex, { includeColumnHeaders: true, includeCellStyles: false }, "Mail Delivery.xlsx");
+    }
 
    
     //
