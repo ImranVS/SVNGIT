@@ -122,11 +122,23 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         public int? ConsecutiveOverThresholdBeforeAlert { get; set; }
 
+
+        private string _credentialsId;
         [DataMember]
         [BsonElement("credentials_id")]
         [BsonIgnoreIfNull]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string CredentialsId { get; set; }
+        public string CredentialsId {
+            get
+            {
+                return _credentialsId == "0" ? null : _credentialsId;
+            }
+            set
+            {
+                _credentialsId = value;
+            }
+            
+        }
 
         [DataMember]
         [BsonElement("disk_info")]

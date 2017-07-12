@@ -2244,6 +2244,11 @@ namespace VitalSigns.API.Controllers
                 }
                 //   UpdateDefinition<BsonDocument> updateserverDefinition = Builders<BsonDocument>.Update.Set(devicename=devicename,, category, ipaddress, isenabled, location, description);
                 //  var serverresult = repository.Collection.UpdateMany(filter, updateserverDefinition);
+                ObjectId objectIdTest = new ObjectId();
+                if (!ObjectId.TryParse(deviceAttributes.CredentialsId, out objectIdTest))
+                {
+                    deviceAttributes.CredentialsId = null;
+                }
                 var updateDefination = serversRepository.Updater.Set(p => p.DeviceName, deviceAttributes.DeviceName)
                     .Set(p => p.Category, deviceAttributes.Category)
                     .Set(p => p.IPAddress, deviceAttributes.IPAddress)
@@ -5673,13 +5678,54 @@ namespace VitalSigns.API.Controllers
             credentialsRepository = new Repository<Credentials>(ConnectionString);
             serversRepository = new Repository<Server>(ConnectionString);
             serverOtherRepository = new Repository<ServerOther>(ConnectionString);
+            locationRepository = new Repository<Location>(ConnectionString);
             List<ServerLocation> serverLocations = new List<ServerLocation>();
             Expression<Func<Credentials, bool>> expression;
             try
             {
+                var locationList = locationRepository.Find(x => true).ToList();
+                var credentialList = credentialsRepository.Find(x => true).ToList();
+                var result = serversRepository.Find(x => true).ToList();
+                foreach (var x in result)
+                {
+                    ServerLocation serverLocation = new ServerLocation()
+                    {
+                        Id = x.Id,
+                        DeviceName = x.DeviceName,
+                        DeviceType = x.DeviceType,
+                        Description = x.Description,
+                        AssignedNode = x.AssignedNode,
+                        CurrentNode = x.CurrentNode,
+                        LocationName = locationList.Where(y => y.Id == x.LocationId).Count() > 0 ? locationList.Where(y => y.Id == x.LocationId).First().LocationName : null,
+                        IsSelected = false,
+                        Category = x.Category == null ? "" : x.Category,
+                        Credentials = credentialList.Where(y => y.Id == x.CredentialsId).Count() > 0 ? credentialList.Where(y => y.Id == x.CredentialsId).First().Alias : null
+                    };
+                    serverLocations.Add(serverLocation);
+                }
 
-                var result = serversRepository.Collection.Aggregate()
-                                                         .Lookup("location", "location_id", "_id", "result").ToList();
+                var result2 = serverOtherRepository.Find(x => true).ToList();
+                foreach (var x in result)
+                {
+                    ServerLocation serverLocation = new ServerLocation()
+                    {
+                        Id = x.Id,
+                        DeviceName = x.DeviceName,
+                        DeviceType = x.DeviceType,
+                        Description = x.Description,
+                        AssignedNode = x.AssignedNode,
+                        CurrentNode = x.CurrentNode,
+                        LocationName = locationList.Where(y => y.Id == x.LocationId).Count() > 0 ? locationList.Where(y => y.Id == x.LocationId).First().LocationName : null,
+                        IsSelected = false,
+                        Category = x.Category == null ? "" : x.Category,
+                        Credentials = credentialList.Where(y => y.Id == x.CredentialsId).Count() > 0 ? credentialList.Where(y => y.Id == x.CredentialsId).First().Alias : null
+                    };
+                    serverLocations.Add(serverLocation);
+                }
+                Response = Common.CreateResponse(serverLocations.OrderBy(x => x.DeviceName));
+                /*
+                //var result = serversRepository.Collection.Aggregate()
+                //                                         .Lookup("location", "location_id", "_id", "result").ToList();
                 foreach (var x in result)
                 {
                     ServerLocation serverLocation = new ServerLocation();
@@ -5708,6 +5754,7 @@ namespace VitalSigns.API.Controllers
                     }
                     serverLocations.Add(serverLocation);
                 }
+                
                 var result2 = serverOtherRepository.Collection.Aggregate()
                                                          .Lookup("location", "location_id", "_id", "result").ToList();
                 foreach (var x in result2)
@@ -5739,6 +5786,7 @@ namespace VitalSigns.API.Controllers
                     serverLocations.Add(serverLocation);
                 }
                 Response = Common.CreateResponse(serverLocations.OrderBy(x => x.DeviceName));
+                */
             }
             catch (Exception exception)
             {
