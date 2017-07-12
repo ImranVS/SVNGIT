@@ -60,6 +60,10 @@ export class DatabaseProblemsGrid implements WidgetComponent, OnInit {
             
         }
     }
+    ExportExcel(event) {
+        let flex = this.flex;
+        wijmo.grid.xlsx.FlexGridXlsxConverter.save(this.flex, { includeColumnHeaders: true, includeCellStyles: false }, "Issues.xlsx");
+    }
     ngOnInit() {
         this.serviceId = this.widgetService.getProperty('serviceId');
         this.service.get(`/dashboard/database-problems?clusterId=${this.serviceId}`)
@@ -153,6 +157,7 @@ export class DatabaseProblemsGrid implements WidgetComponent, OnInit {
             default:
                 return '';
         }
+        
 
     }
     

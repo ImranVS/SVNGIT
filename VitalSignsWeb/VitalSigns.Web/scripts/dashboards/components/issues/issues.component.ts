@@ -34,6 +34,10 @@ export class Issues implements OnInit {
     errorMessage: string;
     currentPageSize: any = 20;
 
+    ExportExcel(event) {
+        let flex = this.flex;
+        wijmo.grid.xlsx.FlexGridXlsxConverter.save(this.flex, { includeColumnHeaders: true, includeCellStyles: false }, "Issues.xlsx");
+    }
 
     constructor(private service: RESTService, private route: ActivatedRoute, protected toolTip: helpers.GridTooltip, protected datetimeHelpers: helpers.DateTimeHelper,
         protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) { }
@@ -79,7 +83,7 @@ export class Issues implements OnInit {
             );
         this.toolTip.getTooltip(this.flex, 0, 3);
     }
-
+    
 
 }
 

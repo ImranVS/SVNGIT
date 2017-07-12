@@ -2,6 +2,7 @@
 <div id="infoDiv1" class="alert alert-info col-md-12" align="left">
     The list of databases below should not contain duplicates. If you see repeating database entries, it is due to the existence of databases with the same name/path but different replica IDs on the cluster servers.
 </div>
+<div><button class="btn btn-primary" (click)="ExportExcel()">Export to Excel</button></div>
 <wj-flex-grid [itemsSource]="data" control="flex" selectionMode="Row" [isReadOnly]="true" 
               [headersVisibility]="1" (itemsSourceChanged)="onItemsSourceChanged()" (selectionChanged)="onSelectionChanged($event)" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>

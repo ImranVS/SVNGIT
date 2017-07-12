@@ -21,7 +21,7 @@
     <div class="widgetWrapper">
         <div class="widgetContent">
             <div class="tab-content">
-
+                <button class="btn btn-primary" (click)="ExportExcel()">Export to Excel</button>
                 <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" headersVisibility="Column">
                     <wj-flex-grid-filter></wj-flex-grid-filter>
                     <wj-flex-grid-column [header]="'Server Name'" [binding]="'device'" [width]="300"></wj-flex-grid-column>

@@ -124,5 +124,8 @@ export class DatabaseReplicationGrid implements WidgetComponent, OnInit {
             if (rootRow.hasChildren) { rootRow.isCollapsed = false; }
         }
     }
-    
+    ExportExcel(event) {
+        let flex = this.flex;
+        wijmo.grid.xlsx.FlexGridXlsxConverter.save(this.flex, { includeColumnHeaders: true, includeCellStyles: false }, "Issues.xlsx");
+    } 
 }

@@ -1,4 +1,5 @@
 ﻿<!--<wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>-->
+<button class="btn btn-primary" (click)="ExportExcel()">Export to Excel</button>
 <wj-flex-grid [itemsSource]="data" control="flex" selectionMode="Row" [isReadOnly]="true" 
               [headersVisibility]="1" (itemsSourceChanged)="onItemsSourceChanged()" (selectionChanged)="onSelectionChanged($event)" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
