@@ -3447,9 +3447,19 @@ Alerts:
         Dim myServletURL As New MonitoredItems.URL
         Try
             'In case we don't know the hostname already, try to figure it out
-            If MyDominoServer.IPAddress = "" And MyDominoServer.ExternalAlias = "" Then
-                MyDominoServer.IPAddress = GetDominoServerHostName(MyDominoServer.Name)
-            End If
+            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & "  Can't scan the servlet because the hostname is unknown. Attempting to figure it out.")
+
+            With MyDominoServer
+                If .IPAddress = "" And .ExternalAlias = "" Then
+                    .IPAddress = GetDominoServerHostName(MyDominoServer.Name)
+                    If .IPAddress.Length > 4 And .IPAddress <> "Foo" Then
+                        Dim repositoryServers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
+                        Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Filter.Eq(Function(x) x.Id, .ServerObjectID)
+                        Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Server) = repositoryServers.Updater.Set(Function(x) x.IPAddress, .IPAddress)
+                        repositoryServers.Update(filterDef, updateDef)
+                    End If
+                End If
+            End With
         Catch ex As Exception
 
         End Try
