@@ -59,10 +59,8 @@ Partial Public Class VitalSignsPlusDomino
                     WriteDeviceHistoryEntry("All", "Domino_Cluster", Now.ToString & " >>> Collecting Cluster Information for " & myCluster.Name & " >>>>")
                     myCluster.AlertCondition = False
                     Dim RetryCount As Integer = 0
-                    '3/28/2016 NS added for VSPLUS-2629
-                    Dim strSQL As String
                     myCluster.Status = "Scanning"
-
+                    myCluster.LastScan = Now
 
                     Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
                     Dim filterDef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.TypeAndName, myCluster.Name + "-Domino Cluster database")
@@ -1172,6 +1170,7 @@ ReleaseCOMObjects:
         End Try
 
     End Function
+
     Private Sub AnalyzeClusterInformation(ByRef Cluster As MonitoredItems.DominoMailCluster)
         If Cluster.Status = "Server Down" Then Exit Sub
         '5/6/2016 NS added
@@ -1410,10 +1409,11 @@ ReleaseCOMObjects:
         End If
         Return proceed
     End Function
+
     Private Sub UpdateDominoClusterStatusTable(ByRef MyDominoCluster As MonitoredItems.DominoMailCluster)
 
         '*************************************************************
-        'Update the Status Table with Cluster Information
+        'Update the Status Collection with Cluster Information
         '*************************************************************
         Dim strSQL As String
         Dim StatusDetails As String
@@ -1483,28 +1483,6 @@ ReleaseCOMObjects:
                 '3/28/2016 NS modified for VSPLUS-2629
                 'Changed Now to LastScan for the LastUpdate value
                 '5/3/2016 NS modified for VSPLUS-2921
-                strSQL = "IF NOT EXISTS(SELECT * FROM STATUS WHERE TypeANDName='" & MyDominoCluster.Name & "-Domino Cluster database') "
-                strSQL += "INSERT INTO Status ( Name, Status, Type,  LastUpdate,  TypeANDName, Icon,  NextScan, Details, Category) " & _
-                    " VALUES ('" & .Name & "', '" & .Status & "',  'Domino Cluster database', '" & FixDateTime(Now) & "', '" & .Name & "-Domino Cluster database', " & IconList.DominoServer & ", '" & FixDateTime(.NextScan) & "', '" & .ResponseDetails & "', '" & .Category & "') "
-                strSQL += "ELSE Update Status SET DownCount= " & MyDominoCluster.DownCount & _
-                ", Status='" & MyDominoCluster.Status & "', Upcount=" & MyDominoCluster.UpCount & _
-                ", UpPercent= " & MyDominoCluster.UpPercentCount & _
-                ", Details='" & StatusDetails & _
-                "', LastUpdate='" & .LastScan & _
-                "', Description='" & myLocation & _
-                "', Category='" & MyDominoCluster.Category & _
-                "', UserCount='" & MyDominoCluster.TotalDatabases & _
-                "', NextScan='" & MyDominoCluster.NextScan & _
-                 "', Location='" & myLocation & _
-                "', DeadMail='" & MyDominoCluster.TotalDatabasesInError & _
-                "', Name='" & MyDominoCluster.Name & _
-                "'  WHERE TypeANDName='" & MyDominoCluster.Name & "-Domino Cluster database'"
-                '    "', MyPercent='" & (Percent * 100).ToString & _
-                '"', UpMinutes='" & Microsoft.VisualBasic.Strings.Format(MyDominoServer.UpMinutes, "##,##0.#") & _
-                '"', DownMinutes='" & Microsoft.VisualBasic.Strings.Format(MyDominoServer.DownMinutes, "##,##0.#") & _
-                '"', UpPercentMinutes='" & MyDominoServer.UpPercentMinutes & _
-
-                'If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Updating Cluster status with " & vbCrLf & strSQL)
 
 
                 Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)

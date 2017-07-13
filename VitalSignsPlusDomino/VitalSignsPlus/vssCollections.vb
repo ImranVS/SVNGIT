@@ -2375,12 +2375,7 @@ Partial Public Class VitalSignsPlusDomino
 
 
                     Try
-                        If entity.RetryInterval Is Nothing Then
-                            .RetryInterval = 30
-                            WriteAuditEntry(Now.ToString & " " & .Name & " Domino cluster  retry scan interval not set, using default of 30 minutes.")
-                        Else
-                            .RetryInterval = entity.RetryInterval
-                        End If
+                        .RetryInterval = .ScanInterval
                     Catch ex As Exception
                         .RetryInterval = 30
                     End Try
