@@ -46,7 +46,10 @@ export class AnyStatisticReportGrid implements WidgetComponent, OnInit {
         }
     }
      
-    
+    ExportExcel(event) {
+        let flex = this.flex;
+        wijmo.grid.xlsx.FlexGridXlsxConverter.save(this.flex, { includeColumnHeaders: true, includeCellStyles: false }, "MobileVolume.xlsx");
+    }
 
     ngOnInit() {
         //this.gridUrl = this.widgetService.getProperty('gridUrl');
