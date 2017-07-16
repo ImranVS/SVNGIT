@@ -91,7 +91,7 @@ export class DeviceAttributes implements OnInit {
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));               
-                this.data.pageSize = 10;
+                this.data.pageSize = this.currentPageSize;
             },
             (error) => this.errorMessage = <any>error
         );
@@ -126,7 +126,7 @@ export class DeviceAttributes implements OnInit {
             response => {
                 if (response.status == "Success") {
                     this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
-                    this.data.pageSize = 10;
+                    this.data.pageSize = this.currentPageSize;
                 } else {
                     this.appComponentService.showErrorMessage(response.message);
                 }

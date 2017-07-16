@@ -86,7 +86,7 @@ export class BusinessHours extends GridBase implements OnInit {
             response => {
                 if (response.status == "Success") {
                     this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data[0]));
-                    this.data.pageSize = 10;
+                    this.data.pageSize = this.currentPageSize;
                 } else {
                     this.appComponentService.showErrorMessage(response.message);
                 }
