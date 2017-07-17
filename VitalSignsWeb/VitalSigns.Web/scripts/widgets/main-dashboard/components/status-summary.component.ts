@@ -31,6 +31,8 @@ export class StatusSummary implements WidgetComponent, OnInit {
     ngOnInit() {
         this.loadData();
     }
-
+    refresh() {
+        this.loadData();
+    }
     
 }

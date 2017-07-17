@@ -31,4 +31,7 @@ export class OnPremisesApps implements WidgetComponent, OnInit {
     ngOnInit() {
         this.loadData();
     }
+    refresh() {
+        this.loadData();
+    }
 }

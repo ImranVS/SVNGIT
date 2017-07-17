@@ -35,5 +35,8 @@ export class UserSessions implements WidgetComponent, OnInit {
         this.loadData();
        
     }
+    refresh() {
+        this.loadData();
+    }
 
 }

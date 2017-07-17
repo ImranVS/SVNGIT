@@ -49,7 +49,18 @@ export class OverallDashboard extends WidgetController implements OnInit {
     ngOnInit() {
         
         injectSVG();
+        window.setInterval(() => {
+            this.refreshdata();
+        }, 30000);
         
+    }
+    refreshdata() {
+        this.widgetService.refreshWidget('widgetOnPremisesApps')
+            .catch(error => console.log(error));
+        this.widgetService.refreshWidget('widgetStatusSummary')
+            .catch(error => console.log(error));
+        this.widgetService.refreshWidget('widgetUsersSessions')
+            .catch(error => console.log(error));
 
     }
 
