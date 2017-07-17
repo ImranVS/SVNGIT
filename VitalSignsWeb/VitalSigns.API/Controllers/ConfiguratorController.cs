@@ -76,6 +76,8 @@ namespace VitalSigns.API.Controllers
         VSFramework.TripleDES tripleDes = new VSFramework.TripleDES();
         string name;
 
+        LogUtilities.LogUtils logUtils = null;
+
         #endregion
 
         #region Application Settings
@@ -7000,6 +7002,7 @@ namespace VitalSigns.API.Controllers
 
             try
             {
+                if (logUtils == null) logUtils = new LogUtilities.LogUtils();
                 BusinessHours bh = new BusinessHours();
                 byte[] password;
                 string decryptedPassword = string.Empty;
@@ -7051,9 +7054,10 @@ namespace VitalSigns.API.Controllers
                             {
                                 ServicePath = servicepath.ToString();
                             }
+                            LogUtilities.LogUtils.WriteDeviceHistoryEntry("All", "API", DateTime.Now.ToString() + " Before WAS DLL call");
                             var cells = dll.getServerList(cellprop, AppClientPath, ServicePath);
-
-
+                            LogUtilities.LogUtils.WriteDeviceHistoryEntry("All", "API", DateTime.Now.ToString() + " After WAS DLL call");
+                            System.Threading.Thread.Sleep(5000);
 
 
 
@@ -7061,7 +7065,6 @@ namespace VitalSigns.API.Controllers
                             foreach (var cell in cells.Cell)
                             {
                                 List<WebSphereNode> nodes = new List<WebSphereNode>();
-                                Server server = serversRepository.Get(cellInfo.DeviceId);
 
                                 foreach (var cellNode in cell.Nodes.Node)
                                 {
@@ -7279,6 +7282,7 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
+                LogUtilities.LogUtils.WriteDeviceHistoryEntry("All", "API", DateTime.Now.ToString() + " In get_websohere_import");
                 WebShpereServerImport model = new WebShpereServerImport();
                 var cellsData = new List<CellInfo>();
                 serversRepository = new Repository<Server>(ConnectionString);
