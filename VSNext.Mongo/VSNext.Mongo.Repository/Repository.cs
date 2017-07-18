@@ -151,10 +151,14 @@ namespace VSNext.Mongo.Repository
             Collection.InsertMany(entities);
         }
 
+        public virtual void Replace(T entity, UpdateOptions updateOptions, FilterDefinition<T> filterDef)
+        {
+            Collection.ReplaceOne(filterDef, entity, updateOptions);
+        }
+
         public virtual void Replace(T entity, UpdateOptions updateOptions)
         {
-            //Collection.ReplaceOne(i => i.Id == entity.Id, (T)ConvertDateTimesForReplace(entity), updateOptions);
-            Collection.ReplaceOne(i => i.Id == entity.Id, entity, updateOptions);
+            Replace(entity, updateOptions, Filter.Eq(x => x.Id, entity.Id));
         }
 
         public void Replace(IEnumerable<T> entities, UpdateOptions updateOptions)
