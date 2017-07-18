@@ -46,6 +46,7 @@
             this.mongoPort = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
             this.sqlPort = new System.Windows.Forms.TextBox();
+            this.checkedListBox1 = new System.Windows.Forms.CheckedListBox();
             this.SuspendLayout();
             // 
             // sqlHostname
@@ -162,7 +163,7 @@
             // 
             // textBox7
             // 
-            this.textBox7.Location = new System.Drawing.Point(133, 220);
+            this.textBox7.Location = new System.Drawing.Point(270, 220);
             this.textBox7.Multiline = true;
             this.textBox7.Name = "textBox7";
             this.textBox7.ReadOnly = true;
@@ -204,11 +205,40 @@
             this.sqlPort.TabIndex = 14;
             this.sqlPort.Text = "1433";
             // 
+            // checkedListBox1
+            // 
+            this.checkedListBox1.CheckOnClick = true;
+            this.checkedListBox1.FormattingEnabled = true;
+            this.checkedListBox1.Items.AddRange(new object[] {
+            "Credentials",
+            "Locations",
+            "License",
+            "Nodes",
+            "Maintenance",
+            "Settings",
+            "Users",
+            "Consolidation Reports",
+            "Domino Server Tasks",
+            "Business Hours",
+            "Servers",
+            "Cluster Databases",
+            "Alerts",
+            "Traveler Summary Stats",
+            "Traveler Data Store",
+            "Log File Scanning",
+            "Traveler Stats",
+            "Summary Stats"});
+            this.checkedListBox1.Location = new System.Drawing.Point(47, 220);
+            this.checkedListBox1.Name = "checkedListBox1";
+            this.checkedListBox1.Size = new System.Drawing.Size(217, 124);
+            this.checkedListBox1.TabIndex = 18;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(535, 354);
+            this.ClientSize = new System.Drawing.Size(535, 368);
+            this.Controls.Add(this.checkedListBox1);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.mongoPort);
             this.Controls.Add(this.label8);
@@ -255,6 +285,7 @@
         private System.Windows.Forms.TextBox mongoPort;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.TextBox sqlPort;
+        private System.Windows.Forms.CheckedListBox checkedListBox1;
     }
 }
 

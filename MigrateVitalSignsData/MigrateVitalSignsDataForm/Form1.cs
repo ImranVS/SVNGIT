@@ -38,7 +38,7 @@ namespace MigrateVitalSignsDataForm
             textBox7.ScrollToCaret();
 
         }
-
+         
         private void button1_Click(object sender, EventArgs e)
         {
             button1.Enabled = false;
@@ -46,11 +46,11 @@ namespace MigrateVitalSignsDataForm
             System.Console.SetOut(sw);
             
             string sqlString = "Data Source=" + sqlHostname.Text + "," + sqlPort.Text + ";Initial Catalog=VitalSigns; User ID=" + sqlUsername.Text + ";Password=" + sqlPassword.Text + ";Persist Security Info=True;";
-            string mongoString = "mongodb://" + mongoUsername.Text + ":" + mongoPassword.Text + "@" + mongoHostname.Text + ":" + mongoPort.Text + "/vitalsigns_test";
-
+            string mongoString = "mongodb://" + mongoUsername.Text + ":" + mongoPassword.Text + "@" + mongoHostname.Text + ":" + mongoPort.Text + "/vitalsigns_wes_test";
+            List<String> selectedItems = checkedListBox1.CheckedItems.Cast<String>().ToList();
             System.Threading.Thread thread = new System.Threading.Thread(() => {
                 inProcess = true;
-                MigrateVitalSignsData.Program.Main(new string[] { sqlString, mongoString});
+                MigrateVitalSignsData.Program.Main(new string[] { sqlString, mongoString}, selectedItems);
                 Console.WriteLine("Finished.");
                 inProcess = false;
             });
