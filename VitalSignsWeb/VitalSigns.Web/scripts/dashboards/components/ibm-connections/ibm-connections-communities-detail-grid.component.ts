@@ -7,6 +7,7 @@ import {RESTService} from '../../../core/services';
 
 import {IBMConnectionsGrid} from './ibm-connections-grid.component';
 import {ActivatedRoute} from '@angular/router';
+import * as gridHelpers from '../../../core/services/helpers/gridutils';
 
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
 import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
@@ -18,7 +19,8 @@ import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
     templateUrl: './app/dashboards/components/ibm-connections/ibm-connections-communities-detail-grid.component.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        gridHelpers.CommonUtils
     ]
 })
 export class IBMConnectionsCommunitiesDetailGrid implements WidgetComponent, OnInit {
@@ -45,7 +47,7 @@ export class IBMConnectionsCommunitiesDetailGrid implements WidgetComponent, OnI
     }
 
 
-    constructor(private service: RESTService, private widgetService: WidgetService, private route: ActivatedRoute) { }
+    constructor(private service: RESTService, private widgetService: WidgetService, private route: ActivatedRoute, protected gridHelpers: gridHelpers.CommonUtils) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -96,9 +98,9 @@ export class IBMConnectionsCommunitiesDetailGrid implements WidgetComponent, OnI
 
     }
 
+    
     ExportExcel(event) {
-        let flex = this.flex;
-        wijmo.grid.xlsx.FlexGridXlsxConverter.save(this.flex, { includeColumnHeaders: true, includeCellStyles: false }, "Communities.xlsx");
+        this.gridHelpers.ExportExcel(this.flex, "Communities.xlsx")
     }
 
 }

@@ -59,8 +59,7 @@ export class OverallDatabaseGrid implements WidgetComponent, OnInit {
         }
     }
     ExportExcel(event) {
-        let flex = this.flex;
-        wijmo.grid.xlsx.FlexGridXlsxConverter.save(this.flex, { includeColumnHeaders: true, includeCellStyles: false }, "DominoDatabases.xlsx");
+        this.gridHelpers.ExportExcel(this.flex, "Domino Database.xlsx")
     }
 
     ngOnInit() {

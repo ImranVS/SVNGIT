@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {WidgetComponent} from '../../../core/widgets';
 import {WidgetService} from '../../../core/widgets/services/widget.service';
 import {RESTService} from '../../../core/services';
-
+import * as gridHelpers from '../../../core/services/helpers/gridutils';
 import * as helpers from '../../../core/services/helpers/helpers';
 
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
@@ -20,7 +20,8 @@ import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
         HttpModule,
         RESTService,
         helpers.DateTimeHelper,
-        helpers.UrlHelperService
+        helpers.UrlHelperService,
+        gridHelpers.CommonUtils
     ]
 })
 export class MobileUsersReportGrid implements WidgetComponent, OnInit {
@@ -38,7 +39,7 @@ export class MobileUsersReportGrid implements WidgetComponent, OnInit {
 
     constructor(private service: RESTService, private widgetService: WidgetService, private router: Router, private route: ActivatedRoute,
         protected datetimeHelpers: helpers.DateTimeHelper,
-        protected urlHelpers: helpers.UrlHelperService) { }
+        protected urlHelpers: helpers.UrlHelperService, protected gridHelpers: gridHelpers.CommonUtils) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -91,7 +92,6 @@ export class MobileUsersReportGrid implements WidgetComponent, OnInit {
     }
 
     ExportExcel(event) {
-        let flex = this.flex;
-        wijmo.grid.xlsx.FlexGridXlsxConverter.save(this.flex, { includeColumnHeaders: true, includeCellStyles: false }, "MobileUsers.xlsx");
+        this.gridHelpers.ExportExcel(this.flex, "MobileUsersReport.xlsx")
     }
 }

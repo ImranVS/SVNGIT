@@ -6,6 +6,7 @@ import {WidgetService} from '../../../core/widgets/services/widget.service';
 import {RESTService} from '../../../core/services';
 import {AppNavigator} from '../../../navigation/app.navigator.component';
 import { AuthenticationService } from '../../../profiles/services/authentication.service';
+
 import * as gridHelpers from '../../../core/services/helpers/gridutils';
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
 import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
@@ -34,10 +35,7 @@ export class Issues implements OnInit {
     errorMessage: string;
     currentPageSize: any = 20;
 
-    ExportExcel(event) {
-        let flex = this.flex;
-        wijmo.grid.xlsx.FlexGridXlsxConverter.save(this.flex, { includeColumnHeaders: true, includeCellStyles: false }, "Issues.xlsx");
-    }
+    
 
     constructor(private service: RESTService, private route: ActivatedRoute, protected toolTip: helpers.GridTooltip, protected datetimeHelpers: helpers.DateTimeHelper,
         protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) { }
@@ -63,6 +61,10 @@ export class Issues implements OnInit {
                 );
         }
     }
+    ExportExcel(event) {
+        this.gridHelpers.ExportExcel(this.flex, "issues.xlsx")
+    }
+
     ngOnInit() {
         this.service.get('/Configurator/get_all_open_issues/')
             .subscribe(

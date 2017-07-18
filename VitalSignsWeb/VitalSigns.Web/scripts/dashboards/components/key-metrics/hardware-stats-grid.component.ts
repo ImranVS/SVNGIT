@@ -81,7 +81,6 @@ export class HardwareStatisticsGrid implements WidgetComponent, OnInit {
     }
 
     ExportExcel(event) {
-        let flex = this.flex;
-        wijmo.grid.xlsx.FlexGridXlsxConverter.save(this.flex, { includeColumnHeaders: true, includeCellStyles: false }, "CPUMemoryHealth.xlsx");
+        this.gridHelpers.ExportExcel(this.flex, "CPUMemoryHealth.xlsx");
     }
 }

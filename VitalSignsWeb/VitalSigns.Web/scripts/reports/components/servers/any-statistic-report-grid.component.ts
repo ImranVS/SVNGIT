@@ -6,7 +6,7 @@ import {WidgetService} from '../../../core/widgets/services/widget.service';
 import {RESTService} from '../../../core/services';
 
 import * as helpers from '../../../core/services/helpers/helpers';
-
+import * as gridHelpers from '../../../core/services/helpers/gridutils'
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
 import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
 import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
@@ -18,7 +18,8 @@ import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
     providers: [
         HttpModule,
         RESTService,
-        helpers.DateTimeHelper
+        helpers.DateTimeHelper,
+        gridHelpers.CommonUtils
     ]
 })
 export class AnyStatisticReportGrid implements WidgetComponent, OnInit {
@@ -33,7 +34,7 @@ export class AnyStatisticReportGrid implements WidgetComponent, OnInit {
     errorMessage: string;
     columns: any;
 
-    constructor(private service: RESTService, private widgetService: WidgetService, protected datetimeHelpers: helpers.DateTimeHelper) { }
+    constructor(private service: RESTService, private widgetService: WidgetService, protected datetimeHelpers: helpers.DateTimeHelper, protected gridHelpers: gridHelpers.CommonUtils) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -46,11 +47,10 @@ export class AnyStatisticReportGrid implements WidgetComponent, OnInit {
         }
     }
      
+  
     ExportExcel(event) {
-        let flex = this.flex;
-        wijmo.grid.xlsx.FlexGridXlsxConverter.save(this.flex, { includeColumnHeaders: true, includeCellStyles: false }, "Mail Volume.xlsx");
+        this.gridHelpers.ExportExcel(this.flex, "Mail Volume..xlsx")
     }
-
     ngOnInit() {
         //this.gridUrl = this.widgetService.getProperty('gridUrl');
         this.gridUrl = `/reports/summarystats_aggregation?type=Domino&aggregationType=sum&statName=[Mail.Transferred,Mail.TotalRouted,Mail.Delivered]`;

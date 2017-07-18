@@ -60,9 +60,9 @@ export class DatabaseProblemsGrid implements WidgetComponent, OnInit {
             
         }
     }
+   
     ExportExcel(event) {
-        let flex = this.flex;
-        wijmo.grid.xlsx.FlexGridXlsxConverter.save(this.flex, { includeColumnHeaders: true, includeCellStyles: false }, "Issues.xlsx");
+        this.gridHelpers.ExportExcel(this.flex, "DatabseProblems.xlsx")
     }
     ngOnInit() {
         this.serviceId = this.widgetService.getProperty('serviceId');

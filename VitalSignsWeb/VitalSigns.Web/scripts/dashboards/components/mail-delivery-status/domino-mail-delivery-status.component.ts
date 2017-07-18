@@ -62,8 +62,7 @@ export class DominoMailDeliveryStatus implements OnInit {
     }
     
     ExportExcel(event) {
-        let flex = this.flex;
-        wijmo.grid.xlsx.FlexGridXlsxConverter.save(this.flex, { includeColumnHeaders: true, includeCellStyles: false }, "Mail Delivery.xlsx");
+        this.gridHelpers.ExportExcel(this.flex, "MailDelivery.xlsx")
     }
 
    
