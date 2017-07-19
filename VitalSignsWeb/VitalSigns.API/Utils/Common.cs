@@ -196,6 +196,12 @@ namespace VitalSigns.API
                 port = Convert.ToInt32(list.Where(x => x.Name == "PrimaryPort").First().Value);
                 SSL = Convert.ToBoolean(list.Where(x => x.Name == "PrimarySSL").First().Value);
 
+                if (string.IsNullOrEmpty(hostName))
+                {
+                    throw new System.ArgumentException ("You must configure an SMTP server in Alert settings before new user passwords can be mailed.");
+                }
+
+
                 if (list.Find(x => x.Name == "PrimaryUserId") != null)
                 {
                  emailUserId = list.Where(x => x.Name == "PrimaryUserId").First().Value;
