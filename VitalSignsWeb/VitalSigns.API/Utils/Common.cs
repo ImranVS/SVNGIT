@@ -195,7 +195,16 @@ namespace VitalSigns.API
                 hostName = list.Where(x => x.Name == "PrimaryHostName").First().Value;
                 port = Convert.ToInt32(list.Where(x => x.Name == "PrimaryPort").First().Value);
                 SSL = Convert.ToBoolean(list.Where(x => x.Name == "PrimarySSL").First().Value);
-                emailUserId = list.Where(x => x.Name == "PrimaryUserId").First().Value;
+
+                if (list.Find(x => x.Name == "PrimaryUserId") != null)
+                {
+                 emailUserId = list.Where(x => x.Name == "PrimaryUserId").First().Value;
+                }
+                else
+                {
+                    emailUserId = "";
+                }
+                   
                 if (list.Find(x => x.Name == "Primarypwd") != null)
                 {
                     emailPassword = list.Where(x => x.Name == "Primarypwd").First().Value;
@@ -224,15 +233,22 @@ namespace VitalSigns.API
                 }
                 emailPassword = Password;
 
+                bool sendSuceess = false; 
                 try
+               
                 {
-                    return sendnewPasswordEmail(emailId, password, hostName, emailUserId, emailPassword, port, SSL);
+                    sendSuceess=  sendnewPasswordEmail(emailId, password, hostName, emailUserId, emailPassword, port, SSL);
                 }
                 catch (Exception ex)
                 {
                     throw ex;
                 }
                 
+                if (sendSuceess == true)
+                    {
+                    return true;
+                 }
+
                 filterDef = nameValueRepository.Filter.In(x => x.Name, new string[] { "SecondaryHostName", "SecondaryUserId", "SecondaryPwd", "SecondaryPort", "SecondarySSL" });
                 list = nameValueRepository.Find(filterDef).ToList();
 
