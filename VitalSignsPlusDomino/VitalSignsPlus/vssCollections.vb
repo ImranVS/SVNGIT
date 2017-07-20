@@ -2548,26 +2548,31 @@ Partial Public Class VitalSignsPlusDomino
             NAB = NotesSession.GetDatabase(DirectoryServer, "Names.nsf", False)
             If NAB Is Nothing Then
                 Try
-                    DirectoryServer = myRegistry.ReadFromRegistry("Primary Server")
+                    DirectoryServer = MyDominoServers.Item(0).Name
                     WriteDeviceHistoryEntry("Domino", ServerName, Now.ToString & " Querying  'Names.nsf' on " & DirectoryServer)
                     NAB = NotesSession.GetDatabase(DirectoryServer, "names.nsf", False)
                 Catch ex As Exception
-
+                    HostName = "Foo"
+                    GoTo CleanUp
                 End Try
             End If
 
-
-            If NAB Is Nothing Then
-                WriteDeviceHistoryEntry("Domino", ServerName, Now.ToString & " Finally, querying  'Names.nsf' on " & ServerName)
-                NAB = NotesSession.GetDatabase(ServerName, "names.nsf", False)
-            End If
+            Try
+                If NAB Is Nothing Then
+                    DirectoryServer = MyDominoServers.Item(1).Name
+                    WriteDeviceHistoryEntry("Domino", ServerName, Now.ToString & " Finally, querying  'Names.nsf' on " & DirectoryServer)
+                    NAB = NotesSession.GetDatabase(DirectoryServer, "names.nsf", False)
+                End If
+            Catch ex As Exception
+                HostName = "Foo"
+                GoTo CleanUp
+            End Try
 
 
 
             If NAB Is Nothing Then
                 ' MessageBox.Show("Error connecting to 'LocalNames.nsf' ", "Error Retrieving Server Names", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                HostName = "Foo"
-                GoTo CleanUp
+
             End If
         Catch ex As Exception
             WriteDeviceHistoryEntry("Domino", ServerName, "Error connecting to 'Names.nsf' on " & ServerName & vbCrLf & ex.Message)

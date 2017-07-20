@@ -1591,7 +1591,7 @@ WaitHere:
         Try
             If ResponseTime = 0 Then
                 ' WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Evaluating whether to test server via telnet function.")
-                If MyDominoServer.IPAddress <> "" Then
+                If MyDominoServer.IPAddress <> "" And MyDominoServer.IPAddress <> "Foo" Then
                     WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Testing server response time via telnet function.")
                     TelnetSuccess = TelnetDomino(MyDominoServer)
                     WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Telnet response was " & TelnetSuccess.ToString)
@@ -2439,7 +2439,7 @@ WaitHere:
         Try
             If ResponseTime = 0 Then
                 ' WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Evaluating whether to test server via telnet function.")
-                If MyDominoServer.IPAddress <> "" Then
+                If MyDominoServer.IPAddress <> "" And MyDominoServer.IPAddress <> "Foo" Then
                     WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Testing server response time via telnet function to " & MyDominoServer.IPAddress)
                     TelnetSuccess = TelnetDomino(MyDominoServer)
                     WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Telnet response was " & TelnetSuccess.ToString)
