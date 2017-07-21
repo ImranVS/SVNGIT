@@ -160,7 +160,7 @@ namespace VitalSigns.API.Controllers
                         lic.InstallType = words[1];
                         lic.CompanyName = words[2];
                         lic.LicenseType = words[3];
-                        lic.ExpirationDate = Convert.ToDateTime(words[4]);
+                        lic.ExpirationDate = DateTime.ParseExact(words[4], "MM/dd/yyyy", null);
                         VSNext.Mongo.Repository.Repository<License> repoLic = new VSNext.Mongo.Repository.Repository<License>(ConnectionString);
                         List<License> licenseList = repoLic.All().ToList();
                         foreach (License l in licenseList)

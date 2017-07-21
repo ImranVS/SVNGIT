@@ -1,4 +1,4 @@
-﻿import {Component, ComponentFactoryResolver, OnInit} from '@angular/core';
+﻿import {Component, ComponentFactoryResolver, OnInit, OnDestroy} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 
 import 'rxjs/Rx';
@@ -18,6 +18,7 @@ declare var injectSVG: any;
 export class OverallDashboard extends WidgetController implements OnInit {
 
     status: string;
+    timer: any;
 
     widgetOnPremisesApps: WidgetContract = {
         id: 'widgetOnPremisesApps',
@@ -49,11 +50,16 @@ export class OverallDashboard extends WidgetController implements OnInit {
     ngOnInit() {
         
         injectSVG();
-        window.setInterval(() => {
+        this.timer = window.setInterval(() => {
             this.refreshdata();
         }, 30000);
         
     }
+
+    ngOnDestroy() {
+        clearInterval(this.timer);
+    }
+
     refreshdata() {
         this.widgetService.refreshWidget('widgetOnPremisesApps')
             .catch(error => console.log(error));

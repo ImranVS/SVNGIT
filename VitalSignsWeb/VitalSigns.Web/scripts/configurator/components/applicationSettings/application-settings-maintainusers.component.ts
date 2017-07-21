@@ -90,9 +90,14 @@ export class MaintainUser extends GridBase implements OnInit {
                     this.loading = false;
 
                 } else {
-
-                    this.appComponentService.showErrorMessage(response.message);
-                    this.loading = false;
+                    if (response.message.indexOf("SendPasswordEmail") == -1) {
+                        this.appComponentService.showErrorMessage(response.message);
+                        this.loading = false;
+                    } else {
+                        this.appComponentService.showErrorMessage("Error sending the password to the email address. Please ensure you have an SMTP server configured in the Alert Settings page.");
+                        this.loading = false;
+                        console.error(response.message);
+                    }
                 }
             },
             (error) => {
