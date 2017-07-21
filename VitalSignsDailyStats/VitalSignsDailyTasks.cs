@@ -45,6 +45,7 @@ namespace VitalSignsDailyStats
 
         IRepository<ValidLocation> validLocationsRepository;
         IRepository<MobileDeviceTranslations> mobileDeviceTranslationsRepository;
+        IRepository<MobileDevices> mobileDevicesRepository;
         List<string> diskNames = new List<string>();
         VSAdaptor objVsAdaptor = new VSAdaptor();
         string culture = "en-US";
@@ -1551,7 +1552,19 @@ namespace VitalSignsDailyStats
 
             }
 
-           
+            try
+            {
+                // Delete mobile devices older than 2 days
+                Expression<Func<MobileDevices, bool>> expression = (p => p.ModifiedOn <= DateTime.Now.AddDays(-2));
+                mobileDevicesRepository.Delete(expression);
+
+            }
+            catch (Exception ex)
+            {
+                WriteAuditEntry("Exception deleting old events from events_detected collection = " + ex.ToString());
+
+            }
+
 
             System.Threading.Tasks.Task taskVSStatsCleanUp = Task.Factory.StartNew(() => CleanUpVSTables());
             taskVSStatsCleanUp.Wait();
