@@ -47,27 +47,27 @@ export class AlertSettings extends GridBase implements WidgetComponent, OnInit {
         private formBuilder: FormBuilder,
         private dataProvider: RESTService,
         private router: Router,
-        private route: ActivatedRoute, appComponentService: AppComponentService) { 
+        private route: ActivatedRoute, appComponentService: AppComponentService) {
         super(dataProvider, appComponentService);
         this.alertSettings = this.formBuilder.group({
             'primary_host_name': [''],
             'primary_from': [''],
-            'primary_user_id': [''], 
+            'primary_user_id': [''],
             'primary_port': [''],
             'primary_auth': [''],
-            'primary_ssl': [''], 
-            'primary_pwd': [''], 
+            'primary_ssl': [''],
+            'primary_pwd': [''],
             'primary_modified': [''],
             'secondary_host_name': [''],
             'secondary_from': [''],
-            'secondary_user_id': [''], 
+            'secondary_user_id': [''],
             'secondary_port': [''],
-            'secondary_auth': [''], 
+            'secondary_auth': [''],
             'secondary_ssl': [''],
-            'secondary_pwd': [''], 
+            'secondary_pwd': [''],
             'secondary_modified': [''],
             'sms_account_sid': [''],
-            'sms_auth_token': [''], 
+            'sms_auth_token': [''],
             'sms_from': [''],
             'enable_persistent_alerting': [''],
             'alert_interval': [''],
@@ -86,7 +86,7 @@ export class AlertSettings extends GridBase implements WidgetComponent, OnInit {
     ngOnInit() {
         this.errorMessage = "";
         this.successMessage = "";
-        this.route.params.subscribe(params => {        
+        this.route.params.subscribe(params => {
             this.dataProvider.get('/Configurator/get_alert_settings')
                 .subscribe(
                 (data) => this.alertSettings.setValue(data.data),
@@ -180,8 +180,8 @@ export class AlertSettings extends GridBase implements WidgetComponent, OnInit {
                     this.errorMessage = <any>error;
                     this.appComponentService.showErrorMessage(this.errorMessage);
                 }
-            );
-        } 
+                );
+        }
         this.selected_events = [];
     }
 
@@ -334,5 +334,103 @@ export class AlertSettings extends GridBase implements WidgetComponent, OnInit {
                 this.appComponentService.showErrorMessage(this.errorMessage);
             });
     }
+    //TestSmtpserver() {
+    //    var obj = {
+    //        // email_id: (<HTMLInputElement>document.getElementById("primary_user_id")).value,
 
-}
+    //        email_hostName: (<HTMLInputElement>document.getElementById("primary_host_name")).value,
+    //        email_UserId: (<HTMLInputElement>document.getElementById("primary_user_id")).value,
+    //        email_emailPassword: (<HTMLInputElement>document.getElementById("primary_pwd")).value,
+    //        email_emailPort: (<HTMLInputElement>document.getElementById("primary_port")).value,
+    //        email_emailSSL: (<HTMLInputElement>document.getElementById("Primary_ssl")).value,
+    //        email_Body: (<HTMLInputElement>document.getElementById("body")).value,
+    //        email_Subject: (<HTMLInputElement>document.getElementById("subject")).value
+    //    };
+    //    this.service.put(`/Configurator/Send_Smtpservers`, obj)
+    //        .subscribe(
+    //        (data) => {
+
+    //        },
+    //        (error) => console.log(error)
+    //        );
+
+    //}
+   
+
+    SendPrimarySmtpServer(dialog: wijmo.input.Popup) {
+        var emailid = (<HTMLInputElement>document.getElementById("PrimaryTestEmail")).value
+        if (emailid == "") {
+            this.errorMessage = "You must enter a Email Address";
+            this.message.toggleVisibility(true, this.errorMessage);
+        } else {
+            var obj = {
+                email_id: (<HTMLInputElement>document.getElementById("PrimaryTestEmail")).value,
+                email_hostName: (<HTMLInputElement>document.getElementById("primary_host_name")).value,
+                email_UserId: (<HTMLInputElement>document.getElementById("primary_user_id")).value,
+                
+                email_type: "primary",
+                email_emailPort: (<HTMLInputElement>document.getElementById("primary_port")).value,
+                email_emailSSL: (<HTMLInputElement>document.getElementById("primary_ssl")).value,
+                
+            }
+
+            this.service.put(`/Configurator/Send_Smtpservers`, obj)
+                .subscribe(
+                (data) => {
+                    if (data.status == "Success") {
+                        this.appComponentService.showSuccessMessage(data.message);
+                    }
+                    else {
+                        this.appComponentService.showErrorMessage(data.message);
+                    }
+                    this.alertSettings.value.primary_modified = false;
+                    this.alertSettings.value.secondary_modified = false;
+                },
+                (error) => {
+                    this.errorMessage = <any>error
+                    this.appComponentService.showErrorMessage(this.errorMessage);
+                });
+            dialog.hide();
+        }
+    }
+
+    SendSecondarySmtpServer(dialog: wijmo.input.Popup) {
+        var emailid = (<HTMLInputElement>document.getElementById("secondaryTestEmail")).value
+        if (emailid == "") {
+            this.errorMessage = "You must enter a Email Address";
+            this.message.toggleVisibility(true, this.errorMessage);
+        } else {
+            var obj = {
+                email_id: (<HTMLInputElement>document.getElementById("secondaryTestEmail")).value,
+                email_hostName: (<HTMLInputElement>document.getElementById("secondary_host_name")).value,
+                email_UserId: (<HTMLInputElement>document.getElementById("secondary_user_id")).value,
+                email_type: "Secondary",
+                email_emailPort: (<HTMLInputElement>document.getElementById("secondary_port")).value,
+                email_emailSSL: (<HTMLInputElement>document.getElementById("secondary_ssl")).value,
+               
+            }
+
+            this.service.put(`/Configurator/Send_Smtpservers`, obj)
+                .subscribe(
+                (data) => {
+                    if (data.status == "Success") {
+                       
+                        this.appComponentService.showSuccessMessage(data.message);
+                    }
+                    else {
+                        
+                        this.appComponentService.showErrorMessage(data.message);
+                    }
+                    this.alertSettings.value.primary_modified = false;
+                    this.alertSettings.value.secondary_modified = false;
+                },
+                (error) => {
+                    this.errorMessage = <any>error
+                    this.appComponentService.showErrorMessage(this.errorMessage);
+                });
+            dialog.hide();
+        }
+    }
+
+
+}  
