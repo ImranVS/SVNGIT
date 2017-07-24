@@ -773,6 +773,16 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public List<DagDatabases> DatabaseInfo { get; set; }
 
+        [DataMember]
+        [BsonElement("reply_queue_threshold")]
+        [BsonIgnoreIfNull]
+        public int? ReplyQueueThreshold { get; set; }
+
+        [DataMember]
+        [BsonElement("copy_queue_threshold")]
+        [BsonIgnoreIfNull]
+        public int? CopyQueueThreshold { get; set; }
+
         #endregion
 
         #region Office365
