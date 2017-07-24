@@ -169,6 +169,9 @@ namespace VitalSigns.API.Models
         [JsonProperty("user")]
         public List<string> users { get; set; }
 
+        [JsonProperty("url")]
+        public string URL { get; set; }
+
         [JsonProperty("object_user")]
         public string user { get; set; }
 
@@ -183,6 +186,14 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("num_of_followers")]
         public int NumOfFollowers { get; set; }
+    
+
+        [JsonProperty("is_owner")]
+        public Boolean IsOwner { get; set; }
+
+        [JsonProperty("OwnerId")]
+        [JsonIgnore]
+        public string OwnerId { get; set; }
 
     }
 }
