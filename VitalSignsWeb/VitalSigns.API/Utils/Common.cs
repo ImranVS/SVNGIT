@@ -14,7 +14,7 @@ using System.Net.Mail;
 
 namespace VitalSigns.API
 {
-    public class Common 
+    public class Common
     {
         public enum ResponseStatus
         {
@@ -32,7 +32,7 @@ namespace VitalSigns.API
         public static Dictionary<string, string> GetServerTypeIcons()
         {
             Dictionary<string, string> serverTypeIcons = new Dictionary<string, string>();
-           
+
             List<ServerTypeModel> serverTypeList = (List<ServerTypeModel>)Newtonsoft.Json.JsonConvert.DeserializeObject(File.ReadAllText(Startup.ServerTypeJsonPath), typeof(List<ServerTypeModel>));
             foreach (ServerTypeModel item in serverTypeList)
                 serverTypeIcons[item.ServerTypeName] = item.Icon;
@@ -43,21 +43,21 @@ namespace VitalSigns.API
             List<ComboBoxListItem> serverTypes = new List<ComboBoxListItem>();
 
             List<ServerTypeModel> serverTypeList = (List<ServerTypeModel>)Newtonsoft.Json.JsonConvert.DeserializeObject(File.ReadAllText(Startup.ServerTypeJsonPath), typeof(List<ServerTypeModel>));
-             serverTypes = serverTypeList.Select(x => new ComboBoxListItem { DisplayText = x.ServerTypeName, Value = x.ServerTypeName }).ToList().ToList();
-           
-        
+            serverTypes = serverTypeList.Select(x => new ComboBoxListItem { DisplayText = x.ServerTypeName, Value = x.ServerTypeName }).ToList().ToList();
+
+
             return serverTypes;
         }
-        public static ServerTypeModel GetServerTypeTabs(string serverTypeName )
-        {   
+        public static ServerTypeModel GetServerTypeTabs(string serverTypeName)
+        {
             List<ServerTypeModel> serverTypeList = (List<ServerTypeModel>)Newtonsoft.Json.JsonConvert.DeserializeObject(File.ReadAllText(Startup.ServerTypeJsonPath), typeof(List<ServerTypeModel>));
             var serverType = serverTypeList.Where(x => x.ServerTypeName.ToUpper() == serverTypeName.ToUpper()).FirstOrDefault();
             return serverType;
         }
-        public static APIResponse CreateResponse(object data,string status= "Success", string message = "Success")
+        public static APIResponse CreateResponse(object data, string status = "Success", string message = "Success")
         {
-            return new APIResponse {Data=data,Status=status,Message=message };
-            
+            return new APIResponse { Data = data, Status = status, Message = message };
+
         }
 
         public static bool SaveNameValues(List<VSNext.Mongo.Entities.NameValue> nameValues)
@@ -79,7 +79,7 @@ namespace VitalSigns.API
                         namevalueRepository.Insert(setting);
                     }
                 }
-            }catch(Exception ex)
+            } catch (Exception ex)
             {
                 result = false;
             }
@@ -116,12 +116,12 @@ namespace VitalSigns.API
 
         public static List<VSNext.Mongo.Entities.NameValue> GetNameValues(List<string> nameValues)
         {
-            List<VSNext.Mongo.Entities.NameValue> result =new  List<VSNext.Mongo.Entities.NameValue>();
+            List<VSNext.Mongo.Entities.NameValue> result = new List<VSNext.Mongo.Entities.NameValue>();
             try
             {
                 Repository<VSNext.Mongo.Entities.NameValue> namevalueRepository = new Repository<VSNext.Mongo.Entities.NameValue>(Startup.ConnectionString + @"/" + Startup.DataBaseName);
-                 result = namevalueRepository.Collection.AsQueryable().Where(x => nameValues.Contains(x.Name)).ToList();
-                    
+                result = namevalueRepository.Collection.AsQueryable().Where(x => nameValues.Contains(x.Name)).ToList();
+
             }
             catch (Exception ex)
             {
@@ -136,7 +136,7 @@ namespace VitalSigns.API
             try
             {
                 Repository<VSNext.Mongo.Entities.NameValue> namevalueRepository = new Repository<VSNext.Mongo.Entities.NameValue>(Startup.ConnectionString + @"/" + Startup.DataBaseName);
-                result = namevalueRepository.Collection.AsQueryable().FirstOrDefault(x =>(x.Name== name));
+                result = namevalueRepository.Collection.AsQueryable().FirstOrDefault(x => (x.Name == name));
 
             }
             catch (Exception ex)
@@ -149,7 +149,7 @@ namespace VitalSigns.API
         {
             VitalSignsLicensing.Licensing l = new VitalSignsLicensing.Licensing();
             l.refreshServerCollectionWrapper();
-            
+
         }
 
         public VSNext.Mongo.Entities.License getLicenseInfo(string key)
@@ -160,7 +160,7 @@ namespace VitalSigns.API
 
         }
 
-       public static void SetObjectProperty(object theObject, string propertyName, object value)
+        public static void SetObjectProperty(object theObject, string propertyName, object value)
         {
             //Type type = theObject.GetType();
             //var property = type.GetProperty(propertyName);
@@ -198,19 +198,19 @@ namespace VitalSigns.API
 
                 if (string.IsNullOrEmpty(hostName))
                 {
-                    throw new System.ArgumentException ("You must configure an SMTP server in Alert settings before new user passwords can be mailed.");
+                    throw new System.ArgumentException("You must configure an SMTP server in Alert settings before new user passwords can be mailed.");
                 }
 
 
                 if (list.Find(x => x.Name == "PrimaryUserId") != null)
                 {
-                 emailUserId = list.Where(x => x.Name == "PrimaryUserId").First().Value;
+                    emailUserId = list.Where(x => x.Name == "PrimaryUserId").First().Value;
                 }
                 else
                 {
                     emailUserId = "";
                 }
-                   
+
                 if (list.Find(x => x.Name == "Primarypwd") != null)
                 {
                     emailPassword = list.Where(x => x.Name == "Primarypwd").First().Value;
@@ -239,21 +239,21 @@ namespace VitalSigns.API
                 }
                 emailPassword = Password;
 
-                bool sendSuceess = false; 
+                bool sendSuceess = false;
                 try
-               
+
                 {
-                    sendSuceess=  sendnewPasswordEmail(emailId, password, hostName, emailUserId, emailPassword, port, SSL);
+                    sendSuceess = sendnewPasswordEmail(emailId, password, hostName, emailUserId, emailPassword, port, SSL);
                 }
                 catch (Exception ex)
                 {
                     throw ex;
                 }
-                
+
                 if (sendSuceess == true)
-                    {
+                {
                     return true;
-                 }
+                }
 
                 filterDef = nameValueRepository.Filter.In(x => x.Name, new string[] { "SecondaryHostName", "SecondaryUserId", "SecondaryPwd", "SecondaryPort", "SecondarySSL" });
                 list = nameValueRepository.Find(filterDef).ToList();
@@ -330,10 +330,36 @@ namespace VitalSigns.API
                 throw ex;
             }
         }
+        public bool SendSmtpSevers(string emailId, string password, string emailHostName, string emailUserId, string emailPassword, int emailPort, Boolean emailSSL, string Body, string Subject)
+        {
+            System.Net.Mail.MailMessage mailMessage = new MailMessage();
+            SmtpClient client = new SmtpClient();
+            client.Port = Convert.ToInt32(emailPort);
+            client.EnableSsl = Convert.ToBoolean(emailSSL);
+            client.Host = emailHostName;
+            client.UseDefaultCredentials = false;
+            client.Credentials = new System.Net.NetworkCredential(emailUserId, emailPassword);
+            mailMessage.To.Add(emailId);
+            mailMessage.From = new MailAddress(emailUserId);
+            mailMessage.IsBodyHtml = false;
+            mailMessage.Body = Body;
+            mailMessage.Subject = Subject;
+
+            try
+            {
+                client.Send(mailMessage);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
+    
+}
 
-
-    public class ApiEnums
+public class ApiEnums
     {
         /// <summary>
         /// Server type enumerations
@@ -402,4 +428,4 @@ namespace VitalSigns.API
         public virtual string Name { get; private set; }
     }
 
-}
+

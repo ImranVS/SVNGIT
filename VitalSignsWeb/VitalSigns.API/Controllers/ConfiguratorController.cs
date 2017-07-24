@@ -5890,6 +5890,44 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        [HttpPut("Send_Smtpservers")]
+        public APIResponse SmtpSevers([FromBody]EmailServer emailid )
+        {
+            try
+            {
+                Common common = new Common();
+                string Body = "Vitalsigns test";
+                string Subject = "test smtp server1";
+                string decreptedpassword = "";
+                if (emailid.emailtype == "primary")
+                {
+                    VSFramework.RegistryHandler registery = new VSFramework.RegistryHandler();
+                    string encryptedpaswword = Convert.ToString(registery.ReadFromRegistry("Primarypwd"));
+                    VSFramework.TripleDES tripledes = new VSFramework.TripleDES();
+                    decreptedpassword = tripleDes.Decrypt(encryptedpaswword);
+
+                }
+                else if (emailid.emailtype == "Secondary")
+                {
+                    VSFramework.RegistryHandler registery = new VSFramework.RegistryHandler();
+                    string encryptedpaswword = Convert.ToString(registery.ReadFromRegistry("secondarypwd"));
+                    VSFramework.TripleDES tripledes = new VSFramework.TripleDES();
+                    decreptedpassword = tripleDes.Decrypt(encryptedpaswword);
+                }
+
+                common.SendSmtpSevers(emailid.emailId,emailid.password,emailid.emailHostName,emailid.emailUserId,decreptedpassword, emailid.emailPort,emailid.emailSSL == "", Body, Subject);
+
+           
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Email Send  successfully");
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Email Send  has failed.\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
         #region  Simulation Tests
         /// <summary>
         /// 
