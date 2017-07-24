@@ -20,66 +20,6 @@ export class MobileUsersDashboard extends WidgetController implements OnInit {
     dashboardSubtitle: string = ' Mobile Users dashboard';
 
     widgets: WidgetContract[] = [
-       
-        //{
-        //    id: 'mobileUsersKeyUserGrid',
-        //    title: 'Key Mobile Users',
-        //    name: 'MobileUsersKeyUserGrid',
-        //    css: 'col-xs-12 col-sm-12 col-md-12 col-lg-6',
-        //    settings: {}
-        //},
-        //{
-        //    id: 'mobileDevicesChart',
-        //    title: 'Mobile devices',
-        //    name: 'ChartComponent',
-        //    css: 'col-xs-12 col-sm-6 col-md-6 col-lg-3',
-        //    settings: {
-        //        url: '/DashBoard/mobile_user_devices/count_by_type',
-        //        chart: {
-        //            chart: {
-        //                renderTo: 'mobileDevicesChart',
-        //                type: 'pie',
-        //                height: 240
-        //            },
-        //            title: { text: '' },
-        //            subtitle: { text: '' },
-        //            xAxis: {
-        //                categories: []
-        //            },
-        //            yAxis: {
-        //                min: 0,
-        //                endOnTick: false,
-        //                allowDecimals: false,
-        //                title: {
-        //                    enabled: false
-        //                }
-        //            },
-        //            plotOptions: {
-        //                pie: {
-        //                    allowPointSelect: true,
-        //                    cursor: 'pointer',
-        //                    dataLabels: {
-        //                        enabled: false
-        //                    },
-        //                    showInLegend: true,
-        //                    innerSize: '70%'
-        //                }
-        //            },
-        //            legend: {
-        //                labelFormatter: function () {
-        //                    return '<div style="font-size: 10px; font-weight: normal;">' + this.name + '</div>';
-        //                }
-        //            },
-        //            credits: {
-        //                enabled: false
-        //            },
-        //            exporting: {
-        //                enabled: false
-        //            },
-        //            series: []
-        //        }
-        //    }
-        //},
         {
             id: 'mobileDevicesOSChart',
             title: 'Mobile devices by OS',

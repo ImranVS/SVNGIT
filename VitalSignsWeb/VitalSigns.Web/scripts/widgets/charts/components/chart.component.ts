@@ -104,7 +104,7 @@ export class ChartComponent implements WidgetComponent, OnInit {
                         if (segment)
                             this.settings.chart.series[length - 1].data.push({
                                 name: category,
-                                y: segment.value,
+                                y: segment.value && !isNaN(segment.value) ? segment.value : 0,
                                 color: segment.color,
                                 drilldown: segment.drilldownname
                             });

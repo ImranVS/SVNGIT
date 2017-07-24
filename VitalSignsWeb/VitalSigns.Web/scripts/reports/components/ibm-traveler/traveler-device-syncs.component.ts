@@ -28,10 +28,10 @@ export class TravelerDeviceSyncReport extends WidgetController {
 
     currentHideDTControl: boolean = false;
     currentHideSingleDTControl: boolean = true;
-    currentHideServerControl: boolean = true;
+    currentHideServerControl: boolean = false;
     currentHideIntervalControl: boolean = true;
     currentHideMailServerControl: boolean = true;
-    currentHideAllServerControl: boolean = false;
+    currentHideAllServerControl: boolean = true;
     currentWidgetName: string = `travelerDeviceSyncsChart`;
     currentWidgetURL: string;
 

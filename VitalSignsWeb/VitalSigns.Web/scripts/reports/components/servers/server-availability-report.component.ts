@@ -26,7 +26,7 @@ export class ServerAvailabilityReport extends WidgetController {
 
     currentHideMinValuePanel: boolean = false;
     currentWidgetURL: string = `/reports/server_availability?statName=${this.statname}`;
-    currentWidgetName: string = "report";
+    currentWidgetName: string = "serverAvailability";
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
         private router: Router,
@@ -56,14 +56,14 @@ export class ServerAvailabilityReport extends WidgetController {
             );
         this.widgets = [
             {
-                id: 'report',
+                id: 'serverAvailability',
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
                     url: `/reports/server_availability?statName=${this.statname}`,
                     chart: {
                         chart: {
-                            renderTo: 'blogs',
+                            renderTo: 'serverAvailability',
                             type: 'bar',
                             height: 240
                         },

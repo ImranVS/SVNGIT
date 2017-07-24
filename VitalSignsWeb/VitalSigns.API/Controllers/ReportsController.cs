@@ -534,21 +534,29 @@ namespace VitalSigns.API.Controllers
                 //string statName = "HourlyDownTimeMinutes";
                 //string statName = "DeviceUpTimeStats";
                 if (month == "")
-                    month = DateTime.UtcNow.Date.ToString(DateFormat);
+                    month = DateTime.UtcNow.Date.AddDays(-(DateTime.UtcNow.Date.Day - 1)).ToString(DateFormat);
 
                 DateTime dtStart = DateTime.ParseExact(month, DateFormat, CultureInfo.InvariantCulture).ToUniversalTime();
                 DateTime dtEnd = dtStart.AddMonths(1).AddDays(-1).ToUniversalTime();
 
+                string dbStatName = statName;
+                switch (dbStatName)
+                {
+                   // case "DeviceUpTimeStats":
+
+                }
+
                 Chart chart = ((Chart)(GetSumamryStatsChart(statName, deviceId: deviceId, startDate: dtStart.ToString(DateFormat), endDate: dtEnd.ToString(DateFormat), type: type).Data));
                 List<Serie> series = chart.Series.ToList();
                 List<Segment> segments = new List<Segment>();
+                
                 foreach (Serie currSerie in series)
                 {
                     if (reportType == "minutes")
                     {
                         segments.Add(new Segment() { Label = currSerie.Title, Value = currSerie.Segments.Where(x => x.Value >= Convert.ToInt32(minValue)).Sum(x => x.Value) });
                     }
-                    else if (reportType == "percent")
+                    else
                     {
                         int minsInMonth;
                         if (dtStart.Year == DateTime.Now.Year && dtStart.Month == DateTime.Now.Month)
