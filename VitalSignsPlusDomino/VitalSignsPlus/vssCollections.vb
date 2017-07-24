@@ -1944,8 +1944,7 @@ Partial Public Class VitalSignsPlusDomino
         Try
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.ServerOther)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.ServerOther) = repository.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.DominoLogScanning.ToDescription()) _
-                 And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.ServerOther) = repository.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.DominoLogScanning.ToDescription())
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.ServerOther) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.Name) _
