@@ -1,5 +1,6 @@
 ﻿Imports VSFramework
 Imports System.Data.SqlClient
+Imports System.Globalization
 
 Public Class DateUtils
 #Region "Member Variables"
@@ -43,7 +44,8 @@ Public Class DateUtils
     ''' <returns></returns>
     ''' <remarks></remarks>
     Public Function GetDateFormat() As String
-        Dim strdateformat As String = "mdy"
+        Dim dateTimeFormat = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern()
+        Dim strdateformat = String.Join("", dateTimeFormat.Split("/").Select(Function(x) x.Chars(0).ToString().ToLower()))
         Return strdateformat
         'Dim myAdapter As New VSFramework.XMLOperation
 
