@@ -5707,20 +5707,20 @@ namespace VitalSigns.API.Controllers
                 }
 
                 var result2 = serverOtherRepository.Find(x => true).ToList();
-                foreach (var x in result)
+                foreach (var x in result2)
                 {
                     ServerLocation serverLocation = new ServerLocation()
                     {
                         Id = x.Id,
-                        DeviceName = x.DeviceName,
-                        DeviceType = x.DeviceType,
-                        Description = x.Description,
+                        DeviceName = x.Name,
+                        DeviceType = x.Type,
+                        Description = "",
                         AssignedNode = x.AssignedNode,
                         CurrentNode = x.CurrentNode,
-                        LocationName = locationList.Where(y => y.Id == x.LocationId).Count() > 0 ? locationList.Where(y => y.Id == x.LocationId).First().LocationName : null,
+                        LocationName = null,
                         IsSelected = false,
                         Category = x.Category == null ? "" : x.Category,
-                        Credentials = credentialList.Where(y => y.Id == x.CredentialsId).Count() > 0 ? credentialList.Where(y => y.Id == x.CredentialsId).First().Alias : null
+                        Credentials = null
                     };
                     serverLocations.Add(serverLocation);
                 }
