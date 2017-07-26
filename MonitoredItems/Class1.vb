@@ -5,6 +5,9 @@ Imports System.ComponentModel
 Imports VSFramework
 Imports System.Configuration
 Imports System.Collections.Generic
+Imports VSNext.Mongo.Entities
+Imports VSNext.Mongo.Repository
+Imports System.Linq
 'Monitored Items Class for use with VitalSigns
 'Developed by Alan Forbes
 'Copyright 2010, All Rights Reserved.
@@ -727,15 +730,10 @@ Public Class MonitoredDevice
     Public Function checkIfNodeIsAlive() As Boolean
 
         Try
-            Dim adapter As New VSAdaptor
-            Dim sql As String = "Select Name from dbo.Nodes where Alive=1"
-            Dim dt As New DataTable()
-            Dim ds As New DataSet()
-            adapter.FillDatasetAny("VitalSigns", "VitalSigns", sql, ds, "AliveNodes")
-            dt = ds.Tables("AliveNodes")
-
-            If dt.Rows.Count > 0 Then
-
+            Dim registry As New XMLOperation()
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of Nodes)(registry.GetMongoDBConnectionString())
+            Dim list As List(Of Nodes) = repo.Find(repo.Filter.Eq(Function(x) x.IsAlive, True)).ToList()
+            If list.Count > 0 Then
                 Return True
             End If
             Return False
