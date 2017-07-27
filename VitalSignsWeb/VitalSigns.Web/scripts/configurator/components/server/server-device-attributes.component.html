@@ -18,7 +18,7 @@
 
             <div *ngIf="serverAttributes.device_type=='Domino' || serverAttributes.device_type=='WebSphere' || serverAttributes.device_type=='Sametime' || 
                  serverAttributes.device_type=='URL' || serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' ||
-                 serverAttributes.device_type=='Exchange'">
+                 serverAttributes.device_type=='Exchange'||  serverAttributes.device_type=='Database Availability Group' ">
                 <div class="form-group">
                     <label class="control-label col-sm-2">Server Name</label>
                     <div class="col-sm-3">
@@ -174,8 +174,9 @@
         <div class="panel-body">
 
             <div *ngIf="serverAttributes.device_type=='Domino' || serverAttributes.device_type=='WebSphere' || serverAttributes.device_type=='Sametime' || 
-                 serverAttributes.device_type =='URL' || serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' ||
-                 serverAttributes.device_type=='Exchange'">
+                 serverAttributes.device_type =='URL' || serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' || 
+                serverAttributes.device_type=='Database Availability Group' || serverAttributes.device_type=='Exchange'">
+                 
                 <div class="row">
                     <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:scanSettings">
                         <div class="form-group col-sm-12">
@@ -618,6 +619,45 @@
                 </div>
             </div>
         </div>
+    </div>
+</div>
+<!-- DAG Settings-->
+<div *ngIf="serverAttributes" class="form-horizontal">
+    <div *ngIf="serverAttributes.device_type=='Database Availability Group'">
+        <div class="panel panel-default">
+
+            <div class="panel-heading">DAG Settings</div>
+            <div class="panel-body">
+                <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:DAGSettings">
+
+                    <div class="form-group" *ngIf="attribute.type!='CheckBox'">
+                        <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
+                        <div class="col-sm-2">
+                            <div *ngIf="attribute.type=='TextBox'">
+                                <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                            </div>
+                            <div class="form-group" *ngIf="attribute.type=='CheckBox'">
+
+                                <div>
+
+                                    <input type="checkbox" [(ngModel)]="attribute.default_bool_values" id="DAGSettings_{{attribute.field_name}}" name="DAGSettings_{{attribute.field_name}}">
+                                    <label [attr.for]="'DAGSettings' + attribute.field_name">{{attribute.attribute_name}}</label>
+
+
+                                </div>
+                            </div>
+                            <div *ngIf="attribute.type=='ComboBox'">
+                                <wj-combo-box id="DAGSettings_{{attribute.field_name}}" displayMemberPath="device_name" selectedValuePath="_id" [itemsSource]="exchangeservers"
+                                              [(ngModel)]="attribute.default_value" [isEditable]="true" required="false">
+                                </wj-combo-box>
+                            </div>
+                        </div>
+                    </div> 
+               </div>
+            </div>
+
+        </div>
+
     </div>
 </div>
 <!-- Save -->

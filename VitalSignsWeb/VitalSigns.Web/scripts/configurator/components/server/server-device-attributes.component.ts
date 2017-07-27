@@ -55,6 +55,8 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
     dirsyncAttr: string = "Directory Sync Settings";
     exchangeSettings: string = "Exchange Settings";
     mailLatencySettings: string = "Mail Latency Settings";
+    DAGSettings: string = "DAG Settings";
+    exchangeservers: any;
     mode: string = "";
     visiblity: boolean;
     documentschecked: boolean;
@@ -105,6 +107,7 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
             response => {
                 this.serverAttributes = response.data.serverresult;
                 this.deviceCredentialData = response.data.credentialsData;
+                this.exchangeservers = response.data.exchangeservers
                // this.platform = response.data.serverresult.platform;
                 //  this.selectedplatform = response.data.platform;
                 //this.attributes = response.data.device_attributes;
