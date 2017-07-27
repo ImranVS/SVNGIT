@@ -1894,7 +1894,7 @@ namespace VitalSigns.API.Controllers
                 Expression<Func<DeviceAttributes, bool>> attributesexpression = (p => p.DeviceType == serverresult.Devicetype);
                 List<DeviceAttributesModel> deviceAttributes = new List<DeviceAttributesModel>();
 
-                var attributes = deviceAttributesRepository.Collection.Find(attributesexpression).ToList().OrderBy(x => x.Category).Select(x => new DeviceAttributesModel
+               var attributes = deviceAttributesRepository.Collection.Find(attributesexpression).ToList().OrderBy(x => x.Category).Select(x => new DeviceAttributesModel
                 {
                     AttributeName = x.AttributeName,
                     Category = x.Category,
@@ -1910,8 +1910,7 @@ namespace VitalSigns.API.Controllers
 
 
                 var serverattributes = serversRepository.Find(attributeexpression).AsQueryable().OrderBy(x => x.Id).FirstOrDefault();
-
-
+               
                 var serverValues = serverattributes.ToBsonDocument();
                 foreach (var attri in attributes)
                 {
@@ -1966,11 +1965,15 @@ namespace VitalSigns.API.Controllers
                     }
                     serverresult.DeviceAttributes.Add(attri);
                 }
-
-
-
+                List<object> exchangeServers = null;
+                if (serverresult.Devicetype == Enums.ServerType.DatabaseAvailabilityGroup.ToDescription())
+                {
+                    exchangeServers = serversRepository.Find(x => x.DeviceType == Enums.ServerType.Exchange.ToDescription()).ToList()
+                        .Select(x => new { _id = x.Id, device_name = x.DeviceName }).Cast<object>().ToList();
+                }
                 //Response = Common.CreateResponse(serverresult);
-                Response = Common.CreateResponse(new { credentialsData = credentialsData, serverresult = serverresult });
+                Response = Common.CreateResponse(new { credentialsData = credentialsData, serverresult = serverresult,
+                    exchangeservers = exchangeServers != null ? exchangeServers : null });
             }
             catch (Exception exception)
             {
