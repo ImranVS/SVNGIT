@@ -53,7 +53,7 @@
         "path": "/app/services/components/service-travelerhealth-tab.component",
         "secondary_role": "Traveler"
       },
-            {
+      {
         "tab_id": 2,
         "title": "Mail",
         "type": "Dashboard",
@@ -164,6 +164,20 @@
 
     ]
 
+  },
+  {
+    "server_type": "Database Availability Group",
+    "icon": "/img/servers/MSExchange.svg",
+    "tabs": [
+      {
+        "tab_id": 1,
+        "title": "Device Attributes",
+        "type": "Configurator",
+        "component": "ServerAttribute",
+        "path": "/app/configurator/components/server/server-device-attributes.component"
+      }
+
+    ]
   },
   {
     "server_type": "Exchange",
@@ -649,6 +663,7 @@
     ]
 
   }
+  
 ]
 
 
