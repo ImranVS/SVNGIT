@@ -4700,19 +4700,19 @@ skipdrive:
                                         If InStr(MyDominoServer.Name, "MutalOMA") And Trim(DiskNames(n)) = "Disk.E" Then
                                             'QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". Note: This is the transaction logging drive. The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
                                             '3/4/2016 NS modified for VSPLUS-2682
-                                            myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Math.Round(PercentFree * 100, 0) & "% available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & (disk.Threshold * 100) & "%", MyDominoServer.Location)
+                                            myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Math.Round(PercentFree * 100, 0) & "% available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & (disk.Threshold * 100) & "%", MyDominoServer.Location)
 
                                         Else
                                             ' QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
                                             '3/4/2016 NS modified for VSPLUS-2682
-                                            myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Math.Round(PercentFree * 100, 0) & "% available space on drive " & DiskNames(n) & ". The threshold is " & (disk.Threshold * 100) & "%", MyDominoServer.Location)
+                                            myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Math.Round(PercentFree * 100, 0) & "% available space on drive " & DiskNames(n) & ". The threshold is " & (disk.Threshold * 100) & "%", MyDominoServer.Location)
                                             ' MyDominoServer.ResponseDetails += " - " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#") & "% free space on " & DiskNames(n) & ". Threshold is " & Microsoft.VisualBasic.Strings.Format(row.Item("Threshold"), "##0.#" & "%")
                                             MyDominoServer.ResponseDetails += " | " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#") & "% free space on " & DiskNames(n) & ". Threshold is " & disk.Threshold.ToString & "%"
 
                                         End If
                                     Else
                                         WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " This drive is not in an alert condition. ")
-                                        myAlert.ResetAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), MyDominoServer.Location)
+                                        myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Disk Space " & DiskNames(n), MyDominoServer.Location)
                                     End If
                                 Case "GB"
                                     Try
@@ -4726,19 +4726,19 @@ skipdrive:
                                             If InStr(MyDominoServer.Name, "MutalOMA") And Trim(DiskNames(n)) = "Disk.E" Then
                                                 'QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". Note: This is the transaction logging drive. The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
                                                 '3/4/2016 NS modified for VSPLUS-2682
-                                                myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & disk.Threshold & " GB", MyDominoServer.Location)
+                                                myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & disk.Threshold & " GB", MyDominoServer.Location)
                                                 MyDominoServer.ResponseDetails += " | " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB free space on " & DiskNames(n) & ". Threshold is " & myThreshold.ToString("F2") & "%"
 
                                             Else
                                                 ' QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
                                                 '3/4/2016 NS modified for VSPLUS-2682
-                                                myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB available space on drive " & DiskNames(n) & ". The threshold is " & disk.Threshold & " GB", MyDominoServer.Location)
+                                                myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB available space on drive " & DiskNames(n) & ". The threshold is " & disk.Threshold & " GB", MyDominoServer.Location)
                                                 MyDominoServer.ResponseDetails += " | " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB free space on " & DiskNames(n) & ". Threshold is " & myThreshold.ToString("F2") & " GB"
 
                                             End If
                                         Else
-                                            WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " This drive is not in an alert condition. ")
-                                            myAlert.ResetAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), MyDominoServer.Location, "This drive has " & myDiskDrive.DiskFreeInGB & " GB free space.")
+                                            WriteDeviceHistoryEntry(MyDominoServer.ServerType, MyDominoServer.Name, Now.ToString & " This drive is not in an alert condition. ")
+                                            myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Disk Space " & DiskNames(n), MyDominoServer.Location, "This drive has " & myDiskDrive.DiskFreeInGB & " GB free space.")
                                         End If
                                     Catch ex As Exception
                                         WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception with disk space at #5: " & ex.ToString)
@@ -4772,12 +4772,12 @@ skipdrive:
                                     If InStr(MyDominoServer.Name, "MutalOMA") And Trim(DiskNames(n)) = "Disk.E" Then
                                         'QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". Note: This is the transaction logging drive. The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
                                         '3/4/2016 NS modified for VSPLUS-2682
-                                        myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Math.Round(PercentFree, 0) & " available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & (MyDominoServer.DiskThreshold * 100) & "%", MyDominoServer.Location)
+                                        myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Math.Round(PercentFree, 0) & " available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & (MyDominoServer.DiskThreshold * 100) & "%", MyDominoServer.Location)
 
                                     Else
                                         ' QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
                                         '3/4/2016 NS modified for VSPLUS-2682
-                                        myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". The threshold is " & (MyDominoServer.DiskThreshold * 100) & "%", MyDominoServer.Location)
+                                        myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". The threshold is " & (MyDominoServer.DiskThreshold * 100) & "%", MyDominoServer.Location)
 
                                     End If
                                     MyDominoServer.Status = "Low Disk Space"
@@ -4787,7 +4787,7 @@ skipdrive:
                                     UpdateDominoStatusTable(MyDominoServer)
                                 Else
                                     'ResetAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n))
-                                    myAlert.ResetAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), MyDominoServer.Location, (PercentFree * 100).ToString("F1") & "% free space on " & DiskNames(n))
+                                    myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Disk Space " & DiskNames(n), MyDominoServer.Location, (PercentFree * 100).ToString("F1") & "% free space on " & DiskNames(n))
                                 End If
 
 
@@ -4802,12 +4802,12 @@ skipdrive:
                                     If InStr(MyDominoServer.Name, "MutalOMA") And Trim(DiskNames(n)) = "Disk.E" Then
                                         'QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". Note: This is the transaction logging drive. The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
                                         '3/4/2016 NS modified for VSPLUS-2682
-                                        myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & MyDominoServer.DiskThreshold & " GB", MyDominoServer.Location)
+                                        myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & MyDominoServer.DiskThreshold & " GB", MyDominoServer.Location)
 
                                     Else
                                         ' QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
                                         '3/4/2016 NS modified for VSPLUS-2682
-                                        myAlert.QueueAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB available space on drive " & DiskNames(n) & ". The threshold is " & MyDominoServer.DiskThreshold & " GB", MyDominoServer.Location)
+                                        myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB available space on drive " & DiskNames(n) & ". The threshold is " & MyDominoServer.DiskThreshold & " GB", MyDominoServer.Location)
 
                                     End If
                                     MyDominoServer.Status = "Low Disk Space"
@@ -4817,7 +4817,7 @@ skipdrive:
                                     UpdateDominoStatusTable(MyDominoServer)
                                 Else
                                     'ResetAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n))
-                                    myAlert.ResetAlert(MyDominoServer.Name, MyDominoServer.Name, "Disk Space " & DiskNames(n), MyDominoServer.Location, myDiskDrive.DiskFreeInGB.ToString("F2") & " GB free")
+                                    myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Disk Space " & DiskNames(n), MyDominoServer.Location, myDiskDrive.DiskFreeInGB.ToString("F2") & " GB free")
                                 End If
 
 
