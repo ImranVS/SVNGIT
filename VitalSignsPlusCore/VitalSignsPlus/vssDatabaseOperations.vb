@@ -2104,7 +2104,6 @@ Partial Public Class VitalSignsPlusCore
                                     .[Set](Function(i) i.UpPercent, Double.Parse(.UpPercentCount)) _
                                     .[Set](Function(i) i.LastUpdated, Now) _
                                     .[Set](Function(i) i.ResponseTime, Integer.Parse(.ResponseTime)) _
-                                    .[Set](Function(i) i.PendingMail, Integer.Parse(.Chat_Sessions)) _
                                     .[Set](Function(i) i.NextScan, .NextScan) _
                                     .[Set](Function(i) i.UpMinutes, Double.Parse(Microsoft.VisualBasic.Strings.Format(.UpMinutes, "F1"))) _
                                     .[Set](Function(i) i.DownMinutes, Double.Parse(Microsoft.VisualBasic.Strings.Format(.DownMinutes, "F1"))) _
@@ -2112,6 +2111,7 @@ Partial Public Class VitalSignsPlusCore
                                     .[Set](Function(i) i.OperatingSystem, "IBM Sametime server") _
                                     .[Set](Function(i) i.ResponseThreshold, Integer.Parse(.ResponseThreshold)) _
                                     .[Set](Function(i) i.DeviceId, .ServerObjectID)
+                '.[Set](Function(i) i.ChatSessions, Integer.Parse(.Chat_Sessions)) _ Change the entity property to ChatSessions.  Was being saved under Held Mail before
             End With
 
             strSQL = strSQL.Replace("NaN", "0")
@@ -2556,23 +2556,18 @@ Partial Public Class VitalSignsPlusCore
             WriteAuditEntry(Now.ToString & " Configuring " & MyURL.Name)
             Try
                 With MyURL
-                    '5/2/2016 NS modified for VSPLUS-2887
-                    strSQL = "IF NOT EXISTS(SELECT * FROM Status WHERE TypeANDName = '" + .Name + "-URL') BEGIN " & _
-                     "INSERT INTO Status (StatusCode, Category,  Description, Details, DownCount,  Location, Name,  Status, Type, Upcount, UpPercent, LastUpdate, ResponseTime,  TypeANDName, Icon) " & _
-                     " VALUES ('Not Scanned', '" & .Category & "', 'Not Scanned', 'This URL has not yet been scanned.', '" & .DownCount & "', '" & .Location & "', '" & .Name & "', '" & .Status & "', 'URL', '" & .UpCount & "', '" & .UpPercentCount & "', '" & FixDateTime(Now) & "', '0', '" & .Name & "-URL', " & IconList.URL & ")" & _
-                     "END"
 
                     Dim TypeAndName As String = MyURL.Name & "-" & MyURL.ServerType
                     filterdef = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
                     updatedef = repo.Updater _
                                               .Set(Function(i) i.DeviceName, .Name) _
-                                              .[Set](Function(i) i.CurrentStatus, "Not Scanned") _
-                                              .[Set](Function(i) i.StatusCode, "Not Scanned") _
+                                              .[Set](Function(i) i.CurrentStatus, .Status) _
+                                              .[Set](Function(i) i.StatusCode, ServerStatusCode(.Status)) _
                                               .[Set](Function(i) i.LastUpdated, DateTime.Now) _
                                               .[Set](Function(i) i.Category, .Category) _
                                               .[Set](Function(i) i.TypeAndName, TypeAndName) _
-                                              .[Set](Function(i) i.Description, "Not Scanned") _
-                                              .[Set](Function(i) i.DeviceType, "URL") _
+                                              .[Set](Function(i) i.Description, .Description) _
+                                              .[Set](Function(i) i.DeviceType, .ServerType) _
                                               .[Set](Function(i) i.Location, .Location) _
                                               .[Set](Function(i) i.UpCount, Integer.Parse(.UpCount)) _
                                               .[Set](Function(i) i.UpPercent, Integer.Parse(.UpPercentCount)) _
@@ -2688,8 +2683,8 @@ Partial Public Class VitalSignsPlusCore
                 filterdef = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
                 updatedef = repo.Updater _
                                   .Set(Function(i) i.DeviceName, .Name) _
-                                  .[Set](Function(i) i.CurrentStatus, "Not Scanned") _
-                                  .[Set](Function(i) i.StatusCode, "Not Scanned") _
+                                  .[Set](Function(i) i.CurrentStatus, .Status) _
+                                  .[Set](Function(i) i.StatusCode, ServerStatusCode(.Status)) _
                                   .[Set](Function(i) i.LastUpdated, DateTime.Now) _
                                   .[Set](Function(i) i.Details, "This Cloud URL has not yet been scanned.") _
                                   .[Set](Function(i) i.Category, .Category) _

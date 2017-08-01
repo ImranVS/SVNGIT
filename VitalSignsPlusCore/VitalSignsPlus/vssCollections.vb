@@ -2054,7 +2054,8 @@ Partial Public Class VitalSignsPlusCore
                         End Try
 
                     Catch ex As Exception
-
+                        .Status = "Not Scanned"
+                        .LastScan = Now
                     End Try
 
                     'Try
@@ -2364,10 +2365,11 @@ Partial Public Class VitalSignsPlusCore
                     End Try
 
                     Try
+                        Dim mySecrets As New VSFramework.TripleDES()
                         If entity.Password Is Nothing Then
                             .Password = ""
                         Else
-                            .Password = entity.Password
+                            .Password = mySecrets.Decrypt(entity.Password)
                         End If
                     Catch ex As Exception
                         .Password = ""
