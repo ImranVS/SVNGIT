@@ -25,6 +25,7 @@ import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 export class MobileUsersGrid implements WidgetComponent, OnInit {
     @Input() settings: any;
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
+    @ViewChild('filter') filter: wijmo.grid.filter.FlexGridFilter;
 
     data: wijmo.collections.CollectionView;
     errorMessage: string;
@@ -73,14 +74,21 @@ export class MobileUsersGrid implements WidgetComponent, OnInit {
             .subscribe(
             (data) => {
                 this.currentPageSize = Number(data.data.value);
-                this.data.pageSize = this.currentPageSize;
-                this.data.refresh();
+                if (this.data) {
+                    this.data.pageSize = this.currentPageSize;
+                    this.data.refresh();
+                }
             },
             (error) => this.errorMessage = <any>error
             );
-
+           
     }
 
+    ngAfterViewChecked() {
+        this.filter.getColumnFilter(9).filterType = 1;
+        this.filter.getColumnFilter(0).filterType = 2;
+    }
+    
     
     ExportExcel(event) {
         this.gridHelpers.ExportExcel(this.flex, "MobileUsers.xlsx")

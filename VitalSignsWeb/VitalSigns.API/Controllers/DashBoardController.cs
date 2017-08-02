@@ -181,7 +181,9 @@ namespace VitalSigns.API.Controllers
                     LastSyncTime = x.LastSyncTime,
                     Access = x.Access,
                     DeviceId = x.DeviceID,
-                    ThresholdSyncTime = x.ThresholdSyncTime
+                    ThresholdSyncTime = x.ThresholdSyncTime,
+                    OS = x.OS,
+                    LastSyncAgo = x.LastSyncTime.HasValue ? (DateTime.UtcNow - x.LastSyncTime.Value).TotalMinutes : -1
                 }).OrderBy(x => x.UserName).OrderByDescending(x => x.ThresholdSyncTime).ToList();
             }
             else
@@ -201,7 +203,9 @@ namespace VitalSigns.API.Controllers
                         LastSyncTime = x.LastSyncTime,
                         Access = x.Access,
                         DeviceId = x.DeviceID,
-                        ThresholdSyncTime = x.ThresholdSyncTime == null ? -1 : x.ThresholdSyncTime
+                        ThresholdSyncTime = x.ThresholdSyncTime == null ? -1 : x.ThresholdSyncTime,
+                        OS = x.OS,
+                        LastSyncAgo = x.LastSyncTime.HasValue ? (DateTime.UtcNow - x.LastSyncTime.Value).TotalMinutes : -1
                     }).OrderBy(x => x.UserName).OrderByDescending(x => x.ThresholdSyncTime).ToList();
                 }
                 else
@@ -223,10 +227,13 @@ namespace VitalSigns.API.Controllers
                         LastSyncTime = x.LastSyncTime,
                         Access = x.Access,
                         DeviceId = x.DeviceID,
-                        ThresholdSyncTime = x.ThresholdSyncTime == null ? -1 : x.ThresholdSyncTime
+                        ThresholdSyncTime = x.ThresholdSyncTime == null ? -1 : x.ThresholdSyncTime,
+                        OS = x.OS,
+                        LastSyncAgo = x.LastSyncTime.HasValue ? (DateTime.UtcNow - x.LastSyncTime.Value).TotalMinutes : -1
                     }).OrderBy(x => x.UserName).OrderByDescending(x => x.ThresholdSyncTime).ToList();
                 }
-            }          
+            }
+            result.ForEach(x => x.DeviceUserCount = result.Sum(y => y.UserName == x.UserName ? 1 : 0));
             Response = Common.CreateResponse(result);
             return Response;
         }

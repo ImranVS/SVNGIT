@@ -41,5 +41,14 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("threshold_sync_time")]
         public int? ThresholdSyncTime { get; set; }
+
+        [JsonProperty("os")]
+        public string OS { get; set; }
+
+        [JsonProperty("last_sync_ago")]
+        public double LastSyncAgo { get; set; }
+
+        [JsonProperty("device_user_count")]
+        public int DeviceUserCount { get; set; }
     }
 }
