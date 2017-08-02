@@ -367,6 +367,7 @@ import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-con
         widgets.MaintenanceWindows,
         widgets.ServerEvents,
         widgets.DominoServerDiskSettings,
+        widgets.DatabaseSettings,
         widgets.ServerAdvancedSettings,
         widgets.WebSphereServerSettings,
         widgets.AnyStatisticReportGrid,
@@ -566,7 +567,9 @@ import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-con
         widgets.IBMConnectionsCommunityUser,
         widgets.NotesMailProbes,
         widgets.MobileUsersReportGrid,
+        widgets.DatabaseSettings,
         tabs.DominoHealthTab,
+       
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsCommunitiesDetailTab,
         tabs.IBMConnectionsOverviewTab,
