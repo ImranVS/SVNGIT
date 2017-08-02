@@ -175,8 +175,14 @@
         "type": "Configurator",
         "component": "ServerAttribute",
         "path": "/app/configurator/components/server/server-device-attributes.component"
+      },
+       {
+        "tab_id": 2,
+        "title": "Database Settings",
+        "type": "Configurator",
+        "component": "DatabaseSettings",
+        "path": "/app/configurator/components/server/server-dag-settings.component"
       }
-
     ]
   },
   {
