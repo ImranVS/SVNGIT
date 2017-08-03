@@ -105,12 +105,16 @@ namespace VitalSignsMicrosoftClasses
 
 					Thread.Sleep(60 * 1000 * 1);
 					StartMailProbeThreads();
+                    */
+
 
 					CreateExchangeDAGCollection();
 					Common.InitStatusTable(myDagCollection);
 					DeleteOldDagDataOnStart();
 					StartDAGThreads();
 
+
+                    /*
                     Thread ExchangeDevices = new Thread(new ThreadStart(ExchangeDevicesLoop));
                     ExchangeDevices.CurrentCulture = c;
                     ExchangeDevices.IsBackground = true;
@@ -145,7 +149,7 @@ namespace VitalSignsMicrosoftClasses
 					Common.WriteDeviceHistoryEntry("All", "Skype for Business", "Skype for Business is not marked for scanning", Common.LogLevel.Normal);
 
 				}
-
+                */
 				//sleep for one minute to allow time for the collection to be made 
 				Thread.Sleep(60 * 1000 * 1);
 
@@ -165,7 +169,7 @@ namespace VitalSignsMicrosoftClasses
 				DailyTasksThread.Name = "DailyTasks - Exchange";
 				DailyTasksThread.Start();
 				Thread.Sleep(2000);
-                */
+                
 				Common.WriteDeviceHistoryEntry("All", "Exchange", "All Processes are started in startProcess", Common.LogLevel.Normal);
 			}
 			catch (Exception ex)
@@ -2203,51 +2207,58 @@ namespace VitalSignsMicrosoftClasses
 
                 Thread ExchangeHourly = new Thread(() =>
                 {
-                    int newestVersion = -1;
-                    MonitoredItems.ExchangeServer testServer = null;
-                    if (myExchangeServers != null)
-                        foreach (MonitoredItems.ExchangeServer server in myExchangeServers)
-                        {
-                            if (Convert.ToInt32(server.VersionNo) > newestVersion && server.Status != "Not Responding" && server.Status != "Maintenance" && server.Enabled)
+                    try
+                    { 
+                        int newestVersion = -1;
+                        MonitoredItems.ExchangeServer testServer = null;
+                        if (myExchangeServers != null)
+                            foreach (MonitoredItems.ExchangeServer server in myExchangeServers)
                             {
-                                newestVersion = Convert.ToInt32(server.VersionNo);
-                                testServer = server;
+                                if (Convert.ToInt32(server.VersionNo) > newestVersion && server.Status != "Not Responding" && server.Status != "Maintenance" && server.Enabled)
+                                {
+                                    newestVersion = Convert.ToInt32(server.VersionNo);
+                                    testServer = server;
+                                }
                             }
-                        }
 
-                    //Runspace runspace = RunspaceFactory.CreateRunspace();
+                        //Runspace runspace = RunspaceFactory.CreateRunspace();
 
-                    if (testServer != null)
-                    {
-
-                        Common.WriteDeviceHistoryEntry("All", "Exchange", "Server " + testServer.Name + " will be used to perform tests.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-                        Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs.Name, "Server " + testServer.Name + " will be used to perform tests.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-
-                        TestResults AllTestResults = new TestResults();
-                        ExchangeMB EMB = new ExchangeMB();
-
-                        string cmdlets = "-CommandName Get-ExchangeServer, Get-MailboxDatabase, Get-MailboxStatistics, Get-Mailbox, Get-MessageTrackingLog, ";
-                        cmdlets += "Get-OWAVirtualDirectory, Get-ECPVirtualDirectory, Get-OABVirtualDirectory, Get-WebServicesVirtualDirectory, Get-MAPIVirtualDirectory, Get-ActiveSyncVirtualDirectory, ";
-                        cmdlets += "Get-OutlookAnywhere, Get-ClientAccessServer, Get-TransportServer, Get-MailboxRepairRequest, New-MailboxRepairRequest";
-
-                        using (ReturnPowerShellObjects results = Common.PrereqForExchangeWithCmdlets(testServer.Name, testServer.UserName, testServer.Password, "Exchange", testServer.IPAddress, commonEnums.ServerRoles.Empty, cmdlets, testServer.AuthenticationType))
+                        if (testServer != null)
                         {
-                            Collection<PSObject> DBCorruptionTest = TestDatabaseCorruptionQueue(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS);
-                            checkHealthCheckPages(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS);
-                            EMB.getMailBoxInfo(testServer, ref AllTestResults, testServer.VersionNo.ToString(), DummyServerForLogs.Name, myExchangeServers, results);
-                            TestDatabaseCorruptionStatus(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS, DBCorruptionTest);
+
+                            Common.WriteDeviceHistoryEntry("All", "Exchange", "Server " + testServer.Name + " will be used to perform tests.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                            Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs.Name, "Server " + testServer.Name + " will be used to perform tests.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+                            TestResults AllTestResults = new TestResults();
+                            ExchangeMB EMB = new ExchangeMB();
+
+                            string cmdlets = "-CommandName Get-ExchangeServer, Get-MailboxDatabase, Get-MailboxStatistics, Get-Mailbox, Get-MessageTrackingLog, ";
+                            cmdlets += "Get-OWAVirtualDirectory, Get-ECPVirtualDirectory, Get-OABVirtualDirectory, Get-WebServicesVirtualDirectory, Get-MAPIVirtualDirectory, Get-ActiveSyncVirtualDirectory, ";
+                            cmdlets += "Get-OutlookAnywhere, Get-ClientAccessServer, Get-TransportServer, Get-MailboxRepairRequest, New-MailboxRepairRequest";
+
+                            using (ReturnPowerShellObjects results = Common.PrereqForExchangeWithCmdlets(testServer.Name, testServer.UserName, testServer.Password, "Exchange", testServer.IPAddress, commonEnums.ServerRoles.Empty, cmdlets, testServer.AuthenticationType))
+                            {
+                                Collection<PSObject> DBCorruptionTest = TestDatabaseCorruptionQueue(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS);
+                                checkHealthCheckPages(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS);
+                                EMB.getMailBoxInfo(testServer, ref AllTestResults, testServer.VersionNo.ToString(), DummyServerForLogs.Name, myExchangeServers, results);
+                                TestDatabaseCorruptionStatus(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS, DBCorruptionTest);
+                            }
+
+                            GC.Collect();
+
+                            Common.SetHourlyAlertsToObject(AllTestResults, myExchangeServers);
+
+                            CommonDB DB = new CommonDB();
+                            DB.UpdateSQLStatements(AllTestResults, DummyServerForLogs);
                         }
-
-                        GC.Collect();
-
-                        Common.SetHourlyAlertsToObject(AllTestResults, myExchangeServers);
-
-                        CommonDB DB = new CommonDB();
-                        DB.UpdateSQLStatements(AllTestResults, DummyServerForLogs);
+                        else
+                        {
+                            //no server was found to be used to scan
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        //no server was found to be used to scan
+                        Common.WriteDeviceHistoryEntry(DummyServerForLogs.ServerType, DummyServerForLogs.Name, "Exception in Exchange Hourly Thread: " + ex.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
                     }
                 });
                 ExchangeHourly.CurrentCulture = c;
@@ -2268,48 +2279,56 @@ namespace VitalSignsMicrosoftClasses
                     {
                         foreach (MonitoredItems.ExchangeServer myServer in myDagCollection)
                         {
-                            string cmdlets = "-CommandName Get-MailboxDatabase,Get-MailboxStatistics";
-                            
-                            ReturnPowerShellObjects results = Common.PrereqForExchangeWithCmdlets(myServer.Name, myServer.DAGPrimaryUserName, myServer.DAGPrimaryPassword, myServer.ServerType, myServer.DAGPrimaryIPAddress, commonEnums.ServerRoles.Empty, cmdlets, myServer.DAGPrimaryAuthenticationType);
-
-                            string Version = "";
-                            string IPAddress = "";
-
-                            if (results.Connected == false)
+                            try
                             {
-                                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Unable to connect to primary server.  Will attempt backup", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-                                results.Dispose();
-                                results = Common.PrereqForExchangeWithCmdlets(myServer.Name, myServer.DAGBackupUserName, myServer.DAGBackupPassword, myServer.ServerType, myServer.DAGBackupIPAddress, commonEnums.ServerRoles.Empty, cmdlets, myServer.DAGBackupAuthenticationType);
-                                IPAddress = myServer.DAGBackupIPAddress;
-                                Version = myExchangeServers.SearchByIPAddress(IPAddress) == null ? "" : myExchangeServers.SearchByIPAddress(IPAddress).VersionNo;
+                                Common.WriteDeviceHistoryEntry(myServer.ServerType, DummyServerForLogs.Name, "Hourly test for " + myServer.Name + " starting.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                                string cmdlets = "-CommandName Get-MailboxDatabase,Get-MailboxStatistics";
+
+                                ReturnPowerShellObjects results = Common.PrereqForExchangeWithCmdlets(myServer.Name, myServer.DAGPrimaryUserName, myServer.DAGPrimaryPassword, myServer.ServerType, myServer.DAGPrimaryIPAddress, commonEnums.ServerRoles.Empty, cmdlets, myServer.DAGPrimaryAuthenticationType);
+
+                                string Version = "";
+                                string IPAddress = "";
+
+                                if (results.Connected == false)
+                                {
+                                    Common.WriteDeviceHistoryEntry(myServer.ServerType, DummyServerForLogs.Name, "Unable to connect to primary server.  Will attempt backup", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                                    results.Dispose();
+                                    results = Common.PrereqForExchangeWithCmdlets(myServer.Name, myServer.DAGBackupUserName, myServer.DAGBackupPassword, myServer.ServerType, myServer.DAGBackupIPAddress, commonEnums.ServerRoles.Empty, cmdlets, myServer.DAGBackupAuthenticationType);
+                                    IPAddress = myServer.DAGBackupIPAddress;
+                                    Version = myExchangeServers.SearchByIPAddress(IPAddress) == null ? "" : myExchangeServers.SearchByIPAddress(IPAddress).VersionNo;
+                                }
+                                else
+                                {
+
+                                    Common.WriteDeviceHistoryEntry(myServer.ServerType, DummyServerForLogs.Name, "Connected to primary server.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                                    IPAddress = myServer.DAGPrimaryIPAddress;
+                                    Version = myExchangeServers.SearchByIPAddress(IPAddress) == null ? "" : myExchangeServers.SearchByIPAddress(IPAddress).VersionNo;
+
+                                }
+
+                                if (results.Connected == false)
+                                {
+                                    Common.WriteDeviceHistoryEntry(myServer.ServerType, DummyServerForLogs.Name, "Unable to connect to backup server.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                                    results.Dispose();
+                                    return;
+                                }
+                                else
+                                {
+                                    TestResults AllTestResults = new TestResults();
+
+                                    getMailboxDatabaseDetails(myServer, results.PS, ref AllTestResults, Version, DummyServerForLogs.Name);
+
+                                    GC.Collect();
+
+                                    Common.SetHourlyAlertsToObject(AllTestResults, myExchangeServers);
+
+                                    CommonDB DB = new CommonDB();
+                                    DB.UpdateSQLStatements(AllTestResults, DummyServerForLogs);
+                                }
                             }
-                            else
+                            catch(Exception ex)
                             {
-
-                                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Connected to primary server.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-                                IPAddress = myServer.DAGPrimaryIPAddress;
-                                Version = myExchangeServers.SearchByIPAddress(IPAddress) == null ? "" : myExchangeServers.SearchByIPAddress(IPAddress).VersionNo;
-
-                            }
-
-                            if (results.Connected == false)
-                            {
-                                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Unable to connect to backup server.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-                                results.Dispose();
-                                return;
-                            }
-                            else
-                            {
-                                TestResults AllTestResults = new TestResults();
-
-                                getMailboxDatabaseDetails(myServer, results.PS, ref AllTestResults, Version, DummyServerForLogs.Name);
-
-                                GC.Collect();
-
-                                Common.SetHourlyAlertsToObject(AllTestResults, myExchangeServers);
-
-                                CommonDB DB = new CommonDB();
-                                DB.UpdateSQLStatements(AllTestResults, DummyServerForLogs);
+                                Common.WriteDeviceHistoryEntry(myServer.ServerType, DummyServerForLogs.Name, "Exception in Dag Hourly Thread: " + ex.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
                             }
 
                         }
@@ -2532,140 +2551,156 @@ namespace VitalSignsMicrosoftClasses
             {
                 bool overallDBSizeAlert;
                 bool overallWhitespaceAlert;
-                string SqlStr = "select ServerName, DatabaseName, DatabaseSizeThreshold, WhiteSpaceThreshold from ExchangeDatabaseSettings";
-                CommonDB db = new CommonDB();
-                DataTable dt = db.GetData(SqlStr);
+                //string SqlStr = "select ServerName, DatabaseName, DatabaseSizeThreshold, WhiteSpaceThreshold from ExchangeDatabaseSettings";
+                //CommonDB db = new CommonDB();
+                //DataTable dt = db.GetData(SqlStr);
 
-                Common.WriteDeviceHistoryEntry("Exchange", DummyServerName, "In getMailboxDatabaseDetails.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                Common.WriteDeviceHistoryEntry(Server.ServerType, DummyServerName, "In getMailboxDatabaseDetails.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
                 string ServerNames = "'" + String.Join("','", myExchangeServers.Cast<MonitoredItems.ExchangeServer>().ToArray().Select(s => s.Name).ToList()) + "'";
-                
+
+                CommonDB db = new CommonDB();
+
+
                 System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
                 System.IO.StreamReader sr = new System.IO.StreamReader(AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\EX_MailBoxReportByTotalSize&Count.ps1");
                 string startOfScript = "$databases = Get-MailboxDatabase -IncludePreExchange" + serverVersionNo + " -status | sort name\n";
                 String str = startOfScript + sr.ReadToEnd();
                 powershell.Streams.Error.Clear();
 
+                powershell.Commands.Clear();
                 powershell.AddScript(str);
                 results = powershell.Invoke();
 
                 if (powershell.Streams.Error.Count > 51)
                 {
 
-                    Common.WriteDeviceHistoryEntry("Exchange", DummyServerName, "getMailboxDatabaseDetails received over 51 errors", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                    Common.WriteDeviceHistoryEntry(Server.ServerType, DummyServerName, "getMailboxDatabaseDetails received over 51 errors", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
                 }
                 else
                 {
-                    Common.WriteDeviceHistoryEntry("Exchange", DummyServerName, "getMailboxDatabaseDetails output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-
+                    Common.WriteDeviceHistoryEntry(Server.ServerType, DummyServerName, "getMailboxDatabaseDetails output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                    
                     Dictionary<MonitoredItems.ExchangeServer, String> dict = new Dictionary<MonitoredItems.ExchangeServer, string>();
                     foreach (PSObject ps in results)
                     {
-
+                        Common.WriteDeviceHistoryEntry(Server.ServerType, DummyServerName, "getMailboxDatabaseDetails output results: " + ps.BaseObject.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
                         string ServerName = ps.Properties["ServerName"].Value == null ? "" : ps.Properties["ServerName"].Value.ToString();
+                        Common.WriteDeviceHistoryEntry(Server.ServerType, DummyServerName, "getMailboxDatabaseDetails output results: " + ServerName, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
                         string DatabaseName = ps.Properties["DataBaseName"].Value == null ? "" : ps.Properties["DataBaseName"].Value.ToString();
+                        Common.WriteDeviceHistoryEntry(Server.ServerType, DummyServerName, "getMailboxDatabaseDetails output results: " + DatabaseName, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
                         string SizeMB = ps.Properties["SizeMB"].Value == null ? "0" : ps.Properties["SizeMB"].Value.ToString();
+                        Common.WriteDeviceHistoryEntry(Server.ServerType, DummyServerName, "getMailboxDatabaseDetails output results: " + SizeMB, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
                         string WhiteSpaceMB = ps.Properties["WhiteSpaceMB"].Value == null ? "0" : ps.Properties["WhiteSpaceMB"].Value.ToString();
+                        Common.WriteDeviceHistoryEntry(Server.ServerType, DummyServerName, "getMailboxDatabaseDetails output results: " + WhiteSpaceMB, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
                         string MBXs = ps.Properties["MBXs"].Value == null ? "0" : ps.Properties["MBXs"].Value.ToString();
+                        Common.WriteDeviceHistoryEntry(Server.ServerType, DummyServerName, "getMailboxDatabaseDetails output results: " + MBXs, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
                         string MBXsdisc = ps.Properties["MBXsdisc"].Value == null ? "0" : ps.Properties["MBXsdisc"].Value.ToString();
+                        Common.WriteDeviceHistoryEntry(Server.ServerType, DummyServerName, "getMailboxDatabaseDetails output results: " + MBXsdisc, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
                         string Mbcount = ps.Properties["Mbcount"].Value == null ? "0" : ps.Properties["Mbcount"].Value.ToString();
-                        string DagName = ps.Properties["DagName"].Value == null ? "" : ps.Properties["DagName"].Value.ToString();
+                        Common.WriteDeviceHistoryEntry(Server.ServerType, DummyServerName, "getMailboxDatabaseDetails output results: " + Mbcount, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                        string DagName = ps.Properties["DagName"] == null || ps.Properties["DagName"].Value == null ? "" : ps.Properties["DagName"].Value.ToString();
+                        Common.WriteDeviceHistoryEntry(Server.ServerType, DummyServerName, "getMailboxDatabaseDetails output results: " + DagName, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
-
-                        MongoStatementsUpdate<VSNext.Mongo.Entities.Status> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
-                        mongoUpdate.filterDef = mongoUpdate.repo.Filter.Eq(i => i.TypeAndName, DagName + "-" + "Database Availability Group") 
-                            & !mongoUpdate.repo.Filter.ElemMatch(i => i.DagDatabases, i => i.DatabaseName == DatabaseName);
-                        VSNext.Mongo.Entities.DagDatabases dbg = new VSNext.Mongo.Entities.DagDatabases()
+                        if (myDagCollection.SearchByName(DagName) != null)
                         {
-                            DatabaseName = DatabaseName
-                        };
-                        mongoUpdate.updateDef = mongoUpdate.repo.Updater.Push(i => i.DagDatabases, dbg);
-                        AllTestResults.MongoEntity.Add(mongoUpdate);         
+                            var currServer = myDagCollection.SearchByName(DagName);
 
-                        mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
-                        mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.TypeAndName == DagName.ToString() + "-Database Availability Group") & mongoUpdate.repo.Filter.ElemMatch(i => i.DagDatabases, i => i.DatabaseName == DatabaseName);
-                        mongoUpdate.updateDef = mongoUpdate.repo.Updater
-                            .Set(i => i.DagDatabases[-1].ConnectedMailboxCount, Convert.ToInt32(Mbcount))
-                            .Set(i => i.DagDatabases[-1].DisconnectedMailboxCount, Convert.ToInt32(MBXsdisc))
-                            .Set(i => i.DagDatabases[-1].MailboxCount, Convert.ToInt32(MBXs))
-                            .Set(i => i.DagDatabases[-1].SizeMB, Convert.ToDouble(SizeMB))
-                            .Set(i => i.DagDatabases[-1].WhiteSpaceMB, Convert.ToDouble(WhiteSpaceMB))
-                            .Set(i => i.DagDatabases[-1].ServerName, ServerName);
-                        AllTestResults.MongoEntity.Add(mongoUpdate);
-                        
-                        if(myDagCollection.SearchByName(DagName) != null)
-                            AllTestResults.MongoEntity.Add(Common.GetInsertIntoDailyStats(Server, "ExDatabaseSizeMb." + DatabaseName, SizeMB));
-
-                        /*
-                        //alerts
-                        if (dt.Rows.Count > 0 && dt.Rows[0]["DatabaseName"].ToString() != "NoAlerts")
-                        {
-                            DataRow[] curr;
-                            curr = dt.Select("ServerName='" + DagName + "' AND (DatabaseName='" + DatabaseName + "' or DatabaseName='AllDatabases')");
-                            
-                            if (curr.Count() > 0)
+                            MongoStatementsUpdate<VSNext.Mongo.Entities.Status> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
+                            mongoUpdate.filterDef = mongoUpdate.repo.Filter.Eq(i => i.DeviceId, currServer.ServerObjectID)
+                                & !mongoUpdate.repo.Filter.ElemMatch(i => i.DagDatabases, i => i.DatabaseName == DatabaseName);
+                            VSNext.Mongo.Entities.DagDatabases dbg = new VSNext.Mongo.Entities.DagDatabases()
                             {
-                                try
-                                {
-                                    MonitoredItems.ExchangeServer currServer = myExchangeServers.SearchByName(ServerName);
+                                DatabaseName = DatabaseName
+                            };
+                            mongoUpdate.updateDef = mongoUpdate.repo.Updater.Push(i => i.DagDatabases, dbg);
+                            AllTestResults.MongoEntity.Add(mongoUpdate);
 
-                                    if (currServer != null)
+                            mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
+                            mongoUpdate.filterDef = mongoUpdate.repo.Filter.Eq(i => i.DeviceId, currServer.ServerObjectID) &
+                                mongoUpdate.repo.Filter.ElemMatch(i => i.DagDatabases, i => i.DatabaseName == DatabaseName);
+                            mongoUpdate.updateDef = mongoUpdate.repo.Updater
+                                .Set(i => i.DagDatabases[-1].ConnectedMailboxCount, Convert.ToInt32(Mbcount))
+                                .Set(i => i.DagDatabases[-1].DisconnectedMailboxCount, Convert.ToInt32(MBXsdisc))
+                                .Set(i => i.DagDatabases[-1].MailboxCount, Convert.ToInt32(MBXs))
+                                .Set(i => i.DagDatabases[-1].SizeMB, Convert.ToDouble(SizeMB))
+                                .Set(i => i.DagDatabases[-1].WhiteSpaceMB, Convert.ToDouble(WhiteSpaceMB))
+                                .Set(i => i.DagDatabases[-1].ServerName, ServerName);
+                            AllTestResults.MongoEntity.Add(mongoUpdate);
+
+
+                            AllTestResults.MongoEntity.Add(Common.GetInsertIntoDailyStats(Server, "ExDatabaseSizeMb." + DatabaseName, SizeMB));
+                        }
+
+                        //alerts
+                        string allDatabases = "AllDatabases";
+                        if (Server.DagDatabaseSettings != null && Server.DagDatabaseSettings.Exists(x => (x.ServerName == ServerName || x.ServerName == allDatabases) && (x.DatabaseName == DatabaseName || x.DatabaseName == allDatabases)))
+                        {
+                            MonitoredItems.ExchangeServer.DagDatabaseSetting dagSetting = Server.DagDatabaseSettings.Find(x => (x.ServerName == ServerName || x.ServerName == allDatabases) && (x.DatabaseName == DatabaseName || x.DatabaseName == allDatabases));
+
+                            try
+                            {
+                                MonitoredItems.ExchangeServer currServer = myExchangeServers.SearchByName(ServerName);
+
+                                if (currServer != null)
+                                {
+                                    if (!dict.ContainsKey(currServer))
+                                        dict.Add(currServer, "");
+
+                                    string sizeThreshold = dagSetting.DatabaseSizeThreshold.ToString();
+                                    string whitespaceThreshold = dagSetting.WhiteSpaceThreshold.ToString();
+
+                                    double dblWhiteSpace;
+                                    double dblSize;
+
+                                    bool boolWhiteSpace = Double.TryParse(WhiteSpaceMB, out dblWhiteSpace);
+                                    bool boolSize = Double.TryParse(SizeMB, out dblSize);
+
+                                    if (boolWhiteSpace)
+                                        boolWhiteSpace = Double.Parse(WhiteSpaceMB) > Double.Parse(whitespaceThreshold) && Double.Parse(whitespaceThreshold) != 0;
+                                    if (boolSize)
+                                        boolSize = Double.Parse(SizeMB) > Double.Parse(sizeThreshold) && Double.Parse(sizeThreshold) != 0;
+
+                                    string details = "";
+
+                                    if (boolSize && boolWhiteSpace)
                                     {
-                                        if (!dict.ContainsKey(currServer))
-                                            dict.Add(currServer, "");
-                                        DataRow row = curr[0];
-                                        string sizeThreshold = row["DatabaseSizeThreshold"].ToString();
-                                        string whitespaceThreshold = row["WhiteSpaceThreshold"].ToString();
-
-                                        double dblWhiteSpace;
-                                        double dblSize;
-
-                                        bool boolWhiteSpace = Double.TryParse(WhiteSpaceMB, out dblWhiteSpace);
-                                        bool boolSize = Double.TryParse(SizeMB, out dblSize);
-
-                                        if (boolWhiteSpace)
-                                            boolWhiteSpace = Double.Parse(WhiteSpaceMB) > Double.Parse(whitespaceThreshold) && Double.Parse(whitespaceThreshold) != 0;
-                                        if (boolSize)
-                                            boolSize = Double.Parse(SizeMB) > Double.Parse(sizeThreshold) && Double.Parse(sizeThreshold) != 0;
-
-                                        if (boolSize && boolWhiteSpace)
-                                        {
-                                            //details = "The whtiespace and the size of database " + DatabaseName + " excedes the thresholds";
-                                            dict[currServer] += "The whitespace and the size of database " + DatabaseName + " excedes the thresholds. ";
-                                            overallDBSizeAlert = false;
-                                            overallWhitespaceAlert = false;
-                                        }
-                                        else if (boolSize)
-                                        {
-                                            //details = "The size of database " + DatabaseName + " excedes the threshold limit of " + Double.Parse(sizeThreshold);
-                                            dict[currServer] += "The size of database " + DatabaseName + "  is " + Math.Round(Double.Parse(SizeMB), 2) + " MB and excedes the threshold of " + sizeThreshold + " MB. ";
-                                            overallDBSizeAlert = false;
-                                        }
-                                        else if (boolWhiteSpace)
-                                        {
-                                            //details = "The size of the whitespace of database " + DatabaseName + " excedes the threshold of " + Double.Parse(whitespaceThreshold);
-                                            dict[currServer] += "The whitespace of database " + DatabaseName + " is " + Math.Round(Double.Parse(WhiteSpaceMB), 2) + " MB and  excedes the threshold of " + whitespaceThreshold + " MB. ";
-                                            overallWhitespaceAlert = false;
-                                        }
-                                        else
-                                        {
-                                            //details = "Database " + DatabaseName + " is within thresholds";
-                                        }
-                                        /*
-                                        if (boolSize || boolWhiteSpace)
-                                            Common.makeAlert(false, currServer, commonEnums.AlertType.Mailbox_Database_Size, ref AllTestResults, details, "MailBox");
-                                        else
-                                            Common.makeAlert(true, currServer, commonEnums.AlertType.Mailbox_Database_Size, ref AllTestResults, details, "MailBox");
-                                         
+                                        details = "The whtiespace and the size of database " + DatabaseName + " excedes the thresholds";
+                                        dict[currServer] += "The whitespace and the size of database " + DatabaseName + " excedes the thresholds. ";
+                                        overallDBSizeAlert = false;
+                                        overallWhitespaceAlert = false;
                                     }
-                                }
-                                catch (Exception ex)
-                                {
+                                    else if (boolSize)
+                                    {
+                                        details = "The size of database " + DatabaseName + " excedes the threshold limit of " + Double.Parse(sizeThreshold);
+                                        dict[currServer] += "The size of database " + DatabaseName + "  is " + Math.Round(Double.Parse(SizeMB), 2) + " MB and excedes the threshold of " + sizeThreshold + " MB. ";
+                                        overallDBSizeAlert = false;
+                                    }
+                                    else if (boolWhiteSpace)
+                                    {
+                                        details = "The size of the whitespace of database " + DatabaseName + " excedes the threshold of " + Double.Parse(whitespaceThreshold);
+                                        dict[currServer] += "The whitespace of database " + DatabaseName + " is " + Math.Round(Double.Parse(WhiteSpaceMB), 2) + " MB and  excedes the threshold of " + whitespaceThreshold + " MB. ";
+                                        overallWhitespaceAlert = false;
+                                    }
+                                    else
+                                    {
+                                        details = "Database " + DatabaseName + " is within thresholds";
+                                    }
+                                        
+                                    if (boolSize || boolWhiteSpace)
+                                        Common.makeAlert(false, currServer, commonEnums.AlertType.Mailbox_Database_Size, ref AllTestResults, details, "MailBox");
+                                    else
+                                        Common.makeAlert(true, currServer, commonEnums.AlertType.Mailbox_Database_Size, ref AllTestResults, details, "MailBox");
+                                         
                                 }
                             }
+                            catch (Exception ex)
+                            {
+                            }
+                            
                         }
 
 
-                        */
+                        
 
                     }
                     foreach (MonitoredItems.ExchangeServer currServer in dict.Keys)
@@ -2684,8 +2719,13 @@ namespace VitalSignsMicrosoftClasses
             }
             catch (Exception ex)
             {
+                StackTrace st = new StackTrace(ex, true);
+                StackFrame[] frames = st.GetFrames();
 
-                Common.WriteDeviceHistoryEntry("Exchange", DummyServerName, "Error in getMailboxDatabaseDetails : " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                foreach (StackFrame frame in frames)
+                    Common.WriteDeviceHistoryEntry(Server.ServerType, DummyServerName, "Error in getMailboxDatabaseDetails : " + frame.GetFileLineNumber(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal); 
+
+                Common.WriteDeviceHistoryEntry(Server.ServerType, DummyServerName, "Error in getMailboxDatabaseDetails : " + ex.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
             }
 
@@ -2699,7 +2739,7 @@ namespace VitalSignsMicrosoftClasses
 
             Collection<PSObject> results = null;
 
-            Common.WriteDeviceHistoryEntry("Exchange", DummyServernameForLogs, "In TestDatabaseCorruptionQueue ", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+            Common.WriteDeviceHistoryEntry(myServer.ServerType, DummyServernameForLogs, "In TestDatabaseCorruptionQueue ", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
             try
             {
                 results = new System.Collections.ObjectModel.Collection<PSObject>();
@@ -2710,13 +2750,13 @@ namespace VitalSignsMicrosoftClasses
                 powershell.AddScript(str);
                 results = powershell.Invoke();
 
-                Common.WriteDeviceHistoryEntry("Exchange", DummyServernameForLogs, "EX_DatabaseCorruptionCheck_Queue output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, DummyServernameForLogs, "EX_DatabaseCorruptionCheck_Queue output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
             }
             catch (Exception ex)
             {
 
-                Common.WriteDeviceHistoryEntry("Exchange", DummyServernameForLogs, "Error in TestDatabaseCorruptionQueue: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, DummyServernameForLogs, "Error in TestDatabaseCorruptionQueue: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
             }
             finally
@@ -2731,7 +2771,7 @@ namespace VitalSignsMicrosoftClasses
         public void TestDatabaseCorruptionStatus(MonitoredItems.ExchangeServer myServer, ref TestResults AllTestsList, string DummyServernameForLogs, PowerShell powershell, Collection<PSObject> input)
         {
 
-            Common.WriteDeviceHistoryEntry("Exchange", DummyServernameForLogs, "In TestDatabaseCorruptionStatus ", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+            Common.WriteDeviceHistoryEntry(myServer.ServerType, DummyServernameForLogs, "In TestDatabaseCorruptionStatus ", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
             try
             {
                 System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
@@ -2745,7 +2785,7 @@ namespace VitalSignsMicrosoftClasses
                 powershell.Commands = cmd;
                 results = powershell.Invoke();
 
-                Common.WriteDeviceHistoryEntry("Exchange", DummyServernameForLogs, "EX_DatabaseCorruptionCheck_Status output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, DummyServernameForLogs, "EX_DatabaseCorruptionCheck_Status output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
 
 
@@ -2778,14 +2818,14 @@ namespace VitalSignsMicrosoftClasses
                             
                         });
 
-                        Common.WriteDeviceHistoryEntry("Exchange", DummyServernameForLogs, "TestDatabaseCorruptionQueue Object Results: ", commonEnums.ServerRoles.Empty, Common.LogLevel.Verbose);
-                        Common.WriteDeviceHistoryEntry("Exchange", DummyServernameForLogs, "DatabaseName: " + DatabaseName, commonEnums.ServerRoles.Empty, Common.LogLevel.Verbose);
-                        Common.WriteDeviceHistoryEntry("Exchange", DummyServernameForLogs, "ServerName: " + ServerName, commonEnums.ServerRoles.Empty, Common.LogLevel.Verbose);
-                        Common.WriteDeviceHistoryEntry("Exchange", DummyServernameForLogs, "CorruptionsDetected: " + CorruptionsDetected, commonEnums.ServerRoles.Empty, Common.LogLevel.Verbose);
-                        Common.WriteDeviceHistoryEntry("Exchange", DummyServernameForLogs, "ErrorCode: " + ErrorCode, commonEnums.ServerRoles.Empty, Common.LogLevel.Verbose);
-                        Common.WriteDeviceHistoryEntry("Exchange", DummyServernameForLogs, "Corruptions: " + Corruptions, commonEnums.ServerRoles.Empty, Common.LogLevel.Verbose);
-                        Common.WriteDeviceHistoryEntry("Exchange", DummyServernameForLogs, "Progress: " + Progress, commonEnums.ServerRoles.Empty, Common.LogLevel.Verbose);
-                        Common.WriteDeviceHistoryEntry("Exchange", DummyServernameForLogs, "JobState: " + JobState, commonEnums.ServerRoles.Empty, Common.LogLevel.Verbose);
+                        Common.WriteDeviceHistoryEntry(myServer.ServerType, DummyServernameForLogs, "TestDatabaseCorruptionQueue Object Results: ", commonEnums.ServerRoles.Empty, Common.LogLevel.Verbose);
+                        Common.WriteDeviceHistoryEntry(myServer.ServerType, DummyServernameForLogs, "DatabaseName: " + DatabaseName, commonEnums.ServerRoles.Empty, Common.LogLevel.Verbose);
+                        Common.WriteDeviceHistoryEntry(myServer.ServerType, DummyServernameForLogs, "ServerName: " + ServerName, commonEnums.ServerRoles.Empty, Common.LogLevel.Verbose);
+                        Common.WriteDeviceHistoryEntry(myServer.ServerType, DummyServernameForLogs, "CorruptionsDetected: " + CorruptionsDetected, commonEnums.ServerRoles.Empty, Common.LogLevel.Verbose);
+                        Common.WriteDeviceHistoryEntry(myServer.ServerType, DummyServernameForLogs, "ErrorCode: " + ErrorCode, commonEnums.ServerRoles.Empty, Common.LogLevel.Verbose);
+                        Common.WriteDeviceHistoryEntry(myServer.ServerType, DummyServernameForLogs, "Corruptions: " + Corruptions, commonEnums.ServerRoles.Empty, Common.LogLevel.Verbose);
+                        Common.WriteDeviceHistoryEntry(myServer.ServerType, DummyServernameForLogs, "Progress: " + Progress, commonEnums.ServerRoles.Empty, Common.LogLevel.Verbose);
+                        Common.WriteDeviceHistoryEntry(myServer.ServerType, DummyServernameForLogs, "JobState: " + JobState, commonEnums.ServerRoles.Empty, Common.LogLevel.Verbose);
 
 
                     }
@@ -2846,7 +2886,7 @@ namespace VitalSignsMicrosoftClasses
             catch (Exception ex)
             {
 
-                Common.WriteDeviceHistoryEntry("Exchange", DummyServernameForLogs, "Error in TestDatabaseCorruptionQueue: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, DummyServernameForLogs, "Error in TestDatabaseCorruptionQueue: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
             }
             finally
@@ -3382,8 +3422,69 @@ namespace VitalSignsMicrosoftClasses
 			//Fetch all servers
 			if (myDagCollection == null)
 				myDagCollection = new MonitoredItems.ExchangeServersCollection();
-			MonitoredItems.ExchangeServersCollection newCollection = new MonitoredItems.ExchangeServersCollection();
-			CommonDB DB = new CommonDB();
+
+            CommonDB DB = new CommonDB();
+            VSFramework.TripleDES tripleDes = new TripleDES();
+            List<VSNext.Mongo.Entities.Server> listOfServers = new List<Server>();
+            List<VSNext.Mongo.Entities.Server> listOfExchangeServers = new List<Server>();
+            List<VSNext.Mongo.Entities.Status> listOfStatus = new List<Status>();
+            List<VSNext.Mongo.Entities.Credentials> listOfCredentials = new List<Credentials>();
+            List<VSNext.Mongo.Entities.Location> listOfLocations = new List<Location>();
+
+            try
+            {
+
+                string NodeName = ConfigurationManager.AppSettings["VSNodeName"].ToString();
+
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(DB.GetMongoConnectionString());
+                FilterDefinition<VSNext.Mongo.Entities.Server> filterDef = repository.Filter.Eq(x => x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.DatabaseAvailabilityGroup.ToDescription()) &
+                     repository.Filter.In(x => x.CurrentNode, new string[] { NodeName, "-1" });
+
+                ProjectionDefinition<VSNext.Mongo.Entities.Server> projectionDef = repository.Project
+                    .Include(x => x.Id)
+                    .Include(x => x.DeviceName)
+                    .Include(x => x.DeviceType)
+                    .Include(x => x.LocationId)
+                    .Include(x => x.OffHoursScanInterval)
+                    .Include(x => x.RetryInterval)
+                    .Include(x => x.ScanInterval)
+                    .Include(x => x.Category)
+                    .Include(x => x.ReplyQueueThreshold)
+                    .Include(x => x.CopyQueueThreshold)
+                    .Include(x => x.PrimaryServerId)
+                    .Include(x => x.BackupServerId)
+                    .Include(x => x.CurrentNode)
+                    .Include(x => x.DatabaseInfo);
+                listOfServers = repository.Find(filterDef, projectionDef).ToList();
+
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status> repositoryStatus = new VSNext.Mongo.Repository.Repository<Status>(DB.GetMongoConnectionString());
+                FilterDefinition<VSNext.Mongo.Entities.Status> filterDefStatus = repositoryStatus.Filter.Eq(x => x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.DatabaseAvailabilityGroup.ToDescription());
+                ProjectionDefinition<VSNext.Mongo.Entities.Status> projectionDefStatus = repositoryStatus.Project
+                    .Include(x => x.DeviceId)
+                    .Include(x => x.StatusCode)
+                    .Include(x => x.CurrentStatus)
+                    .Include(x => x.LastUpdated)
+                    .Include(x => x.DeviceType)
+                    .Include(x => x.DeviceName);
+
+                listOfStatus = repositoryStatus.Find(filterDefStatus, projectionDefStatus).ToList();
+
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Credentials> repositoryCredentials = new VSNext.Mongo.Repository.Repository<Credentials>(DB.GetMongoConnectionString());
+                listOfCredentials = repositoryCredentials.Find(x => true).ToList();
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Location> repositoryLocation = new VSNext.Mongo.Repository.Repository<Location>(DB.GetMongoConnectionString());
+                listOfLocations = repositoryLocation.Find(x => true).ToList();
+
+                listOfExchangeServers = repository.Find(repository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Exchange.ToDescription())).ToList();
+            }
+            catch (Exception ex)
+            {
+                Common.WriteDeviceHistoryEntry("All", Enums.ServerType.DatabaseAvailabilityGroup.ToDescription(), "Exception in CreateExchangeDAGCollection when getting the data from the db. Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
+            }
+
+
+
+            MonitoredItems.ExchangeServersCollection newCollection = new MonitoredItems.ExchangeServersCollection();
+			//CommonDB DB = new CommonDB();
 			StringBuilder SQL = new StringBuilder();
 			SQL.Append(" select distinct sr.ID, Sr.ServerName, S.ServerType, L.Location, sa.ScanInterval, sa.RetryInterval, sa.OffHourInterval, ");
 			SQL.Append(" sa.Enabled, sa.category, ds.ReplyQThreshold, ds.CopyQThreshold, (select IPAddress from Servers where Servers.ID=ds.PrimaryConnection) as PrimaryIPAddress, ");
@@ -3405,105 +3506,177 @@ namespace VitalSignsMicrosoftClasses
 			SQL.Append(" left outer join Status st on st.Type=S.ServerType and st.Name=Sr.ServerName ");
 			SQL.Append(" where sa.Enabled=1 ");
 
-			DataTable dtServers = DB.GetData(SQL.ToString());
+			//DataTable dtServers = DB.GetData(SQL.ToString());
 
-			listOfIdsForDag = String.Join(",", dtServers.AsEnumerable().Select(r => r.Field<Int32>("ID").ToString()).ToList());
+			//listOfIdsForDag = String.Join(",", dtServers.AsEnumerable().Select(r => r.Field<Int32>("ID").ToString()).ToList());
 
-			//Loop through servers
-			if (dtServers.Rows.Count > 0)
-			{
-				for (int i = 0; i < dtServers.Rows.Count; i++)
-				{
-					DataRow DR = dtServers.Rows[i];
-					MonitoredItems.ExchangeServer myExchangeServer = new MonitoredItems.ExchangeServer();
-					newCollection.Add(SetDAGSettings(myExchangeServer, DR));
-				}
+            if (listOfServers.Count > 0)
+            {
+                List<string> ServerNameList = new List<string>();
 
-				int updatedServers = 0;
-				int newServers = 0;
-				int removedServers = 0;
+                int updatedServers = 0;
+                int newServers = 0;
+                int removedServers = 0;
 
-				//Removes servers not in the new lsit
-				foreach (MonitoredItems.ExchangeServer server in myDagCollection)
-				{
-					string currName = server.Name;
-					try
-					{
-						MonitoredItems.ExchangeServer newServer = newCollection.SearchByName(currName);
-						if (newServer == null)
-						{
-							//incase it doesnt throw and exception, if not found, removed server from list
-							if (server.Enabled)
-								myDagCollection.Delete(currName);
-							removedServers++;
-						}
-					}
-					catch (Exception ex)
-					{
-						//server not found
-						if (server.Enabled)
-							myDagCollection.Delete(currName);
-						removedServers++;
-					}
-				}
+                for (int i = 0; i < listOfServers.Count; i++)
+                {
+                    VSNext.Mongo.Entities.Server entity = listOfServers[i];
+                    ServerNameList.Add(entity.DeviceName.ToString());
 
-				// adds/updates new servers
-				foreach (MonitoredItems.ExchangeServer server in newCollection)
-				{
-					string currName = server.Name;
-					try
-					{
-						MonitoredItems.ExchangeServer oldServer = myDagCollection.SearchByName(currName);
+                    MonitoredItems.ExchangeServer myDagServer = null;// = new MonitoredItems.ExchangeServer();
+                    VSNext.Mongo.Entities.Status statusEntry = listOfStatus.Find(x => x.DeviceId == entity.Id);
+                    //Checks to see if the server is newly added or exists.  Adds if it is new
+                    try
+                    {
+                        try
+                        {
+                            myDagServer = myDagCollection.SearchByName(entity.DeviceName.ToString());
+                        }
+                        catch (Exception ex)
+                        {
 
-						if (oldServer != null)
-						{
+                        }
 
-							oldServer.Name = server.Name;
-							oldServer.Location = server.Location;
-							oldServer.ScanInterval = server.ScanInterval;
-							oldServer.OffHoursScanInterval = server.OffHoursScanInterval;
-							oldServer.RetryInterval = server.RetryInterval;
-							oldServer.LastScan = server.LastScan;
+                        if (myDagServer == null)
+                        {
+                            //New server.  Set inits and add to collection
 
-							oldServer.DAGPrimaryIPAddress = server.DAGPrimaryIPAddress;
-							oldServer.DAGPrimaryPassword = server.DAGPrimaryPassword;
-							oldServer.DAGPrimaryUserName = server.DAGPrimaryUserName;
+                            myDagServer = new MonitoredItems.ExchangeServer();
+                            myDagServer.Role = new String[0];
+                            myDagServer.ServerType = Enums.ServerType.DatabaseAvailabilityGroup.ToDescription();
 
-							oldServer.DAGBackupIPAddress = server.DAGBackupIPAddress;
-							oldServer.DAGBackupPassword = server.DAGBackupPassword;
-							oldServer.DAGBackupUserName = server.DAGBackupUserName;
+                            myDagServer.LastScan = statusEntry == null || !statusEntry.LastUpdated.HasValue || statusEntry.LastUpdated.ToString() == "" ? DateTime.Now.AddHours(-1) : statusEntry.LastUpdated.Value;
+                            myDagServer.Status = statusEntry == null || statusEntry.CurrentStatus.ToString() == "" ? "Not Scanned" : statusEntry.CurrentStatus;
+                            myDagServer.StatusCode = statusEntry == null || statusEntry.StatusCode.ToString() == "" ? "Maintenance" : statusEntry.StatusCode;
 
-							if (oldServer.Enabled == false)
-								oldServer.Enabled = true;
-							updatedServers++;
-							
-						}
-						else
-						{
-							myDagCollection.Add(server);
-							newServers++;
-						}
-					}
-					catch (NullReferenceException ex)
-					{
-						myDagCollection.Add(server);
-						newServers++;
-					}
+                            myDagCollection.Add(myDagServer);
+                            newServers++;
 
-				}
-				//myExchangeServers = newCollection;
-				/**********************************************************/
-				Common.WriteDeviceHistoryEntry("All", "Exchange", "There are " + myDagCollection.Count + " servers in the collection.  " + newServers + " were new and " + updatedServers + " were updated.");
-			}
-			else
-			{
-				myDagCollection = new MonitoredItems.ExchangeServersCollection();
-			}
+                        }
+                        else
+                        {
+                            updatedServers++;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Common.WriteDeviceHistoryEntry("All", Enums.ServerType.DatabaseAvailabilityGroup.ToDescription(), "Exception in CreateExchangeDAGCollection when init new server. Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
+                    }
 
-			Common.InsertInsufficentLicenses(myDagCollection);
+                    myDagServer.ServerObjectID = entity.Id;
+                    myDagServer.Name = entity.DeviceName;
+                    myDagServer.ScanInterval = entity.ScanInterval.HasValue ? entity.ScanInterval.Value : 8;
+                    myDagServer.OffHoursScanInterval = entity.OffHoursScanInterval.HasValue ? entity.OffHoursScanInterval.Value : 10;
+                    myDagServer.RetryInterval = entity.RetryInterval.HasValue ? entity.RetryInterval.Value : 3;
+                    myDagServer.Enabled = true;
+                    myDagServer.InsufficentLicenses = entity.CurrentNode != null && entity.CurrentNode == "-1" ? true : false;
 
-			//At this point we have all Servers with ALL the information(including Threshold settings)
-		}
+                    try
+                    {
+                        if(entity.PrimaryServerId != null)
+                        {
+                            var primaryServer = listOfExchangeServers.Where(x => x.Id == entity.PrimaryServerId).First();
+                            var creds = listOfCredentials.Where(x => x.Id == primaryServer.CredentialsId).First();
+                            var password = tripleDes.Decrypt(creds.Password);
+
+                            myDagServer.DAGPrimaryAuthenticationType = primaryServer.AuthenticationType;
+                            myDagServer.DAGPrimaryIPAddress = primaryServer.IPAddress;
+                            myDagServer.DAGPrimaryPassword = password;
+                            myDagServer.DAGPrimaryUserName = creds.UserId;
+
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+
+                    }
+
+                    try
+                    {
+                        if (entity.BackupServerId != null)
+                        {
+                            var backupServer = listOfExchangeServers.Where(x => x.Id == entity.BackupServerId).First();
+                            var creds = listOfCredentials.Where(x => x.Id == backupServer.CredentialsId).First();
+                            var password = tripleDes.Decrypt(creds.Password);
+
+                            myDagServer.DAGBackupAuthenticationType = backupServer.AuthenticationType;
+                            myDagServer.DAGBackupIPAddress = backupServer.IPAddress;
+                            myDagServer.DAGBackupPassword = password;
+                            myDagServer.DAGBackupUserName = creds.UserId;
+
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+
+                    myDagServer.DAGCopyQueueThreshold = entity.CopyQueueThreshold.HasValue ? entity.CopyQueueThreshold.Value : 10;
+                    myDagServer.DAGReplyQueueThreshold = entity.ReplyQueueThreshold.HasValue ? entity.ReplyQueueThreshold.Value : 10;
+
+                    if(entity.DatabaseInfo != null)
+                    {
+                        if (myDagServer.DagDatabaseSettings == null) myDagServer.DagDatabaseSettings = new List<MonitoredItems.ExchangeServer.DagDatabaseSetting>();
+                        foreach(VSNext.Mongo.Entities.DagDatabases currDatabase in entity.DatabaseInfo)
+                        {
+                            if(!myDagServer.DagDatabaseSettings.Exists(x => x.DatabaseName == currDatabase.DatabaseName && x.ServerName == currDatabase.ServerName))
+                            {
+                                myDagServer.DagDatabaseSettings.Add(new MonitoredItems.ExchangeServer.DagDatabaseSetting()
+                                {
+                                    ServerName = currDatabase.ServerName,
+                                    DatabaseName = currDatabase.DatabaseName,
+                                    WhiteSpaceThreshold = currDatabase.DatabaseWhiteTSpaceThreshold.Value,
+                                    DatabaseSizeThreshold = currDatabase.DatabaseSizeThreshold.Value
+                                });
+                            }
+                            myDagServer.DagDatabaseSettings.Find(x => x.DatabaseName == currDatabase.DatabaseName && x.ServerName == currDatabase.ServerName).CopyQueueThreshold = currDatabase.CopyThreshold.Value;
+                            myDagServer.DagDatabaseSettings.Find(x => x.DatabaseName == currDatabase.DatabaseName && x.ServerName == currDatabase.ServerName).CopyQueueThreshold = currDatabase.ReplayThreshold.Value;
+                        }
+                        
+                    }
+
+                    updatedServers++;
+
+                }
+                
+                //Removes servers not in the new lsit
+                foreach (MonitoredItems.ExchangeServer server in myDagCollection)
+                {
+                    string currName = server.Name;
+                    try
+                    {
+                        //MonitoredItems.ExchangeServer newServer = newCollection.SearchByName(currName);
+                        if (!ServerNameList.Contains(currName))
+                        {
+                            //incase it doesnt throw and exception, if not found, removed server from list
+                            myDagCollection.Delete(currName);
+                            removedServers++;
+
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        //server not found
+                        myDagCollection.Delete(currName);
+                        removedServers++;
+
+                    }
+
+                }
+                
+                //myExchangeServers = newCollection;
+                /**********************************************************/
+                Common.WriteDeviceHistoryEntry("All", Enums.ServerType.DatabaseAvailabilityGroup.ToDescription(), "There are " + myDagCollection.Count + " servers in the DAG collection.  " + newServers + " were new and " + updatedServers + " were updated.");
+            }
+            else
+            {
+                myDagCollection = new MonitoredItems.ExchangeServersCollection();
+            }
+            Common.WriteDeviceHistoryEntry("All", Enums.ServerType.DatabaseAvailabilityGroup.ToDescription(), "There are " + myDagCollection.Count + " servers in the DAG collection before node check.");
+            Common.InsertInsufficentLicenses(myDagCollection);
+            Common.WriteDeviceHistoryEntry("All", Enums.ServerType.DatabaseAvailabilityGroup.ToDescription(), "There are " + myDagCollection.Count + " servers in the DAG collection after node check.");
+            //At this point we have all Servers with ALL the information(including Threshold settings)
+        }
 
 		private MonitoredItems.ExchangeServer SetDAGSettings(MonitoredItems.ExchangeServer MyExchangeServer, DataRow DR)
 		{
@@ -3580,7 +3753,7 @@ namespace VitalSignsMicrosoftClasses
 					MonitoredItems.ExchangeServer thisServer;
 					try
 					{
-						thisServer = SelectDAGServerToMonitor();
+						thisServer = Common.SelectServerToMonitor(myDagCollection) as MonitoredItems.ExchangeServer;
 				
 						if (thisServer != null && !thisServer.IsBeingScanned)
 						{
@@ -3596,7 +3769,9 @@ namespace VitalSignsMicrosoftClasses
 						DAGMutex.ReleaseMutex();
 					}
 
-					if(thisServer != null)
+                    Common.WriteDeviceHistoryEntry("All", thisServer.ServerType, "Scanning Server " + (thisServer == null ? "null" : thisServer.Name) + " on thread ");
+
+                    if (thisServer != null)
 					{
 						Common.WriteDeviceHistoryEntry("All", thisServer.ServerType, "Scanning Server " + thisServer.Name + " on thread ");
 						thisServer.IsBeingScanned = true;

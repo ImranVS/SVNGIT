@@ -47,6 +47,7 @@ namespace VitalSignsMicrosoftClasses
             sqlcon = myxmlAdapter.GetDBConnectionString(dbName);
             con = new SqlConnection(sqlcon);
         }
+
 		public bool RecordExists(string SqlQuery)
 		{
 			bool retVal = false;
@@ -188,6 +189,7 @@ namespace VitalSignsMicrosoftClasses
                 //Loop through all the different Entity types. Must make a new Repo for each type.
                 foreach (MongoStatements mongoStatement in AllTestsList.MongoEntity)
                 {
+                    Common.WriteDeviceHistoryEntry(ServerType, Server.Name, "Executing: " + mongoStatement.ToString(), Common.LogLevel.Normal);
                     mongoStatement.Execute();
                 }
             }
@@ -204,7 +206,8 @@ namespace VitalSignsMicrosoftClasses
 
         }
 
-		public void UpdateSQLStatements(TestResults AllTestsList, MonitoredItems.MicrosoftServer Server)
+
+        public void UpdateSQLStatements(TestResults AllTestsList, MonitoredItems.MicrosoftServer Server)
 		{
 			//ProcessSQLStatements(AllTestsList, Server);
             ProcessMongoStatements(AllTestsList, Server, Server.ServerType);

@@ -2950,6 +2950,165 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
         #endregion
+
+        #region dag database settings
+
+        [HttpGet("get_dag_database_settings_data/{id}")]
+        public APIResponse GetDagDatabaseSettingsData(string id)
+
+        {
+
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+                Expression<Func<Server, bool>> expression = (p => p.Id == id);
+                var result = serversRepository.Find(expression).Select(x => x.DatabaseInfo).FirstOrDefault();
+
+                if (result.Count == 1)
+                {
+                    var results = result.Select(s => new SelectedDagDatabaseModel
+                    {
+                        DatabaseName = (s.DatabaseName == "allDatabases" ? "allDatabases" :
+                                                                         s.DatabaseName == "noAlerts" ? "noAlerts" :
+                                                                         "selectedDatabases"),
+                        ReplayQueueThreshold = s.ReplayThreshold,
+                        CopyQueueThreshold = s.CopyThreshold
+
+                    }).FirstOrDefault();
+                    Response = Common.CreateResponse(results);
+                }
+
+
+
+
+
+
+            }
+
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Getting server disk settings data has failed.\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+
+        [HttpGet("get_dag_database_info/{id}")]
+        public APIResponse GetDagDatabaseSettingsInfo(string id)
+
+        {
+
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+                statusRepository = new Repository<Status>(ConnectionString);
+                Expression<Func<Server, bool>> expression = (p => p.Id == id);
+                Expression<Func<Status, bool>> expressionStatus = (p => p.DeviceId == id);
+                var status = statusRepository.Find(expressionStatus).ToList();
+                var result = serversRepository.Find(expression).Select(x => x.DatabaseInfo).FirstOrDefault();
+                if (result.Count == 1)
+                {
+                    var results = result.Select(s => new SelectedDagDatabaseModel
+                    {
+                        DatabaseName = s.DatabaseName,
+                        ServerName = s.ServerName,
+                        CopyQueueThreshold = s.CopyThreshold,
+                        ReplayQueueThreshold = s.ReplayThreshold,
+                        CurrentReplayQueue = status.Count() > 0 ? status[0].DagServerDatabases.Where(x => s.DatabaseName == x.DatabaseName && s.ServerName == x.ServerName).FirstOrDefault().ReplayQueue : 0,
+                        CurrentCopyQueue = status.Count() > 0 ? status[0].DagServerDatabases.Where(x => s.DatabaseName == x.DatabaseName && s.ServerName == x.ServerName).FirstOrDefault().CopyQueue : 0,
+                        IsSelected = status.Count() > 0 ? status[0].DagServerDatabases.Where(x => s.DatabaseName == x.DatabaseName && s.ServerName == x.ServerName).Count() > 0 : false
+                    }).ToList();
+                    Response = Common.CreateResponse(results);
+                }
+                
+            }
+
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Getting dag database settings data has failed.\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpPut("save_dag_database_settings")]
+        public APIResponse SaveDagDatabaseSettings([FromBody]List<SelectedDagDatabaseModel> deviceSettings, string id)
+        {
+            serversRepository = new Repository<Server>(ConnectionString);
+            try
+            {
+                
+                List<DagDatabases> dagDatabases = new List<DagDatabases>();
+
+                foreach(SelectedDagDatabaseModel deviceSetting in deviceSettings.Where(x => x.IsSelected))
+                {
+                    dagDatabases.Add(new DagDatabases()
+                    {
+                        CopyThreshold = deviceSetting.CopyQueueThreshold,
+                        ReplayThreshold = deviceSetting.ReplayQueueThreshold,
+                        ServerName = deviceSetting.ServerName,
+                        DatabaseName = deviceSetting.DatabaseName
+                    });
+                }
+
+                serversRepository.Update(
+                    serversRepository.Filter.Eq(x => x.Id, id),
+                    serversRepository.Updater.Set(x => x.DatabaseInfo, dagDatabases)
+                    );
+
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Database settings updated successfully");
+
+                /*
+                if (!string.IsNullOrEmpty(setting))
+                {
+
+
+                    var server = serversRepository.Get(deviceSettings.Devices.ToString());
+                    List<DiskSetting> diskSettings = new List<DiskSetting>();
+
+                    if (setting.Equals("allDisksBypercentage"))
+                        diskSettings.Add(new DiskSetting { DiskName = "AllDisks", Threshold = Convert.ToDouble(settingValue), ThresholdType = "Percent" });
+                    else if (setting.Equals("allDisksByGB"))
+                        diskSettings.Add(new DiskSetting { DiskName = "AllDisks", Threshold = Convert.ToDouble(settingValue), ThresholdType = "GB" });
+                    else if (setting.Equals("noDiskAlerts"))
+                        diskSettings.Add(new DiskSetting { DiskName = "NoAlerts", Threshold = null, ThresholdType = null });
+                    else if (setting.Equals("selectedDisks"))
+                    {
+                        List<SelectedDiksModel> selectedDisks = ((Newtonsoft.Json.Linq.JArray)deviceSettings.Value).ToObject<List<SelectedDiksModel>>();
+                        foreach (var item in selectedDisks)
+                        {
+                            if (item.IsSelected)
+                            {
+                                diskSettings.Add(new DiskSetting { DiskName = item.DiskName, Threshold = Convert.ToDouble(item.FreespaceThreshold), ThresholdType = item.ThresholdType });
+                            }
+                        }
+                    }
+                    if (diskSettings.Count > 0)
+                    {
+                        updateDefinition = serversRepository.Updater.Set(p => p.DiskInfo, diskSettings);
+                        var result = serversRepository.Update(server, updateDefinition);
+                    }
+
+                    //2/24/2017 NS added for VSPLUS-3506
+                    Licensing licensing = new Licensing();
+                    licensing.refreshServerCollectionWrapper();
+                    Response = Common.CreateResponse(null, Common.ResponseStatus.Success.ToDescription(), "Server disk settings updated successfully");
+                    
+                }
+                else
+                {
+                    Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "No servers were selected");
+                }
+                */
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Saving server disk settings has failed.\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+        #endregion
         #endregion
 
         #region IBM Domino Settings

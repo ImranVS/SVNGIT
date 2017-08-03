@@ -38,10 +38,13 @@ export class DatabaseSettings implements OnInit {
     selecteddatabases: string;
     selectedDisks: string;
     noDbAlertss: string;
-    dbthreshold: string;
+    dbthreshold: number;
     postData: any;
     appComponentService: AppComponentService;
     thresholdTypes: string[];
+
+    copyThreshold: number;
+    replayThreshold: number;
 
     constructor(
         private dataProvider: RESTService,
@@ -81,7 +84,7 @@ export class DatabaseSettings implements OnInit {
             this.deviceId = params['service'];
 
         });
-        this.dataProvider.get('/Configurator/get_server_disk_info/' + this.deviceId)
+        this.dataProvider.get('/Configurator/get_dag_database_info/' + this.deviceId)
             .subscribe(
             response => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
@@ -95,13 +98,14 @@ export class DatabaseSettings implements OnInit {
         //    (error) => this.errorMessage = <any>error
 
         //    );
-        this.dataProvider.get('/Configurator/get_server_disk_settings_data/' + this.deviceId)
+        this.dataProvider.get('/Configurator/get_dag_database_settings_data/' + this.deviceId)
             .subscribe(
             (response) => {
 
 
-                //this.selectedDiskSetting = response.data.disk_name;
-                //this.diskThreshold = response.data.freespace_threshold;
+                this.selectedDbSetting = response.data.database_name;
+                this.copyThreshold = response.data.copy_queue_threshold;
+                this.replayThreshold = response.data.replay_queue_threshold;
             },
 
             (error) => {
@@ -113,91 +117,56 @@ export class DatabaseSettings implements OnInit {
 
 
     }
-    itemsSourceChangedHandler() {
-
-        var flex = this.flex;
-
-        if (flex) {
-            var colThresholdType = flex.columns.getColumn('threshold_type');
-
-            if (colThresholdType) {
-
-                colThresholdType.showDropDown = true; // or colors (just to show how)
-                var unitsData = [{ unit: "Percent", code: "Percent" }, { unit: "GB", code: "GB" }];
-
-                var unitsDataMap = new wijmo.grid.DataMap(unitsData, 'unit', 'code');
-
-                colThresholdType.dataMap = unitsDataMap;
-            }
-            else {
-                colThresholdType.dataMap = null;
-            }
-        }
-    }
 
     applySetting(nameValue: any) {
 
+        interface DBSettings {
+            is_selected: boolean;
+            database_name: string;
+            server_name: string;
+            replay_queue_threshold: number;
+            copy_queue_threshold: number;
+        }
+        let payload:DBSettings[] = [];
 
-        //if (this.selectedDiskSetting == "allDisksBypercentage") {
+        if (this.selectedDbSetting == "allDatabases") {
+            let dbSettings: DBSettings = {
+                is_selected: true,
+                copy_queue_threshold: this.copyThreshold,
+                database_name: "allDatabases",
+                replay_queue_threshold: this.replayThreshold,
+                server_name: "allDatabases"
+            };
+            payload.push(dbSettings);
+        }
+        else if (this.selectedDbSetting == "selectedDatabases") {
+            for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
+                var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
+                if (item.is_selected) {
+                    let dbSetting: DBSettings = {
+                        is_selected: item.is_selected,
+                        copy_queue_threshold: item.copy_queue_threshold,
+                        database_name: item.database_name,
+                        replay_queue_threshold: item.replay_queue_threshold,
+                        server_name: item.server_name
+                    };
+                    payload.push(dbSetting);
+                }
+            }
+        }
 
-        //    this.selectedDiskSettingValue = this.diskThreshold;
-        //}
-        //else if (this.selectedDiskSetting == "allDisksByGB")
-        //    this.selectedDiskSettingValue = this.diskThreshold;
-        //else if (this.selectedDiskSetting == "selectedDisks") {
-        //    this.selectedDiskSettingValue = this.selectedDisks;
-        //    var slectedDiskSettingValues: DiskSttingsValue[] = [];
-        //    for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
+        else if (this.selectedDbSetting == "noAlerts") {
+            let dbSettings: DBSettings = {
+                is_selected: true,
+                copy_queue_threshold: 0,
+                database_name: "noAlerts",
+                replay_queue_threshold: 0,
+                server_name: "noAlerts"
+            };
+            payload.push(dbSettings);
+        }
 
-        //        var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
-
-        //        if (item.is_selected) {
-
-
-        //            var dominoserverObject = new DiskSttingsValue();
-        //            dominoserverObject.is_selected = item.is_selected;
-        //            dominoserverObject.disk_name = item.disk_name;
-
-        //            dominoserverObject.freespace_threshold = item.freespace_threshold;
-        //            dominoserverObject.threshold_type = item.threshold_type;
-        //            // alert(item.is_selected)
-        //            slectedDiskSettingValues.push(dominoserverObject);
-        //        }
-        //    }
-        //    this.diskValues = slectedDiskSettingValues;
-
-        //}
-
-        //else if (this.selectedDiskSetting == "noDiskAlerts")
-        //    this.selectedDiskSettingValue = this.diskThreshold;
-
-
-
-        //if (this.selectedDiskSetting == "selectedDisks") {
-
-        //    this.postData = {
-        //        "setting": this.selectedDiskSetting,
-        //        "value": this.diskValues,
-        //        "devices": this.deviceId
-        //    };
-
-        //}
-        //else if (this.selectedDiskSetting == "noDiskAlerts") {
-        //    this.postData = {
-        //        "setting": this.selectedDiskSetting,
-        //        "value": null,
-        //        "devices": this.deviceId
-        //    };
-
-        //}
-        //else {
-        //    this.postData = {
-        //        "setting": this.selectedDiskSetting,
-        //        "value": this.selectedDiskSettingValue,
-        //        "devices": this.deviceId
-        //    };
-        //}
-        this.dataProvider.put('/Configurator/save_server_disk_settings', this.postData)
+        this.dataProvider.put(`/Configurator/save_dag_database_settings?id=${this.deviceId}`, payload)
             .subscribe(
             response => {
 

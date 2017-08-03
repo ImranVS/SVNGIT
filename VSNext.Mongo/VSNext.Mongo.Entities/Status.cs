@@ -1162,12 +1162,12 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("copy_queue")]
         [BsonIgnoreIfNullAttribute]
-        public string CopyQueue { get; set; }
+        public int? CopyQueue { get; set; }
 
         [DataMember]
         [BsonElement("replay_queue")]
         [BsonIgnoreIfNullAttribute]
-        public string ReplayQueue { get; set; }
+        public int? ReplayQueue { get; set; }
 
         [DataMember]
         [BsonElement("replay_lagged")]

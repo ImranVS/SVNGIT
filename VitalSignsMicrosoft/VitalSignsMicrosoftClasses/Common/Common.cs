@@ -16,6 +16,8 @@ using VSFramework;
 using VSNext.Mongo.Repository;
 using VSNext.Mongo.Entities;
 using MongoDB.Driver;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 
 namespace VitalSignsMicrosoftClasses
 {
@@ -1553,7 +1555,7 @@ namespace VitalSignsMicrosoftClasses
             }
             catch (Exception ex)
             {
-                Common.WriteDeviceHistoryEntry("All", "Exchange", "Error getting in SetupServer .");
+                Common.WriteDeviceHistoryEntry("All", myServer.ServerType, "Error getting in SetupServer " + ex);
             }
         }
 
@@ -2290,14 +2292,16 @@ namespace VitalSignsMicrosoftClasses
 
     }
 
-    public abstract class MongoStatements
+    public class MongoStatements
     {
 
-        public abstract bool Execute();
+        public virtual bool Execute() { return false; }
+        public override string ToString() { return "NOT IMPLEMENTED"; }
+
 
     }
 
-    public abstract class MongoStatementsWrapper<T> : MongoStatements where T : IEntity
+    public class MongoStatementsWrapper<T> : MongoStatements where T : IEntity
     {
         CommonDB db = new CommonDB();
         string connString;
@@ -2310,6 +2314,20 @@ namespace VitalSignsMicrosoftClasses
             connString = db.GetMongoConnectionString();
             repo = new VSNext.Mongo.Repository.Repository<T>(connString);
 
+        }
+
+        public virtual BsonDocument RenderToBsonDocument<T>(FilterDefinition<T> filter)
+        {
+            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            var documentSerializer = serializerRegistry.GetSerializer<T>();
+            return filter.Render(documentSerializer, serializerRegistry);
+        }
+
+        public BsonDocument RenderToBsonDocument<T>(UpdateDefinition<T> filter)
+        {
+            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            var documentSerializer = serializerRegistry.GetSerializer<T>();
+            return filter.Render(documentSerializer, serializerRegistry);
         }
 
         //            public abstract bool Execute();
@@ -2333,6 +2351,11 @@ namespace VitalSignsMicrosoftClasses
             }
 
         }
+
+        public override string ToString()
+        {
+            return "Insert. Documents: " + String.Join("\n", listOfEntities.Select(x => x.ToBsonDocument().ToString()));
+        }
     }
 
     public class MongoStatementsDelete<T> : MongoStatementsWrapper<T> where T : IEntity
@@ -2344,6 +2367,7 @@ namespace VitalSignsMicrosoftClasses
         {
             try
             {
+                
                 repo.Delete(filterDef);
                 return true;
             }
@@ -2352,6 +2376,11 @@ namespace VitalSignsMicrosoftClasses
                 return false;
             }
 
+        }
+
+        public override string ToString()
+        {
+            return "Delete. FilterDef " + base.RenderToBsonDocument(filterDef);
         }
 
     }
@@ -2384,6 +2413,11 @@ namespace VitalSignsMicrosoftClasses
             }
 
         }
+
+        public override string ToString()
+        {
+            return "Update. FilterDef " + base.RenderToBsonDocument(filterDef) + "\n. UpdateDef " + base.RenderToBsonDocument(updateDef) + "\n . Embeded Doc " + embeddedDocument.ToString();
+        }
     }
 
     public class MongoStatementsReplace<T> : MongoStatementsWrapper<T> where T : IEntity
@@ -2404,6 +2438,11 @@ namespace VitalSignsMicrosoftClasses
             }
 
         }
+
+        public override string ToString()
+        {
+            return "NOT IMPLEMENTED";
+        }
     }
 
     public class MongoStatementsUpsert<T> : MongoStatementsWrapper<T> where T : IEntity
@@ -2423,6 +2462,11 @@ namespace VitalSignsMicrosoftClasses
                 return false;
             }
 
+        }
+
+        public override string ToString()
+        {
+            return "Upsert. FilterDef " + base.RenderToBsonDocument(filterDef) + "\n. UpdateDef " + base.RenderToBsonDocument(updateDef);
         }
     }
 
@@ -2460,11 +2504,25 @@ namespace VitalSignsMicrosoftClasses
             }
         }
 
+        public override string ToString()
+        {
+            if (repo.Find(searchFilterDef).Count() > 0)
+            {
+                //return "Update. FilterDef " + base.RenderToBsonDocument(filterDef) + "\n. UpdateDef " + base.RenderToBsonDocument(updateDef) + "\n . Embeded Doc " + embeddedDocument.ToString();
+            }
+            else
+            {
+                //return "Update. FilterDef " + base.RenderToBsonDocument(filterDef) + "\n. UpdateDef " + base.RenderToBsonDocument(updateDef) + "\n . Embeded Doc " + embeddedDocument.ToString();
+            }
+            return "NOT IMPLEEMNTED";
+            
+        }
+
     }
 
 
 
-
+    
 
 
 

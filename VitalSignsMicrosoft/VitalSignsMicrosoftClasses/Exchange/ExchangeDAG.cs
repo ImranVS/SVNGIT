@@ -111,7 +111,7 @@ namespace VitalSignsMicrosoftClasses
 			   results.PS.Commands.Clear();
 			   results.PS.Streams.Error.Clear();
 			   DAGHealthCopyStatus(results.PS, ref  AllTestResults, myServer);
-			   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Finished getting the DAG datebase information", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+			   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Finished getting the DAG database information", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 			   results.PS.Commands.Clear();
 			   results.PS.Streams.Error.Clear();
 			   DAGActionPreferences(results.PS, ref  AllTestResults, myServer);
@@ -132,7 +132,7 @@ namespace VitalSignsMicrosoftClasses
 
 	   public string GetDAGWitnessServer(PowerShell powershell, ref TestResults AllTestsList, MonitoredItems.ExchangeServer myServer)
        {
-		   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "In GetDAGWitnessServer.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+		   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "In GetDAGWitnessServer.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 		  
            //AllTestsList.Add(new TestList() { Details = "Service answered with   at " + System.DateTime.Now.ToShortTimeString(), TestName = servername+ " " + strAction, Category = commonEnums.ServerRoles.CAS, Result = commonEnums.ServerResult.Pass });
            try
@@ -149,12 +149,16 @@ namespace VitalSignsMicrosoftClasses
                {
                    foreach (ErrorRecord er in powershell.Streams.Error)
                        Console.WriteLine(er.ErrorDetails);
-				   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "GetDAGWitnessServer received over 51 errors", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+				   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "GetDAGWitnessServer received over 51 errors", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
                }
                else
                {
-				   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "GetDAGWitnessServer output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+                    foreach (ErrorRecord er in powershell.Streams.Error)
+                        Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "GetDAGWitnessServer errors: " + er.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+                    Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "GetDAGWitnessServer output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
                    foreach (PSObject ps in results)
                    {
@@ -174,7 +178,7 @@ namespace VitalSignsMicrosoftClasses
            catch (Exception ex)
            {
 
-			   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Error in GetDAGWitnessServer: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+			   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Error in GetDAGWitnessServer: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
            }
            finally
@@ -188,7 +192,7 @@ namespace VitalSignsMicrosoftClasses
 
 	   public void checkFileWitnessServer(PowerShell powershell, ref TestResults AllTestsList, MonitoredItems.ExchangeServer myServer, string WitnessServer)
 	   {
-		   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "In checkFileWitnessServer.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+		   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "In checkFileWitnessServer.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
 		   try
 		   {
@@ -204,11 +208,11 @@ namespace VitalSignsMicrosoftClasses
 			   {
 				   foreach (ErrorRecord er in powershell.Streams.Error)
 					   Console.WriteLine(er.ErrorDetails);
-				   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "checkFileWitnessServer received over 51 errors", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+				   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "checkFileWitnessServer received over 51 errors", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 			   }
 			   else
 			   {
-				   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "checkFileWitnessServer output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+				   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "checkFileWitnessServer output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
 				   if (results.Count == 1)
 				   {
@@ -230,14 +234,14 @@ namespace VitalSignsMicrosoftClasses
 		   catch (Exception ex)
 		   {
 
-			   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Error in checkFileWitnessServer: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+			   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Error in checkFileWitnessServer: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
 		   }
 	   }
 
        public void DAGHealthMemberReport(PowerShell powershell, ref TestResults AllTestsList, MonitoredItems.ExchangeServer myServer)
        {
-		   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "In DAGHealthMemberReport.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+		   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "In DAGHealthMemberReport.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
 		   string serverErrors = "";
 		   string testErrors = "";
@@ -259,13 +263,13 @@ namespace VitalSignsMicrosoftClasses
 			   {
 				   foreach (ErrorRecord er in powershell.Streams.Error)
 					   Console.WriteLine(er.ErrorDetails);
-				   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "DAGHealthMemberReport received over 51 errors", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+				   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "DAGHealthMemberReport received over 51 errors", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 				   //AllTestsList.StatusDetails.Add(new TestList() { TestName="DAG", Details = "DAG Errors:Error count>51 at " + System.DateTime.Now.ToShortTimeString(), Result = commonEnums.ServerResult.Fail });
 				   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Member_Health, ref AllTestsList, "DAG Errors:Error count>51 at " + System.DateTime.Now.ToShortTimeString(), "Member Report");
 			   }
 			   else
 			   {
-				   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "EX_DAGHealth_MemberReport output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+				   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "EX_DAGHealth_MemberReport output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
                    List<VSNext.Mongo.Entities.DagServers> listOfDagTests = new List<VSNext.Mongo.Entities.DagServers>();
 				   foreach (PSObject ps in results)
 				   {
@@ -398,7 +402,7 @@ namespace VitalSignsMicrosoftClasses
 		   catch (Exception ex)
 		   {
 
-			   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Error in DAGHealthMemberReport: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+			   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Error in DAGHealthMemberReport: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
 		   }
        
@@ -430,7 +434,7 @@ namespace VitalSignsMicrosoftClasses
 		   }
 		   catch (Exception ex)
 		   {
-			   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Error making alert for DAG Member Report. Error :" + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+			   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Error making alert for DAG Member Report. Error :" + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 		   }
        }
 
@@ -438,11 +442,14 @@ namespace VitalSignsMicrosoftClasses
        {
 		   int replyThresh;
 		   int copyThresh;
-		   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "In DAGHealthCopyStatus.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+		   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "In DAGHealthCopyStatus.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
-		   string SqlStr = "select ServerName, DatabaseName, ReplayQueueThreshold, CopyQueueThreshold from DAGQueueThresholds where DAGName='" + myServer.Name + "'";
-		   CommonDB db = new CommonDB();
-		   DataTable dt = db.GetData(SqlStr);
+		   //string SqlStr = "select ServerName, DatabaseName, ReplayQueueThreshold, CopyQueueThreshold from DAGQueueThresholds where DAGName='" + myServer.Name + "'";
+		  // CommonDB db = new CommonDB();
+		   //DataTable dt = db.GetData(SqlStr);
+
+            
+
 
 		   string serverErrors = "";
 		   string replyErrors = "";
@@ -463,13 +470,13 @@ namespace VitalSignsMicrosoftClasses
 			   {
 				   foreach (ErrorRecord er in powershell.Streams.Error)
 					   Console.WriteLine(er.ErrorDetails);
-				   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "DAGHealthCopyStatus received over 51 errors", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+				   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "DAGHealthCopyStatus received over 51 errors", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
 				   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Database_Health, ref AllTestsList, "DAG Errors:Error count>51 at " + System.DateTime.Now.ToShortTimeString(), "Database");
 			   }
 			   else
 			   {
-				   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "EX_DAGHealth_CopyStatus output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+				   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "EX_DAGHealth_CopyStatus output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
                    List<VSNext.Mongo.Entities.DagServerDatabases> listOfDagEntities = new List<VSNext.Mongo.Entities.DagServerDatabases>();
 
 				   foreach (PSObject ps in results)
@@ -479,8 +486,8 @@ namespace VitalSignsMicrosoftClasses
 
 					   string strDatabaseName = ps.Properties["DatabaseName"].Value == null ? "" : ps.Properties["DatabaseName"].Value.ToString();
 					   //string strActivationPreference = ps.Properties["ActivationPreference"].Value == null ? "" : ps.Properties["ActivationPreference"].Value.ToString();
-					   string strCopyQueue = ps.Properties["CopyQueueLength"].Value == null ? "" : ps.Properties["CopyQueueLength"].Value.ToString();
-					   string strReplayQueue = ps.Properties["ReplayQueueLength"].Value == null ? "" : ps.Properties["ReplayQueueLength"].Value.ToString();
+					   string strCopyQueue = ps.Properties["CopyQueueLength"].Value == null ? "0" : ps.Properties["CopyQueueLength"].Value.ToString();
+					   string strReplayQueue = ps.Properties["ReplayQueueLength"].Value == null ? "0" : ps.Properties["ReplayQueueLength"].Value.ToString();
 					   string strReplayLagged = ps.Properties["ReplayLagged"].Value == null ? "" : ps.Properties["ReplayLagged"].Value.ToString();
 					   string strTruncationLagged = ps.Properties["TruncationLagged"].Value == null ? "" : ps.Properties["TruncationLagged"].Value.ToString();
 					   string strContendIndex = ps.Properties["Content Index"].Value == null ? "" : ps.Properties["Content Index"].Value.ToString();
@@ -488,8 +495,8 @@ namespace VitalSignsMicrosoftClasses
                        listOfDagEntities.Add(new VSNext.Mongo.Entities.DagServerDatabases()
                        {
                            DatabaseName = strDatabaseName,
-                           CopyQueue = strCopyQueue,
-                           ReplayQueue = strReplayQueue,
+                           CopyQueue = int.Parse(strCopyQueue),
+                           ReplayQueue = int.Parse(strReplayQueue),
                            ReplayLagged = strReplayLagged,
                            TruncationLagged = strTruncationLagged,
                            ContendIndex = strContendIndex,
@@ -501,12 +508,16 @@ namespace VitalSignsMicrosoftClasses
 						   serverErrors += strDatabaseName + ",";
 					   }
 
-					   DataRow[] rows = dt.Select("(ServerName='" + strServer + "' or ServerName='AllDatabases') AND (DatabaseName='" + strDatabaseName + "' or DatabaseName='AllDatabases')");
+                        DataRow[] rows = new DataRow[0];// dt.Select("(ServerName='" + strServer + "' or ServerName='AllDatabases') AND (DatabaseName='" + strDatabaseName + "' or DatabaseName='AllDatabases')");
 
-					   if (rows.Count() != 0)
+
+                        string allDatabases = "AllDatabases";
+					   if (myServer.DagDatabaseSettings.Exists(x => (x.ServerName == strServer || x.ServerName == allDatabases) && (x.DatabaseName == strDatabaseName || x.DatabaseName == allDatabases)))
 					   {
-						   copyThresh = int.Parse(rows[0]["CopyQueueThreshold"].ToString());
-						   replyThresh = int.Parse(rows[0]["ReplayQueueThreshold"].ToString());
+                            MonitoredItems.ExchangeServer.DagDatabaseSetting dagSetting = myServer.DagDatabaseSettings.Find(x => (x.ServerName == strServer || x.ServerName == allDatabases) && (x.DatabaseName == strDatabaseName || x.DatabaseName == allDatabases));
+
+                           copyThresh = dagSetting.CopyQueueThreshold;
+						   replyThresh = dagSetting.ReplayQueueThreshold;
 						   if (strCopyQueue != "")
 							   if (Convert.ToDouble(strCopyQueue) > copyThresh && copyThresh != 0)
 								   copyErrors += strDatabaseName + ",";
@@ -528,7 +539,7 @@ namespace VitalSignsMicrosoftClasses
 		   catch (Exception ex)
 		   {
 
-			   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Error in DAGHealthCopyStatus: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+			   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Error in DAGHealthCopyStatus: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 		   }
 
 			try
@@ -586,7 +597,7 @@ namespace VitalSignsMicrosoftClasses
 			}
 			catch (Exception ex)
 			{
-				Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Error making alert for DAG Database Health. Error :" + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Error making alert for DAG Database Health. Error :" + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 			}
        }
 
@@ -619,14 +630,14 @@ namespace VitalSignsMicrosoftClasses
 			   {
 				   foreach (ErrorRecord er in powershell.Streams.Error)
 					   Console.WriteLine(er.ErrorDetails);
-				   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "DAGActivationPref&mounted received over 51 errors", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+				   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "DAGActivationPref&mounted received over 51 errors", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 				   //AllTestsList.StatusDetails.Add(new TestList() { TestName = "DAG", Details = "DAG Errors:Error count>51 at " + System.DateTime.Now.ToShortTimeString(), Result = commonEnums.ServerResult.Fail });
 				   //success = false;
 				   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Activation_Preference, ref AllTestsList, "DAG Errors:Error count>51 at " + System.DateTime.Now.ToShortTimeString(), "Activation Preference");
 			   }
 			   else
 			   {
-				   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "EX_DAG_activationPref&mounted output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+				   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "EX_DAG_activationPref&mounted output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
 				   foreach (PSObject ps in results)
 				   {
@@ -683,7 +694,7 @@ namespace VitalSignsMicrosoftClasses
 		   catch (Exception ex)
 		   {
 
-			   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Error in DAGHealthCopyStatus: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+			   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Error in DAGHealthCopyStatus: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 			   //success = false;
 
 		   }
@@ -711,7 +722,7 @@ namespace VitalSignsMicrosoftClasses
 		   }
 		   catch (Exception ex)
 		   {
-			   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Error making alert for DAG Activation Preferences. Error :" + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+			   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Error making alert for DAG Activation Preferences. Error :" + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 		   }
 
 	   }
@@ -727,7 +738,7 @@ namespace VitalSignsMicrosoftClasses
 
 	   public void DAGBackupDetails(PowerShell powershell, ref TestResults AllTestsList, MonitoredItems.ExchangeServer myServer)
 	   {
-		   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "in DAGBackupDetails", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+		   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "in DAGBackupDetails", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
 		   try
 		   {
@@ -744,12 +755,12 @@ namespace VitalSignsMicrosoftClasses
 			   {
 				   foreach (ErrorRecord er in powershell.Streams.Error)
 					   Console.WriteLine(er.ErrorDetails);
-				   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "DAGBackupDetails received over 51 errors", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+				   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "DAGBackupDetails received over 51 errors", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 				   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Database_Health, ref AllTestsList, "DAG Errors:Error count>51 at " + System.DateTime.Now.ToShortTimeString(), "Database");
 			   }
 			   else
 			   {
-				   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "EX_DAG_Database_Backups output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+				   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "EX_DAG_Database_Backups output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 				   foreach (PSObject ps in results)
 				   {
 
@@ -773,7 +784,7 @@ namespace VitalSignsMicrosoftClasses
 
                        MongoStatementsUpdate<VSNext.Mongo.Entities.Status> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
                        mongoUpdate.filterDef = mongoUpdate.repo.Filter.Eq(i => i.TypeAndName, myServer.TypeANDName) 
-                           & !mongoUpdate.repo.Filter.ElemMatch(i => i.DagServers, i => i.DAGServerName == strDatabase);
+                           & !mongoUpdate.repo.Filter.ElemMatch(i => i.DagDatabases, i => i.DatabaseName == strDatabase);
                        VSNext.Mongo.Entities.DagDatabases dbg = new VSNext.Mongo.Entities.DagDatabases()
                        {
                             DatabaseName = strDatabase
@@ -808,7 +819,7 @@ namespace VitalSignsMicrosoftClasses
 		   catch (Exception ex)
 		   {
 
-			   Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Error in DAGBackupDetails: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+			   Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Error in DAGBackupDetails: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 			   //success = false;
 
 		   }
