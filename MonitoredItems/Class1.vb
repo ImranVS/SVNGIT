@@ -831,6 +831,16 @@ Public Class ExchangeServer
 	Public Property DAGBackupAuthenticationType As String
 	Public Property DAGReplyQueueThreshold As Integer
     Public Property DAGCopyQueueThreshold As Integer
+    Public Property DagDatabaseSettings As List(Of DagDatabaseSetting)
+
+    Public Class DagDatabaseSetting
+        Public Property DatabaseName As String
+        Public Property ServerName As String
+        Public Property CopyQueueThreshold As Integer
+        Public Property ReplayQueueThreshold As Integer
+        Public Property WhiteSpaceThreshold As Integer
+        Public Property DatabaseSizeThreshold As Integer
+    End Class
 
     Public Property DAGStatus As String
 
