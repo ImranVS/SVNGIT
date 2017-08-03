@@ -4712,7 +4712,7 @@ skipdrive:
                                         End If
                                     Else
                                         WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " This drive is not in an alert condition. ")
-                                        myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Disk Space " & DiskNames(n), MyDominoServer.Location)
+                                        myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Disk Space " & DiskNames(n), MyDominoServer.Location, "This drive has " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB free space.")
                                     End If
                                 Case "GB"
                                     Try
@@ -4738,7 +4738,7 @@ skipdrive:
                                             End If
                                         Else
                                             WriteDeviceHistoryEntry(MyDominoServer.ServerType, MyDominoServer.Name, Now.ToString & " This drive is not in an alert condition. ")
-                                            myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Disk Space " & DiskNames(n), MyDominoServer.Location, "This drive has " & myDiskDrive.DiskFreeInGB & " GB free space.")
+                                            myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Disk Space " & DiskNames(n), MyDominoServer.Location, "This drive has " & myDiskDrive.DiskFreeInGB.ToString("F2") & " GB free space.")
                                         End If
                                     Catch ex As Exception
                                         WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception with disk space at #5: " & ex.ToString)
