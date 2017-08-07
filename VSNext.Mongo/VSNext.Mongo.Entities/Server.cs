@@ -1001,6 +1001,10 @@ namespace VSNext.Mongo.Entities
         [BsonElement("database_settings_port")]
         public int? DatabaseSettingsPort{ get; set; }
 
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("connections_community_uuid")]
+        public string ConnectionsCommunityUuid { get; set; }
 
         [DataMember]
         [BsonIgnoreIfNull]

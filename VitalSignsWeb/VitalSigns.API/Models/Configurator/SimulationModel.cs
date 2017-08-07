@@ -54,6 +54,8 @@ namespace VitalSigns.API.Models
         [JsonProperty ("search_profile")]
         public bool SearchProfile { get; set; }
 
+        [JsonProperty("community_uuid")]
+        public string CommunityUUID { get; set; }
     }
 
     public class TestsModel

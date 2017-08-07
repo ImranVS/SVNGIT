@@ -14,7 +14,7 @@
                             <input type="checkbox" class="checkbox-inline" id="create_activity" formControlName="create_activity" name="create_activity" />
                             <label for="create_activity">Create Activity</label>
                         </div>
-                    </div>                 
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="create_blog_threshold" class="control-label col-sm-4">Create Blog Threshold (ms)</label>
@@ -26,7 +26,7 @@
                             <input type="checkbox" class="checkbox-inline" id="create_blog" formControlName="create_blog" name="create_blog" />
                             <label for="create_blog">Create Blog</label>
                         </div>
-                    </div>                    
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="create_bookmark_threshold" class="control-label col-sm-4">Create Bookmark Threshold (ms)</label>
@@ -38,8 +38,8 @@
                             <input type="checkbox" class="checkbox-inline" id="create_bookmark" name="create_bookmark" formControlName="create_bookmark" />
                             <label for="create_bookmark">Create Bookmark</label>
                         </div>
-                    </div>                          
-                        </div>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label for="create_community_threshold" class="control-label col-sm-4">Create Community Threshold (ms)</label>
                     <div class="col-sm-2">
@@ -50,8 +50,8 @@
                             <input type="checkbox" class="checkbox-inline" id="create_community" name="create_community" formControlName="create_community" />
                             <label for="create_community">Create Community</label>
                         </div>
-                    </div>    
-                        </div>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label for="create_file_threshold" class="control-label col-sm-4">Create File Threshold (ms)</label>
                     <div class="col-sm-2">
@@ -62,8 +62,8 @@
                             <input type="checkbox" class="checkbox-inline" id="create_file" name="create_file" formControlName="create_file" />
                             <label for="create_file">Create File</label>
                         </div>
-                    </div>              
-                        </div>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label for="create_wiki_threshold" class="control-label col-sm-4">Create Wiki Threshold (ms)</label>
                     <div class="col-sm-2">
@@ -75,7 +75,7 @@
                             <label for="create_wiki">Create Wiki</label>
                         </div>
                     </div>
-                        </div>
+                </div>
                 <div class="form-group">
                     <label for="search_profile_threshold" class="control-label col-sm-4">Search Profile Threshold (ms)</label>
                     <div class="col-sm-2">
@@ -86,10 +86,20 @@
                             <input type="checkbox" class="checkbox-inline" id="search_profile" name="search_profile" formControlName="search_profile" />
                             <label for="search_profile">Search Profile</label>
                         </div>
-                    </div>                   
-                        </div>
                     </div>
                 </div>
+
+                
+                <div class="form-group" style="clear:both;">
+                    <p>If "Create Community" is not marked, you can provide a Community UUID to be used to perform tests. This can be used to hide the tests from the Activity Feed if the community is private.<br />To find the UUID, navigate to the community's page and copy/paste the string after "communityUuid=" in the URL. Ex: 3718c6b4-9a17-45ee-a2c2-c6dd7de7f0de<br /></p>
+                    <label for="create_activity_threshold" class="control-label col-sm-4">Community UUID</label>
+                    <div class="col-sm-2" style="width:350px;">
+                        <input type="text" class="form-control" id="community_uuid" name="community_uuid" formControlName="community_uuid" />
+                    </div>
+                </div>
+
+            </div>
+        </div>
         <button type="submit" class="btn btn-primary" name="submit">Save</button>
     </form>
 </div>

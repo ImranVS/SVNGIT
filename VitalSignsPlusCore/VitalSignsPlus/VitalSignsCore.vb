@@ -3497,47 +3497,81 @@ CleanUp:
                         TestCreateAllInOneCommunities(myServer)
                     Else
 
-                    If (myServer.TestCreateActivity) Then
-                        TestCreateActivity(myServer)
-                    Else
-                        adapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", "DELETE FROM StatusDetail WHERE TypeANDName = '" & myServer.Name & "-IBM Connections' and TestName = 'Create Activity'")
-                    End If
+                        If (myServer.TestCreateActivity) Then
+                            If String.IsNullOrWhiteSpace(myServer.CommunityUUID) Then
+                                TestCreateActivity(myServer)
+                            Else
+                                TestCreateCommunityActivity(myServer, myServer.CommunityUUID)
+                            End If
+                        Else
+                            'adapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", "DELETE FROM StatusDetail WHERE TypeANDName = '" & myServer.Name & "-IBM Connections' and TestName = 'Create Activity'")
+                        End If
 
-                    If (myServer.TestCreateBlog) Then
-                        TestCreateBlog(myServer)
-                    Else
-                        adapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", "DELETE FROM StatusDetail WHERE TypeANDName = '" & myServer.Name & "-IBM Connections' and TestName = 'Create Blog'")
-                    End If
+                        If (myServer.TestCreateBlog) Then
+                            If String.IsNullOrWhiteSpace(myServer.CommunityUUID) Then
+                                TestCreateBlog(myServer)
+                            Else
+                                TestCreateCommunityBlog(myServer, myServer.CommunityUUID)
+                            End If
+                        Else
+                            'adapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", "DELETE FROM StatusDetail WHERE TypeANDName = '" & myServer.Name & "-IBM Connections' and TestName = 'Create Blog'")
+                        End If
 
-                    If (myServer.TestCreateBookmarks) Then
-                        TestCreateBookmarks(myServer)
-                    Else
-                        adapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", "DELETE FROM StatusDetail WHERE TypeANDName = '" & myServer.Name & "-IBM Connections' and TestName = 'Create Bookmark'")
-                    End If
+                        If (myServer.TestCreateBookmarks) Then
+                            If String.IsNullOrWhiteSpace(myServer.CommunityUUID) Then
+                                TestCreateBookmarks(myServer)
+                            Else
+                                TestCreateCommunityBookmarks(myServer, myServer.CommunityUUID)
+                            End If
+                        Else
+                            adapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", "DELETE FROM StatusDetail WHERE TypeANDName = '" & myServer.Name & "-IBM Connections' and TestName = 'Create Bookmark'")
+                        End If
 
-                        If (myServer.TestCreateCommunities Or myServer.TestCreateForums Or myServer.TestCreateBlog) Then
-                        TestCreateCommunities(myServer)
-                    Else
-                        adapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", "DELETE FROM StatusDetail WHERE TypeANDName = '" & myServer.Name & "-IBM Connections' and TestName = 'Create Community'")
-                    End If
+                        'If (myServer.TestCreateCommunities Or myServer.TestCreateForums Or myServer.TestCreateBlog) Then
+                        '    If String.IsNullOrWhiteSpace(myServer.CommunityUUID) Then
+                        '        TestCreateCommunities(myServer)
+                        '    Else
+                        '        'TestCreateCommunityActivity(myServer, myServer.CommunityUUID)
+                        '    End If
+                        'Else
+                        '    'adapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", "DELETE FROM StatusDetail WHERE TypeANDName = '" & myServer.Name & "-IBM Connections' and TestName = 'Create Community'")
+                        'End If
 
-                    If (myServer.TestCreateFiles) Then
-                        TestCreateFiles(myServer)
-                    Else
-                        adapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", "DELETE FROM StatusDetail WHERE TypeANDName = '" & myServer.Name & "-IBM Connections' and TestName = 'Create File'")
-                    End If
+                        If (myServer.TestCreateFiles) Then
+                            If String.IsNullOrWhiteSpace(myServer.CommunityUUID) Then
+                                TestCreateFiles(myServer)
+                            Else
+                                TestCreateCommunityActivity(myServer, myServer.CommunityUUID)
+                            End If
+                        Else
+                            'adapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", "DELETE FROM StatusDetail WHERE TypeANDName = '" & myServer.Name & "-IBM Connections' and TestName = 'Create File'")
+                        End If
 
-                    If (myServer.TestCreateWikis) Then
-                        TestCreateWikis(myServer)
-                    Else
-                        adapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", "DELETE FROM StatusDetail WHERE TypeANDName = '" & myServer.Name & "-IBM Connections' and TestName = 'Create Wiki'")
-                    End If
+                        If (myServer.TestCreateForums) Then
+                            If String.IsNullOrWhiteSpace(myServer.CommunityUUID) Then
+                                TestCreateForums(myServer)
+                            Else
+                                TestCreateCommunityForumsTopic(myServer, myServer.CommunityUUID)
+                            End If
+                        Else
+                            'adapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", "DELETE FROM StatusDetail WHERE TypeANDName = '" & myServer.Name & "-IBM Connections' and TestName = 'Create File'")
+                        End If
 
-                    If (myServer.TestSearchProfiles) Then
-                        TestSearchProfiles(myServer)
-                    Else
-                        adapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", "DELETE FROM StatusDetail WHERE TypeANDName = '" & myServer.Name & "-IBM Connections' and TestName = 'Search Profiles'")
-                    End If
+                        If (myServer.TestCreateWikis) Then
+                            If String.IsNullOrWhiteSpace(myServer.CommunityUUID) Then
+                                TestCreateWikis(myServer)
+                            Else
+                                TestCreateCommunityActivity(myServer, myServer.CommunityUUID)
+                            End If
+                        Else
+                            'adapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", "DELETE FROM StatusDetail WHERE TypeANDName = '" & myServer.Name & "-IBM Connections' and TestName = 'Create Wiki'")
+                        End If
+
+                        If (myServer.TestSearchProfiles) Then
+                            TestSearchProfiles(myServer)
+                        Else
+                            'adapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", "DELETE FROM StatusDetail WHERE TypeANDName = '" & myServer.Name & "-IBM Connections' and TestName = 'Search Profiles'")
+                        End If
                     End If
 
 
@@ -4608,7 +4642,7 @@ CleanUp:
 
     End Sub
 
-    Public Sub TestCreateForums(ByRef myServer As MonitoredItems.IBMConnect, ByVal communityUUID As String)
+    Public Sub TestCreateForums(ByRef myServer As MonitoredItems.IBMConnect)
         Try
             'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateForums", LogUtilities.LogUtils.LogLevel.Normal)
             Dim AlertType As String = "Create Forum"
@@ -4620,7 +4654,7 @@ CleanUp:
             Dim TestThreshold As Int32 = myServer.CreateForumsThreshold
 
             Dim Name As String = "VitalSigns Test Forum"
-            Dim URL As String = URLBase + "/forums/atom/forums?communityUuid=" & communityUUID
+            Dim URL As String = URLBase + "/forums/atom/forums"
             Dim Body As String = "<?xml version=""1.0"" encoding=""utf-8""?><entry xmlns=""http://www.w3.org/2005/Atom""><title type=""text"">" & Name & "</title><content type=""text"">Forum Sub Forum Test 1</content><category scheme=""http://www.ibm.com/xmlns/prod/sn/type"" term=""forum-forum""></category></entry>"
 
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Will first try deleting all undeleted VitalSigns Forums", LogUtilities.LogUtils.LogLevel.Normal)
@@ -5392,7 +5426,7 @@ CleanUp:
     Public Sub TestCreateCommunityActivity(ByRef myServer As MonitoredItems.IBMConnect, ByVal communityUUID As String)
         Try
 
-            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateCommunityActivity", LogUtilities.LogUtils.LogLevel.Normal)
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateCommunityActivity. communityUuid: " & communityUUID, LogUtilities.LogUtils.LogLevel.Normal)
             Dim AlertType As String = "Create Activity"
             Dim URL As String = myServer.IPAddress
             Dim Username As String = myServer.UserName

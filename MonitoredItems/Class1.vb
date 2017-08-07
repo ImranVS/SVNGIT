@@ -4274,6 +4274,7 @@ Public Class IBMConnect
     Public DBPort As String
     Public DBHostName As String
 
+    Public CommunityUUID As String
 
 End Class
 

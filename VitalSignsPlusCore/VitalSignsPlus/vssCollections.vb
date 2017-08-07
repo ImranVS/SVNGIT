@@ -3077,7 +3077,8 @@ Partial Public Class VitalSignsPlusCore
                 .Include(Function(x) x.DatabaseSettingsHostName) _
                 .Include(Function(x) x.DatabaseSettingsCredentialsId) _
                 .Include(Function(x) x.DatabaseSettingsPort) _
-                .Include(Function(x) x.SimulationTests)
+                .Include(Function(x) x.SimulationTests) _
+                .Include(Function(x) x.ConnectionsCommunityUuid)
 
             listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
@@ -3575,6 +3576,16 @@ Partial Public Class VitalSignsPlusCore
                         End If
                     Catch ex As Exception
                         .DBPort = ""
+                    End Try
+
+                    Try
+                        If entity.ConnectionsCommunityUuid Is Nothing Then
+                            .CommunityUUID = ""
+                        Else
+                            .CommunityUUID = entity.ConnectionsCommunityUuid
+                        End If
+                    Catch ex As Exception
+                        .CommunityUUID = ""
                     End Try
 
                     Try

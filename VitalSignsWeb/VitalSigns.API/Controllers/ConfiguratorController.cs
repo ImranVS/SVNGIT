@@ -2393,7 +2393,7 @@ namespace VitalSigns.API.Controllers
                         DiskName = drive.DiskName,
                         DiskSize = drive.DiskSize,
 
-                        PercentFree = drive.PercentFree,
+                        PercentFree = drive.PercentFree.HasValue ? drive.PercentFree.Value * 100 : drive.PercentFree.Value,
 
                     });
 
@@ -6132,8 +6132,9 @@ namespace VitalSigns.API.Controllers
                     nameValuePairs.Add(new NameValuePair { Name = "Create Wiki Threshold", Value = Convert.ToString(ibmsimulations.CreateWikiThreshold) });
                 if (ibmsimulations.SearchProfile)
                     nameValuePairs.Add(new NameValuePair { Name = "Search Profile Threshold", Value = Convert.ToString(ibmsimulations.SearchProfileThreshold) });
+
                 Server server = serversRepository.Get(ibmsimulations.Id);
-                var updateDefination = serversRepository.Updater.Set(p => p.SimulationTests, nameValuePairs);
+                var updateDefination = serversRepository.Updater.Set(p => p.SimulationTests, nameValuePairs).Set(p => p.ConnectionsCommunityUuid, ibmsimulations.CommunityUUID);
                 var result = serversRepository.Update(server, updateDefination);
                 //2/24/2017 NS added for VSPLUS-3506
                 Licensing licensing = new Licensing();
