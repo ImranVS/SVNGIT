@@ -1686,7 +1686,10 @@ namespace VitalSigns.API.Controllers
                             {
                                 if (item.IsSelected)
                                 {
-                                    diskSettings.Add(new DiskSetting { DiskName = item.DiskName, Threshold = Convert.ToDouble(item.FreespaceThreshold), ThresholdType = item.ThresholdType });
+                                    diskSettings.Add(new DiskSetting {
+                                        DiskName = item.DiskName,
+                                        Threshold = item.ThresholdType == "Percent" ? Convert.ToDouble(item.FreespaceThreshold) / 100 : Convert.ToDouble(item.FreespaceThreshold),
+                                        ThresholdType = item.ThresholdType });
                                 }
                             }
                         }
@@ -2407,6 +2410,8 @@ namespace VitalSigns.API.Controllers
                             drives.FirstOrDefault(x => x.DiskName == item.DiskName).FreespaceThreshold = item.Threshold.ToString();
 
                             drives.FirstOrDefault(x => x.DiskName == item.DiskName).ThresholdType = item.ThresholdType.ToString();
+                            if (drives.FirstOrDefault(x => x.DiskName == item.DiskName).ThresholdType == "Percent")
+                                drives.FirstOrDefault(x => x.DiskName == item.DiskName).FreespaceThreshold = (Convert.ToDouble(drives.FirstOrDefault(x => x.DiskName == item.DiskName).FreespaceThreshold) * 100).ToString();
                             drives.FirstOrDefault(x => x.DiskName == item.DiskName).IsSelected = true;
 
                         }
@@ -2453,13 +2458,18 @@ namespace VitalSigns.API.Controllers
                     }).FirstOrDefault();
                     Response = Common.CreateResponse(results);
                 }
-
-
-
-
-
-
+                else
+                {
+                    Response = Common.CreateResponse(new SelectedDiksModel
+                    {
+                        DiskName = "selectedDisks",
+                        ThresholdType = "GB",
+                        FreespaceThreshold = "0"
+                    });
+                }
+                
             }
+
 
 
             catch (Exception exception)
@@ -2505,7 +2515,11 @@ namespace VitalSigns.API.Controllers
                         {
                             if (item.IsSelected)
                             {
-                                diskSettings.Add(new DiskSetting { DiskName = item.DiskName, Threshold = Convert.ToDouble(item.FreespaceThreshold), ThresholdType = item.ThresholdType });
+                                diskSettings.Add(new DiskSetting {
+                                    DiskName = item.DiskName,
+                                    Threshold = item.ThresholdType == "Percent" ? Convert.ToDouble(item.FreespaceThreshold) / 100 : Convert.ToDouble(item.FreespaceThreshold),
+                                    ThresholdType = item.ThresholdType
+                                });
                             }
                         }
                     }
