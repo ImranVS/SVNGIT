@@ -248,6 +248,7 @@ namespace VitalSigns.API.Controllers
         {
             mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
             var result = mobileDevicesRepository.Collection.Aggregate()
+                                             .Match(x => x.IsActive == true)
                                              .Group(x => x.DeviceType, g => new { label = g.Key, value = g.Count() })
                                              .Project(x => new Segment
                                              {
@@ -278,6 +279,7 @@ namespace VitalSigns.API.Controllers
         {
             mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
             var result = mobileDevicesRepository.Collection.Aggregate()
+                                                .Match(x => x.IsActive == true)
                                                 .Group(x => x.UserName, g => new { label = g.Key, value = g.Count() })
                                                 .Project(x => new Segment
                                                 {
@@ -317,7 +319,7 @@ namespace VitalSigns.API.Controllers
         {
             mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
 
-            var result = mobileDevicesRepository.Collection.AsQueryable()
+            var result = mobileDevicesRepository.Find(x => x.IsActive == true).AsQueryable()
                                               .Select(x => new
                                               {
                                                   LastSyncTime = x.LastSyncTime
@@ -381,6 +383,7 @@ namespace VitalSigns.API.Controllers
             //var alldevices = mobileDevicesRepository.Collection.AsQueryable().ToList();
 
             var result = mobileDevicesRepository.Collection.Aggregate()
+                .Match(x => x.IsActive == true)
                 .Group(x => x.OS, g => new { label = g.Key, value = g.Count() })
                 .Project(x => new Segment
                 {
@@ -430,7 +433,7 @@ namespace VitalSigns.API.Controllers
         public APIResponse CountDevicesTotal()
         {
             mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
-            var result = mobileDevicesRepository.Collection.AsQueryable().Select(x => x.DeviceID).Distinct().ToList().Count;
+            var result = mobileDevicesRepository.Find(x => x.IsActive == true).AsQueryable().Select(x => x.DeviceID).Distinct().ToList().Count;
 
             Response = Common.CreateResponse(result);
             return Response;
