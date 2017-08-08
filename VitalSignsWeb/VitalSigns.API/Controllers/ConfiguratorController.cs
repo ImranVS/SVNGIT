@@ -6208,6 +6208,7 @@ namespace VitalSigns.API.Controllers
                     ibmsimulations.CreateWikiThreshold = 10000;
                     ibmsimulations.SearchProfileThreshold = 10000;
                 }
+                ibmsimulations.CommunityUUID = result.ConnectionsCommunityUuid;
                 Response = Common.CreateResponse(ibmsimulations);
             }
             catch (Exception exception)
