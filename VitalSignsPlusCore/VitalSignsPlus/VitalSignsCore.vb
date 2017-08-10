@@ -3820,11 +3820,24 @@ CleanUp:
             Dim webResponse As HttpWebResponse
 
             Try
-                Dim startTime As DateTime = DateTime.Now
-                webResponse = httpWR.GetResponse()
-                Dim endTime As DateTime = DateTime.Now
-                Dim span As TimeSpan = endTime - startTime
-                Dim createTime As Double = Math.Round(span.TotalMilliseconds, 1)
+                Dim startTime As DateTime
+                Dim endTime As DateTime
+                Dim span As TimeSpan
+                Dim createTime As Double
+
+                Dim counter As Int32 = 0
+
+                Do
+
+                    startTime = DateTime.Now
+                    webResponse = httpWR.GetResponse()
+                    endTime = DateTime.Now
+                    createTime = Math.Round(span.TotalMilliseconds, 1)
+                    counter = counter + 1
+                    Thread.Sleep(2000)
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Activity took " & createTime & " ms and produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
+
+                Loop While webResponse.StatusCode <> HttpStatusCode.Created And counter < 2
 
                 If (webResponse.StatusCode = HttpStatusCode.Created) Then
                     'Created Correctly...do things
@@ -5464,7 +5477,7 @@ CleanUp:
             Dim webResponse As HttpWebResponse
 
             Try
-                Dim startTime As DateTime = DateTime.Now
+                'Dim startTime As DateTime = DateTime.Now
 
                 Try
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Adding acitivity widget.", LogUtilities.LogUtils.LogLevel.Normal)
@@ -5473,10 +5486,29 @@ CleanUp:
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error adding activity widget. Error: " And ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
                 End Try
 
-                webResponse = httpWR.GetResponse()
-                Dim endTime As DateTime = DateTime.Now
-                Dim span As TimeSpan = endTime - startTime
-                Dim createTime As Double = Math.Round(span.TotalMilliseconds, 1)
+                Dim startTime As DateTime
+                Dim endTime As DateTime
+                Dim span As TimeSpan
+                Dim createTime As Double
+
+                Dim counter As Int32 = 0
+
+                Do
+
+                    startTime = DateTime.Now
+                    webResponse = httpWR.GetResponse()
+                    endTime = DateTime.Now
+                    createTime = Math.Round(span.TotalMilliseconds, 1)
+                    counter = counter + 1
+                    Thread.Sleep(2000)
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Activity took " & createTime & " ms and produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
+
+                Loop While webResponse.StatusCode <> HttpStatusCode.Created And counter < 2
+
+                ' webResponse = httpWR.GetResponse()
+                ' Dim endTime As DateTime = DateTime.Now
+                ' Dim span As TimeSpan = endTime - startTime
+                'Dim createTime As Double = Math.Round(span.TotalMilliseconds, 1)
 
                 If (webResponse.StatusCode = HttpStatusCode.Created) Then
                     'Created Correctly...do things
