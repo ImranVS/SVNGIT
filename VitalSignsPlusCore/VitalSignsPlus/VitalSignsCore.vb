@@ -3837,7 +3837,7 @@ CleanUp:
                     Thread.Sleep(2000)
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Activity took " & createTime & " ms and produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
 
-                Loop While webResponse.StatusCode <> HttpStatusCode.Created And counter < 2
+                Loop While webResponse.StatusCode <> HttpStatusCode.Created And counter < 5
 
                 If (webResponse.StatusCode = HttpStatusCode.Created) Then
                     'Created Correctly...do things
@@ -5503,7 +5503,7 @@ CleanUp:
                     Thread.Sleep(2000)
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Activity took " & createTime & " ms and produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
 
-                Loop While webResponse.StatusCode <> HttpStatusCode.Created And counter < 2
+                Loop While webResponse.StatusCode <> HttpStatusCode.Created And counter < 5
 
                 ' webResponse = httpWR.GetResponse()
                 ' Dim endTime As DateTime = DateTime.Now
