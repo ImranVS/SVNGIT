@@ -1209,6 +1209,16 @@ Partial Public Class VitalSignsPlusDomino
                         End Try
 
                         Try
+                            If entityStatus.StatusCode Is Nothing Then
+                                .Status = "Maintenance"
+                            Else
+                                .Status = entityStatus.StatusCode
+                            End If
+                        Catch ex As Exception
+                            .Status = "Not Scanned"
+                        End Try
+
+                        Try
                             If entityStatus.LastUpdated Is Nothing Then
                                 .LastScan = Now
                             Else
