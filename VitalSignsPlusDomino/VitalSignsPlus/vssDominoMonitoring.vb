@@ -1207,7 +1207,7 @@ WaitHere:
         End If
 
         Try
-            If Ping = True Then
+            If Ping = True And False Then
                 WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " Begin just ping cycle scan of " & myServer.Name & ".  Ping count = " & myServer.PingCount & ", Scan count = " & myServer.ScanCount & " and status of " & myServer.Status)
                 JustPingDominoServer(myServer)
             Else
@@ -4707,7 +4707,7 @@ skipdrive:
                                             '3/4/2016 NS modified for VSPLUS-2682
                                             myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Math.Round(PercentFree * 100, 0) & "% available space on drive " & DiskNames(n) & ". The threshold is " & (disk.Threshold * 100) & "%", MyDominoServer.Location)
                                             ' MyDominoServer.ResponseDetails += " - " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#") & "% free space on " & DiskNames(n) & ". Threshold is " & Microsoft.VisualBasic.Strings.Format(row.Item("Threshold"), "##0.#" & "%")
-                                            MyDominoServer.ResponseDetails += " | " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#") & "% free space on " & DiskNames(n) & ". Threshold is " & disk.Threshold.ToString & "%"
+                                            MyDominoServer.ResponseDetails += " | " & Microsoft.VisualBasic.Strings.Format(PercentFree * 100, "##0.#") & "% free space on " & DiskNames(n) & ". Threshold is " & (disk.Threshold.ToString * 100) & "%"
 
                                         End If
                                     Else
@@ -4772,7 +4772,7 @@ skipdrive:
                                     If InStr(MyDominoServer.Name, "MutalOMA") And Trim(DiskNames(n)) = "Disk.E" Then
                                         'QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". Note: This is the transaction logging drive. The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
                                         '3/4/2016 NS modified for VSPLUS-2682
-                                        myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Math.Round(PercentFree, 0) & " available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & (MyDominoServer.DiskThreshold * 100) & "%", MyDominoServer.Location)
+                                        myAlert.QueueAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Disk Space " & DiskNames(n), "The server " & MyDominoServer.Name & " has " & Math.Round(PercentFree * 100, 0) & " available space on drive " & DiskNames(n) & ".  Note: This is the transaction logging drive.  The threshold is " & (MyDominoServer.DiskThreshold * 100) & "%", MyDominoServer.Location)
 
                                     Else
                                         ' QueueAlert("Domino Server", MyDominoServer.Name, "Disk Space " & DiskNames(n), "The Domino server " & MyDominoServer.Name & " has " & Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#%") & " available space on drive " & DiskNames(n) & ". The threshold is " & MyDominoServer.DiskThreshold * 100 & "%")
@@ -4782,7 +4782,7 @@ skipdrive:
                                     End If
                                     MyDominoServer.Status = "Low Disk Space"
 
-                                    MyDominoServer.ResponseDetails += " | " & (PercentFree * 100).ToString("F1") & "% free space on " & DiskNames(n) & ". Threshold is " & MyDominoServer.DiskThreshold.ToString("F0") & "%"
+                                    MyDominoServer.ResponseDetails += " | " & (PercentFree * 100).ToString("F1") & "% free space on " & DiskNames(n) & ". Threshold is " & (MyDominoServer.DiskThreshold * 100).ToString("F0") & "%"
                                     ' MyDominoServer.Description = Microsoft.VisualBasic.Strings.Format(PercentFree, "##0.#") & "% free space on " & DiskNames(n) & ". Threshold is " & Microsoft.VisualBasic.Strings.Format(MyDominoServer.DiskThreshold, "##0.#") & "% at " & Now.ToShortTimeString
                                     UpdateDominoStatusTable(MyDominoServer)
                                 Else

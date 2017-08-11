@@ -302,75 +302,85 @@ namespace VitalSignsDailyStats
                 }
 
              
-                    try
+                try
+                {
+                    VSFramework.XMLOperation myConnectionString = new VSFramework.XMLOperation();
+
+                    Expression<Func<NameValue, bool>> expression = (p => p.Name == "CleanUpTablesDate");
+
+                    var result = nameValueRepository.Find(expression).FirstOrDefault();
+
+                    if (result==null)
                     {
-                        VSFramework.XMLOperation myConnectionString = new VSFramework.XMLOperation();
+                        NameValue nameValue = new NameValue { Name = "CleanUpTablesDate", Value = "" };
+                        nameValueRepository.Insert(nameValue);
+                    }
+                Expression<Func<NameValue, bool>> filterExpression = (p => p.Name == "CleanUpTablesDate");
 
-                        Expression<Func<NameValue, bool>> expression = (p => p.Name == "CleanUpTablesDate");
-
-                        var result = nameValueRepository.Find(expression).FirstOrDefault();
-
-                        if (result==null)
-                        {
-                            NameValue nameValue = new NameValue { Name = "CleanUpTablesDate", Value = "" };
-                            nameValueRepository.Insert(nameValue);
-                        }
-                    Expression<Func<NameValue, bool>> filterExpression = (p => p.Name == "CleanUpTablesDate");
-
-                     result = nameValueRepository.Find(filterExpression).FirstOrDefault();
-                    var svalue = string.IsNullOrEmpty(result.Value) ? DateTime.Now.AddDays(-7) : Convert.ToDateTime(result.Value);
+                    result = nameValueRepository.Find(filterExpression).FirstOrDefault();
+                var svalue = string.IsNullOrEmpty(result.Value) ? DateTime.Now.AddDays(-7) : Convert.ToDateTime(result.Value);
 
                       
-                        if (svalue.AddDays(7) < DateTime.Now)
-                        {
-                            WriteAuditEntry(DateTime.Now.ToString() + " Starting weekly cleanup.");
-                            //   CleanupAnyTableWeekly();
-                            //Kiran Dadireddy VSPLUS-2684
-                            //  ShrinkDBLogOnWeeklyBasis();
+                    if (svalue.AddDays(7) < DateTime.Now)
+                    {
+                        WriteAuditEntry(DateTime.Now.ToString() + " Starting weekly cleanup.");
+                        //   CleanupAnyTableWeekly();
+                        //Kiran Dadireddy VSPLUS-2684
+                        //  ShrinkDBLogOnWeeklyBasis();
 
-                            try
-                            {
+                        try
+                        {
                                
                              
-                                var filterDefination = Builders<VSNext.Mongo.Entities.NameValue>.Filter.Where(p => p.Name == "CleanUpTablesDate");
-                                var updateDefinitaion = nameValueRepository.Updater.Set(p => p.Value, DateTime.Now.ToString());
-                                var cleanupTables = nameValueRepository.Update(filterDefination, updateDefinitaion);
-                            }
-                            catch (Exception ex)
-                            {
-                                WriteAuditEntry("Error in updating CleanUpTablesDate in name_value collection...." + ex.ToString());
-                            }
-                            WriteAuditEntry(DateTime.Now.ToString() + " Updated the Settings table CleanUpTablesDate column.");
+                            var filterDefination = Builders<VSNext.Mongo.Entities.NameValue>.Filter.Where(p => p.Name == "CleanUpTablesDate");
+                            var updateDefinitaion = nameValueRepository.Updater.Set(p => p.Value, DateTime.Now.ToString());
+                            var cleanupTables = nameValueRepository.Update(filterDefination, updateDefinitaion);
                         }
+                        catch (Exception ex)
+                        {
+                            WriteAuditEntry("Error in updating CleanUpTablesDate in name_value collection...." + ex.ToString());
+                        }
+                        WriteAuditEntry(DateTime.Now.ToString() + " Updated the Settings table CleanUpTablesDate column.");
                     }
-                    catch (Exception ex)
-                    {
-                        WriteAuditEntry("Error cleaning up weekly data...." + ex.ToString());
-                    }
+                }
+                catch (Exception ex)
+                {
+                    WriteAuditEntry("Error cleaning up weekly data...." + ex.ToString());
+                }
 
-                    try
-                    {
-                        WriteAuditEntry("Starting the Log Statistics");
-                        //TO DO
-                       //  LogTableStatistics("Vitalsigns");
-                        //LogTableStatistics("VSS_Statistics");
+                try
+                {
+                    WriteAuditEntry("Starting the Log Statistics");
+                    //TO DO
+                    //  LogTableStatistics("Vitalsigns");
+                    //LogTableStatistics("VSS_Statistics");
 
-                    }
-                    catch (Exception ex)
-                    {
-                        WriteAuditEntry("OOPS, error printing the statistics database" + ex.ToString());
-                    }
-                    try
-                    {
-                        WriteAuditEntry("Starting update of local tables");
-                        UpdateLocalTables();
+                }
+                catch (Exception ex)
+                {
+                    WriteAuditEntry("OOPS, error printing the statistics database" + ex.ToString());
+                }
+                try
+                {
+                    WriteAuditEntry("Starting update of local tables");
+                    UpdateLocalTables();
 
 
-                    }
-                    catch (Exception ex)
-                    {
-                        WriteAuditEntry("OOPS, error updating local tables" + ex.ToString());
-                    }
+                }
+                catch (Exception ex)
+                {
+                    WriteAuditEntry("OOPS, error updating local tables" + ex.ToString());
+                }
+
+                try
+                {
+                    RemoveNSDFiles();
+                    
+                }
+                catch(Exception ex)
+                {
+
+                }
                    
                     WriteAuditEntry("Daily Task is finished....");
 
@@ -1572,6 +1582,27 @@ namespace VitalSignsDailyStats
             WriteAuditEntry("\r\n" + "\r\n" + " * **********************************************" + "\r\n" + "Finished!");
         }
      
+        public void RemoveNSDFiles()
+        {
+            WriteAuditEntry("Removing NSD Files....");
+            string tempPath = Environment.GetEnvironmentVariable("TEMP", EnvironmentVariableTarget.Machine);
+            WriteAuditEntry("Got the Windows Temp folder of " + tempPath);
+            if (tempPath.Length < 5)
+                return;
+            string[] files = System.IO.Directory.GetFiles(tempPath, "nsd_*.tmp");
+            foreach(string file in files)
+            {
+                try
+                {
+                    WriteAuditEntry("Deleting file " + file, LogUtils.LogLevel.Verbose);
+                    //System.IO.File.Delete(file);
+                }
+                catch(Exception ex)
+                {
+                    WriteAuditEntry("Exception deleting file " + file + ". Exception: " + ex.Message);
+                }
+            }
+        }
 
     }
 }
