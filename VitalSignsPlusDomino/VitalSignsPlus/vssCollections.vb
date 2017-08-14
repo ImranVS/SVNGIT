@@ -604,7 +604,8 @@ Partial Public Class VitalSignsPlusDomino
                 .Include(Function(x) x.CurrentStatus) _
                 .Include(Function(x) x.LastUpdated) _
                 .Include(Function(x) x.DeviceType) _
-                .Include(Function(x) x.DeviceName)
+                .Include(Function(x) x.DeviceName) _
+                .Include(Function(x) x.Details)
 
             listOfStatus = repositoryStatus.Find(filterDefStatus, projectionDefStatus).ToList()
 
@@ -1215,7 +1216,7 @@ Partial Public Class VitalSignsPlusDomino
                                 .Status = entityStatus.StatusCode
                             End If
                         Catch ex As Exception
-                            .Status = "Not Scanned"
+                            .Status = "Maintenance"
                         End Try
 
                         Try
@@ -1226,6 +1227,16 @@ Partial Public Class VitalSignsPlusDomino
                             End If
                         Catch ex As Exception
                             .LastScan = Now
+                        End Try
+
+                        Try
+                            If entityStatus.Details Is Nothing Then
+
+                            Else
+                                .ResponseDetails = entityStatus.Details
+                            End If
+                        Catch ex As Exception
+
                         End Try
 
                     Catch ex As Exception
