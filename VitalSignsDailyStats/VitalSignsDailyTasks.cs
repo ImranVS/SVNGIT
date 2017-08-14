@@ -1589,13 +1589,13 @@ namespace VitalSignsDailyStats
             WriteAuditEntry("Got the Windows Temp folder of " + tempPath);
             if (tempPath.Length < 5)
                 return;
-            string[] files = System.IO.Directory.GetFiles(tempPath, "nsd_*.tmp");
+            string[] files = System.IO.Directory.GetFiles(tempPath, "nsd_*.log");
             foreach(string file in files)
             {
                 try
                 {
                     WriteAuditEntry("Deleting file " + file, LogUtils.LogLevel.Verbose);
-                    //System.IO.File.Delete(file);
+                    System.IO.File.Delete(file);
                 }
                 catch(Exception ex)
                 {
