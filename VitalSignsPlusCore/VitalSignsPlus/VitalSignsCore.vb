@@ -80,6 +80,7 @@ Public Class VitalSignsPlusCore
     Dim MOBILE_ALERT As String = "Mobile Users"
 
     Dim BoolOffHours As Boolean = False
+    Dim NotesSession As New Domino.NotesSession
 
     'Threads
     ' Dim MasterDominoThread As New Thread(AddressOf MonitorAllThingsDomino)
@@ -370,9 +371,6 @@ Public Class VitalSignsPlusCore
             JavaPath = "C:\Program Files\Java\jre7\bin\java.exe"
         End Try
 
-        'Get the passwords from the registry
-        'Dim MyPass As Byte()
-        'Dim mySecrets As New VSFramework.TripleDES
 
 
         'Try
@@ -430,6 +428,23 @@ Public Class VitalSignsPlusCore
 
         End Try
 
+        'Get the passwords from the registry
+        'Dim MyPass As Byte()
+        'Dim mySecrets As New VSFramework.TripleDES
+        Dim NotesSystemMessageString As String = "Incorrect Notes Password."
+        If mySametimeServers.Count > 0 Then
+            Try
+                MyDominoPassword = GetNotesPassword()
+                NotesSession.Initialize(MyDominoPassword)
+                WriteAuditEntry(Now.ToString & " Initialized NotesSession for " & NotesSession.CommonUserName)
+                'CleanAlertsDB()
+            Catch ex As Exception
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(NotesSession)
+                '3/13/2015 NS added for VSPLUS-1476
+                myAlert.QueueSysMessage(NotesSystemMessageString)
+                WriteAuditEntry(Now.ToString & " Error Initializing NotesSession required to obtain Sametime statistics.  Many problems will follow....  " & ex.ToString)
+            End Try
+        End If
         WriteAuditEntry(Now.ToString & " Start up is complete.")
 
     End Sub
@@ -450,6 +465,10 @@ Public Class VitalSignsPlusCore
         Catch ex As Exception
 
         End Try
+        If mySametimeServers.Count > 0 Then
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(NotesSession)
+        End If
+
         'End
         MyBase.OnStop()
     End Sub
@@ -3441,6 +3460,7 @@ CleanUp:
     End Function
 #End Region
 
+
 #Region "IBM Connectons Monitoring"
 
 
@@ -5210,7 +5230,6 @@ CleanUp:
     End Sub
 
 
-
     Public Sub TestCreateAllInOneCommunities(ByRef myServer As MonitoredItems.IBMConnect)
         Try
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateAllInOneCommunities", LogUtilities.LogUtils.LogLevel.Normal)
@@ -6499,14 +6518,6 @@ CleanUp:
             End If
         End Try
     End Sub
-
-
-
-
-
-
-
-
 
 
     Public Sub CleanAllVitalSignActivities(ByRef myServer As MonitoredItems.IBMConnect)
@@ -11089,41 +11100,6 @@ CleanUp:
     End Sub
 
 
-    Private Sub CheckSametimeRunningServices(ByRef Server As MonitoredItems.SametimeServer)
-        WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " Checking the health of Sametime subsystems.")
-
-        Dim RunningService As MonitoredItems.SametimeRunningProcess
-        For Each Service As MonitoredItems.SametimeMonitoredProcess In Server.MonitoredProcesses
-            WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " Checking the status of " & Service.Name)
-
-            Try
-                RunningService = Nothing
-                RunningService = Server.RunningProcesses.Search(Service.Name & ".exe".ToUpper)
-                WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " Found " & RunningService.Name)
-            Catch ex As Exception
-
-            End Try
-
-            Try
-                If RunningService Is Nothing Then
-                    'The service is not running on the ST server
-                    Server.Status = "Missing Service"
-                    WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " " & Service.Name & " not found.")
-                    Server.Description = "The service " & Service.Name & " is not running."
-                    Server.ResponseDetails = "The service " & Service.Name & " is not running."
-                    myAlert.QueueAlert("Sametime", Server.Name, Service.Name & " Service", "The service " & Service.Name & " is not running.", Server.Location)
-                Else
-                    'the service is running
-                    myAlert.ResetAlert("Sametime", Server.Name, Service.Name & " Service", Server.Location)
-                    WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " Service " & Service.Name & " is found.")
-                End If
-            Catch ex As Exception
-                WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " Exception: " & ex.ToString)
-            End Try
-
-        Next
-    End Sub
-
     Public Sub GetSametimeMeetingStats(ByRef Server As MonitoredItems.SametimeServer)
         If Server.Platform = "websphere" And Server.WsScanMeetingServer = True Then
 
@@ -11258,6 +11234,143 @@ CleanUp:
         End Try
     End Sub
 
+    Public Sub GetSametimeUsageStatsFromNotesDB(ByRef SametimeServer As MonitoredItems.SametimeServer)
+        WriteAuditEntry(Now.ToString & " Attempting to get usages stats from stlog.nsf.", LogLevel.Verbose)
+        Dim DominoServer As MonitoredItems.DominoServer
+        Try
+
+            DominoServer = MyDominoServers.Search(SametimeServer.Name)
+            If DominoServer Is Nothing Then
+                WriteAuditEntry(Now.ToString & " Unable to determine Domino server name.", LogLevel.Verbose)
+                Exit Sub
+            End If
+
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Unable to determine Domino server name.", LogLevel.Verbose)
+            Exit Sub
+        End Try
+
+        Dim db As Domino.NotesDatabase
+        Dim coll As Domino.NotesDocumentCollection
+        Dim doc As Domino.NotesDocument
+        Dim field As Domino.NotesItem
+        Dim dt As Domino.NotesDateTime
+
+        Dim startInd As Integer = 0
+        Dim endInd As Integer = 0
+        Dim keyInd As Integer = -1
+        Dim searchStr As String
+        Dim lastProcessedDate As DateTime = DateTime.Now.Date
+
+        Dim start, done As Long
+        Dim elapsed As TimeSpan
+        start = Now.Ticks
+
+
+        WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " Scanning the Sametime log file - before getting a handle on the log database.")
+        Try
+            db = NotesSession.GetDatabase(DominoServer.Name, "stlog.nsf", False)
+            lastProcessedDate = SametimeServer.LastDocProcessedDate
+            If SametimeServer.LastDocProcessedDate = DateTime.MinValue Then
+                lastProcessedDate = New DateTime(Now.Year, Now.Month, Now.Day, 0, 0, 0)
+                lastProcessedDate = lastProcessedDate.AddMinutes(1)
+                WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " The last processed date/time is: " & lastProcessedDate)
+            End If
+        Catch ex As Exception
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Error getting stlog.nsf -> " & ex.ToString)
+            GoTo Cleanup
+        End Try
+
+        Dim dict As New Dictionary(Of String, String)
+        WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Scanning the log file - before getting a document collection.")
+        Try
+            searchStr = "Form=""CommunityChatsandPlacesbyDay"" "
+            ' searchStr = searchStr.Substring(0, searchStr.Length - 2) + ") "
+            WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " The search string is: " & searchStr)
+            'dt = NotesSession.CreateDateTime(lastProcessedDate)
+            'WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " The last processed date is: " & dt.LSLocalTime)
+            coll = db.Search(searchStr, dt, 0)
+        Catch ex As Exception
+            WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " Error performing a db search -> " & ex.ToString)
+            GoTo Cleanup
+        End Try
+
+        If coll.Count = 0 Then
+            WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " The search returned NO matching documents. Exiting log file scanning...")
+            GoTo Cleanup
+        Else
+            WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " The search returned " & coll.Count.ToString() & " documents.")
+        End If
+
+        Try
+            doc = coll.GetFirstDocument
+
+            While Not doc Is Nothing
+
+
+                Try
+                    field = doc.GetFirstItem("Total2WayChats")
+                    dict.Add("Total2WayChats", field.Values(0))
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " Error extracting Total2WayChats ")
+                End Try
+
+                Try
+                    field = doc.GetFirstItem("TotalnWayChats")
+                    dict.Add("TotalnWayChats", field.Values(0))
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " Error extracting TotalnWayChats ")
+                End Try
+
+
+                doc = coll.GetNextDocument(doc)
+            End While
+
+            For Each key In dict.Keys
+                Try
+                    Dim Name As String = key
+                    Dim Val As String = dict(key)
+
+                    addSametimeSummaryStats(SametimeServer, Name, Val)
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Get Activity Stats. Exception writing dictionary to db for key " & key & ". Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                End Try
+
+            Next
+
+            SametimeServer.LastDocProcessedDate = lastProcessedDate
+        Catch ex As Exception
+            WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " Error processing collection documents -> " & ex.ToString)
+            GoTo Cleanup
+        End Try
+
+Cleanup:
+
+        Try
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(dt)
+            WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " released dt", LogLevel.Verbose)
+            If Not field Is Nothing Then
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(field)
+                WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " released field", LogLevel.Verbose)
+            End If
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(coll)
+            WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " released coll", LogLevel.Verbose)
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(db)
+            WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " released db", LogLevel.Verbose)
+        Catch ex As Exception
+            WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " Exception releasing COM objects: " & ex.Message)
+        End Try
+        Try
+            done = Now.Ticks
+            elapsed = New TimeSpan(done - start)
+
+            WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString + ": Time to scan log = " & elapsed.TotalMilliseconds & " ms")
+            WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString + ": Time to scan log = " & elapsed.TotalSeconds & " seconds")
+        Catch ex As Exception
+
+        End Try
+
+    End Sub
 
     Public Sub GetSametimeConfStats(ByRef Server As MonitoredItems.SametimeServer)
         WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & "  Media Server: Platform" & Server.Platform)
@@ -11398,6 +11511,7 @@ CleanUp:
         ms.Dispose()
         Return myDevices
     End Function
+
 #Region "Testing Sametime Server as a User"
 
 
@@ -11684,6 +11798,22 @@ CleanUp:
 #End Region
 
 #End Region
+
+    Public Sub addSametimeSummaryStats(myServer As MonitoredItems.MonitoredDevice, statName As String, statVal As String)
+        Try
+            Dim SummaryStats As New VSNext.Mongo.Entities.SummaryStatistics
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.SummaryStatistics)(connectionString)
+            SummaryStats.DeviceName = myServer.Name
+            SummaryStats.StatName = statName
+            SummaryStats.StatValue = Double.Parse(statVal)
+            SummaryStats.DeviceId = myServer.ServerObjectID
+            SummaryStats.DeviceType = myServer.ServerType
+            SummaryStats.StatDate = DateTime.Now()
+            repo.Insert(SummaryStats)
+        Catch ex As Exception
+
+        End Try
+    End Sub
 
 
 #End Region
