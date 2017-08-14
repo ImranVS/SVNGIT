@@ -82,6 +82,7 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
             urluptimehourly = `/services/statistics?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@null,Services.HourlyUpTimePercent.Exchange@null,Services.HourlyUpTimePercent.OneDrive@null,Services.HourlyUpTimePercent.SharePoint@null]&operation=HOURLY&isChart=true&getNode=true`;
             urluptimedaily = `/services/summarystats?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@null,Services.HourlyUpTimePercent.Exchange@null,Services.HourlyUpTimePercent.OneDrive@null,Services.HourlyUpTimePercent.SharePoint@null]&getNode=true`;
         }
+        console.log(this.nodeName + "my console");
         this.widgets = [
             {
                 id: 'upTimeHourly',

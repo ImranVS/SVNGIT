@@ -104,7 +104,8 @@ import {ConnectionsFilesReport} from './reports/components/ibm-connections/conne
 import {ConnectionsForumsReport} from './reports/components/ibm-connections/connections-forums-report.component';
 import {ConnectionsProfilesReport} from './reports/components/ibm-connections/connections-profiles-report.component';
 import {ConnectionsTagsReport} from './reports/components/ibm-connections/connections-tags-report.component';
-import {ConnectionsWikiReport} from './reports/components/ibm-connections/connections-wiki-report.component';
+import { ConnectionsWikiReport } from './reports/components/ibm-connections/connections-wiki-report.component';
+
 import { ConnectionsCommunityActivityReport } from './reports/components/ibm-connections/connections-community-activity-report.component';
 import { ConnectionsUserActivityReport } from './reports/components/ibm-connections/connections-user-activity-report.component';
 import { ConnectionsUserActivityChartReport } from './reports/components/ibm-connections/connections-user-activity-chart-report.component';
@@ -124,6 +125,9 @@ import { WebSphereResponseTimes } from './reports/components/ibm-websphere/websp
 import { WebSphereActiveThreads } from './reports/components/ibm-websphere/websphere-active-threads.component';
 import { WebSphereCurrentHeapSize } from './reports/components/ibm-websphere/websphere-heap-size.component';
 import { Office365UptimeReport } from './reports/components/office365/office365-uptime.component';
+import { Office365UptimeWeeklyReport } from './reports/components/office365/office365-uptime-weekly.component';
+import { Office365UptimeMonthlyReport } from './reports/components/office365/office365-uptime-monthly.component';
+
 import { MobileDevicesSummaryOS } from './reports/components/mobile-users/mobile-users-os-summary.component';
 import {RepeatableChart} from './reports/components/repeatable-chart.component';
 import { MobileUsersReport } from './reports/components/mobile-users/mobile-users-report.component';
@@ -239,6 +243,8 @@ import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-con
         WebSphereActiveThreads,
         WebSphereCurrentHeapSize,
         Office365UptimeReport,
+        Office365UptimeWeeklyReport,
+        Office365UptimeMonthlyReport,
         MobileDevicesSummaryOS,
         MobileUsersReport,
         ConnectionsExecutiveOverviewReport,
