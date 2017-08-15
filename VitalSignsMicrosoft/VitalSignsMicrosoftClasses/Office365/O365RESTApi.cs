@@ -740,7 +740,7 @@ namespace VitalSignsMicrosoftClasses
 		{
 			string messageId = "";
 			//string response = submitRequest("https://outlook.office365.com/api/v1.0/me/messages", "GET", "", "info@RPRVitalSigns.com", "V1talS1gns");
-			string response = submitRequest("https://outlook.office365.com/api/v1.0/me/messages", "GET", "", myServer.UserName, myServer.Password);
+			string response = submitRequest("https://outlook.office365.com/api/v1.0/me/messages?$filter=Subject eq '" + randomNumber + "'", "GET", "", myServer.UserName, myServer.Password);
 			if (response != "")
 			{
 				RootObject myDevices = new RootObject();

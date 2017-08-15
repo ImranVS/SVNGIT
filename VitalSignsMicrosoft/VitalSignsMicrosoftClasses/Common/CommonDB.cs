@@ -189,7 +189,7 @@ namespace VitalSignsMicrosoftClasses
                 //Loop through all the different Entity types. Must make a new Repo for each type.
                 foreach (MongoStatements mongoStatement in AllTestsList.MongoEntity)
                 {
-                    Common.WriteDeviceHistoryEntry(ServerType, Server.Name, "Executing: " + mongoStatement.ToString(), Common.LogLevel.Normal);
+                    Common.WriteDeviceHistoryEntry(ServerType, Server.Name, "Executing: " + mongoStatement.ToString(), Common.LogLevel.Verbose);
                     mongoStatement.Execute();
                 }
             }

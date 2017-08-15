@@ -276,7 +276,8 @@ namespace VitalSignsMicrosoftClasses
                     .Include(x => x.CurrentStatus)
                     .Include(x => x.LastUpdated)
                     .Include(x => x.DeviceType)
-                    .Include(x => x.DeviceName);
+                    .Include(x => x.DeviceName)
+                    .Include(x => x.Details);
 
                 listOfStatus = repositoryStatus.Find(filterDefStatus, projectionDefStatus).ToList();
 
@@ -398,6 +399,19 @@ namespace VitalSignsMicrosoftClasses
                         myExchangeServer.Location = location.LocationName;
                     }
                     catch (Exception ex)
+                    {
+
+                    }
+
+                    try
+                    {
+                        var status = listOfStatus.Where(x => x.DeviceId == entity.Id).First();
+                        myExchangeServer.Status = status.CurrentStatus;
+                        myExchangeServer.StatusCode = status.StatusCode;
+                        myExchangeServer.LastScan = status.LastUpdated.HasValue ? status.LastUpdated.Value : DateTime.Now.AddHours(-1);
+                        myExchangeServer.ResponseDetails = status.Details;
+                    }
+                    catch(Exception ex)
                     {
 
                     }
@@ -3611,6 +3625,18 @@ namespace VitalSignsMicrosoftClasses
 
                     }
 
+                    try
+                    {
+                        var status = listOfStatus.Where(x => x.DeviceId == entity.Id).First();
+                        myDagServer.Status = status.CurrentStatus;
+                        myDagServer.StatusCode = status.StatusCode;
+                        myDagServer.LastScan = status.LastUpdated.HasValue ? status.LastUpdated.Value : DateTime.Now.AddHours(-1);
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+
                     myDagServer.DAGCopyQueueThreshold = entity.CopyQueueThreshold.HasValue ? entity.CopyQueueThreshold.Value : 10;
                     myDagServer.DAGReplyQueueThreshold = entity.ReplyQueueThreshold.HasValue ? entity.ReplyQueueThreshold.Value : 10;
 
@@ -3625,8 +3651,10 @@ namespace VitalSignsMicrosoftClasses
                                 {
                                     ServerName = currDatabase.ServerName,
                                     DatabaseName = currDatabase.DatabaseName,
-                                    WhiteSpaceThreshold = currDatabase.DatabaseWhiteTSpaceThreshold.Value,
-                                    DatabaseSizeThreshold = currDatabase.DatabaseSizeThreshold.Value
+                                    CopyQueueThreshold = currDatabase.CopyThreshold.HasValue ? currDatabase.CopyThreshold.Value : 0,
+                                    ReplayQueueThreshold = currDatabase.ReplayThreshold.HasValue ? currDatabase.ReplayThreshold.Value : 0,
+                                    WhiteSpaceThreshold = currDatabase.DatabaseWhiteTSpaceThreshold.HasValue ? currDatabase.DatabaseWhiteTSpaceThreshold.Value : 0,
+                                    DatabaseSizeThreshold = currDatabase.DatabaseSizeThreshold.HasValue ? currDatabase.DatabaseSizeThreshold.Value : 0
                                 });
                             }
                             myDagServer.DagDatabaseSettings.Find(x => x.DatabaseName == currDatabase.DatabaseName && x.ServerName == currDatabase.ServerName).CopyQueueThreshold = currDatabase.CopyThreshold.Value;

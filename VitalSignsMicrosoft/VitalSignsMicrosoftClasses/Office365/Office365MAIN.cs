@@ -142,9 +142,55 @@ namespace VitalSignsMicrosoftClasses
 		int serverThreadCount = 0;
 		int initialServerThreadCount = 0;
 		System.Collections.ArrayList AliveServerMainThreads;
-		private void StartO365Threads(bool killThreads)
+		private void StartO365Threads(bool killThreads = false)
 		{
-			int startThreads = 0;
+            /*
+            int maxThreadCount = Common.getThreadCount("O365");
+            int startThreads = 0;
+            serverThreadCount = myOffice365Servers.Count / 3;
+            if (serverThreadCount <= 1)
+                serverThreadCount = 2;
+
+            // 5/19/15 WS commented out.  VSPLUS 1776
+            if (serverThreadCount > maxThreadCount)
+                serverThreadCount = maxThreadCount;
+            startThreads = initialServerThreadCount;
+            if (initialServerThreadCount > serverThreadCount)
+            {
+                //remove the extra threads
+                int j = initialServerThreadCount - serverThreadCount;
+                //if inital threads are 5 and current threads are 3
+                //5-3=2: //remove 2 threads
+                foreach (Thread th in AliveServerMainThreads)
+                {
+                    if (j > 0)
+                    {
+                        if (th.IsAlive)
+                            th.Abort();
+                        j -= 1;
+                    }
+                }
+            }
+            initialServerThreadCount = serverThreadCount;
+
+            Common.WriteDeviceHistoryEntry("All", "Exchange", "There are " + serverThreadCount + " threads open", Common.LogLevel.Normal);
+            if (c == null)
+                c = new CultureInfo("en-US");
+
+            for (int i = startThreads; i < serverThreadCount; i++)
+            {
+                Thread monitorExchange = new Thread(() => MonitorO365Server(i));
+                monitorExchange.CurrentCulture = c == null ? new CultureInfo("en-US") : c;  //Should only be null on our local copies if using wrapper
+                monitorExchange.IsBackground = true;
+                monitorExchange.Priority = ThreadPriority.Normal;
+                monitorExchange.Name = i.ToString() + "-Exchange Monitoring";
+                AliveServerMainThreads.Add(monitorExchange);
+                monitorExchange.Start();
+                Thread.Sleep(2000);
+            }
+            */
+            
+            int startThreads = 0;
             if (!killThreads)
                 AliveServerMainThreads = new System.Collections.ArrayList();
 			serverThreadCount = myOffice365Servers.Count / 3;
@@ -654,7 +700,8 @@ repo.Upsert(filterdef, updatedef);
                 .Include(x => x.CurrentStatus)
                 .Include(x => x.LastUpdated)
                 .Include(x => x.DeviceType)
-                .Include(x => x.DeviceName);
+                .Include(x => x.DeviceName)
+                .Include(x => x.Details);
 
             listOfStatus = repositoryStatus.Find(filterDefStatus, projectionDefStatus).ToList();
 
@@ -755,19 +802,20 @@ repo.Upsert(filterdef, updatedef);
 
                         try
                         {
-                            VSNext.Mongo.Entities.Status currStatus = null;// listOfStatus.First(x => x.DeviceId == currServer.Id);
+                            VSNext.Mongo.Entities.Status currStatus = listOfStatus.First(x => x.DeviceId == currServer.Id);
                             if (currStatus != null)
                             {
                                 oldServer.LastScan = currStatus.LastUpdated.HasValue ? currStatus.LastUpdated.Value : DateTime.Now;
                                 oldServer.Status = String.IsNullOrWhiteSpace(currStatus.CurrentStatus) ? "Not Scanned" : currStatus.CurrentStatus;
                                 oldServer.StatusCode = String.IsNullOrWhiteSpace(currStatus.StatusCode) ? "Maintenance" : currStatus.StatusCode;
-
+                                oldServer.ResponseDetails = String.IsNullOrWhiteSpace(currStatus.Details) ? "This server has not yet been scanned." : currStatus.Details;
                             }
                             else
                             {
                                 oldServer.LastScan = DateTime.Now;
                                 oldServer.Status = "Not Scanned";
                                 oldServer.StatusCode = "Maintenance";
+                                oldServer.ResponseDetails = "This server has not yet been scanned.";
                             }
                         }
                         catch (Exception ex)
@@ -775,6 +823,7 @@ repo.Upsert(filterdef, updatedef);
                             oldServer.LastScan = DateTime.Now;
                             oldServer.Status = "Not Scanned";
                             oldServer.StatusCode = "Maintenance";
+                            oldServer.ResponseDetails = "This server has not yet been scanned.";
                         }
 
                         oldServer.ServerType = currServer.DeviceType;
@@ -948,7 +997,7 @@ repo.Upsert(filterdef, updatedef);
                              .Set(i => i.Category, server.Category)
                              .Set(i => i.TypeAndName, server.TypeANDName)
                              .Set(i => i.Description, "Microsoft " + type + " Server.")
-                             .Set(i => i.Details, "This server has not yet been scanned.")
+                             .Set(i => i.Details, String.IsNullOrWhiteSpace(server.ResponseDetails) ? "This server has not yet been scanned." : server.ResponseDetails)
                              .Set(i => i.DeviceType, type)
                              .Set(i => i.UserCount, 0)
                              .Set(i => i.Location, server.Location)

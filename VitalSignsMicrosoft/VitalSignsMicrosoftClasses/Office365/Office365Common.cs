@@ -146,8 +146,11 @@ namespace VitalSignsMicrosoftClasses
 		}
 		private void doSPOTests(Parameters p)
 		{
-			createSPOSite(p.myServer, ref p.TS, p.PSO);
-			removeSPOSite(p.myServer, ref p.TS, p.PSO);
+            createSPOSiteIfMissing(p.myServer, ref p.TS, p.PSO);
+            //testSPOSite(p.myServer, ref p.TS, p.PSO);
+
+		createSPOSite(p.myServer, ref p.TS, p.PSO);
+			//removeSPOSite(p.myServer, ref p.TS, p.PSO);
 		}
 		private void getMobileStats(Parameters p)
 		{
@@ -1047,7 +1050,7 @@ namespace VitalSignsMicrosoftClasses
 						string Username = (myDevice.User).ToLower();
 						try
 						{
-							myDevice.DeviceID = ps.Properties["DeviceID"].Value == null ? "" : ps.Properties["DeviceID"].Value.ToString();
+                            myDevice.DeviceID = ps.Properties["DeviceID"].Value == null ? "" : ps.Properties["DeviceID"].Value.ToString();
 							myDevice.DeviceMobileOperator = ps.Properties["DeviceMobileOperator"].Value == null ? "" : ps.Properties["DeviceMobileOperator"].Value.ToString();
 							myDevice.DeviceActiveSyncVersion = ps.Properties["DeviceActiveSyncVersion"].Value == null ? "" : ps.Properties["DeviceActiveSyncVersion"].Value.ToString();
 							myDevice.DeviceFriendlyName = ps.Properties["FriendlyName"].Value == null ? "" : ps.Properties["FriendlyName"].Value.ToString();
@@ -1162,6 +1165,9 @@ namespace VitalSignsMicrosoftClasses
 
                             }
 
+                            DateTime lastSync = DateTime.Parse(myDevice.LastSuccessSync);
+                            lastSync = DateTime.SpecifyKind(lastSync, DateTimeKind.Utc);
+
                             MongoStatementsUpsert<VSNext.Mongo.Entities.MobileDevices> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.MobileDevices>();
                             mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DeviceID == myDevice.DeviceID && i.ServerName == myServer.Name);
                             mongoStatement.updateDef = mongoStatement.repo.Updater
@@ -1171,7 +1177,7 @@ namespace VitalSignsMicrosoftClasses
                                 .Set(i => i.SecurityPolicy, myDevice.DevicePolicyApplied)
                                 .Set(i => i.DeviceName, myDevice.DeviceModel)
                                 .Set(i => i.ConnectionState, myDevice.Status)
-                                .Set(i => i.LastSyncTime, myDevice.LastSuccessSync == "" ? null : (DateTime?)DateTime.Parse(myDevice.LastSuccessSync))
+                                .Set(i => i.LastSyncTime, myDevice.LastSuccessSync == "" ? null : (DateTime?) lastSync)
                                 .Set(i => i.OSType, myDevice.DeviceOS)
                                 .Set(i => i.OSTypeMin, myDevice.DeviceOSMin)
                                 .Set(i => i.ClientBuild, myDevice.DeviceActiveSyncVersion)
@@ -1406,6 +1412,9 @@ namespace VitalSignsMicrosoftClasses
 
                             }
 
+                            DateTime lastSync = DateTime.Parse(myDevice.LastSuccessSync);
+                            lastSync = DateTime.SpecifyKind(lastSync, DateTimeKind.Utc);
+
                             MongoStatementsUpsert<VSNext.Mongo.Entities.MobileDevices> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.MobileDevices>();
                             mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DeviceID == myDevice.DeviceID && i.ServerName == myServer.Name);
                             mongoStatement.updateDef = mongoStatement.repo.Updater
@@ -1413,7 +1422,7 @@ namespace VitalSignsMicrosoftClasses
                                 .Set(i => i.SecurityPolicy, myDevice.DevicePolicyApplied)
                                 .Set(i => i.DeviceName, myDevice.DeviceModel)
                                 .Set(i => i.ConnectionState, myDevice.Status)
-                                .Set(i => i.LastSyncTime, myDevice.LastSuccessSync == "" ? null : (DateTime?)DateTime.Parse(myDevice.LastSuccessSync))
+                                .Set(i => i.LastSyncTime, myDevice.LastSuccessSync == "" ? null : (DateTime?) lastSync)
                                 .Set(i => i.OSType, myDevice.DeviceOS)
                                 .Set(i => i.OSTypeMin, myDevice.DeviceOSMin)
                                 .Set(i => i.ClientBuild, myDevice.DeviceActiveSyncVersion)
@@ -2382,9 +2391,51 @@ namespace VitalSignsMicrosoftClasses
 			}
 
 		}
-		#endregion
-		#region lync
-		public void getLyncStats(MonitoredItems.Office365Server myServer, ref TestResults AllTestsList, ReturnPowerShellObjects powershellobj)
+
+        public void createSPOSiteIfMissing(MonitoredItems.Office365Server myServer, ref TestResults AllTestsList, ReturnPowerShellObjects powershellobj)
+        {
+            long done;
+            long start;
+            TimeSpan elapsed = new TimeSpan(0);
+            try
+            {
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "createSPOSiteIfMissing: Starting.", Common.LogLevel.Normal);
+                System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
+
+                //string str = "New-SPOSite -Title 'VSTest' -Url 'https://" + myServer.tenantName + ".sharepoint.com/sites/VSTest' -Owner '" + myServer.UserName + "' -StorageQuota '500' ";
+                string str = "try{Get-SPOSite -ErrorAction SilentlyContinue -Identity https://" + myServer.tenantName + ".sharepoint.com/sites/VSTest}catch{New-SPOSite -Title 'VSTest' -Url 'https://" + myServer.tenantName + ".sharepoint.com/sites/VSTest' -Owner '" + myServer.UserName + "' -StorageQuota '500' }";
+                powershellobj.PS.Commands.Clear();
+                powershellobj.PS.Streams.ClearStreams();
+                powershellobj.PS.AddScript(str);
+                start = DateTime.Now.Ticks;
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "createSPOSiteIfMissing before 1", Common.LogLevel.Normal);
+                results = powershellobj.PS.Invoke();
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "createSPOSiteIfMissing after 1", Common.LogLevel.Normal);
+                done = DateTime.Now.Ticks;
+                elapsed = new TimeSpan(done - start);
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "createSPOSiteIfMissing Results: " + results.Count.ToString(), Common.LogLevel.Normal);
+                DateTime dtNow = DateTime.Now;
+                int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
+
+                str = "Get-SPOSite -Identity 'https://" + myServer.tenantName + ".sharepoint.com/sites/VSTest'";
+                powershellobj.PS.Commands.Clear();
+                powershellobj.PS.Streams.ClearStreams();
+                powershellobj.PS.AddScript(str);
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "createSPOSiteIfMissing before 2", Common.LogLevel.Normal);
+                results = powershellobj.PS.Invoke();
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "createSPOSiteIfMissing after 2", Common.LogLevel.Normal);
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "createSPOSiteIfMissing after 2 results : " + results.Count.ToString(), Common.LogLevel.Normal);
+                
+            }
+            catch (Exception ex)
+            {
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "createSPOSite Results: Exception: " + ex.Message.ToString(), Common.LogLevel.Verbose);
+            }
+
+        }
+        #endregion
+        #region lync
+        public void getLyncStats(MonitoredItems.Office365Server myServer, ref TestResults AllTestsList, ReturnPowerShellObjects powershellobj)
 		{
 			try
 			{

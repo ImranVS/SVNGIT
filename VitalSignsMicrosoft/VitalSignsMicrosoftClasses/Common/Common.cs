@@ -2006,7 +2006,8 @@ namespace VitalSignsMicrosoftClasses
                                 CurrentStatus = server.Status,
                                 Details = "This server has not yet been scanned.",
                                 TypeAndName = server.TypeANDName,
-                                StatusCode = server.StatusCode
+                                StatusCode = server.StatusCode,
+                                DeviceId = server.ServerObjectID
                             });
 
                         }
