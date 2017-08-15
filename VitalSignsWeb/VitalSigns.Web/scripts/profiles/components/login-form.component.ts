@@ -29,24 +29,29 @@ export class LoginForm {
         this.loading = true;
         this.authenticationService.login(this.model.username, this.model.password)
             .subscribe(result => {
-
-                if (result === true) {
-
-                    let referrer = this.route.snapshot.params['ref'];
-
-                    if (referrer)
-                        this.router.navigateByUrl(referrer);
-                    else
-                        this.router.navigate(['/']);
-
-                } else {
-
-                    this.error = 'Username or password is incorrect';
-                    this.loading = false;
-
-                }
+                this.wesTest(result);
+                
             });
     }
+
+    wesTest(result) {
+        if (result === true) {
+
+            let referrer = this.route.snapshot.params['ref'];
+
+            if (referrer)
+                this.router.navigateByUrl(referrer);
+            else
+                this.router.navigate(['/']);
+
+        } else {
+
+            this.error = 'Username or password is incorrect';
+            this.loading = false;
+
+        }
+    }
+
     changePassword(dialog: wijmo.input.Popup) {
         var email = this.emailid.first.nativeElement.value;
         if (email == "") {

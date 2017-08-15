@@ -69,21 +69,23 @@ export class AuthenticationService {
 
         return this.http.post(`${this.config.getConfig('apiEndpoint')}/token`, { username: username, password: password })
             .map((response: Response) => {
-
-                let token = response.json() && response.json().token;
-
-                if (token) {
-
-                    this._uat = token;
-                    this._storage.setItem('uat', JSON.stringify({ username: username, token: token }));
-                    
-                    return true;
-
-                } else 
-                    return false;
-                    
+                return this.wesTest(response, username);                    
             });
 
+    }
+
+    wesTest(response,username) {
+        let token = response.json() && response.json().token;
+
+        if (token) {
+
+            this._uat = token;
+            this._storage.setItem('uat', JSON.stringify({ username: username, token: token }));
+
+            return true;
+
+        } else
+            return false;
     }
 
     logout(): void {
