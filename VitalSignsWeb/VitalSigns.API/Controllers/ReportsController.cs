@@ -2213,7 +2213,7 @@ namespace VitalSigns.API.Controllers
                     ProhibitSendReceiveQuota = x.ProhibitSendReceiveQuota,
                     TotalItemSizeMb = x.TotalItemSizeMb
 
-                }).ToList().OrderByDescending(x => x.TotalItemSizeMb);
+                }).ToList().OrderBy(x => x.DisplayName);
                 Response = Common.CreateResponse(results);
                 return Response;
             }
