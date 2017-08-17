@@ -12,14 +12,14 @@ declare var injectSVG: any;
 
 
 @Component({
-    templateUrl: '/app/reports/components/office365/office365-uptime.component.html',
+    templateUrl: '/app/reports/components/office365/office365-mail-latency.component.html',
     providers: [
         WidgetService,
         RESTService,
         helpers.UrlHelperService
     ]
 })
-export class Office365UptimeReport extends WidgetController {
+export class Office365MailLatencyReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
     paramtype: string;
@@ -28,7 +28,7 @@ export class Office365UptimeReport extends WidgetController {
     currentHideDatePanel: boolean = false;
     currentShowSingleDatePanel: boolean = true;
     currentDeviceType: string = "Office365";
-    currentWidgetName: string = `uptimeChart`;
+    currentWidgetName: string = `mailLatencyChart`;
     currentWidgetURL: string;
 
     constructor(
@@ -54,11 +54,11 @@ export class Office365UptimeReport extends WidgetController {
             error => console.log(error)
         );
 
-        this.currentWidgetURL = `/reports/summarystats_chart?statName=[Services.HourlyUpTimePercent.SkypeForBusiness@null,Services.HourlyUpTimePercent.Exchange@null,Services.HourlyUpTimePercent.OneDrive@null,Services.HourlyUpTimePercent.SharePoint@null]&aggregation=AVG&getNode=true`;
+        this.currentWidgetURL = `/reports/summarystats_chart?statName=[MailLatency@null]&aggregation=AVG&getNode=true`;
         
         this.widgets = [
             {
-                id: 'uptimeChart',
+                id: 'mailLatencyChart',
                 title: '',
                 name: 'ChartComponent',
                 settings: {
@@ -66,7 +66,7 @@ export class Office365UptimeReport extends WidgetController {
                     dateformat: 'date',
                     chart: {
                         chart: {
-                            renderTo: 'uptimeChart',
+                            renderTo: 'mailLatencyChart',
                             type: 'spline',
                             height: 540
                         },
@@ -81,7 +81,7 @@ export class Office365UptimeReport extends WidgetController {
                             allowDecimals: false,
                             title: {
                                 enabled: true,
-                                text: 'Percent'
+                                text: 'Seconds (ms)'
                             }
                         },
                         plotOptions: {

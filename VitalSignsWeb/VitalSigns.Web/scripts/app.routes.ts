@@ -117,8 +117,9 @@ import { WebSphereResponseTimes } from './reports/components/ibm-websphere/websp
 import { WebSphereActiveThreads } from './reports/components/ibm-websphere/websphere-active-threads.component';
 import { WebSphereCurrentHeapSize } from './reports/components/ibm-websphere/websphere-heap-size.component';
 import { Office365UptimeReport } from './reports/components/office365/office365-uptime.component';
-import { Office365UptimeWeeklyReport } from './reports/components/office365/office365-uptime-weekly.component';
-import { Office365UptimeMonthlyReport } from './reports/components/office365/office365-uptime-monthly.component';
+import { Office365MailLatencyReport } from './reports/components/office365/office365-mail-latency.component';
+import { Office365OneDriveReport } from './reports/components/office365/office365-onedrive.component';
+import { Office365MailboxReport} from './reports/components/office365/office365-mailbox.component';
 import { MobileDevicesSummaryOS } from './reports/components/mobile-users/mobile-users-os-summary.component';
 import { MobileUsersReport } from './reports/components/mobile-users/mobile-users-report.component';
 
@@ -564,12 +565,16 @@ const appRoutes: Routes = [
                         component: Office365UptimeReport
                     },
                     {
-                        path: 'office365uptimeweekly',
-                        component: Office365UptimeWeeklyReport
+                        path: 'office365onedrive',
+                        component: Office365OneDriveReport
                     },
                     {
-                        path: 'office365uptimemonthly',
-                        component: Office365UptimeMonthlyReport
+                        path: 'office365maillatency',
+                        component: Office365MailLatencyReport
+                    },
+                    {
+                        path: 'office365mailbox',
+                        component: Office365MailboxReport
                     },
                     {
                         path: 'mobiledevicessummaryos',

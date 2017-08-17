@@ -1,0 +1,26 @@
+﻿<table class="table table-condensed small table-striped">
+    <thead>
+        <tr>
+            <th>Display Name</th>
+            <th>Issue Warning Quota</th>
+            <th>Prohibit Send Quota</th>
+            <th>Prohibit Send Receive Quota</th>
+            <th>Active</th>
+            <th align="right">Total Item Size (MB)</th>
+            <th align="right">Item Count</th>
+            <th>Last Logon Time</th>
+        </tr>
+    </thead>
+    <tbody *ngIf="data">
+        <tr *ngFor="let entry of data">
+            <td>{{entry.display_name}}</td>
+            <td>{{entry.issue_warning_quota}}</td>
+            <td>{{entry.prohibit_send_quota}}</td>
+            <td>{{entry.prohibit_send_receive_quota}}</td>
+            <td>{{entry.is_active}}</td>
+            <td align="right">{{entry.total_item_size_mb}}</td>
+            <td align="right">{{entry.item_count}}</td>
+            <td>{{entry.last_logon_time | date: 'shortDate'}}</td>
+        </tr>
+    </tbody>
+</table>

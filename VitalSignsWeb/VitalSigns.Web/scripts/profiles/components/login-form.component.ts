@@ -31,7 +31,7 @@ export class LoginForm {
             .subscribe(result => {
                 this.wesTest(result);
                 
-            });
+            }, error => this.error = error);
     }
 
     wesTest(result) {

@@ -30,6 +30,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<Status> statusRepository;
         private IRepository<DailyStatistics> dailyRepository;
         private IRepository<IbmConnectionsObjects> connectionsObjectsRepository;
+        private IRepository<Mailbox> mailboxRepository;
 
         //private string DateFormat = "yyyy-MM-dd";
         private string DateFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
@@ -322,7 +323,7 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("summarystats_chart")]
-        public APIResponse GetSumamryStatsChart(string statName, string deviceId = "", string startDate = "", string endDate = "", string type = "", string aggregation = "")
+        public APIResponse GetSumamryStatsChart(string statName, string deviceId = "", string startDate = "", string endDate = "", string type = "", string aggregation = "", bool getNode = false)
         {
             FilterDefinition<SummaryStatistics> filterDef = null;
             if (startDate == "")
@@ -358,11 +359,27 @@ namespace VitalSigns.API.Controllers
                 listOfTypes = type.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
             }
 
+            String[] statNames = statName.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
+            if (!string.IsNullOrEmpty(statName) && getNode)
+            {
+                statusRepository = new Repository<Status>(ConnectionString);
+                FilterDefinition<Status> filterDefStatus = statusRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription());
+                if(listOfDevices.Count > 0)
+                {
+                    filterDefStatus = statusRepository.Filter.In(x => x.DeviceId, listOfDevices);
+                }
+                var resultstatus = statusRepository.Find(filterDefStatus).ToList();
+                if (resultstatus.Count > 0)
+                {
+                    statNames = statName.Replace("[", "").Replace("]", "").Replace(" ", "").Replace("null", resultstatus[0].Category).Split(',');
+                }
+            }
+
             try
             {
                 filterDef = summaryRepository.Filter.Gte(p => p.StatDate, dtStart) &
                     summaryRepository.Filter.Lte(p => p.StatDate, dtEnd) &
-                    summaryRepository.Filter.Eq(p => p.StatName, statName) &
+                    summaryRepository.Filter.In(p => p.StatName, statNames) &
                     summaryRepository.Filter.Ne(p => p.DeviceName, null);
 
                 if (listOfDevices.Count > 0)
@@ -381,12 +398,14 @@ namespace VitalSigns.API.Controllers
 
                 List<Serie> series = new List<Serie>();
 
-                foreach (var currDeviceId in result.Select(x => x.DeviceId).Distinct())
+                UtilsController uc = new UtilsController();
+
+                foreach (var curr in result.Select(x => new { x.DeviceId, x.StatName, x.DeviceName }).Distinct().OrderBy(x => x.DeviceName).ThenBy(x => x.StatName))
                 {
-                    var currList = result.Where(x => x.DeviceId == currDeviceId).ToList();
+                    var currList = result.Where(x => x.DeviceId == curr.DeviceId && x.StatName == curr.StatName).ToList();
                     Serie serie = new Serie();
                     serie.Segments = new List<Segment>();
-                    serie.Title = currList[0].DeviceName;
+                    serie.Title = currList[0].DeviceName + (statNames.Count() > 1 ? "-" + uc.GetUserFriendlyStatName(curr.StatName) : "");
 
                     for (DateTime date = dtStart; date < dtEnd; date = date.AddDays(1))
                     {
@@ -2162,6 +2181,39 @@ namespace VitalSigns.API.Controllers
                     results.Insert(0, totalBreakdown);
                 }
 
+                Response = Common.CreateResponse(results);
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
+
+        [HttpGet("mailboxes")]
+        public APIResponse Mailboxes(string deviceType, string mailboxType)
+        {
+            try
+            {
+                serverRepository = new Repository<Server>(ConnectionString);
+                mailboxRepository = new Repository<Mailbox>(ConnectionString);
+                var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, deviceType)).ToList().Select(x => x.Id).ToList();
+                var filterDef = mailboxRepository.Filter.In(x => x.DeviceId, listOfDevices) &
+                    mailboxRepository.Filter.Eq(x => x.MailboxType, mailboxType);
+                var results = mailboxRepository.Find(filterDef).ToList().Select(x => new MailboxModel()
+                {
+                    DisplayName = x.DisplayName,
+                    IsActive = x.IsActive.Value,
+                    IssueWarningQuota = x.IssueWarningQuota,
+                    ItemCount = x.ItemCount,
+                    LastLogonTime = x.LastLogonTime,
+                    ProhibitSendQuota = x.ProhibitSendQuota,
+                    ProhibitSendReceiveQuota = x.ProhibitSendReceiveQuota,
+                    TotalItemSizeMb = x.TotalItemSizeMb
+
+                }).ToList().OrderByDescending(x => x.TotalItemSizeMb);
                 Response = Common.CreateResponse(results);
                 return Response;
             }

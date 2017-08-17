@@ -125,8 +125,9 @@ import { WebSphereResponseTimes } from './reports/components/ibm-websphere/websp
 import { WebSphereActiveThreads } from './reports/components/ibm-websphere/websphere-active-threads.component';
 import { WebSphereCurrentHeapSize } from './reports/components/ibm-websphere/websphere-heap-size.component';
 import { Office365UptimeReport } from './reports/components/office365/office365-uptime.component';
-import { Office365UptimeWeeklyReport } from './reports/components/office365/office365-uptime-weekly.component';
-import { Office365UptimeMonthlyReport } from './reports/components/office365/office365-uptime-monthly.component';
+import { Office365MailLatencyReport } from './reports/components/office365/office365-mail-latency.component';
+import { Office365OneDriveReport } from './reports/components/office365/office365-onedrive.component';
+import { Office365MailboxReport } from './reports/components/office365/office365-mailbox.component';
 
 import { MobileDevicesSummaryOS } from './reports/components/mobile-users/mobile-users-os-summary.component';
 import {RepeatableChart} from './reports/components/repeatable-chart.component';
@@ -243,8 +244,9 @@ import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-con
         WebSphereActiveThreads,
         WebSphereCurrentHeapSize,
         Office365UptimeReport,
-        Office365UptimeWeeklyReport,
-        Office365UptimeMonthlyReport,
+        Office365MailLatencyReport,
+        Office365OneDriveReport,
+        Office365MailboxReport,
         MobileDevicesSummaryOS,
         MobileUsersReport,
         ConnectionsExecutiveOverviewReport,
@@ -402,6 +404,7 @@ import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-con
         widgets.IBMConnectionsCommunityUser,
         widgets.NotesMailProbes,
         widgets.MobileUsersReportGrid,
+        widgets.MailboxList,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsCommunitiesDetailTab,
@@ -574,6 +577,7 @@ import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-con
         widgets.NotesMailProbes,
         widgets.MobileUsersReportGrid,
         widgets.DatabaseSettings,
+        widgets.MailboxList,
         tabs.DominoHealthTab,
        
         tabs.IBMConnectionsCommunitiesTab,
