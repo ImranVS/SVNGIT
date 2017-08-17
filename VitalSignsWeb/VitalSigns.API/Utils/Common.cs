@@ -214,23 +214,26 @@ namespace VitalSigns.API
                 if (list.Find(x => x.Name == "Primarypwd") != null)
                 {
                     emailPassword = list.Where(x => x.Name == "Primarypwd").First().Value;
-                    //3/2/2017 NS modified for VSPLUS-3250
-                    //Password decoded
-                    strEncryptedPassword = emailPassword;
-                    str1 = strEncryptedPassword.Split(',');
-                    bstr1 = new byte[str1.Length];
-                    for (int i = 0; i < str1.Length; i++)
+                    if (!String.IsNullOrWhiteSpace(emailPassword))
                     {
-                        bstr1[i] = Convert.ToByte(str1[i]);
-                    }
-                    myPass = bstr1;
-                    if (strEncryptedPassword != null)
-                    {
-                        Password = mySecrets.Decrypt(myPass); //password in clear text, stored in memory now
-                    }
-                    else
-                    {
-                        Password = "";
+                        //3/2/2017 NS modified for VSPLUS-3250
+                        //Password decoded
+                        strEncryptedPassword = emailPassword;
+                        str1 = strEncryptedPassword.Split(',');
+                        bstr1 = new byte[str1.Length];
+                        for (int i = 0; i < str1.Length; i++)
+                        {
+                            bstr1[i] = Convert.ToByte(str1[i]);
+                        }
+                        myPass = bstr1;
+                        if (strEncryptedPassword != null)
+                        {
+                            Password = mySecrets.Decrypt(myPass); //password in clear text, stored in memory now
+                        }
+                        else
+                        {
+                            Password = "";
+                        }
                     }
                 }
                 else
@@ -265,23 +268,26 @@ namespace VitalSigns.API
                 if (list.Find(x => x.Name == "SecondaryPwd") != null)
                 {
                     emailPassword = list.Where(x => x.Name == "SecondaryPwd").First().Value;
-                    //3/2/2017 NS modified for VSPLUS-3250
-                    //Password decoded
-                    strEncryptedPassword = emailPassword;
-                    str1 = strEncryptedPassword.Split(',');
-                    bstr1 = new byte[str1.Length - 1];
-                    for (int i = 0; i < str1.Length; i++)
+                    if (String.IsNullOrWhiteSpace(emailPassword))
                     {
-                        bstr1[i] = Convert.ToByte(str1[i]);
-                    }
-                    myPass = bstr1;
-                    if (strEncryptedPassword != null)
-                    {
-                        Password = mySecrets.Decrypt(myPass); //password in clear text, stored in memory now
-                    }
-                    else
-                    {
-                        Password = "";
+                        //3/2/2017 NS modified for VSPLUS-3250
+                        //Password decoded
+                        strEncryptedPassword = emailPassword;
+                        str1 = strEncryptedPassword.Split(',');
+                        bstr1 = new byte[str1.Length - 1];
+                        for (int i = 0; i < str1.Length; i++)
+                        {
+                            bstr1[i] = Convert.ToByte(str1[i]);
+                        }
+                        myPass = bstr1;
+                        if (strEncryptedPassword != null)
+                        {
+                            Password = mySecrets.Decrypt(myPass); //password in clear text, stored in memory now
+                        }
+                        else
+                        {
+                            Password = "";
+                        }
                     }
                 }
                 else
