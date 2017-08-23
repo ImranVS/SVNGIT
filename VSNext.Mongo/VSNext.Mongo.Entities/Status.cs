@@ -1681,6 +1681,16 @@ namespace VSNext.Mongo.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         [BsonIgnoreIfNull]
         public string DeviceId { get; set; }
+
+        [DataMember]
+        [BsonElement("account_disabled")]
+        [BsonIgnoreIfNull]
+        public bool? AccountDisabled { get; set; }
+
+        [DataMember]
+        [BsonElement("account_last_modified")]
+        [BsonIgnoreIfNull]
+        public DateTime? AccountLastModified { get; set; }
     }
 
     [DataContract]

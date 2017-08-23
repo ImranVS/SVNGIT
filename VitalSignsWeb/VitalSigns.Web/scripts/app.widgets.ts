@@ -46,6 +46,7 @@ export * from './widgets/file-upload/components/file-upload.component';
 export * from './widgets/mobile-users/components/console-commands-list.component';
 export * from './widgets/sample/sample-widget.component';
 export * from './widgets/reports/components/mailbox-list.component'
+export * from './widgets/reports/components/o365-disabled-users-list.component'
 
 export * from './configurator/components/applicationSettings/application-settings-businesshours.component';
 export * from './configurator/components/applicationSettings/application-settings-servercredentials.component'

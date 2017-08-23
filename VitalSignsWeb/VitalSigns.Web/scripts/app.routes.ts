@@ -59,6 +59,7 @@ import { ConnectionsServerFilter } from './reports/filters/components/connection
 import { ServerConfigurationFilter } from './reports/filters/components/server-configuration-filter.component'
 import { SametimeServerFilter } from './reports/filters/components/sametime-server-filter.component'
 import { ServerAvailabilityFilter } from './reports/filters/components/server-availability-filter.component'
+import { Office365DisabledUsersSort } from './reports/filters/components/office365-disabled-users-sort.component';
 
 import { ReportsBrowser } from './reports/components/reports-browser.component';
 import { NoSelectedReport } from './reports/components/no-selected-report.component';
@@ -122,6 +123,7 @@ import { Office365OneDriveReport } from './reports/components/office365/office36
 import { Office365MailboxReport} from './reports/components/office365/office365-mailbox.component';
 import { MobileDevicesSummaryOS } from './reports/components/mobile-users/mobile-users-os-summary.component';
 import { MobileUsersReport } from './reports/components/mobile-users/mobile-users-report.component';
+import { Office365DisabledUsersReport } from './reports/components/office365/office365-disabled-users.component';
 
 import { FileUploadSample } from './configurator/components/serverImport/file-upload-sample.component';
 
@@ -583,6 +585,10 @@ const appRoutes: Routes = [
                     {
                         path: 'mobileusers',
                         component: MobileUsersReport
+                    },
+                    {
+                        path: 'office365disabledusers',
+                        component: Office365DisabledUsersReport
                     }
                 ]
             },

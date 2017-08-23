@@ -1,0 +1,11 @@
+﻿<div class="widgetWrapper noprint">
+    <div class="widgetContent">
+        <div id="dtSort" style="display:inline-block">
+            <span class="headerBlock">Sort by: </span>
+            <select (change)="onChange($event.target.value)">
+                <option value="display_name" selected="selected">Display Name</option>
+                <option value="account_last_modified">Account Last Modified</option>
+            </select>
+        </div>
+    </div>
+</div>

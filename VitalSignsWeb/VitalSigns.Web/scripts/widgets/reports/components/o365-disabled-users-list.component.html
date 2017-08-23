@@ -1,0 +1,14 @@
+﻿<table class="table table-condensed small table-striped">
+    <thead>
+        <tr>
+            <th>Display Name</th>
+            <th>Account Last Modified</th>
+        </tr>
+    </thead>
+    <tbody *ngIf="data">
+        <tr *ngFor="let entry of data">
+            <td>{{entry.display_name}}</td>
+            <td>{{entry.account_last_modified | date: 'shortDate'}}</td>
+        </tr>
+    </tbody>
+</table>

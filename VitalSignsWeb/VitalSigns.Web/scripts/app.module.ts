@@ -105,6 +105,7 @@ import {ConnectionsForumsReport} from './reports/components/ibm-connections/conn
 import {ConnectionsProfilesReport} from './reports/components/ibm-connections/connections-profiles-report.component';
 import {ConnectionsTagsReport} from './reports/components/ibm-connections/connections-tags-report.component';
 import { ConnectionsWikiReport } from './reports/components/ibm-connections/connections-wiki-report.component';
+import { Office365DisabledUsersSort } from './reports/filters/components/office365-disabled-users-sort.component';
 
 import { ConnectionsCommunityActivityReport } from './reports/components/ibm-connections/connections-community-activity-report.component';
 import { ConnectionsUserActivityReport } from './reports/components/ibm-connections/connections-user-activity-report.component';
@@ -128,6 +129,7 @@ import { Office365UptimeReport } from './reports/components/office365/office365-
 import { Office365MailLatencyReport } from './reports/components/office365/office365-mail-latency.component';
 import { Office365OneDriveReport } from './reports/components/office365/office365-onedrive.component';
 import { Office365MailboxReport } from './reports/components/office365/office365-mailbox.component';
+import { Office365DisabledUsersReport } from './reports/components/office365/office365-disabled-users.component';
 
 import { MobileDevicesSummaryOS } from './reports/components/mobile-users/mobile-users-os-summary.component';
 import {RepeatableChart} from './reports/components/repeatable-chart.component';
@@ -250,6 +252,8 @@ import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-con
         MobileDevicesSummaryOS,
         MobileUsersReport,
         ConnectionsExecutiveOverviewReport,
+        Office365DisabledUsersReport,
+        Office365DisabledUsersSort,
         dashboards.SampleDashboard,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
@@ -405,6 +409,7 @@ import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-con
         widgets.NotesMailProbes,
         widgets.MobileUsersReportGrid,
         widgets.MailboxList,
+        widgets.Office365DisabledUsersList,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsCommunitiesDetailTab,
@@ -578,8 +583,8 @@ import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-con
         widgets.MobileUsersReportGrid,
         widgets.DatabaseSettings,
         widgets.MailboxList,
+        widgets.Office365DisabledUsersList,
         tabs.DominoHealthTab,
-       
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsCommunitiesDetailTab,
         tabs.IBMConnectionsOverviewTab,

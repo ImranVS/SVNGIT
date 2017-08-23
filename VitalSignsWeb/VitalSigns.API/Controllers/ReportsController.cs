@@ -31,6 +31,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<DailyStatistics> dailyRepository;
         private IRepository<IbmConnectionsObjects> connectionsObjectsRepository;
         private IRepository<Mailbox> mailboxRepository;
+        private IRepository<Office365MSOLUsers> o365MsolUsersRepository;
 
         //private string DateFormat = "yyyy-MM-dd";
         private string DateFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
@@ -2212,6 +2213,34 @@ namespace VitalSigns.API.Controllers
                     ProhibitSendQuota = x.ProhibitSendQuota,
                     ProhibitSendReceiveQuota = x.ProhibitSendReceiveQuota,
                     TotalItemSizeMb = x.TotalItemSizeMb
+
+                }).ToList().OrderBy(x => x.DisplayName);
+                Response = Common.CreateResponse(results);
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
+
+        [HttpGet("disabled_users_with_license")]
+        public APIResponse DisabledUsersWithLicense(string mailboxType)
+        {
+            try
+            {
+                o365MsolUsersRepository = new Repository<Office365MSOLUsers>(ConnectionString);
+                serverRepository = new Repository<Server>(ConnectionString);
+                var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription())).ToList().Select(x => x.Id).ToList();
+                var filterDef = o365MsolUsersRepository.Filter.In(x => x.DeviceId, listOfDevices) &
+                    o365MsolUsersRepository.Filter.Eq(x => x.IsLicensed, true) & 
+                    o365MsolUsersRepository.Filter.Eq(x => x.AccountDisabled, true);
+                var results = o365MsolUsersRepository.Find(filterDef).ToList().Select(x => new MsolUser()
+                {
+                    DisplayName = x.DisplayName,
+                    AccountLastModified = x.AccountLastModified
 
                 }).ToList().OrderBy(x => x.DisplayName);
                 Response = Common.CreateResponse(results);
