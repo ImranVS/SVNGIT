@@ -381,6 +381,15 @@ namespace VitalSignsDailyStats
                 {
 
                 }
+
+                try
+                {
+                    BackupMongo();
+                }
+                catch(Exception ex)
+                {
+
+                }
                    
                     WriteAuditEntry("Daily Task is finished....");
 
@@ -1601,6 +1610,67 @@ namespace VitalSignsDailyStats
                 {
                     WriteAuditEntry("Exception deleting file " + file + ". Exception: " + ex.Message);
                 }
+            }
+        }
+
+        public void BackupMongo()
+        {
+            try
+            {
+                WriteAuditEntry("Backing up the database");
+                String fullPath = Microsoft.Win32.Registry.GetValue("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\MongoDB", "ImagePath", null).ToString();
+                if (fullPath == null)
+                {
+                    WriteAuditEntry("Cannot find mongo. Will not back up the DB");
+                    return;
+                }
+                System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex("^\"(.*?)\""); //gets all content between the first set of quotes, or the path to mongodb.exe
+                System.Text.RegularExpressions.Match matches = regex.Match(fullPath);
+                if (!matches.Success)
+                {
+                    WriteAuditEntry("Could not find the mongo path in the key. Full key value is: " + fullPath);
+                    return;
+                }
+                string mongodPath = matches.Groups[1].Value;
+                string mongoBin = mongodPath.Substring(0, mongodPath.LastIndexOf('\\'));
+                var mongoClient = new MongoClient(System.Configuration.ConfigurationManager.ConnectionStrings["VitalSignsMongo"].ToString());
+
+                string backupPath = null;
+                VSFramework.RegistryHandler myRegistry = new RegistryHandler();
+                try
+                {
+                    backupPath = myRegistry.ReadFromRegistry("MongoBackupPath").ToString();
+                }
+                catch(Exception ex)
+                {
+
+                }
+                if (String.IsNullOrWhiteSpace(backupPath))
+                {
+                    backupPath = System.AppDomain.CurrentDomain.BaseDirectory + "\\MongoBackup";
+                    myRegistry.WriteToRegistry("MongoBackupPath", backupPath);
+                }
+
+                string cmd = " " +
+                    " --host \"" + mongoClient.Settings.Server.Host + "\"" +
+                    " --port \"" + mongoClient.Settings.Server.Port + "\"" +
+                    " --username \"" + mongoClient.Settings.Credentials.First().Username + "\"" +
+                    " --password \"" + mongoClient.Settings.Credentials.First().Password + "\"" +
+                    " --db \"" + mongoClient.Settings.Credentials.First().Source + "\"" +
+                    " --out \"" + backupPath + "\"";
+                WriteAuditEntry(cmd.Replace(mongoClient.Settings.Credentials.First().Password, "********"));
+                System.Diagnostics.Process process = new System.Diagnostics.Process();
+                System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+                startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                startInfo.FileName = mongoBin + "\\mongodump.exe";
+                startInfo.Arguments = cmd;
+                process.StartInfo = startInfo;
+                process.Start();
+                process.WaitForExit();
+            }
+            catch (Exception ex)
+            {
+                WriteAuditEntry("Exception backing up mongo. Exception: " + ex.Message.ToString());
             }
         }
 
