@@ -66,16 +66,18 @@ export class ServiceDetails implements OnInit {
     selectTab(tab: any) {
         // Activate selected tab
         this.service.tabs.forEach(tab => tab.active = false);
-        tab.active = true;    
+        if (tab)
+            tab.active = true;    
         // Dispose current tab if one already active
         if (this.activeTabComponent)
             this.activeTabComponent.destroy();
 
         // Lazy-load selected tab component
-        let factory = this.resolver.resolveComponentFactory(ServiceTabs[tab.component]);
-        this.activeTabComponent = this.target.createComponent(factory);
-        (<ServiceTab>(this.activeTabComponent.instance)).serviceId = this.deviceId;
-        
+        if (tab) {
+            let factory = this.resolver.resolveComponentFactory(ServiceTabs[tab.component]);
+            this.activeTabComponent = this.target.createComponent(factory);
+            (<ServiceTab>(this.activeTabComponent.instance)).serviceId = this.deviceId;
+        }
     }
     
     ngOnInit() { 
@@ -93,7 +95,7 @@ export class ServiceDetails implements OnInit {
                 .subscribe(
                 response => {
                     this.service = this.datetimeHelpers.toLocalDateTime(response.data);
-                  this.data=response.data
+                    this.data = response.data
                     this.selectTab(this.service.tabs[0]);
                     this.deviceName = response.data.name;
                     this.deviceId = response.data.id;
