@@ -24,7 +24,8 @@ declare var injectSVG: any;
     providers: [
         HttpModule,
         RESTService,
-        helpers.DateTimeHelper
+        helpers.DateTimeHelper,
+        gridHelpers.CommonUtils
     ]
 })
 export class ServiceServerTasksGrid implements OnInit {
