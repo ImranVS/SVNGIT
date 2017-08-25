@@ -537,11 +537,11 @@ namespace VitalSignsMicrosoftClasses
 				Server.Status = NotResponding;
 
 				//Status Details Table
-				if (ServerType == "Office365")
-					strSQL = "DELETE FROM StatusDetail WHERE TYPEANDNAME='" + Server.Name + "-" + Server.Location + "'";
-				else
-					strSQL = "DELETE FROM StatusDetail WHERE TYPEANDNAME='" + Server.Name + "-" + ServerType + "'";
-                DB.Execute(strSQL);
+				//if (ServerType == "Office365")
+					//strSQL = "DELETE FROM StatusDetail WHERE TYPEANDNAME='" + Server.Name + "-" + Server.Location + "'";
+				//else
+					//strSQL = "DELETE FROM StatusDetail WHERE TYPEANDNAME='" + Server.Name + "-" + ServerType + "'";
+                //DB.Execute(strSQL);
 
 				//DAG Table
 				TestResults SQLStatementsList = new TestResults();
@@ -549,15 +549,15 @@ namespace VitalSignsMicrosoftClasses
 				string dagMessage = "";
 				if (Server.ServerType == "Exchange")
 				{
-					strSQL = "DELETE FROM ExgMailHealthDetails WHERE ServerName='" + Server.Name + "'";
-					DB.Execute(strSQL);
-					strSQL = "DELETE FROM ExgMailHealth WHERE ServerName='" + Server.Name + "'";
-					DB.Execute(strSQL);
+					//strSQL = "DELETE FROM ExgMailHealthDetails WHERE ServerName='" + Server.Name + "'";
+					//DB.Execute(strSQL);
+					//strSQL = "DELETE FROM ExgMailHealth WHERE ServerName='" + Server.Name + "'";
+					//DB.Execute(strSQL);
 				}
 				else if (Server.ServerType == "Active Directory")
 				{
-					strSQL = "UPDATE ActiveDirectoryTest set LogOnTest='Fail', QueryTest='Fail', LDAPPortTest='Fail' WHERE ServerID=" + Server.ServerTypeId;
-					DB.Execute(strSQL);
+					//strSQL = "UPDATE ActiveDirectoryTest set LogOnTest='Fail', QueryTest='Fail', LDAPPortTest='Fail' WHERE ServerID=" + Server.ServerTypeId;
+					//DB.Execute(strSQL);
 				}
 				else if (Server.ServerType == "SharePoint")
 				{
@@ -566,7 +566,8 @@ namespace VitalSignsMicrosoftClasses
 				//strSQL = "DELETE FROM DiskSpace WHERE ServerName='" + Server.Name + "'";
 				//DB.Execute(strSQL);
 
-				ProcessSQLStatements(SQLStatementsList, Server, ServerType);
+				//ProcessSQLStatements(SQLStatementsList, Server, ServerType);
+                
 
 				Server.LastScan = DateTime.Now;
 				string TypeAndName = Server.Name + "-" + ServerType;
@@ -623,7 +624,7 @@ namespace VitalSignsMicrosoftClasses
             catch (Exception ex)
             {
                 //Common.WriteTestResults(Server.Name, "exchange", "Exception", "Exception", ex.Message.ToString());
-				Common.WriteDeviceHistoryEntry(ServerType , Server.Name, "Error in Not Responding...Executing Query =  " + strSQL + " with error message of " + ex.Message);
+				Common.WriteDeviceHistoryEntry(ServerType , Server.Name, "Error in Not Responding...Executing Query =  " + strSQL + " with error message of " + ex.ToString());
 
             }
             // TODO: End transaction

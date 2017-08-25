@@ -915,7 +915,12 @@ namespace VitalSignsMicrosoftClasses
 
 				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolUsers: Starting.", Common.LogLevel.Normal);
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
-				String str = "Get-MSOLUser -All | Select DisplayName,FirstName,LastName,UserPrincipalName,StrongPasswordRequired,PasswordNeverExpires,UserType,Title,IsLicensed,Department,{$_.Licenses.AccountSkuId},LastUpdated";
+				String str = @"
+$users = Get-User -ResultSize Unlimited | select WhenChanged, AccountDisabled,ExternalDirectoryObjectId;
+$msolUsers = Get-MSOLUser -All | Select DisplayName,FirstName,LastName,UserPrincipalName,StrongPasswordRequired,PasswordNeverExpires,UserType,Title,IsLicensed,Department,{$_.Licenses.AccountSkuId},LastUpdated, ObjectId
+$msolUsers | % { $ObjectId = $_.ObjectId; $user = ($users | ? { $_.ExternalDirectoryObjectId -eq $ObjectId } )[0];  $_ | Add-Member -MemberType NoteProperty -Name AccountDisabled -Value $user.AccountDisabled -Force; $_ | Add-Member -MemberType NoteProperty -Name WhenChanged -Value $user.WhenChanged -Force }
+$msolUsers
+";
 				powershellobj.PS.Commands.Clear();
 				powershellobj.PS.Streams.ClearStreams();
 				powershellobj.PS.AddScript(str);
@@ -942,7 +947,9 @@ namespace VitalSignsMicrosoftClasses
 							string title = ps.Properties["Title"].Value == null ? "" : ps.Properties["Title"].Value.ToString();
 							string isLicensed = ps.Properties["IsLicensed"].Value == null ? "0" : ps.Properties["IsLicensed"].Value.ToString();
 							string department = ps.Properties["Department"].Value == null ? "" : ps.Properties["Department"].Value.ToString();
-							string license = null;
+                            string AccountDisabled = ps.Properties["AccountDisabled"].Value == null ? "" : ps.Properties["AccountDisabled"].Value.ToString();
+                            string LastModified = ps.Properties["WhenChanged"].Value == null ? null : ps.Properties["WhenChanged"].Value.ToString();
+                            string license = null;
 							if (StrongPasswordRequired.ToLower() == "true")
 							{
 								StrongPasswordRequired = "1";
@@ -981,6 +988,10 @@ namespace VitalSignsMicrosoftClasses
                             Office365MSOLUsers.IsLicensed = isLicensed == "0" ? false : true;
                             Office365MSOLUsers.License = license;
                             Office365MSOLUsers.Department = department;
+                            Office365MSOLUsers.AccountDisabled = AccountDisabled.ToLower() == "true";
+                            DateTime dt;
+                            DateTime.TryParse(LastModified, out dt);
+                            Office365MSOLUsers.AccountLastModified = (dt == DateTime.MinValue) ? null : (DateTime?)dt;
 
                             msi.listOfEntities.Add(Office365MSOLUsers);
                             

@@ -504,7 +504,7 @@ namespace VitalSignsMicrosoftClasses
 							string errorMessage = "";
 							if (thisServer.ADFSMode && thisServer.ADFSRedirectTest == false)
 								errorMessage = "ADFS Service Unavailable";
-							if (thisServer.StatusCode == "Not Responding")
+							if (results.Connected == false && thisServer.StatusCode == "Not Responding")
 							{
                                 thisServer.IncrementDownCount();
 								DB.NotRespondingQueries(thisServer, thisServer.ServerType);
