@@ -723,8 +723,127 @@ namespace VitalSigns.API.Controllers
 
             try
             {
-                var builder = Builders<Database>.Filter;
+                FilterDefinition<Database> filterDef = null;
+                
                 databaseRepository = new Repository<Database>(ConnectionString);
+                var builder = databaseRepository.Filter;
+
+                if (string.IsNullOrEmpty(device_id))
+                {
+                    filterDef = builder.Where(x => true);
+                }
+                else
+                {
+                    filterDef = filterDef & builder.Eq(x => x.DeviceId, device_id);
+                }
+
+                if (string.IsNullOrEmpty(exceptions))
+                {
+                    
+                }
+                else
+                {
+                    filterDef = filterDef & builder.Ne(i => i.Status, "OK");
+                }
+
+                if (string.IsNullOrEmpty(filter_by))
+                {
+                    
+                }
+                else
+                {
+                    bool flag;
+                    if (Boolean.TryParse(filter_value, out flag))
+                    {
+                        filterDef = filterDef & builder.Eq(filter_by, flag);
+                    }
+                    else
+                    {
+                        filterDef = filterDef & builder.Eq(filter_by, filter_value);
+                    }
+                }
+
+
+                if (string.IsNullOrEmpty(group_by))
+                {
+                    //do normal find
+                    data = databaseRepository.Find(filterDef).ToList().Select(x => new ServerDatabase
+                    {
+                        DeviceId = x.DeviceId,
+                        Title = x.Title.Length > charLimit ? x.Title.Substring(0, charLimit) + "..." : x.Title,
+                        DeviceName = x.DeviceName,
+                        Status = x.Status,
+                        Folder = x.Folder,
+                        FolderCount = x.FolderCount,
+                        Details = x.Details,
+                        FileName = x.FileName,
+                        DesignTemplateName = Convert.ToString(x.DesignTemplateName == null || x.DesignTemplateName == "" ? "" : x.DesignTemplateName),
+                        FileSize = x.FileSize,
+                        Quota = x.Quota,
+                        InboxDocCount = x.InboxDocCount,
+                        ScanDateTime = Convert.ToString(x.ScanDateTime.Value.ToString(DateFormat)),
+                        ReplicaId = x.ReplicaId,
+                        DocumentCount = x.DocumentCount,
+                        Categories = x.Categories,
+                        PercentQuota = x.FileSize != null && x.Quota != null ? (Convert.ToDouble(x.Quota > 0 ? Math.Round(Convert.ToDouble(Convert.ToDouble(x.FileSize) / Convert.ToDouble(x.Quota) * 100), 1) : 0.0)) : 0
+                    }).ToList();
+                }
+                else
+                {
+                    bsonDocs = databaseRepository.Collection.Aggregate()
+                        .Match(filterDef)
+                        .Group(new BsonDocument { { "_id", "$" + group_by }, { "count", new BsonDocument("$sum", 1) } }).ToList();
+                    if (!string.IsNullOrEmpty(order_by) && !string.IsNullOrEmpty(order_type))
+                    {
+                        var propertyInfo = typeof(ServerDatabase).GetProperty(order_by);
+                        bsonDocs = order_type == "asc" ? bsonDocs.OrderBy(x => propertyInfo.GetValue(x, null)).ToList() : bsonDocs.OrderByDescending(x => propertyInfo.GetValue(x, null)).ToList();
+                    }
+                    foreach (BsonDocument doc in bsonDocs)
+                    {
+                        if (!doc["_id"].IsBsonNull)
+                        {
+                            string labelVal = doc["_id"].IsString ? doc["_id"].AsString :
+                                (doc["_id"].IsInt32 ? Convert.ToString(doc["_id"].AsInt32) :
+                                (doc["_id"].IsBoolean ? Convert.ToString(doc["_id"].AsBoolean) : Convert.ToString(doc["_id"].AsBsonValue)));
+                            
+                            if (doc["_id"].AsString == "")
+                            {
+                                labelVal = "Not Assigned";
+                            }
+                            Segment segment = new Segment()
+                            {
+                                Label = labelVal,
+                                Value = doc["count"].AsInt32
+                            };
+                            segments.Add(segment);
+                        }
+                    }
+                }
+
+
+
+                if (!string.IsNullOrEmpty(order_by) && !string.IsNullOrEmpty(order_type))
+                {
+                    var propertyInfo = typeof(ServerDatabase).GetProperty(order_by);
+                    data = order_type == "asc" ? data.OrderBy(x => propertyInfo.GetValue(x, null)).ToList() : data.OrderByDescending(x => propertyInfo.GetValue(x, null)).ToList();
+                }
+                if (!string.IsNullOrEmpty(top_x))
+                {
+                    data = data.Take(Convert.ToInt32(top_x)).ToList();
+                }
+
+
+
+
+
+
+
+
+
+
+
+
+                /*
                 // filter_by is not specified - getting all documents in the collection
                 if (string.IsNullOrEmpty(filter_by))
                 {
@@ -964,7 +1083,7 @@ namespace VitalSigns.API.Controllers
                         }
                     }
                 }
-
+                */
                 // If a call was made without the group_by parameter, return data set as is,
                 // otherwise, return data as a chart
                 if (!string.IsNullOrEmpty(get_chart.ToString()))
