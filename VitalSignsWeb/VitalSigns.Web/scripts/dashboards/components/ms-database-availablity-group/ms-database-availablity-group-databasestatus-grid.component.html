@@ -1,0 +1,18 @@
+﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" id="flex" headersVisibility="Column" (selectionChanged)="onSelectionChanged($event)" #flex>
+    <wj-flex-grid-filter></wj-flex-grid-filter>
+    <wj-flex-grid-column [header]="'Database Name'" [binding]="'database_name'" [width]="150"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Storage Group'" [binding]="'storage_group'" [width]="150"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Mounted'" [binding]="'mounted'" [width]="120"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Backup in Progress'" [binding]="'backup_in_progress'" [width]="150"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Online Maintenance in Progress'" [binding]="'online_maintenance_in_progress'" [width]="250"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Last Backup'" [binding]="'last_backup'" [width]="150"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Last Backup Types'" [binding]="'last_backups_type'" [width]="150"></wj-flex-grid-column>
+</wj-flex-grid>
+
+<div class="pull-right" *ngIf="data != null">
+    <wj-menu [(value)]="pageSize" [header]="'Page size'">
+        <wj-menu-item [value]="10">10</wj-menu-item>
+        <wj-menu-item [value]="20">20</wj-menu-item>
+        <wj-menu-item [value]="50">50</wj-menu-item>
+    </wj-menu>
+</div>

@@ -1,0 +1,24 @@
+﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" id="flex" headersVisibility="Column" (selectionChanged)="onSelectionChanged($event)" #flex>
+    <wj-flex-grid-filter></wj-flex-grid-filter>
+    <wj-flex-grid-column [header]="'Server Name'" [binding]="'dag_server_name'" [width]="150"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Cluster Service'" [binding]="'cluster_service_test'" [width]="120"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Relay Service'" [binding]="'replay_service_test'" [width]="120"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Active Mgr'" [binding]="'active_manager_test'" [width]="120"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Tasks RPC Listenerr'" [binding]="'tasks_rpc_listener_test'" [width]="120"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'TCP Listnerr'" [binding]="'tcp_listener_test'" [width]="120"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'DAG Members UP'" [binding]="'dag_members_up_test'" [width]="120"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Cluster Network'" [binding]="'cluster_network_test'" [width]="120"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Quorum Group'" [binding]="'quorum_group_test'" [width]="120"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'File Share Quorum'" [binding]="'file_share_quorum_test'" [width]="120"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'DB Copy Suspend'" [binding]="'db_copy_suspend_test'" [width]="120"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'DB Disconnected'" [binding]="'db_disconnected_test'" [width]="120"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'DB Log Copy Keeping UP'" [binding]="'db_log_copy_keeping_up_test'" [width]="120"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'DB Log Replay Keeping UPr'" [binding]="'db_log_replay_keeping_up_test'" [width]="120"></wj-flex-grid-column>
+</wj-flex-grid>
+<div class="pull-right" *ngIf="data != null">
+    <wj-menu [(value)]="pageSize" [header]="'Page size'">
+        <wj-menu-item [value]="10">10</wj-menu-item>
+        <wj-menu-item [value]="20">20</wj-menu-item>
+        <wj-menu-item [value]="50">50</wj-menu-item>
+    </wj-menu>
+</div>
