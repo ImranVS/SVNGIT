@@ -166,6 +166,8 @@
 
   },
   {
+
+
     "server_type": "Database Availability Group",
     "icon": "/img/servers/MSExchange.svg",
     "tabs": [
@@ -176,16 +178,46 @@
         "component": "ServerAttribute",
         "path": "/app/configurator/components/server/server-device-attributes.component"
       },
-       {
+      {
         "tab_id": 2,
         "title": "Database Settings",
         "type": "Configurator",
         "component": "DatabaseSettings",
         "path": "/app/configurator/components/server/server-dag-settings.component"
+      },
+      {
+        "tab_id": 1,
+        "title": "Activation Preferences",
+        "type": "Dashboard",
+        "component": "ActivationPreferencesTab",
+        "path": "/app/dashboards/components/ms-database-availablity-group/ms-database-availablity-group-activationpreferences-tab.component"
+      },
+      {
+        "tab_id": 2,
+        "title": "Members",
+        "type": "Dashboard",
+        "component": "Memberstab",
+        "path": "/app/dashboards/components/ms-database-availablity-group/ms-database-availablity-group-members-grid.component"
+      },
+      {
+        "tab_id": 3,
+        "title": "Databases",
+        "type": "Dashboard",
+        "component": "MsdatabaseavailablitydatabaseTab",
+        "path": "/app/dashboards/components/ms-database-availablity-group/ms-database-availablity-database-tab.component"
+      },
+       {
+        "tab_id": 4,
+        "title": "Database Status",
+        "type": "Dashboard",
+        "component": "DatabaseStatusTab",
+        "path": "/app/dashboards/components/ms-database-availablity-group/ms-database-availablity-group-databasestatus-tab.component"
       }
+      
     ]
   },
   {
+
     "server_type": "Exchange",
     "icon": "/img/servers/MSExchange.svg",
     "tabs": [
