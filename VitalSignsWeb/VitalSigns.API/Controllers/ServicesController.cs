@@ -1686,7 +1686,7 @@ namespace VitalSigns.API.Controllers
                 //var deviceNameData = serverRepository.All().Where(x => x.DeviceType == type).Select(x => x.DeviceName).Distinct().OrderBy(x => x).ToList();
                 var result = serverRepository.All().Where(expression).Select(x => new NameValueModel
 
-                { Name = x.DeviceName, Id = x.Id }).ToList();
+                { Name = x.DeviceName, Id = x.Id }).ToList().OrderBy(x => x.Name).ToList();
                 Response = Common.CreateResponse(result);
 
                 result.Insert(0, new NameValueModel { Name="All", Id="" });

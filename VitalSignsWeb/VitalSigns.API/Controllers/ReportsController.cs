@@ -553,6 +553,8 @@ namespace VitalSigns.API.Controllers
             {
                 //string statName = "HourlyDownTimeMinutes";
                 //string statName = "DeviceUpTimeStats";
+                if (minValue == "undefined") minValue = "0";
+                if (reportType == "undefined") reportType = "minutes";
                 if (month == "")
                     month = DateTime.UtcNow.Date.AddDays(-(DateTime.UtcNow.Date.Day - 1)).ToString(DateFormat);
 

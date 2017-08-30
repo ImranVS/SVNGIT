@@ -59,7 +59,7 @@ export class ServerAvailabilityFilter {
         if (currentStartMonth.length == 1)
             currentStartMonth = '0' + currentStartMonth;
 
-        var newCurrentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), this.currentDate.getDate());
+        var newCurrentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), 1);
         
         var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + selectedServers;;
         URL += "&month=" + newCurrentDate.toISOString() + `&minValue=` + this.minValue + `&reportType=` + this.statTypeDropdown;

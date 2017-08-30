@@ -64,8 +64,7 @@ export class ServerAvailabilityReport extends WidgetController {
                     chart: {
                         chart: {
                             renderTo: 'serverAvailability',
-                            type: 'bar',
-                            height: 240
+                            type: 'bar'
                         },
                         title: { text: '' },
                         subtitle: { text: '' },
