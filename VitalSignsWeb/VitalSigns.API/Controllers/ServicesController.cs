@@ -1269,7 +1269,7 @@ namespace VitalSigns.API.Controllers
 
 
         [HttpGet("status_list")]
-        public APIResponse GetStatusList(string type, string docfield = "", string sortby = "", bool isChart = false)
+        public APIResponse GetStatusList(string type, string docfield = "", string sortby = "", bool isChart = false,string deviceId="")
         {
             statusRepository = new Repository<Status>(ConnectionString);
             List<Status> statslist = null;
@@ -1282,12 +1282,18 @@ namespace VitalSigns.API.Controllers
             List<string> headerList = new List<string>();
             List<string> dataList = new List<string>();
             Segment segment = new Segment();
+            FilterDefinition<Status> FilterdefStatus = statusRepository.Filter.Where(x => true);
+            if (deviceId != "")
+            {
+                FilterdefStatus = statusRepository.Filter.Eq(x => x.DeviceId,deviceId);
+            }
+            
 
             try
             {
                 if (string.IsNullOrEmpty(type))
                 {
-                    list = statusRepository.Collection.AsQueryable().OrderBy(x => x.DeviceName).ToList();
+                    list = statusRepository.Find(FilterdefStatus).AsQueryable().OrderBy(x => x.DeviceName).ToList();
 
                     foreach (Status status in list)
                     {
@@ -1307,20 +1313,28 @@ namespace VitalSigns.API.Controllers
                         if (type == "Traveler")
                         {
                             FilterDefinition<Status> filterDef = statusRepository.Filter.Exists(p => p.TravelerStatus);
-                            list = statusRepository.Find(filterDef).AsQueryable().OrderBy(x => x.DeviceName).ToList();
+                            list = statusRepository.Find(filterDef & FilterdefStatus).AsQueryable().OrderBy(x => x.DeviceName).ToList();
                         }
                         else
                         {
                             expression = (p => p.DeviceType == type);
-                            list = statusRepository.Find(expression).AsQueryable().OrderBy(x => x.DeviceName).ToList();
+                            list = statusRepository.Find(expression & FilterdefStatus).AsQueryable().OrderBy(x => x.DeviceName).ToList();
                         }
                         
                         // Get test information from the status_details collection
                         if (type == "IBM Connections" || type == "Office365")
                         {
+                           
+
                             statusDetailsRepository = new Repository<StatusDetails>(ConnectionString);
+
                             FilterDefinition<StatusDetails> filterDefDetails = statusDetailsRepository.Filter.Eq(p => p.Type, type);
+                            if (deviceId != "")
+                            {
+                                filterDefDetails = filterDefDetails & statusDetailsRepository.Filter.Eq(x => x.DeviceId, deviceId);
+                            }
                             statusdetails = statusDetailsRepository.Find(filterDefDetails).ToList();
+
                         }
 
                         if (type != "IBM Connections" && type != "Office365")
@@ -1368,12 +1382,12 @@ namespace VitalSigns.API.Controllers
                         if (type == "Traveler")
                         {
                             FilterDefinition<Status> filterDef = statusRepository.Filter.Exists(p => p.TravelerStatus);
-                            statslist = statusRepository.Find(filterDef).AsQueryable().OrderBy(x => x.DeviceName).ToList();
+                            statslist = statusRepository.Find(filterDef & FilterdefStatus).AsQueryable().OrderBy(x => x.DeviceName).ToList();
                         }
                         else
                         {
-                            FilterDefinition<Status> filterdefStatus = statusRepository.Filter.Eq(x => x.DeviceType, type);
-                            statslist = statusRepository.Collection.Find(filterdefStatus).ToList();
+                            FilterDefinition<Status> filterdef = statusRepository.Filter.Eq(x => x.DeviceType, type);
+                            statslist = statusRepository.Collection.Find(filterdef & FilterdefStatus).ToList();
                         }
                         
                         if (!string.IsNullOrEmpty(sortby))
