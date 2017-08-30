@@ -24,6 +24,8 @@ export * from '../dashboards/components/ibm-sametime/ibm-sametime-conferences-ta
 export * from '../dashboards/components/ibm-sametime/ibm-sametime-meetings-tab.component';
 export * from '../dashboards/components/ibm-sametime/ibm-sametime-overall-tab.component';
 
+
+
 export * from '../dashboards/components/office365/office365-overall-tab.component';
 export * from '../dashboards/components/office365/office365-user-scenario-tests-tab.component';
 export * from '../dashboards/components/office365/office365-mail-stats-tab.component';
@@ -57,6 +59,11 @@ export * from '../configurator/components/server/server-advanced-settings.compon
 //export * from '../configurator/components/server/server-websphere-settings.component'
 
 export * from '../configurator/components/server/server-device-attributes.component'
+export * from '../dashboards/components/ms-database-availablity-group/ms-database-availablity-database-tab.component';
+export * from '../dashboards/components/ms-database-availablity-group/ms-database-availablity-members-tab.component';
+export * from '../dashboards/components/ms-database-availablity-group/ms-database-availablity-databasestatus-tab.component';
+export * from '../dashboards/components/ms-database-availablity-group/ms-database-availablity-activationpreferences-tab.component';
+
 
 
 export * from '../configurator/components/server/server-domino-server-tasks.component'

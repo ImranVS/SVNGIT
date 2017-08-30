@@ -10,6 +10,13 @@ export * from './dashboards/components/ibm-websphere/ibm-websphere-server-grid.c
 export * from './dashboards/components/ibm-traveler/ibm-traveler-grid.component';
 export * from './dashboards/components/office365/office365-grid.component';
 export * from './dashboards/components/office365/office365-passwords-grid.component';
+export * from './dashboards/components/ms-database-availablity-group/ms-database-availablity-group-grid.component';
+
+export * from './dashboards/components/ms-database-availablity-group/ms-database-availablity-group-activation-grid.component';
+export * from './dashboards/components/ms-database-availablity-group/ms-database-availablity-group-databasestatus-grid.component';
+export * from './dashboards/components/ms-database-availablity-group/ms-database-availablity-group-databases-grid.component';
+export * from './dashboards/components/ms-database-availablity-group/ms-database-availablity-group-members-grid.component';
+
 
 export * from './dashboards/components/key-metrics/key-metrics-statistics-grid.component';
 export * from './dashboards/components/key-metrics/overall-database-grid.component';

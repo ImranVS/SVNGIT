@@ -13,6 +13,7 @@ import { IBMSametimeDashboard } from './dashboards/components/ibm-sametime/ibm-s
 import { MobileUsersDashboard } from './dashboards/components/mobile-users/mobile-users-dashboard.component';
 import { IBMWebsphereDashboard } from './dashboards/components/ibm-websphere/ibm-websphere-dashboard.component';
 import { IBMTravelerDashboard } from './dashboards/components/ibm-traveler/ibm-traveler-dashboard.component';
+import { DAGDashboard } from './dashboards/components/ms-database-availablity-group/ms-database-availablity-group-dashboard.component';
 
 import { KeyMetricsDashboard } from './dashboards/components/key-metrics/key-metrics-dashboard.component';
 import { OverallDatabaseDashboard } from './dashboards/components/key-metrics/overall-database-dashboard.component';
@@ -154,6 +155,8 @@ export * from './dashboards/components/ibm-sametime/ibm-sametime-dashboard.compo
 export * from './dashboards/components/mobile-users/mobile-users-dashboard.component';
 export * from './dashboards/components/ibm-websphere/ibm-websphere-dashboard.component';
 export * from './dashboards/components/ibm-traveler/ibm-traveler-dashboard.component';
+export * from './dashboards/components/ms-database-availablity-group/ms-database-availablity-group-dashboard.component';
+
 export * from './dashboards/components/mail-delivery-status/maildelivery-tabs-component';
 export * from './dashboards/components/issues/issues.component';
 export * from './dashboards/components/overall-statistics/overall-domino-statistics.component';
@@ -253,6 +256,10 @@ const appRoutes: Routes = [
             {
                 path: 'dashboard/ibm/traveler',
                 component: IBMTravelerDashboard
+            },
+            {
+                path: 'dashboard/ms/dataavailablitygroup',
+                component: DAGDashboard
             },
             {
                 path: 'dashboard/microsoft/active-directory',

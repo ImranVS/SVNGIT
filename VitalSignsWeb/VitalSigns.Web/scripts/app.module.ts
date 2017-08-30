@@ -54,6 +54,8 @@ import {OverallDatabaseDetails} from './dashboards/components/key-metrics/overal
 import {FilterByDeviceTypePipe} from './configurator/components/serverSettings/device-settings-type.pipe';
 import { DatabaseReplicationDetails } from './dashboards/components/key-metrics/database-replication-details.component';
 import { Office365Details } from './dashboards/components/office365/office365-details.component';
+import { DAGDetails } from './dashboards/components/ms-database-availablity-group/ms-database-availablity-group-details.component';
+
 
 
 import {SampleFiltersBar} from './reports/filters/components/sample-filters-bar.component'
@@ -172,6 +174,7 @@ import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-con
         IBMConnectionsDetails,
         IBMSametimeDetails,
         Office365Details,
+        DAGDetails,
         OverallDatabaseDetails,
         DatabaseReplicationDetails,
         SearchServerList,
@@ -262,6 +265,7 @@ import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-con
         dashboards.MobileUsersDashboard,
         dashboards.IBMWebsphereDashboard,
         dashboards.IBMTravelerDashboard,
+        dashboards.DAGDashboard,
         dashboards.MSActiveDirectoryDashboard,
         dashboards.MSExchangeDashboard,
         dashboards.MSSharePointDashboard,
@@ -312,6 +316,11 @@ import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-con
         widgets.IBMWebsphereServerGrid,
         widgets.IBMTravelerGrid,
         widgets.Office365Grid,
+        widgets.DAGHealthGrid,
+        widgets.DatabaseStatusGrid,
+        widgets.ActivationPreferencesGrid,
+        widgets.DatabaseGrid,
+        widgets.MembersGrid,
         widgets.Office365PasswordsGrid,
         widgets.DatabaseReplicationGrid,
         widgets.DatabaseProblemsGrid,
@@ -413,6 +422,10 @@ import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-con
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsCommunitiesDetailTab,
+        tabs.MsdatabaseavailablitydatabaseTab,
+        tabs.Memberstab,
+        tabs.DatabaseStatusTab,
+        tabs.ActivationPreferencesTab,
         tabs.IBMConnectionsOverviewTab,
         tabs.IBMConnectionsProfilesTab,
         tabs.IBMConnectionsActivitiesTab,
@@ -483,6 +496,11 @@ import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-con
         widgets.IBMWebsphereServerGrid,
         widgets.IBMTravelerGrid,
         widgets.Office365Grid,
+        widgets.DAGHealthGrid,
+        widgets.DatabaseStatusGrid,
+        widgets.ActivationPreferencesGrid,
+        widgets.DatabaseGrid,
+        widgets.MembersGrid,
         widgets.Office365PasswordsGrid,
         widgets.DatabaseReplicationGrid,
         widgets.DatabaseProblemsGrid,
@@ -587,6 +605,10 @@ import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-con
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsCommunitiesDetailTab,
+        tabs.MsdatabaseavailablitydatabaseTab,
+        tabs.Memberstab,
+        tabs.DatabaseStatusTab,
+        tabs.ActivationPreferencesTab,
         tabs.IBMConnectionsOverviewTab,
         tabs.IBMConnectionsProfilesTab,
         tabs.IBMConnectionsActivitiesTab,
