@@ -43,7 +43,6 @@ export class MsdatabaseavailablitydatabaseTab extends WidgetController implement
          
             {
                 id: 'Database',
-                title: 'Database',
                 name: 'DatabaseGrid',
                 css: 'col-xs-12 col-sm-12 col-md-12 col-lg-12',
             }

@@ -30,6 +30,7 @@ export class ActivationPreferencesGrid implements WidgetComponent, OnInit {
     deviceId: any;
     serviceId: string;
     currentPageSize: any = 20;
+    headers = ['Database Name'];
 
     constructor(private service: RESTService, private widgetService: WidgetService, private route: ActivatedRoute, protected toolTip: helpers.GridTooltip,
         protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) { }
@@ -58,30 +59,60 @@ export class ActivationPreferencesGrid implements WidgetComponent, OnInit {
     }
 
     ngOnInit() {
-        this.service.get('/services/status_list?type=Database Availability Group')
+        this.route.params.subscribe(params => {
+            if (params['service'])
+                this.serviceId = params['service'];
+            else {
+
+                this.serviceId = this.widgetService.getProperty('serviceId');
+            }
+        });
+        this.loaddata();
+    }
+
+    loaddata() {
+        this.service.get(`/services/status_list?type=Database Availability Group&deviceId=${this.serviceId}`)
             .subscribe(
             (data) => {
-                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
+
+                let dagServerDatabases = JSON.parse(data.data[0].dag_server_databases);
+                let dataObj = {};
+                let dataToDisplay = [];
+                for (let i = 0; i < dagServerDatabases.length; i++) {
+                    if (dataObj["Database Name"] !== undefined && dataObj["Database Name"] !== dagServerDatabases[i].database_name) {
+                        dataToDisplay.push(dataObj);
+                        dataObj = {};
+                    }
+                    dataObj["Database Name"] = dagServerDatabases[i].database_name;
+                    dataObj["Activation Preference " + dagServerDatabases[i].action_preference] = dagServerDatabases[i].server_name;
+                    if (i === (dagServerDatabases.length - 1)) {
+                        dataToDisplay.push(dataObj);
+                    }
+
+                    let ap = 'Activation Preference ' + dagServerDatabases[i].action_preference;
+                    //console.log(ap);
+                    if (this.headers.indexOf(ap) == -1) {
+                        this.headers.push(ap);
+                    }
+                }
+
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(dataToDisplay));
                 this.data.pageSize = this.currentPageSize;
                 this.data.moveCurrentToPosition(0);
                 this.serviceId = this.data.currentItem.device_id;
             },
             (error) => this.errorMessage = <any>error
             );
-
     }
 
+        
+
+    
+    
     onPropertyChanged(key: string, value: any) {
         if (key === 'serviceId') {
-            var url = '';
-            this.service.get(`/reports/community_users?deviceId=${this.serviceId}`)
-                .subscribe(
-                (data) => {
-                    this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
-                    this.data.pageSize = 10;
-                },
-                (error) => this.errorMessage = <any>error
-                );
+            this.serviceId = value;
+            this.loaddata();
 
         }
 

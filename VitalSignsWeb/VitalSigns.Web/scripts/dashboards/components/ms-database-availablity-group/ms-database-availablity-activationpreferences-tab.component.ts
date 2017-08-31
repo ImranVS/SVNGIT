@@ -43,7 +43,6 @@ export class ActivationPreferencesTab extends WidgetController implements OnInit
          
             {
                 id: 'Database',
-                title: 'Database',
                 name: 'ActivationPreferencesGrid',
                 css: 'col-xs-12 col-sm-12 col-md-12 col-lg-12',
             }

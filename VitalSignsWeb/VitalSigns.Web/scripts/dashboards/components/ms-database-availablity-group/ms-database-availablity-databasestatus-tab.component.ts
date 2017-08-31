@@ -43,7 +43,6 @@ export class DatabaseStatusTab extends WidgetController implements OnInit, Servi
          
             {
                 id: 'Database',
-                title: 'Database',
                 name: 'DatabaseStatusGrid',
                 css: 'col-xs-12 col-sm-12 col-md-12 col-lg-12',
             }

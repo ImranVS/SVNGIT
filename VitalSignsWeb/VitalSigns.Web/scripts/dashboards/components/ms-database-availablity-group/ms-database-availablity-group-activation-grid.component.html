@@ -1,6 +1,7 @@
 ﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" id="flex" headersVisibility="Column" (selectionChanged)="onSelectionChanged($event)" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
-    <wj-flex-grid-column [header]="'Database Name'" [binding]="'name'" [width]="280"></wj-flex-grid-column>
+
+   <wj-flex-grid-column header="{{header}}"  [width]="280" binding="{{header}}" *ngFor="let header of headers"></wj-flex-grid-column>
     
 </wj-flex-grid>
 

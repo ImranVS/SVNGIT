@@ -43,7 +43,7 @@ export class Memberstab extends WidgetController implements OnInit, ServiceTab {
          
             {
                 id: 'Database',
-                title: 'Database',
+               
                 name: 'MembersGrid',
                 css: 'col-xs-12 col-sm-12 col-md-12 col-lg-12',
             }
