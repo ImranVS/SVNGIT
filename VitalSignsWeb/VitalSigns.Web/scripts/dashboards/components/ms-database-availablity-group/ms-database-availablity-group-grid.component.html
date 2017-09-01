@@ -3,17 +3,17 @@
     <wj-flex-grid-column [header]="'DAG Name'" [binding]="'device_name'" [width]="150"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Status'" [binding]="'status'" [width]="180" align="center">
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
-            <span *ngIf="cell.item.status == 'OK'" class="label label-pill label-success">OK</span>
-            <span *ngIf="cell.item.status == 'Not Responding'" class="label label-pill label-danger">Not Responding</span>
-            <span *ngIf="cell.item.status == 'Issue'" class="label label-pill label-warning">Issue</span>
-            <span *ngIf="cell.item.status == 'Maintenance'" class="label label-pill label-default">Maintenance</span>
+            <span *ngIf="cell.item.status_code == 'OK'" class="label label-pill label-success">OK</span>
+            <span *ngIf="cell.item.status_code == 'Not Responding'" class="label label-pill label-danger">Not Responding</span>
+            <span *ngIf="cell.item.status_code == 'Issue'" class="label label-pill label-warning">Issue</span>
+            <span *ngIf="cell.item.status_code == 'Maintenance'" class="label label-pill label-default">Maintenance</span>
         </template>
     </wj-flex-grid-column>
     <wj-flex-grid-column [header]="'File Witness Server Name'" [binding]="'file_witness_server_name'" [width]="200"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'File Witness Server Status'" [binding]="'file_witness_server_status'" [width]="200">
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
-            <span *ngIf="cell.item.status == 'OK'" class="label label-pill label-success">OK</span>
-            <span *ngIf="cell.item.status == 'Not Responding'" class="label label-pill label-danger">Not Responding</span>
+            <span *ngIf="cell.item.file_witness_server_status == 'OK'" class="label label-pill label-success">OK</span>
+            <span *ngIf="cell.item.file_witness_server_status == 'Not Responding'" class="label label-pill label-danger">Not Responding</span>
         </template>
     </wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Members'" [binding]="'members'" [width]="150"></wj-flex-grid-column>
