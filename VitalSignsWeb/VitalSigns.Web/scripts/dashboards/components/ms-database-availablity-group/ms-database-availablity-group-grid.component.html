@@ -1,7 +1,7 @@
 ﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" id="flex" headersVisibility="Column" (selectionChanged)="onSelectionChanged($event)" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'DAG Name'" [binding]="'device_name'" [width]="150"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Status'" [binding]="'status'" [width]="100" align="center">
+    <wj-flex-grid-column [header]="'Status'" [binding]="'status'" [width]="180" align="center">
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
             <span *ngIf="cell.item.status == 'OK'" class="label label-pill label-success">OK</span>
             <span *ngIf="cell.item.status == 'Not Responding'" class="label label-pill label-danger">Not Responding</span>
@@ -9,11 +9,16 @@
             <span *ngIf="cell.item.status == 'Maintenance'" class="label label-pill label-default">Maintenance</span>
         </template>
     </wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'File Witness Server Name'" [binding]="'device_name'" [width]="200"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'File Witness Server Status'" [binding]="'device_name'" [width]="200"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Members'" [binding]="'device_name'" [width]="150"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Total Databases'" [binding]="'device_name'" [width]="100"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Connected MailBoxes'" [binding]="'device_name'" [width]="150"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Disconnected MailBoxes'" [binding]="'device_name'" [width]="150"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Last Scan'" [binding]="'device_name'" [width]="150"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'File Witness Server Name'" [binding]="'file_witness_server_name'" [width]="200"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'File Witness Server Status'" [binding]="'file_witness_server_status'" [width]="200">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            <span *ngIf="cell.item.status == 'OK'" class="label label-pill label-success">OK</span>
+            <span *ngIf="cell.item.status == 'Not Responding'" class="label label-pill label-danger">Not Responding</span>
+        </template>
+    </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Members'" [binding]="'members'" [width]="150"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Total Databases'" [binding]="'total_databases'" [width]="100"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Connected MailBoxes'" [binding]="'connected_mailboxes'" [width]="150"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Disconnected MailBoxes'" [binding]="'disconnected_mailboxes'" [width]="150"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Last Scan'" [binding]="'last_scan'" [width]="150"></wj-flex-grid-column>
 </wj-flex-grid>
