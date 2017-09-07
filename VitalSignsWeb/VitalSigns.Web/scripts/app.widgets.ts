@@ -1,7 +1,6 @@
 ﻿export * from './dashboards/components/ibm-connections/ibm-connections-grid.component';
 export * from './dashboards/components/ibm-connections/ibm-connections-stats-grid.component';
 export * from './dashboards/components/ibm-domino/ibm-domino-grid.component';
-export * from './dashboards/components/ms-exchange/ms-exchange-grid.component';
 export * from './dashboards/components/ibm-sametime/ibm-sametime-grid.component';
 export * from './dashboards/components/mobile-users/mobile-users-grid.component';
 export * from './dashboards/components/mobile-users/mobile-users-key-user-grid.component';
@@ -17,7 +16,6 @@ export * from './dashboards/components/ms-database-availablity-group/ms-database
 export * from './dashboards/components/ms-database-availablity-group/ms-database-availablity-group-databasestatus-grid.component';
 export * from './dashboards/components/ms-database-availablity-group/ms-database-availablity-group-databases-grid.component';
 export * from './dashboards/components/ms-database-availablity-group/ms-database-availablity-group-members-grid.component';
-
 
 
 export * from './dashboards/components/key-metrics/key-metrics-statistics-grid.component';

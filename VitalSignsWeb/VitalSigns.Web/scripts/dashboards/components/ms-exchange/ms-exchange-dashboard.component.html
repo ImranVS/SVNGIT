@@ -15,34 +15,18 @@
 
     <div class="clearfix"></div>
 </div>
-<div class="row">
-    <div class="{{widget.css}}" *ngFor="let widget of widgets">
-        <div class="widgetWrapper">
-            <div class="widgetTitle">
-                {{widget.title}}
-            </div>
-            <div class="widgetContent" id="{{widget.id}}">
-                <my-widget [contract]="widget">loading...</my-widget>
+<div id="zeusContent" class="container-fluid">
+    <div class="row">
+        <div class="{{widget.css}}" *ngFor="let widget of widgets">
+            <div class="widgetWrapper">
+                <div class="widgetTitle">
+                    {{widget.title}}
+                </div>
+                <div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>
+                <div class="widgetContent" id="{{widget.id}}">
+                    <my-widget [contract]="widget">loading...</my-widget>
+                </div>
             </div>
         </div>
     </div>
-    <div id="MsExchangeDetail" *ngIf="service">
-
-        <!-- Nav tabs -->
-        <ul class="nav nav-tabs" role="tablist">
-
-            <li role="presentation" [class.active]="tab.active" (click)="selectTab(tab)" *ngFor="let tab of service.tabs">
-                <a href="javascript:void(0);">{{tab.title}}</a>
-            </li>
-
-        </ul>
-
-    </div>
-    <!-- Tab panes -->
-    <div id="MsExchangeDetailContent" class="tab-content">
-
-        <div #tab></div>
-
-    </div>
 </div>
-
