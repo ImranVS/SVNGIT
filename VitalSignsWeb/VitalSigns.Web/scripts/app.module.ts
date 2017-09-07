@@ -58,6 +58,7 @@ import { DAGDetails } from './dashboards/components/ms-database-availablity-grou
 
 
 
+
 import {SampleFiltersBar} from './reports/filters/components/sample-filters-bar.component'
 
 import {ReportsBrowser} from './reports/components/reports-browser.component';
@@ -315,6 +316,7 @@ import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-con
         widgets.IBMWebsphereNodeGrid,
         widgets.IBMWebsphereServerGrid,
         widgets.IBMTravelerGrid,
+        widgets.MSExchangeGrid,
         widgets.Office365Grid,
         widgets.DAGHealthGrid,
         widgets.DatabaseStatusGrid,
@@ -425,6 +427,7 @@ import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-con
         tabs.MsdatabaseavailablitydatabaseTab,
         tabs.Memberstab,
         tabs.DatabaseStatusTab,
+        tabs.MSExchangestatustab,
         tabs.ActivationPreferencesTab,
         tabs.IBMConnectionsOverviewTab,
         tabs.IBMConnectionsProfilesTab,
@@ -496,6 +499,7 @@ import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-con
         widgets.IBMWebsphereServerGrid,
         widgets.IBMTravelerGrid,
         widgets.Office365Grid,
+        widgets.MSExchangeGrid,
         widgets.DAGHealthGrid,
         widgets.DatabaseStatusGrid,
         widgets.ActivationPreferencesGrid,
@@ -608,6 +612,7 @@ import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-con
         tabs.MsdatabaseavailablitydatabaseTab,
         tabs.Memberstab,
         tabs.DatabaseStatusTab,
+        tabs.MSExchangestatustab,
         tabs.ActivationPreferencesTab,
         tabs.IBMConnectionsOverviewTab,
         tabs.IBMConnectionsProfilesTab,
