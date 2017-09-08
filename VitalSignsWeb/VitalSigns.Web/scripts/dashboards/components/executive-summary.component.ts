@@ -27,7 +27,6 @@ export class ExecutiveSummary extends WidgetController implements OnInit {
             name: 'ExecutiveSummaryWidget',
             css: 'col-xs-12 col-sm-12 col-md-12 col-lg-12',
             settings: {
-                deviceType : "Office365"
             }
         }
     ];
