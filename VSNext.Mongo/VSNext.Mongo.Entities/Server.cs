@@ -508,6 +508,12 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         public Boolean? ConferenceRequireSSL { get; set; }
 
+  
+        [DataMember]
+        [BsonElement("last_stats_processed_date")]
+        [BsonIgnoreIfNull]
+        public String LastStatsProcessedDate { get; set; }
+
         #endregion
 
         #region SharePoint
