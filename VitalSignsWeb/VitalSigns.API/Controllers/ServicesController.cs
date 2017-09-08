@@ -1428,7 +1428,7 @@ namespace VitalSigns.API.Controllers
                                 {
                                     x.Add("headerText", headerList);
                                 }
-                                dataList = statusdetails.Where(n => n.DeviceId == status.DeviceId)
+                                dataList = statusdetails.Where(n => n.DeviceId == status.DeviceId && (type == "Office365" && n.NodeName == status.Category))
                                     .Select(p => p.Result).ToList();
                                 if (dataList.Count > 0)
                                 {
