@@ -2763,8 +2763,8 @@ Public Class SametimeServer
     Dim mStatistics As New SametimeStatisticsCollection
     Dim mEnumeratedProcesses As New SametimeRunningProcessCollection
     Dim mMonitoredProcesses As New SametimeMonitoredProcessCollection
-    Public Property LastDocProcessedDate As DateTime
-
+    Public Property LastStatsProcessedDate As DateTime
+    Public Property DominoServerName As String
 
     Public Property SSL As Boolean
 
