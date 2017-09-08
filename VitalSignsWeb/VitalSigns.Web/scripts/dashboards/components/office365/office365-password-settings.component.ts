@@ -26,9 +26,8 @@ export class Office365PasswordSettingsTab extends WidgetController implements On
 
     ngOnInit() {
         this.route.params.subscribe(params => {
-            if (params['service'])
+            if (params['service']) {
                 this.serviceId = params['service'];
-            else {
                 var res = this.serviceId.split(';');
                 if (res.length > 1) {
                     this.nodeName = res[1];
@@ -36,8 +35,8 @@ export class Office365PasswordSettingsTab extends WidgetController implements On
                 this.serviceId = res[0];
             }
         });
-        var url1 = `/services/user_pwd_expires?deviceId=${this.serviceId}`;
-        var url2 = `/services/strong_pwd?deviceId=${this.serviceId}`;
+        var url1 = `/services/user_pwd_expires?deviceId=${this.serviceId}&nodeName=${this.nodeName}`;
+        var url2 = `/services/strong_pwd?deviceId=${this.serviceId}&nodeName=${this.nodeName}`;
         this.widgets = [
             {
                 id: 'passwordExpires',
@@ -159,8 +158,15 @@ export class Office365PasswordSettingsTab extends WidgetController implements On
 
         if (key === 'serviceId') {
 
-            var url1 = `/services/user_pwd_expires?deviceId=${this.serviceId}`;
-            var url2 = `/services/strong_pwd?deviceId=${this.serviceId}`;
+            this.serviceId = value;
+            var res = this.serviceId.split(';');
+            if (res.length > 1) {
+                this.nodeName = res[1];
+            }
+            this.serviceId = res[0];
+
+            var url1 = `/services/user_pwd_expires?deviceId=${this.serviceId}&nodeName=${this.nodeName}`;
+            var url2 = `/services/strong_pwd?deviceId=${this.serviceId}&nodeName=${this.nodeName}`;
 
             this.widgetService.refreshWidget('passwordExpires', url1)
                 .catch(error => console.log(error));

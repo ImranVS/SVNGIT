@@ -73,9 +73,8 @@ export class ServiceEventsGrid implements WidgetComponent, OnInit {
         }
         else {
             this.route.params.subscribe(params => {
-                if (params['service'])
-                    this.deviceId = params['service'];
-                else {
+                if (params['service']) {
+                    this.serviceId = params['service']
                     if (this.serviceId) {
                         var res = this.serviceId.split(';');
                         this.deviceId = res[0];

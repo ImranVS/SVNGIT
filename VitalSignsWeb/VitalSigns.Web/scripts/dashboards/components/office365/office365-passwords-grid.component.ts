@@ -28,7 +28,6 @@ export class Office365PasswordsGrid implements WidgetComponent, OnInit {
     data: wijmo.collections.CollectionView;
     errorMessage: string;
     deviceId: any;
-    serviceId: string;
     currentPageSize: any = 20;
 
     constructor(private service: RESTService, private widgetService: WidgetService, private route: ActivatedRoute, protected toolTip: helpers.GridTooltip,
@@ -58,23 +57,18 @@ export class Office365PasswordsGrid implements WidgetComponent, OnInit {
     }
 
     ngOnInit() {
-        var serviceId = this.widgetService.getProperty('serviceId');
-        if (serviceId) {
-            var res = serviceId.split(';');
-            this.deviceId = res[0];
-        }
-        else {
-            this.route.params.subscribe(params => {
-                if (params['service'])
-                    this.deviceId = params['service'];
-                else {
-                    if (this.serviceId) {
-                        var res = this.serviceId.split(';');
-                        this.deviceId = res[0];
-                    }
-                }
-            });
-        }
+        this.deviceId = this.widgetService.getProperty('serviceId');
+        this.route.params.subscribe(params => {
+            if (params['service']) {
+                var res: string[] = params['service'].split(';');
+                this.deviceId = res[0];
+            }
+            else {
+                var res: string[] = this.deviceId.split(';');
+                this.deviceId = res[0];
+            }
+        });
+
         this.service.get(`/services/strong_pwd?deviceId=${this.deviceId}&isChart=false`)
             .subscribe(
             (data) => {
@@ -98,6 +92,13 @@ export class Office365PasswordsGrid implements WidgetComponent, OnInit {
 
     onPropertyChanged(key: string, value: any) {
         if (key === 'serviceId') {
+
+            this.deviceId = value;
+            if (this.deviceId) {
+                var res = this.deviceId.split(';');
+                this.deviceId = res[0];
+            }
+
             var url = '';
             this.service.get(url)
                 .subscribe(

@@ -96,6 +96,7 @@ export * from './configurator/components/server/server-websphere-settings.compon
 
 export * from './configurator/components/server/server-domino-server-tasks.component'
 export * from './configurator/components/server/server-exchange-services.component'
+export * from './configurator/components/server/server-o365-nodes.component'
 
 //alerts
 
@@ -161,3 +162,5 @@ export * from './reports/components/configuration/server-list-location-report-gr
 export * from './dashboards/components/ibm-connections/ibm-connections-users-compare.component'
 export * from './dashboards/components/ibm-connections/ibm-connections-community-user.component'
 export * from './dashboards/components/ibm-connections/ibm-connections-communities-detail-grid.component'
+
+export * from './dashboards/components/executive-summary-widget.component';

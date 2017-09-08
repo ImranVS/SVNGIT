@@ -28,10 +28,15 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
 
     ngOnInit() {
         this.route.params.subscribe(params => {
-            if (params['service'])
-                this.serviceId = params['service'];
+            if (params['service']) {
+                var res: string[] = params['service'].split(';');
+                if (res.length > 1) {
+                    this.nodeName = res[1];
+                }
+                this.serviceId = res[0];
+            }
             else {
-                var res = this.serviceId.split(';');
+                var res: string[] = this.serviceId.split(';');
                 if (res.length > 1) {
                     this.nodeName = res[1];
                 }
@@ -40,49 +45,8 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
         });
 
 
-        var url = "";
-        var urluptimehourly = "";
-        var urluptimedaily = "";
-        urluptimehourly = `/services/statistics?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@` + this.nodeName + `,Services.HourlyUpTimePercent.Exchange@` + this.nodeName + `,Services.HourlyUpTimePercent.OneDrive@` + this.nodeName + `,Services.HourlyUpTimePercent.SharePoint@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
-        urluptimedaily = `/services/summarystats?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@` + this.nodeName + `,Services.HourlyUpTimePercent.Exchange@` + this.nodeName + `,Services.HourlyUpTimePercent.OneDrive@` + this.nodeName + `,Services.HourlyUpTimePercent.SharePoint@` + this.nodeName + `]`;
-
-        this.dataProvider.get(`/services/enabled_office365_tests?deviceId=${this.serviceId}`)
-            .subscribe(
-            data => {
-                this.service = data.data;
-      
-                if (this.service.indexOf('Create Site') == -1) {
-                    urluptimehourly = `/services/statistics?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@null,Services.HourlyUpTimePercent.Exchange@null,Services.HourlyUpTimePercent.OneDrive@null]&operation=HOURLY&isChart=true&getNode=true`;
-                    urluptimedaily = `/services/summarystats?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@null,Services.HourlyUpTimePercent.Exchange@null,Services.HourlyUpTimePercent.OneDrive@null]&getNode=true`;
-
-                    console.log("Daily URL");
-                    console.log(urluptimedaily);
-                    this.widgetService.refreshWidget('upTimeDaily', urluptimedaily)
-
-                    console.log("Hourly URL");
-                    console.log(urluptimehourly)
-                    this.widgetService.refreshWidget('upTimeHourly', urluptimehourly);
-                }
-               
-    
-            },
-            error => this.errorMessage = <any>error
-            );
-
-
-
-
-        if (this.nodeName) {
-            url = `/services/statistics?deviceId=${this.serviceId}&statName=[POP@` + this.nodeName + `,IMAP@` + this.nodeName + `,SMTP@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
-      //    urluptimehourly = `/services/statistics?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@` + this.nodeName + `,Services.HourlyUpTimePercent.Exchange@` + this.nodeName + `,Services.HourlyUpTimePercent.OneDrive@` + this.nodeName + `,Services.HourlyUpTimePercent.SharePoint@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
-      //      urluptimedaily = `/services/summarystats?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@` + this.nodeName + `,Services.HourlyUpTimePercent.Exchange@` + this.nodeName + `,Services.HourlyUpTimePercent.OneDrive@` + this.nodeName + `,Services.HourlyUpTimePercent.SharePoint@` + this.nodeName + `]`;
-        }
-        else {
-            url = `/services/statistics?deviceId=${this.serviceId}&statName=[POP@null,IMAP@null,SMTP@null]&operation=HOURLY&isChart=true&getNode=true`;
-            urluptimehourly = `/services/statistics?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@null,Services.HourlyUpTimePercent.Exchange@null,Services.HourlyUpTimePercent.OneDrive@null,Services.HourlyUpTimePercent.SharePoint@null]&operation=HOURLY&isChart=true&getNode=true`;
-            urluptimedaily = `/services/summarystats?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@null,Services.HourlyUpTimePercent.Exchange@null,Services.HourlyUpTimePercent.OneDrive@null,Services.HourlyUpTimePercent.SharePoint@null]&getNode=true`;
-        }
-        console.log(this.nodeName + "my console");
+        let obj = this.processUrls();
+        
         this.widgets = [
             {
                 id: 'upTimeHourly',
@@ -90,7 +54,7 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
-                    url: urluptimehourly,
+                    url: obj.urluptimehourly,
                     dateformat: 'time',
                     chart: {
                         chart: {
@@ -143,7 +107,7 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
-                    url: url,
+                    url: obj.url,
                     dateformat: 'time',
                     chart: {
                         chart: {
@@ -196,7 +160,7 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
-                    url: urluptimedaily,
+                    url: obj.urluptimedaily,
                     dateformat: 'date',
                     chart: {
                         chart: {
@@ -249,7 +213,7 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
-                    url: `/services/summarystats?deviceId=${this.serviceId}&statName=ActiveUsersCount`,
+                    url: obj.userLogins,
                     dateformat: 'date',
                     chart: {
                         chart: {
@@ -301,7 +265,7 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
                 settings: {
-                    url: `/services/last_logon?deviceId=${this.serviceId}`,
+                    url: obj.lastLogin,
                     chart: {
                         chart: {
                             renderTo: 'lastLogon',
@@ -360,62 +324,78 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
         injectSVG();
     }
 
+    processUrls() {
+        var url = "";
+        var urluptimehourly = "";
+        var urluptimedaily = "";
+        urluptimehourly = `/services/statistics?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@${this.nodeName},Services.HourlyUpTimePercent.Exchange@${this.nodeName},Services.HourlyUpTimePercent.OneDrive@${this.nodeName},Services.HourlyUpTimePercent.SharePoint@${this.nodeName}]&operation=HOURLY&isChart=true`;
+        urluptimedaily = `/services/summarystats?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@${this.nodeName},Services.HourlyUpTimePercent.Exchange@${this.nodeName},Services.HourlyUpTimePercent.OneDrive@${this.nodeName},Services.HourlyUpTimePercent.SharePoint@${this.nodeName}]`;
 
-    customizeGraphs() {
-        //if statements for each widget to check if the test is in the list
-        this.route.params.subscribe(params => {
-            var urluptimehourly = "";
-            var urluptimedaily = "";
-            urluptimehourly = `/services/statistics?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@` + this.nodeName + `,Services.HourlyUpTimePercent.Exchange@` + this.nodeName + `,Services.HourlyUpTimePercent.OneDrive@` + this.nodeName + `,Services.HourlyUpTimePercent.SharePoint@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
-            urluptimedaily = `/services/summarystats?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@` + this.nodeName + `,Services.HourlyUpTimePercent.Exchange@` + this.nodeName + `,Services.HourlyUpTimePercent.OneDrive@` + this.nodeName + `,Services.HourlyUpTimePercent.SharePoint@` + this.nodeName + `]`;
+        this.dataProvider.get(`/services/enabled_office365_tests?deviceId=${this.serviceId}`)
+            .subscribe(
+            data => {
+                this.service = data.data;
 
-            this.dataProvider.get(`/services/enabled_office365_tests?deviceId=${this.serviceId}`)
-                .subscribe(
-                data => {
-                    this.service = data.data;
-                    if (this.service.indexOf('SMTP') == -1 && this.service.indexOf('POP3') == -1 && this.service.indexOf('IMAP') == -1) {
-                        this.widgets.splice(this.widgets.findIndex(x => x.id == 'mailServices'), 1);
-                    }
+                if (this.service.indexOf('Create Site') == -1) {
+                    urluptimehourly = `/services/statistics?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@${this.nodeName},Services.HourlyUpTimePercent.Exchange@${this.nodeName},Services.HourlyUpTimePercent.OneDrive@${this.nodeName}]&operation=HOURLY&isChart=true&getNode=true`;
+                    urluptimedaily = `/services/summarystats?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@${this.nodeName},Services.HourlyUpTimePercent.Exchange@${this.nodeName},Services.HourlyUpTimePercent.OneDrive@${this.nodeName}]&getNode=true`;
 
-
-                    if (this.service.indexOf('Create Site') == -1) {
-                        urluptimehourly = `/services/statistics?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@` + this.nodeName + `,Services.HourlyUpTimePercent.Exchange@` + this.nodeName + `,Services.HourlyUpTimePercent.OneDrive@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
-                        urluptimedaily = `/services/summarystats?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@` + this.nodeName + `,Services.HourlyUpTimePercent.Exchange@` + this.nodeName + `,Services.HourlyUpTimePercent.OneDrive@` + this.nodeName + `]`;
-
-                    }
-
-                    this.widgetService.refreshWidget('upTimeHourly', urluptimehourly)
                     this.widgetService.refreshWidget('upTimeDaily', urluptimedaily)
 
-                    .catch(error => console.log(error));
-                },
-                error => this.errorMessage = <any>error
-                );
-
-        });
+                    this.widgetService.refreshWidget('upTimeHourly', urluptimehourly);
+                }
 
 
+            },
+            error => this.errorMessage = <any>error
+            );
+
+
+
+
+        if (this.nodeName) {
+            url = `/services/statistics?deviceId=${this.serviceId}&statName=[POP@${this.nodeName},IMAP@${this.nodeName},SMTP@${this.nodeName}]&operation=HOURLY&isChart=true`;
+        }
+        else {
+            url = `/services/statistics?deviceId=${this.serviceId}&statName=[POP@${this.nodeName},IMAP@${this.nodeName},SMTP@${this.nodeName}]&operation=HOURLY&isChart=true&getNode=true`;
+            urluptimehourly = `/services/statistics?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@${this.nodeName},Services.HourlyUpTimePercent.Exchange@${this.nodeName},Services.HourlyUpTimePercent.OneDrive@${this.nodeName},Services.HourlyUpTimePercent.SharePoint@${this.nodeName}]&operation=HOURLY&isChart=true&getNode=true`;
+            urluptimedaily = `/services/summarystats?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@${this.nodeName},Services.HourlyUpTimePercent.Exchange@${this.nodeName},Services.HourlyUpTimePercent.OneDrive@${this.nodeName},Services.HourlyUpTimePercent.SharePoint@${this.nodeName}]&getNode=true`;
+        }
+
+        return {
+            url: url,
+            urluptimehourly: urluptimehourly,
+            urluptimedaily: urluptimedaily,
+            userLogins: `/services/summarystats?deviceId=${this.serviceId}&statName=ActiveUsersCount`,
+            lastLogin: `/services/last_logon?deviceId=${this.serviceId}`
+        };
     }
+
 
     onPropertyChanged(key: string, value: any) {
 
         if (key === 'serviceId') {
-
-            var serviceId = value;
-            var res = serviceId.split(';');
+            
+            var res = value.split(';');
             if (res.length > 1) {
                 this.nodeName = res[1];
             }
-            var url = "";
-            if (this.nodeName) {
-                url = `/services/statistics?deviceId=${this.serviceId}&statName=[POP@` + this.nodeName + `,IMAP@` + this.nodeName + `,SMTP@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
-            }
-            else {
-                url = `/services/statistics?deviceId=${this.serviceId}&statName=[POP@null,IMAP@null,SMTP@null]&operation=HOURLY&isChart=true&getNode=true`;
-            }
-            this.widgetService.refreshWidget('mailServices', url)
+            this.serviceId = res[0];
+
+            let obj = this.processUrls();
+
+            this.widgetService.refreshWidget('upTimeHourly', obj.url)
                 .catch(error => console.log(error));
-        this.customizeGraphs;
+            this.widgetService.refreshWidget('mailServices', obj.url)
+                .catch(error => console.log(error));
+            this.widgetService.refreshWidget('upTimeDaily', obj.url)
+                .catch(error => console.log(error));
+            this.widgetService.refreshWidget('dailyUserLogins', obj.url)
+                .catch(error => console.log(error));
+            this.widgetService.refreshWidget('lastLogon', obj.url)
+                .catch(error => console.log(error));
+
+        //this.customizeGraphs;
         }
 
     }

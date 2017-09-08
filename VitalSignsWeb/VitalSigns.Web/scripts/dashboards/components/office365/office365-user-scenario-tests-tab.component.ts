@@ -18,7 +18,7 @@ export class Office365UserScenarioTestsTab extends WidgetController implements O
 
     widgets: WidgetContract[];
     serviceId: string;
-    nodeName: string;
+    nodeName: string = "null";
     service: any;
     errorMessage: string;
     
@@ -29,10 +29,15 @@ export class Office365UserScenarioTestsTab extends WidgetController implements O
 
     ngOnInit() {
         this.route.params.subscribe(params => {
-            if (params['service'])
-                this.serviceId = params['service'];
+            if (params['service']) {
+                var res: string[] = params['service'].split(';');
+                if (res.length > 1) {
+                    this.nodeName = res[1];
+                }
+                this.serviceId = res[0];
+            }
             else {
-                var res = this.serviceId.split(';');
+                var res: string[] = this.serviceId.split(';');
                 if (res.length > 1) {
                     this.nodeName = res[1];
                 }
@@ -40,29 +45,29 @@ export class Office365UserScenarioTestsTab extends WidgetController implements O
             }
         });
         var urlmail = "";
-        if (this.nodeName) {
-            urlmail = `/services/statistics?deviceId=${this.serviceId}&statName=[MailLatency@` + this.nodeName + `,MailFlow@` + this.nodeName + `,Inbox@` + this.nodeName + `,ComposeEmail@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
-        }
-        else {
-            urlmail = `/services/statistics?deviceId=${this.serviceId}&statName=[MailLatency@null,MailFlow@null,Inbox@null,ComposeEmail@null]&operation=HOURLY&isChart=true&getNode=true`;
-        }
+        //if (this.nodeName) {
+            urlmail = `/services/statistics?deviceId=${this.serviceId}&statName=[MailLatency@${this.nodeName},MailFlow@${this.nodeName},Inbox@${this.nodeName},ComposeEmail@${this.nodeName}]&operation=HOURLY&isChart=true`;
+       // }
+       // else {
+        //    urlmail = `/services/statistics?deviceId=${this.serviceId}&statName=[MailLatency@null,MailFlow@null,Inbox@null,ComposeEmail@null]&operation=HOURLY&isChart=true&getNode=true`;
+        //}
         var urlsite = "";
         if (this.nodeName) {
-            urlsite = `/services/statistics?deviceId=${this.serviceId}&statName=[CreateSite@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
+            urlsite = `/services/statistics?deviceId=${this.serviceId}&statName=[CreateSite@${this.nodeName}]&operation=HOURLY&isChart=true`;
         }
         else {
             urlsite = `/services/statistics?deviceId=${this.serviceId}&statName=[CreateSite@null]&operation=HOURLY&isChart=true&getNode=true`;
         }
         var urlfolder = "";
         if (this.nodeName) {
-            urlfolder = `/services/statistics?deviceId=${this.serviceId}&statName=[CreateTask@` + this.nodeName + `,CreateFolder@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
+            urlfolder = `/services/statistics?deviceId=${this.serviceId}&statName=[CreateTask@${this.nodeName},CreateFolder@${this.nodeName}]&operation=HOURLY&isChart=true`;
         }
         else {
             urlfolder = `/services/statistics?deviceId=${this.serviceId}&statName=[CreateTask@null,CreateFolder@null]&operation=HOURLY&isChart=true&getNode=true`;
         }
         var urlonedrive = "";
         if (this.nodeName) {
-            urlonedrive = `/services/statistics?deviceId=${this.serviceId}&statName=[OneDriveUpload@` + this.nodeName + `,OneDriveDownload@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
+            urlonedrive = `/services/statistics?deviceId=${this.serviceId}&statName=[OneDriveUpload@${this.nodeName},OneDriveDownload@${this.nodeName}]&operation=HOURLY&isChart=true`;
         }
         else {
             urlonedrive = `/services/statistics?deviceId=${this.serviceId}&statName=[OneDriveUpload@null,OneDriveDownload@null]&operation=HOURLY&isChart=true&getNode=true`;
@@ -320,34 +325,35 @@ export class Office365UserScenarioTestsTab extends WidgetController implements O
         if (key === 'serviceId') {
 
             var serviceId = value;
-            var res = serviceId.split(';');
+            var res = this.serviceId.split(';');
             if (res.length > 1) {
                 this.nodeName = res[1];
             }
+            this.serviceId = res[0];
             var urlmail = "";
-            if (this.nodeName) {
-                urlmail = `/services/statistics?deviceId=${this.serviceId}&statName=[MailLatency@` + this.nodeName + `,MailFlow@` + this.nodeName + `,Inbox@` + this.nodeName + `,ComposeEmail@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
-            }
-            else {
-                urlmail = `/services/statistics?deviceId=${this.serviceId}&statName=[MailLatency@null,MailFlow@null,Inbox@null,ComposeEmail@null]&operation=HOURLY&isChart=true&getNode=true`;
-            }
+           // if (this.nodeName) {
+                urlmail = `/services/statistics?deviceId=${this.serviceId}&statName=[MailLatency@${this.nodeName},MailFlow@${this.nodeName},Inbox@${this.nodeName},ComposeEmail@${this.nodeName}]&operation=HOURLY&isChart=true`;
+          //  }
+           // else {
+           //     urlmail = `/services/statistics?deviceId=${this.serviceId}&statName=[MailLatency@null,MailFlow@null,Inbox@null,ComposeEmail@null]&operation=HOURLY&isChart=true&getNode=true`;
+          //  }
             var urlsite = "";
             if (this.nodeName) {
-                urlsite = `/services/statistics?deviceId=${this.serviceId}&statName=[CreateSite@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
+                urlsite = `/services/statistics?deviceId=${this.serviceId}&statName=[CreateSite@${this.nodeName}]&operation=HOURLY&isChart=true`;
             }
             else {
                 urlsite = `/services/statistics?deviceId=${this.serviceId}&statName=[CreateSite@null]&operation=HOURLY&isChart=true&getNode=true`;
             }
             var urlfolder = "";
             if (this.nodeName) {
-                urlfolder = `/services/statistics?deviceId=${this.serviceId}&statName=[CreateTask@` + this.nodeName + `,CreateFolder@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
+                urlfolder = `/services/statistics?deviceId=${this.serviceId}&statName=[CreateTask@${this.nodeName},CreateFolder@${this.nodeName}]&operation=HOURLY&isChart=true`;
             }
             else {
                 urlfolder = `/services/statistics?deviceId=${this.serviceId}&statName=[CreateTask@null,CreateFolder@null]&operation=HOURLY&isChart=true&getNode=true`;
             }
             var urlonedrive = "";
             if (this.nodeName) {
-                urlonedrive = `/services/statistics?deviceId=${this.serviceId}&statName=[OneDriveUpload@` + this.nodeName + `,OneDriveDownload@` + this.nodeName + `]&operation=HOURLY&isChart=true`;
+                urlonedrive = `/services/statistics?deviceId=${this.serviceId}&statName=[OneDriveUpload@${this.nodeName},OneDriveDownload@${this.nodeName}]&operation=HOURLY&isChart=true`;
             }
             else {
                 urlonedrive = `/services/statistics?deviceId=${this.serviceId}&statName=[OneDriveUpload@null,OneDriveDownload@null]&operation=HOURLY&isChart=true&getNode=true`;

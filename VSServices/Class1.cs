@@ -236,6 +236,8 @@ namespace RPRWyatt.VitalSigns.Services
                             servers.Delete(server.Name);
                             i--;
                         }
+                        else
+                            LogUtilities.LogUtils.WriteDeviceHistoryEntry("All", "InsufficentLicensesCheck", DateTime.Now.ToString() + " " + server.Name + " is being NOT removed from the collection.", LogUtils.LogLevel.Verbose);
                     }
 
                     //10/3/2016 NS commented out per discussion with Wes - the insufficient licenses system message is being queued 
@@ -260,7 +262,7 @@ namespace RPRWyatt.VitalSigns.Services
             //Look for ScanNow's
             try
             {
-
+                if(String.IsNullOrWhiteSpace(connectionString)) connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["VitalSignsMongo"].ToString();
                 VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(connectionString);
                 FilterDefinition<VSNext.Mongo.Entities.Server> filterDef = repository.Filter.Eq(x => x.ScanNow, true) &
                     repository.Filter.Eq(x => x.DeviceType, collection.get_Item(0).ServerType);

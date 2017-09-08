@@ -115,8 +115,10 @@ export class ServicesView implements OnInit, AfterViewChecked {
         // Activate selected tab
         this.services.forEach(service => service.active = false);
         service.active = true;  
-        
-        this.router.navigate(['services/' + this.module,  service.id ]);
+        let id = service.id;
+        if (service.type === "Office365" && this.module.toLowerCase() === "dashboard")
+            id = id + ";" + service.category;
+        this.router.navigate(['services/' + this.module,  id ]);
     }
     setFilterCount(index: any) {
         this.filterCount= index+1;
@@ -128,7 +130,7 @@ export class ServicesView implements OnInit, AfterViewChecked {
 
   
     loadData() {
-        this.service.get('/Services/device_list')
+        this.service.get(`/Services/device_list?module=${this.module.toLowerCase()}`)
             .subscribe(
             response => {
                 if (this.module == "dashboard") {                  

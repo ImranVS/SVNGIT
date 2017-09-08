@@ -346,13 +346,24 @@ namespace VitalSignsMicrosoftClasses
                     {
                         OverallStatus = "Issue";
 						Details += ". The user count is unreasonably high, and this condition is due to an IIS bug. The count can be reset to the correct value by restarting either IIS or the server itself.";
-				}
+				    }
 				}
 
+                string Name = Server.Name;
+                if (Server.ServerType == Enums.ServerType.Office365.ToDescription())
+                    Name = Server.Name + "-" + Server.Location;
+                else
+                    Name = Server.Name;
+
                 MongoStatementsUpsert<VSNext.Mongo.Entities.Status> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Status>();
-                mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DeviceId == Server.ServerObjectID);
+
+                var filterDef = mongoStatement.repo.Filter.Eq(x => x.DeviceId, Server.ServerObjectID);
+                if (Server.ServerType == Enums.ServerType.Office365.ToDescription())
+                    filterDef = filterDef & mongoStatement.repo.Filter.Eq(x => x.DeviceName, Name);
+
+                mongoStatement.filterDef = filterDef;
                 mongoStatement.updateDef = mongoStatement.repo.Updater
-                    .Set(i => i.DeviceName, Server.Name)
+                    .Set(i => i.DeviceName, Name)
                     .Set(i => i.CurrentStatus, Server.Status)
                     .Set(i => i.StatusCode, Server.StatusCode)
                     .Set(i => i.LastUpdated, DateTime.Now)
@@ -370,6 +381,7 @@ namespace VitalSignsMicrosoftClasses
                     .Set(i => i.Details, Details)
                     .Set(i => i.TypeAndName, Server.TypeANDName);
 
+                Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "Executing Status: " + mongoStatement.ToString(), Common.LogLevel.Verbose);
                 mongoStatement.Execute();
 
             }
@@ -422,6 +434,7 @@ namespace VitalSignsMicrosoftClasses
                                 AlertStmt.Details = AlertStmt.AlertType.ToString().Replace("_", " ") + ":  " + AlertStmt.Details + " at " + time.ToString(format);
                             }
                         }
+
                         if (AlertStmt.ResetAlertQueue == commonEnums.ResetAlert.No)
                         {
 							//if (AlertStmt.DeviceType.ToString() =="Office365")
@@ -570,12 +583,11 @@ namespace VitalSignsMicrosoftClasses
                 
 
 				Server.LastScan = DateTime.Now;
-				string TypeAndName = Server.Name + "-" + ServerType;
-				if (ServerType == "Office365")
-					TypeAndName = Server.Name + "-" + Server.Location ;
-
-				else
-					TypeAndName = Server.Name + "-" + ServerType;
+				string Name = Server.Name;
+                if (ServerType == Enums.ServerType.Office365.ToDescription())
+                    Name = Server.Name + "-" + Server.Location;
+                else
+                    Name = Server.Name;
 
                 //finally Update the Status table with OverallStatus for this server
 
@@ -599,7 +611,7 @@ namespace VitalSignsMicrosoftClasses
                 MongoStatementsUpsert<VSNext.Mongo.Entities.Status> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Status>();
                 mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.TypeAndName == Server.TypeANDName);
                 mongoStatement.updateDef = mongoStatement.repo.Updater
-                    .Set(i => i.DeviceName, Server.Name)
+                    .Set(i => i.DeviceName, Name)
                     .Set(i => i.CurrentStatus, NotResponding)
                     .Set(i => i.StatusCode, NotResponding)
                     .Set(i => i.LastUpdated, DateTime.Now)
@@ -635,76 +647,6 @@ namespace VitalSignsMicrosoftClasses
             }
 		}
 
-        public void SetServerStatus(MonitoredItems.MicrosoftServer Server, string ServerType, String Status = "OK", String Details = "")
-        {
-            
-            string strSQL = "";
-            try
-            {
-                CommonDB DB = new CommonDB();
-                Server.Status = Status;
-
-                //DAG Table
-                TestResults SQLStatementsList = new TestResults();
-
-                Server.LastScan = DateTime.Now;
-                string TypeAndName = Server.Name + "-" + ServerType;
-                if (ServerType == "Office365")
-                    TypeAndName = Server.Name + "-" + Server.Location;
-
-                else
-                    TypeAndName = Server.Name + "-" + ServerType;
-
-                //finally Update the Status table with OverallStatus for this server
-
-               
-
-                strSQL = "UPDATE STATUS SET " +
-                    "STATUS='" + Server.Status + "', " +
-                    "DETAILS='" + Details + "', " +
-                    "STATUSCODE='" + Server.Status + "', " +
-                    "LASTUPDATE='" + DateTime.Now.ToString() + "', " +
-                    "TypeAndName='" + TypeAndName + "', " +
-                    "Location='" + Server.Location + "', " +
-                    "Category='" + Server.Category + "', " +
-                    "ResponseThreshold='" + Server.ResponseThreshold + "', " +
-                    "NextScan='" + Server.NextScan + "' " +
-                    "WHERE NAME='" + Server.Name + "'";
-                int retCount = DB.Execute(strSQL);
-                if (retCount == 0)
-                {
-                    //insert 
-
-                    strSQL = "" +
-                        "INSERT INTO STATUS (NAME, STATUS,DETAILS, STATUSCODE, LASTUPDATE, TYPE, LOCATION, CATEGORY, " +
-                        "TYPEANDNAME, DESCRIPTION, " +
-                        "ResponseThreshold, " +
-                        "NextScan) " +
-                        "VALUES ('" + Server.Name + "', '" + Server.Status + "','" + Details + "','" + Server.Status + "', '" + DateTime.Now.ToString() + "','" + ServerType + "','" + Server.Location + "','" + Server.Category + "','" +
-                        TypeAndName + "', 'Microsoft " + ServerType + " Server', " +
-                        "'" + Server.ResponseThreshold + "', " +
-                        "'" + Server.NextScan + "')";
-                    DB.Execute(strSQL);
-                }
-
-
-
-
-
-            }
-            catch (Exception ex)
-            {
-                //Common.WriteTestResults(Server.Name, "exchange", "Exception", "Exception", ex.Message.ToString());
-                Common.WriteDeviceHistoryEntry(ServerType, Server.Name, "Error in Not Responding...Executing Query =  " + strSQL + " with error message of " + ex.Message);
-
-            }
-            // TODO: End transaction
-            finally
-            {
-                //commit or rollback
-
-            }
-        }
 
 	}
 }

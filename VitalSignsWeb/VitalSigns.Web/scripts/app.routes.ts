@@ -6,6 +6,7 @@ import { AuthGuard } from './profiles/services/authgard.service';
 import { ForwardPage } from './core/components/forward-page.component';
 
 import { OverallDashboard } from './dashboards/components/overall-dashboard.component';
+import { ExecutiveSummary } from './dashboards/components/executive-summary.component';
 
 import { IBMDominoDashboard } from './dashboards/components/ibm-domino/ibm-domino-dashboard.component';
 import { IBMConnectionsDashboard } from './dashboards/components/ibm-connections/ibm-connections-dashboard.component';
@@ -125,6 +126,7 @@ import { Office365MailboxReport} from './reports/components/office365/office365-
 import { MobileDevicesSummaryOS } from './reports/components/mobile-users/mobile-users-os-summary.component';
 import { MobileUsersReport } from './reports/components/mobile-users/mobile-users-report.component';
 import { Office365DisabledUsersReport } from './reports/components/office365/office365-disabled-users.component';
+import { Office365StatisticsReport } from './reports/components/office365/office365-statistics-report.component';
 
 import { FileUploadSample } from './configurator/components/serverImport/file-upload-sample.component';
 
@@ -148,6 +150,7 @@ import { DominoMailDeliveryStatus } from './dashboards/components/mail-delivery-
 import { DiskSpaceConsumptionReport } from './reports/components/disk/disk-space-consumption.component';
 
 export * from './dashboards/components/overall-dashboard.component';
+export * from './dashboards/components/executive-summary.component';
 
 export * from './dashboards/components/ibm-domino/ibm-domino-dashboard.component';
 export * from './dashboards/components/ibm-connections/ibm-connections-dashboard.component';
@@ -228,6 +231,10 @@ const appRoutes: Routes = [
             {
                 path: 'dashboard',
                 component: OverallDashboard
+            },
+            {
+                path: 'dashboard/executivesummary',
+                component: ExecutiveSummary
             },
             {
                 path: 'dashboard/sample',
@@ -596,6 +603,10 @@ const appRoutes: Routes = [
                     {
                         path: 'office365disabledusers',
                         component: Office365DisabledUsersReport
+                    },
+                    {
+                        path: 'office365statistics',
+                        component: Office365StatisticsReport
                     }
                 ]
             },

@@ -70,7 +70,7 @@ export * from '../configurator/components/server/server-domino-server-tasks.comp
 export * from '../configurator/components/server/server-exchange-services.component'
 
 export * from '../configurator/components/server/server-events.component'
-
+export * from '../configurator/components/server/server-o365-nodes.component'
 
 
 

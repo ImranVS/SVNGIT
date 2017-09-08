@@ -372,7 +372,11 @@ namespace VitalSigns.API.Controllers
                 var resultstatus = statusRepository.Find(filterDefStatus).ToList();
                 if (resultstatus.Count > 0)
                 {
-                    statNames = statName.Replace("[", "").Replace("]", "").Replace(" ", "").Replace("null", resultstatus[0].Category).Split(',');
+                    List<String> listOfStatNames = new List<string>();
+                    foreach (var entry in resultstatus)
+                        listOfStatNames.AddRange(statName.Replace("[", "").Replace("]", "").Replace(" ", "").Replace("null", entry.Category).Split(',').ToList());
+
+                    statNames = listOfStatNames.ToArray();
                 }
             }
 

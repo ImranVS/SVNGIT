@@ -1845,7 +1845,7 @@ namespace VitalSignsMicrosoftClasses
                         myServer.IncrementDownCount();
 
                         string ErrorMessage = results == null ? "" : results.ErrorMessage.ToString();
-                        DB.SetServerStatus(myServer, myServer.ServerType, results.PreferedStatus, ErrorMessage);
+                        //DB.SetServerStatus(myServer, myServer.ServerType, results.PreferedStatus, ErrorMessage);
 
                     }
 
@@ -1988,21 +1988,15 @@ namespace VitalSignsMicrosoftClasses
 
                     foreach (MonitoredItems.MicrosoftServer server in collection)
                     {
-                        String sql = "IF NOT EXISTS(SELECT * FROM Status WHERE TypeANDName = '" + server.Name + "-" + type + "') BEGIN " +
-                            "INSERT INTO Status ( Type, Location, Category, Name, Status, Details, Description, TypeANDName, StatusCode ) VALUES " +
-                            " ('" + type + "', '" + server.Location + "', '" + server.Category + "', '" + server.Name + "', '" + server.Status + "', 'This server has not yet been scanned.', " +
-                            "'Microsoft " + type + " Server', '" + server.Name + "-" + type + "', '" + server.StatusCode + "') END";
-
-                       // db.Execute(sql);
-
-                        if (list.Where(i => i.DeviceName == server.Name).Count() == 0)
+                        String Name = server.Name + (server.ServerType == Enums.ServerType.Office365.ToDescription() ? "-" + server.Location : "");
+                        if (list.Where(i => i.DeviceName == Name).Count() == 0)
                         {
                             insertStatement.listOfEntities.Add(new Status()
                             {
                                 DeviceType = type,
                                 Location = server.Location,
                                 Category = server.Category,
-                                DeviceName = server.Name,
+                                DeviceName = server.Name + (server.ServerType == Enums.ServerType.Office365.ToDescription() ? "-" + server.Location : ""),
                                 CurrentStatus = server.Status,
                                 Details = "This server has not yet been scanned.",
                                 TypeAndName = server.TypeANDName,

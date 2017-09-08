@@ -199,15 +199,23 @@ namespace VitalSigns.API.Controllers
         /// <author>Kiran Dadireddy</author>
         /// <returns>List of servers details</returns>
         [HttpGet("device_list")]
-        public APIResponse GetAllServerServices()
+        public APIResponse GetAllServerServices(string module, string deviceType)
         {
             statusRepository = new Repository<Status>(ConnectionString);
             serverRepository = new Repository<Server>(ConnectionString);
             serverOtherRepository = new Repository<ServerOther>(ConnectionString);
+            
             try
             {
+                var serverFilterDef = serverRepository.Filter.Empty;
+                var serverOtherFilterDef = serverOtherRepository.Filter.Empty;
+                if (!string.IsNullOrWhiteSpace(deviceType))
+                {
+                    serverFilterDef = serverFilterDef & serverRepository.Filter.Eq(x => x.DeviceType, deviceType);
+                    serverOtherFilterDef = serverOtherFilterDef & serverOtherRepository.Filter.Eq(x => x.Type, deviceType);
+                }
                 var serviceIcons = Common.GetServerTypeIcons();
-                var servers = serverRepository.Collection.AsQueryable()
+                var servers = serverRepository.Find(serverFilterDef & serverRepository.Filter.Ne(x => x.DeviceType, Enums.ServerType.Office365.ToDescription())).AsQueryable()
                     .Select(x => new ServerStatus
                     {
                         Id = x.Id,
@@ -216,8 +224,41 @@ namespace VitalSigns.API.Controllers
                         Name = x.DeviceName,
                     }).OrderBy(x=>x.Name).ToList();
 
-                var serverOthers = serverOtherRepository.Collection.AsQueryable()
-                    .Where(x => x.Type == Enums.ServerType.NotesDatabase.ToDescription())
+                if (module == "configurator")
+                {
+                    servers.AddRange(serverRepository.Find(serverFilterDef & serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription())).AsQueryable()
+                    .Select(x => new ServerStatus
+                    {
+                        Id = x.Id,
+                        IsEnabled = x.IsEnabled,
+                        Type = x.DeviceType,
+                        Name = x.DeviceName,
+                    }).OrderBy(x => x.Name).ToList());
+                }
+                else
+                {
+                    servers.AddRange(
+                        serverRepository.Collection.Aggregate()
+                            .Match(serverFilterDef & serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription()))
+                            .Unwind(x => x.NodeIds)
+                            .Lookup("nodes", "node_ids", "_id", "location")
+                            .ToList()
+                            .Select(x => new ServerStatus
+                            {
+                                Id = x["_id"].ToString(),
+                                IsEnabled = x["is_enabled"].AsBoolean,
+                                Type = x["device_type"].ToString(),
+                                Name = x["device_name"].ToString() + "-" + x["location"][0]["location"].ToString()
+                            })
+                            );
+                }
+                //l[0]["location"][0]["location_name"].ToString()
+
+
+
+                var serverOthers = serverOtherRepository
+                    .Find(serverOtherFilterDef & serverOtherRepository.Filter.Eq(x => x.Type, Enums.ServerType.NotesDatabase.ToDescription()))
+                    .ToList()
                     .Select(x => new ServerStatus
                     {
                         Id = x.Id,
@@ -232,16 +273,19 @@ namespace VitalSigns.API.Controllers
 
                 foreach (var server in servers)
                 {
-
-                    var serverStatus = statusRepository.Collection.AsQueryable().FirstOrDefault(x => x.DeviceId == server.Id);
+                    var statusFilterDef = statusRepository.Filter.Eq(x => x.DeviceId, server.Id);
+                    if (module == "dashboard")
+                        statusFilterDef = statusFilterDef & statusRepository.Filter.Eq(x => x.DeviceName, server.Name);
+                    var serverStatus = statusRepository.Find(statusFilterDef).AsQueryable().FirstOrDefault();
                     if (serverStatus != null)
                     {
-
-                        server.Country = serverStatus.Location; ;
+                        server.Category = serverStatus.Category;
+                        server.Country = serverStatus.Location;
                         server.Version = serverStatus.SoftwareVersion;
                         server.LastUpdated = serverStatus.LastUpdated;
                         server.Status = serverStatus.StatusCode;// Holds the formated status code for displaying colors in UI
                         server.StatusCode = serverStatus.StatusCode;//Holds actual server code data
+                        server.StatusString = serverStatus.CurrentStatus;
                         server.Location = serverStatus.Location;
                         server.Details = serverStatus.Details;
                         if (server.LastUpdated.HasValue)
@@ -302,6 +346,12 @@ namespace VitalSigns.API.Controllers
 
             try
             {
+                string nodeName = null;
+                if(device_id.Contains(";"))
+                {
+                    nodeName = device_id.Substring(device_id.IndexOf(';') + 1);
+                    device_id = device_id.Substring(0, device_id.IndexOf(';'));
+                }
                 if (!string.IsNullOrEmpty(device_id))
                 {
                     //Expression<Func<Status, bool>> expression = (p => p.DeviceId == device_id);
@@ -323,11 +373,11 @@ namespace VitalSigns.API.Controllers
                     Server server = null;
                     try
                     { 
-                        server = serverRepository.Get(device_id);
+                        server = serverRepository.Find(serverRepository.Filter.Eq(x => x.Id, device_id)).First();
                     }
                     catch(Exception ex)
-                    { 
-                        
+                    {
+                        //string s = (serverRepository.Filter.Eq(x => x.Id, device_id) & serverRepository.Filter.Regex(x => x.DeviceName, new BsonRegularExpression("-" + deviceLocation + "&"))).Render(serverRepository.Collection.DocumentSerializer, serverRepository.Collection.Settings.SerializerRegistry).ToString();
                     }
 
                     if(server == null)
@@ -356,11 +406,25 @@ namespace VitalSigns.API.Controllers
                         serverStatus.IsEnabled = server.IsEnabled;
                         serverStatus.Type = server.DeviceType;
                         serverStatus.Name = server.DeviceName;
-                        var status = statusRepository.Collection.AsQueryable().FirstOrDefault(x => x.DeviceId == server.Id);
+
+                        // string s = (statusRepository.Filter.Eq(x => x.DeviceId, device_id) &
+                        //     ((nodeName != null) ? statusRepository.Filter.Eq(x => x.Category, nodeName) : null)).Render(statusRepository.Collection.DocumentSerializer, statusRepository.Collection.Settings.SerializerRegistry).ToString();
+
+                        Status status = null;
+                        try
+                        {
+                            status = statusRepository.Find(
+                                statusRepository.Filter.Eq(x => x.DeviceId, device_id) &
+                                ((nodeName != null) ? statusRepository.Filter.Eq(x => x.Category, nodeName) : statusRepository.Filter.Empty)).First();
+                        }
+                        catch (Exception ex)
+                        { }
+
+                        //var status = statusRepository.Collection.AsQueryable().FirstOrDefault(x => x.DeviceId == server.Id);
                         if (status != null)
                         {
-
-                            serverStatus.Country = status.Location; ;
+                            serverStatus.Category = status.Category;
+                            serverStatus.Country = status.Location;
                             serverStatus.Version = status.SoftwareVersion;
                             serverStatus.LastUpdated = status.LastUpdated;
                             serverStatus.Status = status.StatusCode;// Holds the formated status code for displaying colors in UI
@@ -1287,7 +1351,7 @@ namespace VitalSigns.API.Controllers
             {
                 FilterdefStatus = statusRepository.Filter.Eq(x => x.DeviceId,deviceId);
             }
-            
+
 
             try
             {
@@ -1328,7 +1392,7 @@ namespace VitalSigns.API.Controllers
 
                             statusDetailsRepository = new Repository<StatusDetails>(ConnectionString);
 
-                            FilterDefinition<StatusDetails> filterDefDetails = statusDetailsRepository.Filter.Eq(p => p.Type, type);
+                            FilterDefinition<StatusDetails> filterDefDetails = statusDetailsRepository.Filter.Eq(p => p.Type, type) ;
                             if (deviceId != "")
                             {
                                 filterDefDetails = filterDefDetails & statusDetailsRepository.Filter.Eq(x => x.DeviceId, deviceId);
@@ -1358,7 +1422,7 @@ namespace VitalSigns.API.Controllers
                                 {
                                     x.Add(field.Name, field.Value.ToString());
                                 }
-                                headerList = statusdetails.Where(n => n.DeviceId == status.DeviceId)
+                                headerList = statusdetails.Where(n => n.DeviceId == status.DeviceId && (type == "Office365" && n.NodeName == status.Category))
                                     .Select(p => p.TestName).ToList();
                                 if (headerList.Count > 0)
                                 {

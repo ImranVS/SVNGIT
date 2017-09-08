@@ -3123,6 +3123,63 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
         #endregion
+
+        #region Office365 Settings
+
+        [HttpGet("get_office365_nodes")]
+        public APIResponse GetOffice365Nodes(string deviceId)
+        {
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+                nodesRepository = new Repository<Nodes>(ConnectionString);
+                var server = serversRepository.Find(serversRepository.Filter.Eq(x => x.Id, deviceId)).ToList().First();
+                var nodes = nodesRepository.Find(x => true).ToList();
+
+                List<Office365Node> o365Nodes = new List<Office365Node>();
+                foreach(var node in nodes)
+                {
+                    Office365Node o365Node = new Office365Node();
+                    o365Node.NodeId = node.Id;
+                    o365Node.HostName = node.HostName;
+                    o365Node.Location = node.Location == "" ? node.Name : node.Location;
+                    o365Node.IsSelected = (server.NodeIds != null && server.NodeIds.Contains(node.Id) == true);
+                    o365Nodes.Add(o365Node);
+                }
+                
+                
+                Response = Common.CreateResponse(o365Nodes);
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Error getting Office 365 Nodes.\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpPut("save_office365_nodes")]
+        public APIResponse SaveOffice365Nodes([FromBody]List<Office365Node> office365Nodes, string deviceId)
+        {
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+                FilterDefinition<Server> filterDef = serversRepository.Filter.Eq(x => x.Id, deviceId);
+                UpdateDefinition<Server> updateDef = serversRepository.Updater.Set(x => x.NodeIds, office365Nodes.Where(x => x.IsSelected).Select(x => x.NodeId).ToList());
+                serversRepository.Update(filterDef, updateDef);
+                Licensing licensing = new Licensing();
+                licensing.refreshServerCollectionWrapper();
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Server attributes updated successfully");
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Error setting Office 365 Nodes.\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        #endregion
         #endregion
 
         #region IBM Domino Settings

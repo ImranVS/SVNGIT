@@ -108,6 +108,7 @@ import {ConnectionsProfilesReport} from './reports/components/ibm-connections/co
 import {ConnectionsTagsReport} from './reports/components/ibm-connections/connections-tags-report.component';
 import { ConnectionsWikiReport } from './reports/components/ibm-connections/connections-wiki-report.component';
 import { Office365DisabledUsersSort } from './reports/filters/components/office365-disabled-users-sort.component';
+import { Office365StatisticsReport } from './reports/components/office365/office365-statistics-report.component';
 
 import { ConnectionsCommunityActivityReport } from './reports/components/ibm-connections/connections-community-activity-report.component';
 import { ConnectionsUserActivityReport } from './reports/components/ibm-connections/connections-user-activity-report.component';
@@ -137,6 +138,8 @@ import { MobileDevicesSummaryOS } from './reports/components/mobile-users/mobile
 import {RepeatableChart} from './reports/components/repeatable-chart.component';
 import { MobileUsersReport } from './reports/components/mobile-users/mobile-users-report.component';
 import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-connections/connections-executive-overview-report.component';
+
+import { ExecutiveSummaryWidget } from './dashboards/components/executive-summary-widget.component';
 
 @NgModule({
     imports: [
@@ -257,6 +260,7 @@ import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-con
         ConnectionsExecutiveOverviewReport,
         Office365DisabledUsersReport,
         Office365DisabledUsersSort,
+        Office365StatisticsReport,
         dashboards.SampleDashboard,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
@@ -299,6 +303,7 @@ import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-con
         dashboards.Issues,
         dashboards.DominoStatistics,
         dashboards.SametimeStatistics,
+        dashboards.ExecutiveSummary,
         widgets.ServerListTypeReportGrid,
         widgets.ServerListLocationReportGrid,
         widgets.AppStatus,
@@ -388,6 +393,7 @@ import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-con
         widgets.MaintenanceWindows,
         widgets.ServerEvents,
         widgets.DominoServerDiskSettings,
+        widgets.Office365Nodes,
         widgets.DatabaseSettings,
         widgets.ServerAdvancedSettings,
         widgets.WebSphereServerSettings,
@@ -419,6 +425,7 @@ import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-con
         widgets.MobileUsersReportGrid,
         widgets.MailboxList,
         widgets.Office365DisabledUsersList,
+        widgets.ExecutiveSummaryWidget,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsCommunitiesDetailTab,
@@ -569,6 +576,7 @@ import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-con
         widgets.MaintenanceWindows,
         widgets.ServerEvents,
         widgets.DominoServerDiskSettings,
+        widgets.Office365Nodes,
         widgets.ServerAdvancedSettings,
         widgets.WebSphereServerSettings,
         widgets.AnyStatisticReportGrid,
@@ -602,6 +610,7 @@ import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-con
         widgets.DatabaseSettings,
         widgets.MailboxList,
         widgets.Office365DisabledUsersList,
+        widgets.ExecutiveSummaryWidget,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsCommunitiesDetailTab,

@@ -198,7 +198,7 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("mailbox_types")]
-        public APIResponse GetMailboxTypes(string deviceId, bool isChart = true)
+        public APIResponse GetMailboxTypes(string deviceId, string nodeName, bool isChart = true)
         {
             List<Segment> result = new List<Segment>();
             FilterDefinition<Mailbox> filterDef;
@@ -214,6 +214,8 @@ namespace VitalSigns.API.Controllers
                     filterDef = mailboxRepository.Filter.Eq(x => x.DeviceId, deviceId) &
                         mailboxRepository.Filter.Ne(x => x.MailboxType, null);
                 }
+                if (!String.IsNullOrWhiteSpace(nodeName))
+                    filterDef = filterDef & mailboxRepository.Filter.Eq(x => x.NodeName, nodeName);
                 if (!isChart)
                 {
                     var resultlist = mailboxRepository.Find(filterDef)
@@ -268,7 +270,7 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("top_mailboxes")]
-        public APIResponse GetTopMailboxes(string deviceId, int topx = 5, bool isChart = true)
+        public APIResponse GetTopMailboxes(string deviceId, string nodeName, int topx = 5, bool isChart = true)
         {
             List<Segment> result = new List<Segment>();
             FilterDefinition<Mailbox> filterDef;
@@ -286,6 +288,8 @@ namespace VitalSigns.API.Controllers
                         mailboxRepository.Filter.Ne(x => x.MailboxType, "DiscoveryMailbox") &
                         mailboxRepository.Filter.Ne(x => x.TotalItemSizeMb, null);
                 }
+                if (!String.IsNullOrWhiteSpace(nodeName))
+                    filterDef = filterDef & mailboxRepository.Filter.Eq(x => x.NodeName, nodeName);
                 if (!isChart)
                 {
                     var resultlist = mailboxRepository.Find(filterDef)
@@ -466,7 +470,7 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("top_inactive_mailboxes")]
-        public APIResponse GetTopInactiveMailboxes(string deviceId, int topx = 5, bool isChart = true)
+        public APIResponse GetTopInactiveMailboxes(string deviceId, string nodeName, int topx = 5, bool isChart = true)
         {
             List<Segment> result = new List<Segment>();
             FilterDefinition<Mailbox> filterDef;
@@ -482,6 +486,8 @@ namespace VitalSigns.API.Controllers
                     filterDef = mailboxRepository.Filter.Eq(x => x.DeviceId, deviceId) &
                         mailboxRepository.Filter.Ne(x => x.InactiveDaysCount, null);
                 }
+                if (!String.IsNullOrWhiteSpace(nodeName))
+                    filterDef = filterDef & mailboxRepository.Filter.Eq(x => x.NodeName, nodeName);
                 if (!isChart)
                 {
                     var resultlist = mailboxRepository.Find(filterDef)
@@ -534,7 +540,7 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("active_inactive_users")]
-        public APIResponse GetActiveInactiveUsers(string deviceId, bool isChart = true)
+        public APIResponse GetActiveInactiveUsers(string deviceId, string nodeName, bool isChart = true)
         {
             List<Segment> result = new List<Segment>();
             FilterDefinition<Mailbox> filterDef;
@@ -550,6 +556,8 @@ namespace VitalSigns.API.Controllers
                     filterDef = mailboxRepository.Filter.Eq(x => x.DeviceId, deviceId) &
                         mailboxRepository.Filter.Ne(x => x.InactiveDaysCount, null);
                 }
+                if (!String.IsNullOrWhiteSpace(nodeName))
+                    filterDef = filterDef & mailboxRepository.Filter.Eq(x => x.NodeName, nodeName);
                 if (!isChart)
                 {
                     var resultlist = mailboxRepository.Find(filterDef)

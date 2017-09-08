@@ -603,14 +603,16 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("{device_id}/health-assessment")]
-        public APIResponse GetHealthAssessment(string device_id)
+        public APIResponse GetHealthAssessment(string device_id, string nodeName)
         {
             statusdetailsRepository = new Repository<StatusDetails>(ConnectionString);
             try
             {
 
-                Expression<Func<StatusDetails, bool>> expression = (p => p.DeviceId == device_id);
-                var result = statusdetailsRepository.Find(expression).Select(x => new HealthAssessment
+                var filterDef = statusdetailsRepository.Filter.Eq(p => p.DeviceId, device_id);
+                if (!String.IsNullOrWhiteSpace(nodeName))
+                    filterDef = filterDef & statusdetailsRepository.Filter.Eq(x => x.NodeName, nodeName);
+                var result = statusdetailsRepository.Find(filterDef).Select(x => new HealthAssessment
                 {
                     DeviceId = x.DeviceId,
                     Type = x.Type,

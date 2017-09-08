@@ -665,23 +665,21 @@ namespace VitalSignsMicrosoftClasses
                 myServer.IncrementServiceUpCount(MonitoredItems.Office365Server.ServiceTypes.Exchange.ToString(), "MailSent@" + nodeName);
             else
                 myServer.IncrementServiceDownCount(MonitoredItems.Office365Server.ServiceTypes.Exchange.ToString(), "MailSent@" + nodeName);
-            System.Threading.Thread.Sleep(myServer.MailFlowThreshold);
-			string messageId = getMessages(randomNo, myServer);
-			//if the message has not been delivered yet, well try to check for another 30 secs
-			if (messageId == "")
+            // System.Threading.Thread.Sleep(myServer.MailFlowThreshold);
+            //string messageId = getMessages(randomNo, myServer);
+            string messageId = "";
+            //if the message has not been delivered yet, well try to check for another 30 secs
+            DateTime dtElapsed = DateTime.Now.AddMilliseconds(myServer.MailFlowThreshold).AddSeconds(30);
+			while (messageId == "" && DateTime.Now < dtElapsed)
 			{
-				DateTime dtElapsed = DateTime.Now.AddSeconds(30);
-				//do few more times
-				while (DateTime.Now < dtElapsed)
-				{
-					messageId = getMessages(randomNo, myServer);
-					if (messageId != "")
-					{
-						done = DateTime.Now.Ticks;
-						elapsed = new TimeSpan(done - start);
-						break;
-					}
-				}
+				messageId = getMessages(randomNo, myServer);
+                //if (messageId != "")
+                //{
+                //	done = DateTime.Now.Ticks;
+                //	elapsed = new TimeSpan(done - start);
+                //	break;
+                //}
+                Thread.Sleep(myServer.MailFlowThreshold / 10);
 			}
 			//if the message has been delivered
 			if (messageId != "")
@@ -721,7 +719,7 @@ namespace VitalSignsMicrosoftClasses
 				}
 				else
 				{
-					Common.makeAlert(totalElapsedTime, myServer.MailFlowThreshold, myServer, commonEnums.AlertType.Mail_flow, ref AllTestsList, "The mail was successfully delivered in " + myServer.MailFlowThreshold + " ms", "Performance");
+					Common.makeAlert(totalElapsedTime, myServer.MailFlowThreshold, myServer, commonEnums.AlertType.Mail_flow, ref AllTestsList, "The mail was successfully delivered in " + totalElapsedTime + " ms", "Performance");
 				}
 			
 			}

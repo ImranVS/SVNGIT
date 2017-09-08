@@ -16,6 +16,7 @@ declare var injectSVG: any;
 export class Office365MailStatsTab extends WidgetController implements OnInit {
     serviceId: string;
     widgets: WidgetContract[]
+    nodeName: string;
     
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private route: ActivatedRoute) {
         super(resolver, widgetService);
@@ -23,10 +24,18 @@ export class Office365MailStatsTab extends WidgetController implements OnInit {
 
     ngOnInit() {
         this.route.params.subscribe(params => {
-            if (params['service'])
-                this.serviceId = params['service'];
+            if (params['service']) {
+                var res: string[] = params['service'].split(';');
+                if (res.length > 1) {
+                    this.nodeName = res[1];
+                }
+                this.serviceId = res[0];
+            }
             else {
-                var res = this.serviceId.split(';');
+                var res: string[] = this.serviceId.split(';');
+                if (res.length > 1) {
+                    this.nodeName = res[1];
+                }
                 this.serviceId = res[0];
             }
         });
@@ -248,5 +257,25 @@ export class Office365MailStatsTab extends WidgetController implements OnInit {
         ];
         injectSVG();
     }
+
+    onPropertyChanged(key: string, value: any) {
+
+        if (key === 'serviceId') {
+
+            this.serviceId = value;
+
+            this.widgetService.refreshWidget('top5InactiveMailboxes', `/services/top_inactive_mailboxes?deviceId=${this.serviceId}`)
+                .catch(error => console.log(error));
+            this.widgetService.refreshWidget('top5InactiveMailboxes', `/services/top_inactive_mailboxes?deviceId=${this.serviceId}`)
+                .catch(error => console.log(error));
+            this.widgetService.refreshWidget('mailboxTypes', `/services/mailbox_types?deviceId=${this.serviceId}`)
+                .catch(error => console.log(error));
+            this.widgetService.refreshWidget('activeInactiveUsers', `/services/active_inactive_users?deviceId=${this.serviceId}`)
+                .catch(error => console.log(error));
+            
+        }
+
+    }
+
 
 }

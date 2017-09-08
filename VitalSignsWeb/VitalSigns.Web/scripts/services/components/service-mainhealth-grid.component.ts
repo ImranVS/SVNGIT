@@ -33,10 +33,10 @@ export class ServiceMainHealthGrid implements WidgetComponent, OnInit {
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     @Input() settings: any;
     deviceId: any;
-    serviceId: string;
     data: wijmo.collections.CollectionView;
     errorMessage: string;
     currentPageSize: any = 20;
+    nodeName: string;
 
     
     constructor(private service: RESTService, private widgetService: WidgetService, private route: ActivatedRoute,
@@ -68,24 +68,30 @@ export class ServiceMainHealthGrid implements WidgetComponent, OnInit {
     }
 
     ngOnInit() {
-        var serviceId = this.widgetService.getProperty('serviceId');
-        if (serviceId) {
-            var res = serviceId.split(';');
-            this.deviceId = res[0];
-        }
-        else {
-            this.route.params.subscribe(params => {
-                if (params['service'])
-                    this.deviceId = params['service'];
-                else {
-                    if (this.serviceId) {
-                        var res = this.serviceId.split(';');
-                        this.deviceId = res[0];
-                    }
+        this.deviceId = this.widgetService.getProperty('serviceId');
+
+        this.route.params.subscribe(params => {
+            if (params['service']) {
+                var res: string[] = params['service'].split(';');
+                if (res.length > 1) {
+                    this.nodeName = res[1];
                 }
-            });
-        }    
-        this.service.get('/DashBoard/'+ this.deviceId +'/health-assessment')
+                this.deviceId = res[0];
+            }
+            else {
+                var res: string[] = this.deviceId.split(';');
+                if (res.length > 1) {
+                    this.nodeName = res[1];
+                }
+                this.deviceId = res[0];
+            }
+        });
+
+        let url = '/DashBoard/' + this.deviceId + '/health-assessment';
+        if (this.nodeName)
+            url += `?nodeName=${this.nodeName}`;
+
+        this.service.get(url)
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
@@ -127,8 +133,19 @@ export class ServiceMainHealthGrid implements WidgetComponent, OnInit {
 
     onPropertyChanged(key: string, value: any) {
         if (key === 'serviceId') {
-            this.serviceId = value;
-            this.service.get('/DashBoard/' + this.deviceId + '/health-assessment')
+
+            var res = value.split(';');
+            this.deviceId = res[0];
+            if (res.length > 1) {
+                this.nodeName = res[1];
+            }
+
+
+            let url = '/DashBoard/' + this.deviceId + '/health-assessment';
+            if (this.nodeName)
+                url += `?nodeName=${this.nodeName}`;
+
+            this.service.get(url)
                 .subscribe(
                 (response) => {
                     this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));

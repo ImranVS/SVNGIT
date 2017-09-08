@@ -25,6 +25,9 @@ namespace VitalSigns.API.Models
         [JsonProperty("status_code")]
         public string StatusCode { get; set; }
 
+        [JsonProperty("status_string")]
+        public string StatusString { get; set; }
+
         [JsonProperty("icon")]
         public string Icon { get; set; }
 
@@ -73,6 +76,9 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("server_other")]
         public bool ServerOther { get; set; } = false;
+
+        [JsonProperty("category")]
+        public string Category { get; set; }
 
     }
 }

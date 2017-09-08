@@ -1,4 +1,4 @@
-﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" id="flex" headersVisibility="Column" (selectionChanged)="onSelectionChanged($event)" #flex>
+﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" id="flex" headersVisibility="Column" (selectionChanged)="onSelectionChanged($event)" #flex style="height: 475px">
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'Name'" [binding]="'device_name'" [width]="150"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Node Name'" [binding]="'category'" [width]="150"></wj-flex-grid-column>
@@ -17,7 +17,7 @@
             </div>
         </template>
     </wj-flex-grid-column>
-    <wj-flex-grid-column header="Tests" [binding]="headerText" [width]="550">
+    <wj-flex-grid-column header="Tests" [binding]="headerText" [minWidth]="550" [width]="'*'">
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-item="item" let-cell="cell">
             <!--<div  class="list-group">
                 <div *ngFor="let htext of cell.item.headerText; let i = index">

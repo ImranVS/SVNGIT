@@ -97,9 +97,9 @@ namespace VitalSignsMicrosoftClasses
                     
 					Common.WriteDeviceHistoryEntry("All", serverType, "Server is marked for scanning so will start Server Related Tasks", Common.LogLevel.Normal);
 					CreateOffice365ServersCollection();
-					InitStatusTable(myOffice365Servers);
+                    Common.InitStatusTable(myOffice365Servers);
 
-					StartO365Threads(false );
+                    StartO365Threads(false );
 
 					//sleep for one minute to allow time for the collection to be made 
 					Thread.Sleep(60 * 1000 * 1);
@@ -666,10 +666,10 @@ repo.Upsert(filterdef, updatedef);
             List<VSNext.Mongo.Entities.Status> listOfStatus = new List<Status>();
             List<VSNext.Mongo.Entities.Credentials> listOfCredentials = new List<Credentials>();
             List<VSNext.Mongo.Entities.Location> listOfLocations = new List<Location>();
+            List<VSNext.Mongo.Entities.Nodes> listOfNodes = new List<Nodes>();
 
             VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(DB.GetMongoConnectionString());
-            FilterDefinition<VSNext.Mongo.Entities.Server> filterDef = repository.Filter.Eq(x => x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Office365.ToDescription()) &
-                 repository.Filter.In(x => x.CurrentNode, new string[] { NodeName, "-1" });
+            FilterDefinition<VSNext.Mongo.Entities.Server> filterDef = repository.Filter.Eq(x => x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Office365.ToDescription());
 
             ProjectionDefinition<VSNext.Mongo.Entities.Server> projectionDef = repository.Project
                 .Include(x => x.Id)
@@ -687,7 +687,8 @@ repo.Upsert(filterdef, updatedef);
                 .Include(x => x.IsEnabled)
                 .Include(x => x.DeviceType)
                 .Include(x => x.CurrentNode)
-                .Include(x => x.SimulationTests);
+                .Include(x => x.SimulationTests)
+                .Include(x => x.NodeIds);
 
 
             listOfServers = repository.Find(filterDef, projectionDef).ToList();
@@ -709,6 +710,8 @@ repo.Upsert(filterdef, updatedef);
             listOfCredentials = repositoryCredentials.Find(x => true).ToList();
             VSNext.Mongo.Repository.Repository <VSNext.Mongo.Entities.Location> repositoryLocation = new VSNext.Mongo.Repository.Repository<Location>(DB.GetMongoConnectionString());
             listOfLocations = repositoryLocation.Find(x => true).ToList();
+            VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Nodes> repositoryNodes = new VSNext.Mongo.Repository.Repository<Nodes>(DB.GetMongoConnectionString());
+            listOfNodes = repositoryNodes.Find(x => true).ToList();
 
 
             StringBuilder SQL = new StringBuilder();
@@ -738,7 +741,10 @@ repo.Upsert(filterdef, updatedef);
 				{
 					//DataRow DR = dtServers.Rows[i];
                     VSNext.Mongo.Entities.Server currServer = listOfServers[i];
-                    
+                    //if the O365 server is not set to scan this node, skip it
+                    if (currServer.NodeIds == null || !currServer.NodeIds.Contains(listOfNodes.Where(x => x.Name == NodeName).FirstOrDefault().Id))
+                        continue;
+
 					MonitoredItems.Office365Server oldServer = myOffice365Servers.SearchByName(currServer.DeviceName);
 					if (oldServer == null)
 					{
@@ -827,16 +833,25 @@ repo.Upsert(filterdef, updatedef);
                         }
 
                         oldServer.ServerType = currServer.DeviceType;
-                        if(currServer.LocationId != null)
-                        {
-                            try
-                            {
-                                oldServer.Location = listOfLocations.Find(x => x.Id == currServer.LocationId).LocationName;
-                            }
-                            catch(Exception ex)
-                            {
+                        //if(currServer.LocationId != null)
+                        //{
+                        //    try
+                        //    {
+                        //        oldServer.Location = listOfLocations.Find(x => x.Id == currServer.LocationId).LocationName;
+                        //    }
+                        //    catch(Exception ex)
+                        //    {
 
-                            }
+                        //    }
+                        //}
+
+                        try
+                        {
+                            oldServer.Location = listOfNodes.Where(x => x.Name == NodeName).First().Location;
+                        }
+                        catch(Exception ex)
+                        {
+
                         }
 
                         if (NodeName != "")
@@ -955,85 +970,6 @@ repo.Upsert(filterdef, updatedef);
 
 
 			//At this point we have all Servers with ALL the information(including Threshold settings)
-		}
-
-
-		protected void InitStatusTable(MonitoredItems.Office365ServersCollection collection)
-		{
-			try
-			{
-				String SqlStr = "";
-				String type = "";
-				//string Location = "";
-				CommonDB db = new CommonDB();
-				if (collection.Count > 0)
-					type = collection.get_Item(0).ServerType;
-				//Location = collection.get_Item(0).Location;
-
-				if (type != "")
-				{
-					//SqlStr = "DELETE FROM Status WHERE Type='" + type + "' AND CATEGORY='" + NodeName +"'";
-					//db.Execute(SqlStr);
-
-					//SqlStr = " INSERT INTO Status ( Type, Location, Category, Name, Status, Details, Description, TypeANDName, StatusCode ) VALUES ";
-					//int i = 0;
-					foreach (MonitoredItems.Office365Server server in collection)
-					{
-						if (server.Location != "")
-						{
-                         //SqlStr = "IF NOT EXISTS(SELECT * FROM Status WHERE TypeANDName = '" + server.Name + "-" +server.Location + "'  AND CATEGORY='" + NodeName + "') BEGIN " +
-                         //       "INSERT INTO Status ( Type, Location, Category, Name, Status, Details, Description, TypeANDName, StatusCode ) VALUES " +
-                         //       " ('" + type + "', '" + server.Location + "', '" + server.Category + "', '" + server.Name + "', '" + server.Status + "', 'This server has not yet been scanned.', " +
-                         //       "'Microsoft " + type + " Server', '" + server.Name + "-" + server.Location + "', '" + server.StatusCode + "')End";
-                         //db.Execute(SqlStr);
-                         VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status> repo = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status>(connectionString);
-                         FilterDefinition<VSNext.Mongo.Entities.Status> filterdef = repo.Filter.Where(i => i.DeviceId == server.ServerObjectID);
-                         UpdateDefinition<VSNext.Mongo.Entities.Status> updatedef = default(UpdateDefinition<VSNext.Mongo.Entities.Status>);
-                         updatedef = repo.Updater
-                             .Set(i => i.DeviceName, server.Name)
-                             .Set(i => i.CurrentStatus, server.Status)
-                             .Set(i => i.StatusCode, server.StatusCode)
-                             .Set(i => i.LastUpdated, DateTime.Now)
-                             .Set(i => i.Category, server.Category)
-                             .Set(i => i.TypeAndName, server.TypeANDName)
-                             .Set(i => i.Description, "Microsoft " + type + " Server.")
-                             .Set(i => i.Details, String.IsNullOrWhiteSpace(server.ResponseDetails) ? "This server has not yet been scanned." : server.ResponseDetails)
-                             .Set(i => i.DeviceType, type)
-                             .Set(i => i.UserCount, 0)
-                             .Set(i => i.Location, server.Location)
-                             .Set(i => i.LastUpdated, DateTime.Now)
-                             .Set(i => i.ResponseTime, 0)
-                             .Set(i => i.NextScan, server.NextScan)
-                             .Set(i => i.DominoVersion, type)
-                             .Set(i => i.OperatingSystem, server.OperatingSystem)
-                             .Set(i => i.CPU, 0)
-                             .Set(i => i.Memory, 0)
-                             .Set(i => i.DeviceId, server.ServerObjectID);
-                         repo.Upsert(filterdef, updatedef);
-
-						//we do not want to insert a row without a location
-						
-							//i += 1;
-							//SqlStr += " ('" + type + "', '" + server.Location + "', '" + server.Category + "', '" + server.Name + "', '" + server.Status + "', 'This server has not yet been scanned.', 'Microsoft " + type + " Server', '" +
-								//server.Name + "-" + server.Location + "', '" + server.StatusCode + "') END,";
-						}
-					}
-					
-					//if (i > 0)
-					//{
-						//Remove the last comma
-						//SqlStr = SqlStr.Remove(SqlStr.Length - 1);
-					//}
-					//db.Execute(SqlStr);
-					Common.WriteDeviceHistoryEntry("All", serverType , type + " Servers are marked as Not Scanned", Common.LogLevel.Normal);
-
-				}
-			}
-			catch (Exception ex)
-			{
-				Common.WriteDeviceHistoryEntry("All", serverType, "Error in init status.  Error: " + ex.Message, Common.LogLevel.Normal);
-			}
-
 		}
 
 		#region DailyTasks
