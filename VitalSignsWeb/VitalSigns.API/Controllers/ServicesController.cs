@@ -346,14 +346,15 @@ namespace VitalSigns.API.Controllers
 
             try
             {
-                string nodeName = null;
-                if(device_id.Contains(";"))
-                {
-                    nodeName = device_id.Substring(device_id.IndexOf(';') + 1);
-                    device_id = device_id.Substring(0, device_id.IndexOf(';'));
-                }
+                
                 if (!string.IsNullOrEmpty(device_id))
                 {
+                    string nodeName = null;
+                    if (device_id.Contains(";"))
+                    {
+                        nodeName = device_id.Substring(device_id.IndexOf(';') + 1);
+                        device_id = device_id.Substring(0, device_id.IndexOf(';'));
+                    }
                     //Expression<Func<Status, bool>> expression = (p => p.DeviceId == device_id);
                     //var result = (statusRepository.Find(expression)
                     //                     .Select(x => new ServerStatus
@@ -372,15 +373,15 @@ namespace VitalSigns.API.Controllers
                     var serviceIcons = Common.GetServerTypeIcons();
                     Server server = null;
                     try
-                    { 
+                    {
                         server = serverRepository.Find(serverRepository.Filter.Eq(x => x.Id, device_id)).First();
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         //string s = (serverRepository.Filter.Eq(x => x.Id, device_id) & serverRepository.Filter.Regex(x => x.DeviceName, new BsonRegularExpression("-" + deviceLocation + "&"))).Render(serverRepository.Collection.DocumentSerializer, serverRepository.Collection.Settings.SerializerRegistry).ToString();
                     }
 
-                    if(server == null)
+                    if (server == null)
                     {
                         try
                         {
@@ -399,7 +400,7 @@ namespace VitalSigns.API.Controllers
 
                         }
                     }
-                    
+
                     if (server != null)
                     {
                         serverStatus.Id = server.Id;
@@ -465,9 +466,9 @@ namespace VitalSigns.API.Controllers
                         if (string.IsNullOrEmpty(serverStatus.Location))
                             serverStatus.Location = string.Empty;
                     }
-                                                      
-                   
-                   
+
+
+
                     Models.ServerTypeModel serverType = Common.GetServerTypeTabs(serverStatus.Type);
 
                     if (string.IsNullOrEmpty(serverStatus.SecondaryRole))
@@ -479,7 +480,7 @@ namespace VitalSigns.API.Controllers
                     }
 
 
-                  
+
                     if (!string.IsNullOrEmpty(serverStatus.Status))
                         serverStatus.Status = serverStatus.Status.ToLower().Replace(" ", "");
                     Response = Common.CreateResponse(serverStatus);
@@ -505,8 +506,9 @@ namespace VitalSigns.API.Controllers
                                              })).FirstOrDefault();
 
                         Models.ServerTypeModel serverType = Common.GetServerTypeTabs(deviceType);
-                        result.Tabs = serverType.Tabs;
+                        result.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper() && x.SecondaryRole == null).ToList();
                         Response = Common.CreateResponse(result);
+
                     }
                 }
             }
@@ -1351,7 +1353,7 @@ namespace VitalSigns.API.Controllers
             {
                 FilterdefStatus = statusRepository.Filter.Eq(x => x.DeviceId,deviceId);
             }
-
+            
 
             try
             {
@@ -1392,7 +1394,7 @@ namespace VitalSigns.API.Controllers
 
                             statusDetailsRepository = new Repository<StatusDetails>(ConnectionString);
 
-                            FilterDefinition<StatusDetails> filterDefDetails = statusDetailsRepository.Filter.Eq(p => p.Type, type) ;
+                            FilterDefinition<StatusDetails> filterDefDetails = statusDetailsRepository.Filter.Eq(p => p.Type, type);
                             if (deviceId != "")
                             {
                                 filterDefDetails = filterDefDetails & statusDetailsRepository.Filter.Eq(x => x.DeviceId, deviceId);
