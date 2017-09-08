@@ -214,8 +214,6 @@ namespace VitalSigns.API.Controllers
                     filterDef = mailboxRepository.Filter.Eq(x => x.DeviceId, deviceId) &
                         mailboxRepository.Filter.Ne(x => x.MailboxType, null);
                 }
-                if (!String.IsNullOrWhiteSpace(nodeName))
-                    filterDef = filterDef & mailboxRepository.Filter.Eq(x => x.NodeName, nodeName);
                 if (!isChart)
                 {
                     var resultlist = mailboxRepository.Find(filterDef)
@@ -288,8 +286,6 @@ namespace VitalSigns.API.Controllers
                         mailboxRepository.Filter.Ne(x => x.MailboxType, "DiscoveryMailbox") &
                         mailboxRepository.Filter.Ne(x => x.TotalItemSizeMb, null);
                 }
-                if (!String.IsNullOrWhiteSpace(nodeName))
-                    filterDef = filterDef & mailboxRepository.Filter.Eq(x => x.NodeName, nodeName);
                 if (!isChart)
                 {
                     var resultlist = mailboxRepository.Find(filterDef)
@@ -486,8 +482,6 @@ namespace VitalSigns.API.Controllers
                     filterDef = mailboxRepository.Filter.Eq(x => x.DeviceId, deviceId) &
                         mailboxRepository.Filter.Ne(x => x.InactiveDaysCount, null);
                 }
-                if (!String.IsNullOrWhiteSpace(nodeName))
-                    filterDef = filterDef & mailboxRepository.Filter.Eq(x => x.NodeName, nodeName);
                 if (!isChart)
                 {
                     var resultlist = mailboxRepository.Find(filterDef)
@@ -556,8 +550,6 @@ namespace VitalSigns.API.Controllers
                     filterDef = mailboxRepository.Filter.Eq(x => x.DeviceId, deviceId) &
                         mailboxRepository.Filter.Ne(x => x.InactiveDaysCount, null);
                 }
-                if (!String.IsNullOrWhiteSpace(nodeName))
-                    filterDef = filterDef & mailboxRepository.Filter.Eq(x => x.NodeName, nodeName);
                 if (!isChart)
                 {
                     var resultlist = mailboxRepository.Find(filterDef)

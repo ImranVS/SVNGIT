@@ -484,6 +484,13 @@
       },
       {
         "tab_id": 3,
+        "title": "Nodes",
+        "type": "Configurator",
+        "component": "Office365Nodes",
+        "path": "/app/configurator/components/server/server-o365-nodes.component"
+      },
+      {
+        "tab_id": 4,
         "title": "Events",
         "type": "Configurator",
         "component": "ServerEvents",
