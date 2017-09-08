@@ -200,7 +200,7 @@ webSphereServerNodeData.pageIndex + 1 | number
                     </div>
                 </div>
             </div>-->
-        <div class="panel panel-default">
+        <!--<div class="panel panel-default">
             <div class="panel-heading"> Proxy Server Settings</div>
 
             <div class="panel-body">
@@ -219,8 +219,8 @@ webSphereServerNodeData.pageIndex + 1 | number
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="panel panel-default">
+        </div>-->
+        <!--<div class="panel panel-default">
             <div class="panel-heading">DB2 Settings</div>
 
             <div class="panel-body">
@@ -258,14 +258,14 @@ webSphereServerNodeData.pageIndex + 1 | number
                     </div>
                 </div>
             </div>
-        </div>
+        </div>-->
         <div class="panel panel-default">
             <div class="panel-heading">Usage Statistics</div>
 
             <div class="panel-body">
                 <div class="row">
                     <div class="col-sm-12">
-                        <div class="form-group col-sm-5">
+                        <div class="form-group col-sm-12">
                             <div class="funkyradio col-sm-12">
                                 <div class="funkyradio-default">
                                     <input type="checkbox" id="collectExtendSametimeStatistics" name="collectExtendSametimeStatistics" formControlName="collect_extended_statistics">
@@ -274,8 +274,20 @@ webSphereServerNodeData.pageIndex + 1 | number
                                     </label>
                                 </div>
                             </div>
+                            <div>
+                                <div class="alert alert-info col-sm-12" >
+                                  Please enter the name of the Domino server hosting the Sametime Community Server. 
+                                </div>
+                                <label for="DominoServerName" class="control-label col-sm-6 col-lg-6">Domino Server Name (for stlog.nsf)</label>
+                                <div >
+                                    <input type="text" class="form-control" name="DominoServerName" formControlName="domino_server_name">
+                                </div>
+                            </div>
+
+                    
+
                         </div>
-                        <div>
+                        <!--<div>
                             <div class="form-group col-sm-4" *ngIf="websphereplatform!='Domino'">
                                 <div class="funkyradio col-sm-12">
                                     <div class="funkyradio-default">
@@ -286,9 +298,9 @@ webSphereServerNodeData.pageIndex + 1 | number
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div>-->
 
-                            <div class="form-group col-sm-4" *ngIf="websphereplatform!='Domino'">
+                            <!--<div class="form-group col-sm-4" *ngIf="websphereplatform!='Domino'">
                                 <div class="funkyradio col-sm-12">
                                     <div class="funkyradio-default">
                                         <input type="checkbox" id="collectConferenceStatistics" name="collectConferenceStatistics" formControlName="collect_conference_statistics">
@@ -297,10 +309,10 @@ webSphereServerNodeData.pageIndex + 1 | number
                                         </label>
                                     </div>
                                 </div>
-                            </div>
+                            </div>-->
 
                     </div>
-                    <div class="col-sm-12">
+                    <!--<div class="col-sm-12">
                         <div class="form-group col-sm-5">
                             <label for="portNo" class="control-label col-sm-3">Port No</label>
                             <div class="col-sm-6">
@@ -359,12 +371,12 @@ webSphereServerNodeData.pageIndex + 1 | number
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </div>-->
+               <!--  </div> -->
             </div>
         </div>
     </div>
-    <div class="form-group" *ngIf="deviceType=='IBM Connections'">
+    <!--<div class="form-group" *ngIf="deviceType=='IBM Connections'">
         <div class="panel panel-default">
             <div class="panel-heading">DB2 Settings</div>
             <div class="panel-body">
@@ -408,11 +420,11 @@ webSphereServerNodeData.pageIndex + 1 | number
 
             </div>
         </div>
-    </div>
+    </div>-->
     <button type="submit" class="btn btn-primary" (click)="onSubmit(advancedSettingsForm.value)">Save</button>
 
 
-</form>
+<!-- </form> -->
 <wj-popup class="col-md-6 modal-content" #frmDialog>
     <div class="panel panel-default">
         <div class="panel-heading">

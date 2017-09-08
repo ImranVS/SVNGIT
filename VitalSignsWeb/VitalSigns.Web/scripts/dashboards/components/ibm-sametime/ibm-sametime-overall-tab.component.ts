@@ -74,8 +74,9 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
                 settings: {
-                    url: `/services/statistics?statName=Users&deviceId=${this.serviceId}&operation=hourly`,
-                    dateformat: 'time',
+                    //url: `/services/statistics?statName=Users&deviceId=${this.serviceId}&operation=hourly`,
+                    url: `/services/summarystats?statName=TotalLogins&deviceid=${this.serviceId}`,
+                    dateformat: 'date',
                     chart: {
                         chart: {
                             renderTo: 'dailyUserLogins',
@@ -87,7 +88,7 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 6
+                                step: 1
                             },
                             categories: []
                         },
@@ -116,7 +117,7 @@ export class IBMSametimeOverallTab extends WidgetController implements OnInit, S
             this.widgetService.refreshWidget('responseTimes', `/services/statistics?statName=ResponseTime&deviceId=${this.serviceId}&operation=hourly`)
                 .catch(error => console.log(error));
 
-            this.widgetService.refreshWidget('dailyUserLogins', `/services/statistics?statName=Users&deviceId=${this.serviceId}&operation=hourly`)
+            this.widgetService.refreshWidget('dailyUserLogins', `/services/summarystats?statName=TotalLogins&deviceid=${this.serviceId}`)
                 .catch(error => console.log(error));
 
         }
