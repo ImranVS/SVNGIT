@@ -587,20 +587,14 @@
         "path": "/app/dashboards/components/ibm-sametime/ibm-sametime-chats-tab.component",
         "type": "Dashboard"
       },
-      {
+           {
         "tab_id": 3,
-        "title": "Conferences",
-        "component": "IBMSametimeConferencesTab",
-        "path": "/app/dashboards/components/ibm-sametime/ibm-sametime-conferences-tab.component",
-        "type": "Dashboard"
+        "title": "Health Assessment",
+        "type": "Dashboard",
+        "component": "ServiceMainHealthTab",
+        "path": "/app/services/components/service-mainhealth-tab.component"
       },
-      {
-        "tab_id": 4,
-        "title": "Meetings",
-        "component": "IBMSametimeMeetingsTab",
-        "path": "/app/dashboards/components/ibm-sametime/ibm-sametime-meetings-tab.component",
-        "type": "Dashboard"
-      },
+     
       {
         "tab_id": 1,
         "title": "Device Attributes",
