@@ -290,6 +290,34 @@
         "type": "Dashboard",
         "component": "ServiceOutagesTab",
         "path": "/app/services/components/service-outages-tab.component"
+      },
+      {
+        "tab_id": 1,
+        "title": "Servers",
+        "type": "Health",
+        "component": "MSExchangestatustab",
+        "path": "/app/dashboards/components/ms-exchange/ms-exchange-status-tab.component"
+      },
+      {
+        "tab_id": 2,
+        "title": "DAG",
+        "type": "Health",
+        "component": "MSExchangedagtab",
+        "path": "/app/dashboards/components/ms-exchange/ms-exchange-dag-tab.component"
+      },
+      {
+        "tab_id": 3,
+        "title": "CAS",
+        "type": "Health",
+        "component": "MSExchangecastab",
+        "path": "/app/dashboards/components/ms-exchange/ms-exchange-cas-tab.component"
+      },
+      {
+        "tab_id": 4,
+        "title": "Queues",
+        "type": "Health",
+        "component": "MSExchangequeuestab",
+        "path": "/app/dashboards/components/ms-exchange/ms-exchange-queues-tab.component"
       }
     ]
   },
