@@ -27,6 +27,11 @@ export * from './dashboards/components/mail-delivery-status/exchange-mail-delive
 export * from './dashboards/components/key-metrics/database-replication-grid.component';
 export * from './dashboards/components/key-metrics/database-problems-grid.component';
 
+export * from './dashboards/components/ms-exchange/ms-exchange-grid.component';
+export * from './dashboards/components/ms-exchange/ms-exchange-cas-grid.component';
+export * from './dashboards/components/ms-exchange/ms-exchange-queues-grid.component';
+
+
 export * from './reports/components/financial/cost-per-user-pivot-grid.component';
 
 export * from './not-yet-implemented.component';

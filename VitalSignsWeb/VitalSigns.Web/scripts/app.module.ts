@@ -56,8 +56,7 @@ import { DatabaseReplicationDetails } from './dashboards/components/key-metrics/
 import { Office365Details } from './dashboards/components/office365/office365-details.component';
 import { DAGDetails } from './dashboards/components/ms-database-availablity-group/ms-database-availablity-group-details.component';
 
-
-
+import { MsExchangeDetail } from './dashboards/components/ms-exchange/ms-exchange-details.component';
 import {SampleFiltersBar} from './reports/filters/components/sample-filters-bar.component'
 
 import {ReportsBrowser} from './reports/components/reports-browser.component';
@@ -260,6 +259,7 @@ import { ExecutiveSummaryWidget } from './dashboards/components/executive-summar
         ConnectionsExecutiveOverviewReport,
         Office365DisabledUsersReport,
         Office365DisabledUsersSort,
+        MsExchangeDetail,
         Office365StatisticsReport,
         dashboards.SampleDashboard,
         dashboards.OverallDashboard,
@@ -318,8 +318,12 @@ import { ExecutiveSummaryWidget } from './dashboards/components/executive-summar
         widgets.IBMSametimeGrid,
         widgets.IBMWebsphereGrid,
         widgets.IBMWebsphereNodeGrid,
+        //widgets.MsExchangeDetail,
         widgets.IBMWebsphereServerGrid,
         widgets.IBMTravelerGrid,
+        widgets.MSExchangeGrid,
+        widgets.MSCASGrid,
+        widgets.MSQueuesGrid,
         widgets.Office365Grid,
         widgets.DAGHealthGrid,
         widgets.DatabaseStatusGrid,
@@ -432,6 +436,10 @@ import { ExecutiveSummaryWidget } from './dashboards/components/executive-summar
         tabs.MsdatabaseavailablitydatabaseTab,
         tabs.Memberstab,
         tabs.DatabaseStatusTab,
+        tabs.MSExchangestatustab,
+        tabs.MSExchangedagtab,
+        tabs.MSExchangecastab,
+        tabs.MSExchangequeuestab,
         tabs.ActivationPreferencesTab,
         tabs.IBMConnectionsOverviewTab,
         tabs.IBMConnectionsProfilesTab,
@@ -503,6 +511,9 @@ import { ExecutiveSummaryWidget } from './dashboards/components/executive-summar
         widgets.IBMWebsphereServerGrid,
         widgets.IBMTravelerGrid,
         widgets.Office365Grid,
+        widgets.MSExchangeGrid,
+        widgets.MSCASGrid,
+        widgets.MSQueuesGrid,
         widgets.DAGHealthGrid,
         widgets.DatabaseStatusGrid,
         widgets.ActivationPreferencesGrid,
@@ -609,6 +620,7 @@ import { ExecutiveSummaryWidget } from './dashboards/components/executive-summar
         widgets.MobileUsersReportGrid,
         widgets.DatabaseSettings,
         widgets.MailboxList,
+        //widgets.MsExchangeDetail,
         widgets.Office365DisabledUsersList,
         widgets.ExecutiveSummaryWidget,
         tabs.DominoHealthTab,
@@ -617,6 +629,10 @@ import { ExecutiveSummaryWidget } from './dashboards/components/executive-summar
         tabs.MsdatabaseavailablitydatabaseTab,
         tabs.Memberstab,
         tabs.DatabaseStatusTab,
+        tabs.MSExchangestatustab,
+        tabs.MSExchangedagtab,
+        tabs.MSExchangecastab,
+        tabs.MSExchangequeuestab,
         tabs.ActivationPreferencesTab,
         tabs.IBMConnectionsOverviewTab,
         tabs.IBMConnectionsProfilesTab,

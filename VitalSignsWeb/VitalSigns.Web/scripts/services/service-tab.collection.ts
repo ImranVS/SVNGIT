@@ -64,7 +64,10 @@ export * from '../dashboards/components/ms-database-availablity-group/ms-databas
 export * from '../dashboards/components/ms-database-availablity-group/ms-database-availablity-databasestatus-tab.component';
 export * from '../dashboards/components/ms-database-availablity-group/ms-database-availablity-activationpreferences-tab.component';
 
-
+export * from '../dashboards/components/ms-exchange/ms-exchange-status-tab.component';
+export * from '../dashboards/components/ms-exchange/ms-exchange-dag-tab.component';
+export * from '../dashboards/components/ms-exchange/ms-exchange-cas-tab.component';
+export * from '../dashboards/components/ms-exchange/ms-exchange-queues-tab.component';
 
 export * from '../configurator/components/server/server-domino-server-tasks.component'
 export * from '../configurator/components/server/server-exchange-services.component'
