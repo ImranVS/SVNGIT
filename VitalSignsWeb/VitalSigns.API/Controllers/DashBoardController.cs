@@ -162,37 +162,17 @@ namespace VitalSigns.API.Controllers
         [HttpGet("mobile_user_devices")]
         public APIResponse GetAllMobileUserDevices(bool isKey = false, bool isInactive = false)
         {
-            List<string> keyUsersList = new List<string>();
-            mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
-            List<MobileUserDevice> result = null;
-            DateTime dt = new DateTime();
-            if (isKey)
+            try
             {
-                result = mobileDevicesRepository.Collection
-                .AsQueryable()
-                .Where(x => x.ThresholdSyncTime != null)
-                .Select(x => new MobileUserDevice
-                {
-                    Id = x.Id,
-                    UserName = x.UserName,
-                    Device = x.DeviceName,
-                    Notification = x.NotificationType,
-                    OperatingSystem = x.OSType,
-                    LastSyncTime = x.LastSyncTime,
-                    Access = x.Access,
-                    DeviceId = x.DeviceID,
-                    ThresholdSyncTime = x.ThresholdSyncTime,
-                    OS = x.OS,
-                    LastSyncAgo = x.LastSyncTime.HasValue ? (DateTime.UtcNow - x.LastSyncTime.Value).TotalMinutes : -1
-                }).OrderBy(x => x.UserName).OrderByDescending(x => x.ThresholdSyncTime).ToList();
-            }
-            else
-            {
-                if (!isInactive)
+                List<string> keyUsersList = new List<string>();
+                mobileDevicesRepository = new Repository<MobileDevices>(ConnectionString);
+                List<MobileUserDevice> result = null;
+                DateTime dt = new DateTime();
+                if (isKey)
                 {
                     result = mobileDevicesRepository.Collection
-                    .Find(mobileDevicesRepository.Filter.Exists(x => x.IsActive) & mobileDevicesRepository.Filter.Eq(x => x.IsActive, true))
-                    .ToList()
+                    .AsQueryable()
+                    .Where(x => x.ThresholdSyncTime != null)
                     .Select(x => new MobileUserDevice
                     {
                         Id = x.Id,
@@ -203,39 +183,73 @@ namespace VitalSigns.API.Controllers
                         LastSyncTime = x.LastSyncTime,
                         Access = x.Access,
                         DeviceId = x.DeviceID,
-                        ThresholdSyncTime = x.ThresholdSyncTime == null ? -1 : x.ThresholdSyncTime,
+                        ThresholdSyncTime = x.ThresholdSyncTime,
                         OS = x.OS,
-                        LastSyncAgo = x.LastSyncTime.HasValue ? (DateTime.UtcNow - x.LastSyncTime.Value).TotalMinutes : -1
-                    }).OrderBy(x => x.UserName).OrderByDescending(x => x.ThresholdSyncTime).ToList();
+                        //LastSyncAgo = x.LastSyncTime.HasValue ? (DateTime.UtcNow - x.LastSyncTime.Value).TotalMinutes : -1
+                }).OrderBy(x => x.UserName).OrderByDescending(x => x.ThresholdSyncTime).ToList();
+                    foreach (var entry in result)
+                        if (entry.LastSyncTime.HasValue)
+                            entry.LastSyncAgo = (DateTime.UtcNow - entry.LastSyncTime.Value).TotalMinutes;
+                        else
+                            entry.LastSyncAgo = -1;
                 }
                 else
                 {
-                    dt = DateTime.Now.AddDays(-30);
-                    dt = DateTime.SpecifyKind(dt, DateTimeKind.Utc);
-                    result = mobileDevicesRepository.Collection
-                    .Find(mobileDevicesRepository.Filter.Exists(x => x.IsActive) & mobileDevicesRepository.Filter.Eq(x => x.IsActive, true))
-                    .ToList()
-                    .AsQueryable()
-                    .Where(x => x.LastSyncTime <= dt)
-                    .Select(x => new MobileUserDevice
+                    if (!isInactive)
                     {
-                        Id = x.Id,
-                        UserName = x.UserName,
-                        Device = x.DeviceName,
-                        Notification = x.NotificationType,
-                        OperatingSystem = x.OSType,
-                        LastSyncTime = x.LastSyncTime,
-                        Access = x.Access,
-                        DeviceId = x.DeviceID,
-                        ThresholdSyncTime = x.ThresholdSyncTime == null ? -1 : x.ThresholdSyncTime,
-                        OS = x.OS,
-                        LastSyncAgo = x.LastSyncTime.HasValue ? (DateTime.UtcNow - x.LastSyncTime.Value).TotalMinutes : -1
-                    }).OrderBy(x => x.UserName).OrderByDescending(x => x.ThresholdSyncTime).ToList();
+                        result = mobileDevicesRepository.Collection
+                        .Find(mobileDevicesRepository.Filter.Exists(x => x.IsActive) & mobileDevicesRepository.Filter.Eq(x => x.IsActive, true))
+                        .ToList()
+                        .Select(x => new MobileUserDevice
+                        {
+                            Id = x.Id,
+                            UserName = x.UserName,
+                            Device = x.DeviceName,
+                            Notification = x.NotificationType,
+                            OperatingSystem = x.OSType,
+                            LastSyncTime = x.LastSyncTime,
+                            Access = x.Access,
+                            DeviceId = x.DeviceID,
+                            ThresholdSyncTime = x.ThresholdSyncTime == null ? -1 : x.ThresholdSyncTime,
+                            OS = x.OS,
+                            LastSyncAgo = x.LastSyncTime.HasValue ? (DateTime.UtcNow - x.LastSyncTime.Value).TotalMinutes : -1
+                        }).OrderBy(x => x.UserName).OrderByDescending(x => x.ThresholdSyncTime).ToList();
+                    }
+                    else
+                    {
+                        dt = DateTime.Now.AddDays(-30);
+                        dt = DateTime.SpecifyKind(dt, DateTimeKind.Utc);
+                        result = mobileDevicesRepository.Collection
+                        .Find(mobileDevicesRepository.Filter.Exists(x => x.IsActive) & mobileDevicesRepository.Filter.Eq(x => x.IsActive, true))
+                        .ToList()
+                        .AsQueryable()
+                        .Where(x => x.LastSyncTime <= dt)
+                        .Select(x => new MobileUserDevice
+                        {
+                            Id = x.Id,
+                            UserName = x.UserName,
+                            Device = x.DeviceName,
+                            Notification = x.NotificationType,
+                            OperatingSystem = x.OSType,
+                            LastSyncTime = x.LastSyncTime,
+                            Access = x.Access,
+                            DeviceId = x.DeviceID,
+                            ThresholdSyncTime = x.ThresholdSyncTime == null ? -1 : x.ThresholdSyncTime,
+                            OS = x.OS,
+                            LastSyncAgo = x.LastSyncTime.HasValue ? (DateTime.UtcNow - x.LastSyncTime.Value).TotalMinutes : -1
+                        }).OrderBy(x => x.UserName).OrderByDescending(x => x.ThresholdSyncTime).ToList();
+                    }
                 }
+                result.ForEach(x => x.DeviceUserCount = result.Sum(y => y.UserName == x.UserName ? 1 : 0));
+                Response = Common.CreateResponse(result);
+                return Response;
             }
-            result.ForEach(x => x.DeviceUserCount = result.Sum(y => y.UserName == x.UserName ? 1 : 0));
-            Response = Common.CreateResponse(result);
-            return Response;
+            catch(Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
         }
 
         ///<Author>Sowmya Pathuri</Author>
