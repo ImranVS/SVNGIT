@@ -11270,8 +11270,8 @@ CleanUp:
         WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " Scanning the Sametime log file - before getting a handle on the log database.")
         Try
             db = NotesSession.GetDatabase(DominoServer.Name, "stlog.nsf", False)
-            lastProcessedDate = SametimeServer.LastDocProcessedDate
-            If SametimeServer.LastDocProcessedDate = DateTime.MinValue Then
+            lastProcessedDate = SametimeServer.LastStatsProcessedDate
+            If SametimeServer.LastStatsProcessedDate = DateTime.MinValue Then
                 lastProcessedDate = New DateTime(Now.Year, Now.Month, Now.Day, 0, 0, 0)
                 lastProcessedDate = lastProcessedDate.AddMinutes(1)
                 WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " The last processed date/time is: " & lastProcessedDate)
@@ -11338,7 +11338,7 @@ CleanUp:
 
             Next
 
-            SametimeServer.LastDocProcessedDate = lastProcessedDate
+            SametimeServer.LastStatsProcessedDate = lastProcessedDate
         Catch ex As Exception
             WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " Error processing collection documents -> " & ex.ToString)
             GoTo Cleanup
