@@ -7696,6 +7696,7 @@ CleanUp:
                 con.Open()
                 Dim cmd As New IBM.Data.DB2.DB2Command(sql, con)
                 Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
+                cmd.CommandTimeout = getConnectionsTimeout()
                 adapter.Fill(ds)
 
 
@@ -7932,6 +7933,7 @@ CleanUp:
                 con.Open()
                 Dim cmd As New IBM.Data.DB2.DB2Command(sql, con)
                 Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
+                cmd.CommandTimeout = getConnectionsTimeout()
                 adapter.Fill(ds)
 
 
@@ -8327,6 +8329,7 @@ CleanUp:
 
                 Dim cmd As New IBM.Data.DB2.DB2Command(sql, con)
                 Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
+                cmd.CommandTimeout = getConnectionsTimeout()
                 adapter.Fill(ds)
 
 
@@ -8654,6 +8657,7 @@ CleanUp:
 
                 Dim cmd As New IBM.Data.DB2.DB2Command(sql, con)
                 Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
+                cmd.CommandTimeout = getConnectionsTimeout()
                 adapter.Fill(ds)
 
 
@@ -8908,6 +8912,7 @@ CleanUp:
 
                 Dim cmd As New IBM.Data.DB2.DB2Command(sql, con)
                 Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
+                cmd.CommandTimeout = getConnectionsTimeout()
                 adapter.Fill(ds)
 
 
@@ -9076,6 +9081,7 @@ CleanUp:
 
                 Dim cmd As New IBM.Data.DB2.DB2Command(sql, con)
                 Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
+                cmd.CommandTimeout = getConnectionsTimeout()
                 adapter.Fill(ds)
 
 
@@ -9392,6 +9398,7 @@ CleanUp:
 
                 Dim cmd As New IBM.Data.DB2.DB2Command(sql, con)
                 Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
+                cmd.CommandTimeout = getConnectionsTimeout()
                 adapter.Fill(ds)
 
 
@@ -9630,6 +9637,7 @@ CleanUp:
 
                 Dim cmd As New IBM.Data.DB2.DB2Command(sql, con)
                 Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
+                cmd.CommandTimeout = getConnectionsTimeout()
                 adapter.Fill(ds)
 
 
@@ -9840,6 +9848,7 @@ CleanUp:
 
                 Dim cmd As New IBM.Data.DB2.DB2Command(sql, con)
                 Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
+                cmd.CommandTimeout = getConnectionsTimeout()
                 adapter.Fill(ds)
 
 
@@ -10005,6 +10014,23 @@ CleanUp:
         End Try
 
     End Sub
+
+    Public Function getConnectionsTimeout() As Integer
+        Try
+            Dim val As String = ""
+            Try
+                Dim registry As New VSFramework.RegistryHandler
+                val = registry.ReadFromRegistry("IBMConnectionsDBTimeout")
+            Catch ex As Exception
+                val = "60"
+            End Try
+            Return IIf(IsNumeric(val), Integer.Parse(val), 60)
+        Catch ex As Exception
+            Return 60
+        End Try
+    End Function
+
+
 
     Public Sub ConsolidateConnectionObjects(ByRef myServer As MonitoredItems.IBMConnect)
 
