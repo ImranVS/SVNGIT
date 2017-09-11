@@ -157,16 +157,17 @@ export class Maintenance extends GridBase implements OnInit  {
             .subscribe(
             (response) => {
                 var resultData: any = [];
-                for (var item of response.data) {
-                    if (this.keyUsers) {
-                        var value = this.keyUsers.filter((record) => record == item.id);
-                        if (value.length > 0) {
-                            item.is_selected = true;
+                if (response.data) {
+                    for (var item of response.data) {
+                        if (this.keyUsers) {
+                            var value = this.keyUsers.filter((record) => record == item.id);
+                            if (value.length > 0) {
+                                item.is_selected = true;
+                            }
                         }
+                        resultData.push(item);
                     }
-                    resultData.push(item);
                 }
-
                 this.dataMobileUsers = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(resultData));
                 //this.dataMobileUsers.pageSize = 10;
             },
