@@ -949,6 +949,8 @@ Partial Public Class VitalSignsPlusCore
                 .Include(Function(x) x.DatabaseSettingsHostName) _
                 .Include(Function(x) x.DatabaseSettingsPort) _
                 .Include(Function(x) x.DatabaseSettingsCredentialsId) _
+                .Include(Function(x) x.DominoServerName) _
+                 .Include(Function(x) x.LastStatsProcessedDate) _
                 .Include(Function(x) x.CurrentNode)
 
             listOfServers = repository.Find(filterDef, projectionDef).ToList()
@@ -1433,6 +1435,25 @@ Partial Public Class VitalSignsPlusCore
                         .ResponseThreshold = 100
                     End Try
 
+                    Try
+                        If entity.DominoServerName Is Nothing Then
+                            .DominoServerName = ""
+                        Else
+                            .DominoServerName = entity.DominoServerName
+                        End If
+                    Catch ex As Exception
+                        .DominoServerName = ""
+                    End Try
+
+                    Try
+                        If entity.LastStatsProcessedDate Is Nothing Then
+                            .LastStatsProcessedDate = Date.MinValue
+                        Else
+                            .LastStatsProcessedDate = DateTime.Parse(entity.LastStatsProcessedDate)
+                        End If
+                    Catch ex As Exception
+                        .LastStatsProcessedDate = Date.MinValue
+                    End Try
 
                     Try
                         If entity.ScanInterval Is Nothing Then

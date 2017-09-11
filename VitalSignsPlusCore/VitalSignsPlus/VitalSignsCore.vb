@@ -2,17 +2,9 @@
 'Also use IP*Works components, see http://www.ipworks.com
 ' .NET Reactor  www.ezriz.com
 
-'Written by Alan Forbes
-'64 Pleasant Street
-'Rowley MA 01969
-
-'Alan.Forbes@ServerVitalSigns.com
-'mzldad@yahoo.com
-'Phone: 781-608-4060
-'Copyright 2012, All Rights Reserved
 
 'The IANA has assigned the following Private Enterprise
-'Number to MZL Software Development: 26062
+'Number to VitalSigns: 26062
 'Use this number for sending SNMP traps
 
 'Unlock Codes
@@ -439,7 +431,7 @@ Public Class VitalSignsPlusCore
                 WriteAuditEntry(Now.ToString & " Initialized NotesSession for " & NotesSession.CommonUserName)
                 'CleanAlertsDB()
             Catch ex As Exception
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(NotesSession)
+                ' System.Runtime.InteropServices.Marshal.ReleaseComObject(NotesSession)
                 '3/13/2015 NS added for VSPLUS-1476
                 myAlert.QueueSysMessage(NotesSystemMessageString)
                 WriteAuditEntry(Now.ToString & " Error Initializing NotesSession required to obtain Sametime statistics.  Many problems will follow....  " & ex.ToString)
@@ -10539,6 +10531,15 @@ CleanUp:
                         End Try
 
                         Try
+                            WriteDeviceHistoryEntry("Sametime", myServer.Name, Now.ToString & " Getting stats from Notes db...")
+                            GetSametimeUsageStatsFromNotesDB(myServer)
+
+                        Catch ex As Exception
+                            WriteDeviceHistoryEntry("Sametime", myServer.Name, Now.ToString & " Exception querying stlog.nsf: " & ex.ToString)
+
+                        End Try
+
+                        Try
                             WriteDeviceHistoryEntry("Sametime", myServer.Name, Now.ToString & " Getting XML and Conference stats.")
                             GetSametimeXMLStats(myServer)
                             GetSametimeConfStats(myServer)
@@ -10717,159 +10718,6 @@ CleanUp:
     '    SelectedServer = Nothing
     'End Function
 
-
-    Private Sub QuerySametimeServer(ByRef Server As MonitoredItems.SametimeServer)
-        Dim Result As String
-        Server.Status = "OK"
-        Try
-            Result = PingSametimeServer(Server.IPAddress, "SQ")
-            ParseData(Result, Server)
-            '   WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " >>> Sametime server results for SQ: " & vbCrLf & Result & vbCrLf & "Users: " & Server.Users)
-            Server.IncrementUpCount()
-        Catch ex As Exception
-            WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " >>> Error parsing SQ " & ex.Message)
-            Server.IncrementDownCount()
-        End Try
-
-        Try
-            Result = PingSametimeServer(Server.IPAddress, "IM")
-            ParseData(Result, Server)
-            '   WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " >>> Sametime server results for IM: " & vbCrLf & Result & vbCrLf & "Chats: " & Server.Chat_Sessions)
-
-        Catch ex As Exception
-            WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " >>> Error parsing IM " & ex.Message)
-        End Try
-
-        Try
-            Result = PingSametimeServer(Server.IPAddress, "NW")
-            ParseData(Result, Server)
-            '      WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " >>> Sametime server results for NW: " & vbCrLf & Result & vbCrLf & "NWay: " & Server.nWay_Chat_Sessions)
-
-        Catch ex As Exception
-            WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " >>> Error parsing NW " & ex.Message)
-        End Try
-
-
-        Try
-            Result = PingSametimeServer(Server.IPAddress, "PL")
-            ParseData(Result, Server)
-            ' WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " >>> Sametime server results for PL: " & vbCrLf & Result & vbCrLf & "Places: " & Server.Places)
-
-        Catch ex As Exception
-            WriteDeviceHistoryEntry("Sametime", Server.Name, Now.ToString & " >>> Error parsing PL " & ex.Message)
-        End Try
-
-        Try
-            Server.Description = "The Sametime server currently has " & Server.Users & " active users. "
-        Catch ex As Exception
-
-        End Try
-
-        'AF 1/20/2015 -  We are no longer doing alerts on these thresholds.
-
-        'If Server.Users > Server.Users_Threshold And Server.Users_Threshold <> 0 Then
-        '    Server.Status = "User Sessions"
-        '    Server.ResponseDetails = "The Sametime server currently has " & Server.Users & " users.  The alert threshold is " & Server.Users_Threshold & " users."
-        '    myAlert.QueueAlert("Sametime", Server.Name, "User", "The Sametime server currently has " & Server.Users & " users.  The alert threshold is " & Server.Users_Threshold & " users.", Server.Location)
-        'Else
-        '    myAlert.ResetAlert("Sametime", Server.Name, "User", Server.Location)
-        'End If
-
-        'If Server.Chat_Sessions > Server.Chat_Sessions_Threshold And Server.Chat_Sessions_Threshold <> 0 Then
-        '    Server.Status = "Chat Sessions"
-        '    Server.ResponseDetails = "The Sametime server currently has " & Server.Chat_Sessions & " active chat sessions.  The alert threshold is " & Server.Chat_Sessions_Threshold & " chat sessions."
-        '    myAlert.QueueAlert("Sametime", Server.Name, "Chat", "The Sametime server currently has " & Server.Chat_Sessions & " active chat sessions.  The alert threshold is " & Server.Chat_Sessions_Threshold & " chat sessions.", Server.Location)
-        'Else
-        '    myAlert.ResetAlert("Sametime", Server.Name, "Chat", Server.Location)
-        'End If
-
-        'If Server.nWay_Chat_Sessions > Server.nWay_Chat_Sessions_Threshold And Server.nWay_Chat_Sessions_Threshold <> 0 Then
-        '    Server.Status = "n-Way Chat"
-        '    Server.ResponseDetails = "The Sametime server currently has " & Server.nWay_Chat_Sessions & " active n-Way chat sessions.  The alert threshold is " & Server.nWay_Chat_Sessions_Threshold & " chat sessions."
-        '    myAlert.QueueAlert("Sametime", Server.Name, "n-Way Chat", "The Sametime server currently has " & Server.nWay_Chat_Sessions & " active n-Way chat sessions.  The alert threshold is " & Server.nWay_Chat_Sessions_Threshold & " chat sessions.", Server.Location)
-        'Else
-        '    myAlert.ResetAlert("Sametime", Server.Name, "NChat", Server.Location)
-        'End If
-
-
-        'If Server.Places > Server.Places_Threshold And Server.Places_Threshold <> 0 Then
-        '    Server.Status = "Places"
-        '    Server.ResponseDetails = "The Sametime server currently has " & Server.Places & " active Places.  The alert threshold is " & Server.Places_Threshold & " Places."
-        '    myAlert.QueueAlert("Sametime", Server.Name, "Places", "The Sametime server currently has " & Server.Places & " active Places.  The alert threshold is " & Server.Places_Threshold & " Places.", Server.Location)
-        'Else
-        '    myAlert.ResetAlert("Sametime", Server.Name, "Places", Server.Location)
-        'End If
-
-        'Update Statistics
-        Try
-            UpdateSametimeStatTable(Server.Name, "Users", Server.Users, Server.ServerObjectID)
-        Catch ex As Exception
-
-        End Try
-
-        Try
-            UpdateSametimeStatTable(Server.Name, "Chat Sessions", Server.Chat_Sessions, Server.ServerObjectID)
-        Catch ex As Exception
-
-        End Try
-
-        Try
-            UpdateSametimeStatTable(Server.Name, "n-Way Chat Sessions", Server.nWay_Chat_Sessions, Server.ServerObjectID)
-        Catch ex As Exception
-
-        End Try
-
-        Try
-            UpdateSametimeStatTable(Server.Name, "Places", Server.Places, Server.ServerObjectID)
-        Catch ex As Exception
-
-        End Try
-
-
-        Try
-            If Server.StatisticsCollection.Count > 0 Then
-                For Each stat As MonitoredItems.SametimeStatistic In Server.StatisticsCollection
-                    Try
-                        '5/5/2016 NS modified - if stat.Name is empty, it causes a SQL error
-                        If CType(stat.Value, Double) And stat.Name <> "" Then
-                            UpdateSametimeStatTable(Server.Name, stat.Name, stat.Value, Server.ServerObjectID)
-                        End If
-                    Catch ex As Exception
-
-                    End Try
-
-                Next
-            End If
-        Catch ex As Exception
-
-        End Try
-
-
-    End Sub
-
-    Public Function PingSametimeServer(ByVal ServerHostName As String, ByVal Code As String) As String
-        Dim Result As String
-        Dim MyHTTP As New nsoftware.IPWorks.Http("31504E3641414E5852464336354235353231000000000000000000000000000000000000000000004D3047595958364A00003042394E505658333642345A0000")
-        Dim PostCode As String
-        PostCode = "op_code=" & Code
-        With MyHTTP
-            .ContentType = "application/x-www-form-urlencoded"
-            .PostData = PostCode
-            Try
-                .Post(ServerHostName & "/cgi-bin/stadminAct.exe")
-                Result = .TransferredData
-            Catch ex As Exception
-                Result = ""
-            End Try
-        End With
-
-        Dim myReturn As String = Chr(13) & Chr(10)
-        Dim newResult As String
-        WriteAuditEntry("Result from PingSametimeServer:  " & Result, LogLevel.Normal)
-        newResult = Result.Replace(myReturn, "~")
-        MyHTTP.Dispose()
-        Return newResult
-    End Function
 
     Public Sub ParseData(ByVal ServerResult As String, ByRef Server As MonitoredItems.SametimeServer)
 
@@ -11235,25 +11083,22 @@ CleanUp:
     End Sub
 
     Public Sub GetSametimeUsageStatsFromNotesDB(ByRef SametimeServer As MonitoredItems.SametimeServer)
-        WriteAuditEntry(Now.ToString & " Attempting to get usages stats from stlog.nsf.", LogLevel.Verbose)
-        Dim DominoServer As MonitoredItems.DominoServer
+        WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Attempting to get usages stats from stlog.nsf.", LogLevel.Verbose)
         Try
-
-            DominoServer = MyDominoServers.Search(SametimeServer.Name)
-            If DominoServer Is Nothing Then
-                WriteAuditEntry(Now.ToString & " Unable to determine Domino server name.", LogLevel.Verbose)
-                Exit Sub
-            End If
-
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Attempting to get usage stats from stlog.nsf on " & SametimeServer.DominoServerName, LogLevel.Verbose)
         Catch ex As Exception
-            WriteAuditEntry(Now.ToString & " Unable to determine Domino server name.", LogLevel.Verbose)
-            Exit Sub
+
         End Try
+
+        If SametimeServer.LastStatsProcessedDate = Now.ToShortDateString Then
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Statistics have already been processed for today")
+            Exit Sub
+        End If
 
         Dim db As Domino.NotesDatabase
         Dim coll As Domino.NotesDocumentCollection
         Dim doc As Domino.NotesDocument
-        Dim field As Domino.NotesItem
+
         Dim dt As Domino.NotesDateTime
 
         Dim startInd As Integer = 0
@@ -11267,13 +11112,21 @@ CleanUp:
         start = Now.Ticks
 
 
-        WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " Scanning the Sametime log file - before getting a handle on the log database.")
+        WriteDeviceHistoryEntry("Sametime", SametimeServer.DominoServerName, Now.ToString & " Scanning the Sametime log file - before getting a handle on the stlog database.")
         Try
-            db = NotesSession.GetDatabase(DominoServer.Name, "stlog.nsf", False)
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Connecting to stlog.nsf using " & NotesSession.CommonUserName)
+            db = NotesSession.GetDatabase(SametimeServer.DominoServerName, "stlog.nsf", False)
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " The database title is: " & db.Title)
+        Catch ex As Exception
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Error getting stlog.nsf -> " & ex.ToString)
+            GoTo Cleanup
+        End Try
+
+        Try
             lastProcessedDate = SametimeServer.LastStatsProcessedDate
             If SametimeServer.LastStatsProcessedDate = DateTime.MinValue Then
                 lastProcessedDate = New DateTime(Now.Year, Now.Month, Now.Day, 0, 0, 0)
-                lastProcessedDate = lastProcessedDate.AddMinutes(1)
+                lastProcessedDate = lastProcessedDate.AddDays(-30)
                 WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " The last processed date/time is: " & lastProcessedDate)
             End If
         Catch ex As Exception
@@ -11281,91 +11134,197 @@ CleanUp:
             GoTo Cleanup
         End Try
 
-        Dim dict As New Dictionary(Of String, String)
+
         WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Scanning the log file - before getting a document collection.")
+
+
+
+        'Stats about Chats
+
         Try
             searchStr = "Form=""CommunityChatsandPlacesbyDay"" "
             ' searchStr = searchStr.Substring(0, searchStr.Length - 2) + ") "
-            WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " The search string is: " & searchStr)
-            'dt = NotesSession.CreateDateTime(lastProcessedDate)
-            'WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " The last processed date is: " & dt.LSLocalTime)
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " The search string is: " & searchStr)
+            dt = NotesSession.CreateDateTime(lastProcessedDate)
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " The last processed date is (native Notes date): " & dt.LSLocalTime)
             coll = db.Search(searchStr, dt, 0)
         Catch ex As Exception
-            WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " Error performing a db search -> " & ex.ToString)
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Error performing a db search -> " & ex.ToString)
             GoTo Cleanup
         End Try
 
         If coll.Count = 0 Then
-            WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " The search returned NO matching documents. Exiting log file scanning...")
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " The search returned NO matching documents. Exiting log file scanning...")
             GoTo Cleanup
         Else
-            WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " The search returned " & coll.Count.ToString() & " documents.")
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " The search for chats returned " & coll.Count.ToString() & " documents.")
+        End If
+
+
+        doc = coll.GetFirstDocument
+
+        While Not doc Is Nothing
+            Dim stat_date As DateTime
+            Dim date_string As String = doc.GetItemValue("DateTime")(0)
+            Try
+                WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " date_string is " & date_string)
+                stat_date = DateTime.Parse(date_string)
+            Catch ex As Exception
+                WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Error calculating a date from the string   " & ex.ToString)
+            End Try
+
+            Try
+                WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Found " & doc.GetItemValue("Total2WayChats")(0).ToString & " 2 way chats for " & doc.Created.ToString)
+                WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Total2WayChats value is " & doc.GetItemValue("Total2WayChats")(0))
+                addSametimeSummaryStats(SametimeServer, "Total2WayChats", doc.GetItemValue("Total2WayChats")(0), stat_date)
+            Catch ex As Exception
+                WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Error processing Total2WayChats   " & ex.ToString)
+            End Try
+
+            Try
+
+                WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Peak2WayChats value is " & doc.GetItemValue("Peak2WayChats")(0))
+                addSametimeSummaryStats(SametimeServer, "Peak2WayChats", doc.GetItemValue("Peak2WayChats")(0), stat_date)
+            Catch ex As Exception
+                WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Error processing Peak2WayChats   " & ex.ToString)
+            End Try
+
+
+
+            Try
+                Dim stat_value As Long
+                stat_value = doc.GetItemValue("TotalnWayChats")(0)
+                WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " TotalnWayChats value is " & stat_value)
+                addSametimeSummaryStats(SametimeServer, "TotalnWayChats", stat_value, stat_date)
+            Catch ex As Exception
+                WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Error processing TotalnWayChats   " & ex.ToString)
+            End Try
+
+
+            Try
+
+                Dim stat_value As Long
+                stat_value = doc.GetItemValue("PeaknWayChats")(0)
+                WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " PeaknWayChats value is " & stat_value)
+                addSametimeSummaryStats(SametimeServer, "PeaknWayChats", stat_value, stat_date)
+            Catch ex As Exception
+                WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Error processing PeaknWayChats   " & ex.ToString)
+            End Try
+
+            doc = coll.GetNextDocument(doc)
+        End While
+
+        'Users and Logins
+
+        Try
+            searchStr = "Form=""CommunityUsersandLoginsbyDay"" "
+            ' searchStr = searchStr.Substring(0, searchStr.Length - 2) + ") "
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " The search string is: " & searchStr)
+            coll = db.Search(searchStr, dt, 0)
+        Catch ex As Exception
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Error performing a db search -> " & ex.ToString)
+            GoTo Cleanup
+        End Try
+
+        If coll.Count = 0 Then
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " The search returned NO matching documents. Exiting stlog file scanning...")
+            GoTo Cleanup
+        Else
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " The search for users and logins returned " & coll.Count.ToString() & " documents.")
         End If
 
         Try
             doc = coll.GetFirstDocument
 
             While Not doc Is Nothing
+                Dim stat_date As DateTime
+                Dim date_string As String = doc.GetItemValue("DateTime")(0)
+                WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " date_string is " & date_string)
+                Try
+                    stat_date = DateTime.Parse(date_string)
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & "error parsing date_string  " & ex.ToString)
+                End Try
 
 
                 Try
-                    field = doc.GetFirstItem("Total2WayChats")
-                    dict.Add("Total2WayChats", field.Values(0))
+
+                    Dim stat_value As Long
+                    stat_value = doc.GetItemValue("TotalLogins")(0)
+                    WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " TotalLogins value is " & stat_value)
+                    addSametimeSummaryStats(SametimeServer, "TotalLogins", stat_value, stat_date)
                 Catch ex As Exception
-                    WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " Error extracting Total2WayChats ")
+                    WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Error processing TotalLogins   " & ex.ToString)
                 End Try
 
                 Try
-                    field = doc.GetFirstItem("TotalnWayChats")
-                    dict.Add("TotalnWayChats", field.Values(0))
+                    Dim stat_value As Long
+                    stat_value = doc.GetItemValue("TotalUsers")(0)
+                    WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " TotalUsers value is " & stat_value)
+
+                    addSametimeSummaryStats(SametimeServer, "TotalUsers", stat_value, stat_date)
                 Catch ex As Exception
-                    WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " Error extracting TotalnWayChats ")
+                    WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Error processing TotalLogins   " & ex.ToString)
+                End Try
+
+                Try
+                    Dim stat_value As Long
+                    stat_value = doc.GetItemValue("PeakLogins")(0)
+                    WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " PeakLogins value is " & stat_value)
+
+                    addSametimeSummaryStats(SametimeServer, "PeakLogins", stat_value, stat_date)
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Error processing PeakLogins   " & ex.ToString)
+                End Try
+
+                Try
+                    Dim stat_value As Long
+                    stat_value = doc.GetItemValue("PeakUsers")(0)
+                    WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " PeakUsers value is " & stat_value)
+
+                    addSametimeSummaryStats(SametimeServer, "PeakUsers", stat_value, stat_date)
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Error processing PeakUsers   " & ex.ToString)
                 End Try
 
 
                 doc = coll.GetNextDocument(doc)
             End While
 
-            For Each key In dict.Keys
-                Try
-                    Dim Name As String = key
-                    Dim Val As String = dict(key)
-
-                    addSametimeSummaryStats(SametimeServer, Name, Val)
-                Catch ex As Exception
-                    WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Get Activity Stats. Exception writing dictionary to db for key " & key & ". Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                End Try
-
-            Next
 
             SametimeServer.LastStatsProcessedDate = lastProcessedDate
         Catch ex As Exception
-            WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " Error processing collection documents -> " & ex.ToString)
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Error processing collection documents -> " & ex.ToString)
             GoTo Cleanup
         End Try
+
+
+        'Store the last processed date
+        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
+        Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repo.Filter.Eq(Function(x) x.Id, SametimeServer.ServerObjectID)
+        Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Server) = repo.Updater.Set(Function(x) x.LastStatsProcessedDate, Now.ToShortDateString)
+        repo.Update(filterDef, updateDef)
+
 
 Cleanup:
 
         Try
             System.Runtime.InteropServices.Marshal.ReleaseComObject(dt)
-            WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " released dt", LogLevel.Verbose)
-            If Not field Is Nothing Then
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(field)
-                WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " released field", LogLevel.Verbose)
-            End If
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " released dt", LogLevel.Verbose)
+
             System.Runtime.InteropServices.Marshal.ReleaseComObject(coll)
-            WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " released coll", LogLevel.Verbose)
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " released coll", LogLevel.Verbose)
             System.Runtime.InteropServices.Marshal.ReleaseComObject(db)
-            WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " released db", LogLevel.Verbose)
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " released db", LogLevel.Verbose)
         Catch ex As Exception
-            WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString & " Exception releasing COM objects: " & ex.Message)
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Exception releasing COM objects: " & ex.Message)
         End Try
         Try
             done = Now.Ticks
             elapsed = New TimeSpan(done - start)
 
-            WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString + ": Time to scan log = " & elapsed.TotalMilliseconds & " ms")
-            WriteDeviceHistoryEntry("Sametime", DominoServer.Name, Now.ToString + ": Time to scan log = " & elapsed.TotalSeconds & " seconds")
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString + ": Time to scan log = " & elapsed.TotalMilliseconds & " ms")
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString + ": Time to scan log = " & elapsed.TotalSeconds & " seconds")
         Catch ex As Exception
 
         End Try
@@ -11626,7 +11585,7 @@ Cleanup:
 
         Try
             If Server.Test_Login = "OK" Then
-                myAlert.ResetAlert("Sametime", Server.Name, "Login", Server.Location)
+                myAlert.ResetAlert("Sametime", Server.Name, "Login", Server.Location, "Successfully logged into Sametime as the test user.")
                 Server.IsUp = True
                 Server.IncrementUpCount()
             Else
@@ -11654,7 +11613,7 @@ Cleanup:
 
         Try
             If Server.Test_Resolve = "OK" Then
-                myAlert.ResetAlert("Sametime", Server.Name, "Resolve", Server.Location)
+                myAlert.ResetAlert("Sametime", Server.Name, "Resolve", Server.Location, "Successfully resolved the test user account.")
             Else
                 If Server.FailureCount > Server.FailureThreshold Then
                     myAlert.QueueAlert("Sametime", Server.Name, "Resolve", "Failed to resolve a known Sametime User.  Either the resolve service is down or the directory has an issue.", Server.Location)
@@ -11670,7 +11629,7 @@ Cleanup:
 
         Try
             If Server.Test_StatusChange = "OK" Then
-                myAlert.ResetAlert("Sametime", Server.Name, "Status Change", Server.Location)
+                myAlert.ResetAlert("Sametime", Server.Name, "Status Change", Server.Location, "Successfully changed the user status.")
             Else
                 If Server.FailureCount > Server.FailureThreshold Then
                     myAlert.QueueAlert("Sametime", Server.Name, "Status Change", "Failed to track the status change of a known Sametime User. ", Server.Location)
@@ -11687,7 +11646,7 @@ Cleanup:
 
             Try
                 If Server.Test_IM = "OK" Then
-                    myAlert.ResetAlert("Sametime", Server.Name, "IM", Server.Location)
+                    myAlert.ResetAlert("Sametime", Server.Name, "IM", Server.Location, "Successfully exchanged instant messages between test users.")
                 Else
                     If Server.FailureCount > Server.FailureThreshold Then
                         myAlert.QueueAlert("Sametime", Server.Name, "IM", "Failed to successfully instant message with another Sametime User. ", Server.Location)
@@ -11703,7 +11662,7 @@ Cleanup:
 
         Try
             If Server.Test_Awareness = "OK" Then
-                myAlert.ResetAlert("Sametime", Server.Name, "Awareness", Server.Location)
+                myAlert.ResetAlert("Sametime", Server.Name, "Awareness", Server.Location, "Validated that test users can detect each other's status.")
             Else
                 If Server.FailureCount > Server.FailureThreshold Then
                     myAlert.QueueAlert("Sametime", Server.Name, "Awareness", "Failed awareness test. ", Server.Location)
@@ -11799,7 +11758,7 @@ Cleanup:
 
 #End Region
 
-    Public Sub addSametimeSummaryStats(myServer As MonitoredItems.MonitoredDevice, statName As String, statVal As String)
+    Public Sub addSametimeSummaryStats(myServer As MonitoredItems.MonitoredDevice, statName As String, statVal As String, statDate As DateTime)
         Try
             Dim SummaryStats As New VSNext.Mongo.Entities.SummaryStatistics
             Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.SummaryStatistics)(connectionString)
@@ -11808,11 +11767,15 @@ Cleanup:
             SummaryStats.StatValue = Double.Parse(statVal)
             SummaryStats.DeviceId = myServer.ServerObjectID
             SummaryStats.DeviceType = myServer.ServerType
-            SummaryStats.StatDate = DateTime.Now()
+            SummaryStats.StatDate = statDate
             repo.Insert(SummaryStats)
+
         Catch ex As Exception
 
         End Try
+
+
+
     End Sub
 
 
