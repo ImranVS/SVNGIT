@@ -88,6 +88,9 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("device_type")]
         public string DeviceType { get; set; }
+    
+        [JsonProperty("domino_server_name")]
+        public string DominoServerName { get; set; }
 
         //WebSphere settings
 

@@ -2860,6 +2860,7 @@ namespace VitalSigns.API.Controllers
                                 DatabaseSettingsCredentialsId = x.DatabaseSettingsCredentialsId,
                                 DatabaseSettingsPort = x.DatabaseSettingsPort,
                                 DeviceType = x.DeviceType,
+                                DominoServerName = x.DominoServerName,
                                 CollectConferenceStatistics = x.CollectConferenceStatistics,
                                 ClusterReplicationQueueThreshold = x.ClusterReplicationQueueThreshold
                             }).FirstOrDefault();
@@ -2896,7 +2897,7 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-                FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == id);
+                FilterDefinition<Server> filterDefinition = Builders<Server>.Filter.Where(p => p.Id == id);
                 serversRepository = new Repository<Server>(ConnectionString);
                 try
                 {
@@ -2907,7 +2908,7 @@ namespace VitalSigns.API.Controllers
                             .Set(p => p.ServerDaysAlert, advancedSettings.ServerDaysAlert)
                             .Set(p => p.ClusterReplicationDelayThreshold, advancedSettings.ClusterReplicationDelayThreshold)
                             .Set(p => p.ClusterReplicationQueueThreshold, advancedSettings.ClusterReplicationQueueThreshold);
-                        var result = serversRepository.Update(filterDefination, updateDefination);
+                        var result = serversRepository.Update(filterDefinition, updateDefination);
                         //2/24/2017 NS added for VSPLUS-3506
                         Licensing licensing = new Licensing();
                         licensing.refreshServerCollectionWrapper();
@@ -2915,7 +2916,7 @@ namespace VitalSigns.API.Controllers
                     }
                     else if (advancedSettings.DeviceType == "Sametime")
                     {
-                        var updateDefination = serversRepository.Updater.Set(p => p.ProxyServerType, advancedSettings.ProxyServerType)
+                        var updateDefinition = serversRepository.Updater.Set(p => p.ProxyServerType, advancedSettings.ProxyServerType)
                             .Set(p => p.ProxyServerprotocol, advancedSettings.ProxyServerprotocol)
                             .Set(p => p.DbmsHostName, advancedSettings.DbmsHostName)
                             .Set(p => p.DbmsName, advancedSettings.DbmsName)
@@ -2931,9 +2932,10 @@ namespace VitalSigns.API.Controllers
                             .Set(p => p.ConferencePort, advancedSettings.ConferencePort)
                             .Set(p => p.ConferenceRequireSSL, advancedSettings.ConferenceRequireSSL)
                             .Set(p => p.CollectConferenceStatistics, advancedSettings.CollectConferenceStatistics)
+                            .Set(p => p.DominoServerName, advancedSettings.DominoServerName)
                             .Set(p => p.Db2SettingsCredentialsId, advancedSettings.Db2SettingsCredentialsId);
 
-                        var result = serversRepository.Update(filterDefination, updateDefination, new UpdateOptions { IsUpsert = true });
+                        var result = serversRepository.Update(filterDefinition, updateDefinition, new UpdateOptions { IsUpsert = true });
                         //2/24/2017 NS added for VSPLUS-3506
                         Licensing licensing = new Licensing();
                         licensing.refreshServerCollectionWrapper();
@@ -2944,7 +2946,7 @@ namespace VitalSigns.API.Controllers
                         var updateDefination = serversRepository.Updater.Set(p => p.DatabaseSettingsHostName, advancedSettings.DatabaseSettingsHostName)
                             .Set(p => p.DatabaseSettingsPort, advancedSettings.DatabaseSettingsPort)
                             .Set(p => p.DatabaseSettingsCredentialsId, advancedSettings.DatabaseSettingsCredentialsId);
-                        var result = serversRepository.Update(filterDefination, updateDefination);
+                        var result = serversRepository.Update(filterDefinition, updateDefination);
                         //2/24/2017 NS added for VSPLUS-3506
                         Licensing licensing = new Licensing();
                         licensing.refreshServerCollectionWrapper();
