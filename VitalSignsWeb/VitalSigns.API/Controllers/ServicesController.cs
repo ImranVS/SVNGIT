@@ -46,6 +46,7 @@ namespace VitalSigns.API.Controllers
             {
                 List<string> statusCode = new List<string>();
                 serverRepository = new Repository<Server>(ConnectionString);
+                serverOtherRepository = new Repository<ServerOther>(ConnectionString);
                 statusRepository = new Repository<Status>(ConnectionString);
                 eventsDetectedRepository= new Repository<EventsDetected>(ConnectionString);
                 var servers = serverRepository.Collection.AsQueryable().Where(x => x.IsEnabled == true)
@@ -55,7 +56,17 @@ namespace VitalSigns.API.Controllers
                                                             IsEnabled = x.IsEnabled,
                                                             Type = x.DeviceType,
                                                             Name = x.DeviceName,
-                                                        }).OrderBy(x => x.Name).ToList(); ;
+                                                        }).OrderBy(x => x.Name).ToList();
+
+                //same filter restrictions are in GetStatusSummaryByType, GetAllServerServices and ServerStatusSummary
+                servers.AddRange(serverOtherRepository.Find(x => x.IsEnabled == true && x.Type == Enums.ServerType.NotesDatabase.ToDescription()).ToList()
+                                                        .Select(x => new ServerStatus
+                                                        {
+                                                            Id = x.Id,
+                                                            IsEnabled = x.IsEnabled,
+                                                            Type = x.Type,
+                                                            Name = x.Name
+                                                        }));
                 foreach (var server in servers)
                 {
                     var serverStatus = statusRepository.Collection.AsQueryable().FirstOrDefault(x => x.DeviceId == server.Id);
@@ -131,9 +142,14 @@ namespace VitalSigns.API.Controllers
                 List<string> typeList = new List<string>();
             
                 serverRepository = new Repository<Server>(ConnectionString);
+                serverOtherRepository = new Repository<ServerOther>(ConnectionString);
                 statusRepository = new Repository<Status>(ConnectionString);
                 var deviceIds = serverRepository.Collection.AsQueryable().Where(x => x.IsEnabled == true)
                                                         .Select(x => x.Id).ToList();
+
+                //same filter restrictions are in GetStatusSummaryByType, GetAllServerServices and ServerStatusSummary
+                deviceIds.AddRange(serverOtherRepository.Find(x => x.IsEnabled == true && x.Type == Enums.ServerType.NotesDatabase.ToDescription()).Select(x => x.Id).ToList());
+
                 foreach (var server in deviceIds)
                 {
                     var serverStatus = statusRepository.Collection.AsQueryable().FirstOrDefault(x => x.DeviceId == server);
@@ -255,7 +271,7 @@ namespace VitalSigns.API.Controllers
                 //l[0]["location"][0]["location_name"].ToString()
 
 
-
+                //same filter restrictions are in GetStatusSummaryByType, GetAllServerServices and ServerStatusSummary
                 var serverOthers = serverOtherRepository
                     .Find(serverOtherFilterDef & serverOtherRepository.Filter.Eq(x => x.Type, Enums.ServerType.NotesDatabase.ToDescription()))
                     .ToList()
