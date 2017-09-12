@@ -53,11 +53,13 @@ export class PreferencesForm implements OnInit {
         this.dataProvider.get('/configurator/get_preferences')
             .subscribe(
             response => {
-                this.expirationDate = new Date(response.data.licenseitem.ExpirationDate).toDateString();
-                this.units = response.data.licenseitem.units;
-                this.companyName = response.data.licenseitem.CompanyName;
-                this.licenseType = response.data.licenseitem.LicenseType;
-                this.installType = response.data.licenseitem.InstallType;
+                if (response.data.licenseitem) {
+                    this.expirationDate = new Date(response.data.licenseitem.ExpirationDate).toDateString();
+                    this.units = response.data.licenseitem.units;
+                    this.companyName = response.data.licenseitem.CompanyName;
+                    this.licenseType = response.data.licenseitem.LicenseType;
+                    this.installType = response.data.licenseitem.InstallType;
+                }
                 this.preferencesForm.setValue(response.data.userpreference);
                 //this.licenseForm.setValue(response.data.licenseInfo);
             },

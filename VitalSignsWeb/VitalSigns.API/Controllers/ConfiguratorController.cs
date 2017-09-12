@@ -196,12 +196,18 @@ namespace VitalSigns.API.Controllers
                 var result = Common.GetNameValues(preferencesSettings);
                 VSNext.Mongo.Repository.Repository<License> repoLic = new VSNext.Mongo.Repository.Repository<License>(ConnectionString);
                 License licenseItem = repoLic.Find(i => i.LicenseKey != "").FirstOrDefault();
-                userpreference.CompanyName = result.FirstOrDefault(x => x.Name == "Company Name").Value;
-                userpreference.CurrencySymbol = result.FirstOrDefault(x => x.Name == "Currency Symbol").Value;
-                userpreference.MonitoringDelay = Convert.ToInt32(result.FirstOrDefault(x => x.Name == "Monitoring Delay").Value);
-                userpreference.ThresholdShow = Convert.ToInt32(result.FirstOrDefault(x => x.Name == "Threshold Show").Value);
-                userpreference.DashboardonlyExecSummaryButtons = Convert.ToBoolean(result.FirstOrDefault(x => x.Name == "Dashboard Only").Value);
-                userpreference.BingKey = result.FirstOrDefault(x => x.Name == "Bing Key").Value;
+                if(result.Exists(x => x.Name == "Company Name"))
+                    userpreference.CompanyName = result.FirstOrDefault(x => x.Name == "Company Name").Value;
+                if (result.Exists(x => x.Name == "Currency Symbol"))
+                    userpreference.CurrencySymbol = result.FirstOrDefault(x => x.Name == "Currency Symbol").Value;
+                if (result.Exists(x => x.Name == "Monitoring Delay"))
+                    userpreference.MonitoringDelay = Convert.ToInt32(result.FirstOrDefault(x => x.Name == "Monitoring Delay").Value);
+                if (result.Exists(x => x.Name == "Threshold Show"))
+                    userpreference.ThresholdShow = Convert.ToInt32(result.FirstOrDefault(x => x.Name == "Threshold Show").Value);
+                if (result.Exists(x => x.Name == "Dashboard Only"))
+                    userpreference.DashboardonlyExecSummaryButtons = Convert.ToBoolean(result.FirstOrDefault(x => x.Name == "Dashboard Only").Value);
+                if (result.Exists(x => x.Name == "Bing Key"))
+                    userpreference.BingKey = result.FirstOrDefault(x => x.Name == "Bing Key").Value;
 
                 Response = Common.CreateResponse(new { userpreference = userpreference, licenseitem = licenseItem });
 
