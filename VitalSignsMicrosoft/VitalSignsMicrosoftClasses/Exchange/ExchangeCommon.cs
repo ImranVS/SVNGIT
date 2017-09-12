@@ -118,8 +118,8 @@ namespace VitalSignsMicrosoftClasses
 
 					if (ServerRoles != "")
 					{
-						myServer.Role = ServerRoles.Remove(ServerRoles.Length - 1).Split(new char[] { ',' }); ;
-						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "New Server Roles: " + ServerRoles, commonEnums.ServerRoles.Windows, Common.LogLevel.Normal);
+						//myServer.Role = ServerRoles.Remove(ServerRoles.Length - 1).Split(new char[] { ',' }); ;
+						//Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "New Server Roles: " + ServerRoles, commonEnums.ServerRoles.Windows, Common.LogLevel.Normal);
 					}
 
 					if (results.Count > 0)

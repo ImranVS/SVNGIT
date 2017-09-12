@@ -1501,6 +1501,8 @@ namespace VitalSignsMicrosoftClasses
                                 .Set(i => i.SoftwareVersion, Convert.ToDouble(Version))
                                 .Set(i => i.ServerRoles, myServer.Role.ToList());
 
+                            AllTestResults.MongoEntity.Add(mongoUpdate);
+
 							Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Roles: " + ServerRoles + "...Version: " + Version, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
 						}
