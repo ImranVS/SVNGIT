@@ -1,6 +1,6 @@
-{"_id":{"$oid":"5715835d69dfe42f5fb51ea5"},"created_on":{"$date":"2016-04-19T01:01:17.000Z"},"event_type":"Not Responding","device_type":"Domino"}
 {"_id":{"$oid":"5715834969dfe42f5fb51ea4"},"created_on":{"$date":"2016-04-19T01:00:57.000Z"},"event_type":"Traveler Servlet","device_type":"Domino"}
 {"_id":{"$oid":"5715834969dfe42f5fb51ea6"},"created_on":{"$date":"2016-04-19T01:00:57.000Z"},"event_type":"Availability Index","device_type":"Domino"}
+{"_id":{"$oid":"5715835d69dfe42f5fb51ea5"},"created_on":{"$date":"2016-04-19T01:01:17.000Z"},"event_type":"Not Responding","device_type":"Domino"}
 {"_id":{"$oid":"582c9056d6e14d07a4d157cf"},"created_on":{"$date":"2016-11-16T16:59:02.000Z"},"event_type":"Traveler Device Sync","device_type":"Domino"}
 {"_id":{"$oid":"582c9057d6e14d07a4d157d0"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Traveler Mail","device_type":"Domino"}
 {"_id":{"$oid":"582c9057d6e14d07a4d157d1"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Disk Space","device_type":"Domino"}
@@ -96,3 +96,5 @@
 {"_id":{"$oid":"58d58518ca97a28482f25d80"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"URL","device_type":"Office365"}
 {"_id":{"$oid":"58d58518ca97a28482f25d81"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"DirSync Import","device_type":"Office365"}
 {"_id":{"$oid":"58d58518ca97a28482f25d82"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"DirSync Export","device_type":"Office365"}
+{"_id":{"$oid":"59b829235a790c6e0531a94d"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Response Time","device_type":"Domino"}
+{"_id":{"$oid":"59b82f435a790c6e0531a95a"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Response Time","device_type":"Exchange"}
