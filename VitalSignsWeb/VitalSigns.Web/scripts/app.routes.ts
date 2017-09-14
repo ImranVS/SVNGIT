@@ -113,6 +113,7 @@ import { ConnectionsUserActivityMonthlyChartReport } from './reports/components/
 //import { ConnectionsPopularContentReport } from './reports/components/ibm-connections/connections-popular-content-report.component';
 import { ConnectionsPopularCommunitiesReport } from './reports/components/ibm-connections/connections-popular-communities-report.component';
 import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-connections/connections-executive-overview-report.component';
+import { ConnectionsInactiveCommunityReport } from './reports/components/ibm-connections/community-inactivity-report.component';
 import { TravelerHTTPSessionsReport } from './reports/components/ibm-traveler/traveler-http-sessions.component';
 import { TravelerDeviceSyncReport } from './reports/components/ibm-traveler/traveler-device-syncs.component';
 import { TravelerCPUUtilReport } from './reports/components/ibm-traveler/traveler-cpu-util.component';
@@ -519,6 +520,10 @@ const appRoutes: Routes = [
                     {
                         path: 'connectionsexecutivesummary',
                         component: ConnectionsExecutiveOverviewReport
+                    },
+                    {
+                        path: 'connectionsinactivecommunities',
+                        component: ConnectionsInactiveCommunityReport
                     },
                     {
                         path: 'hourlystatistics',
