@@ -715,9 +715,9 @@ Public Class VitalSignsPlusCore
                     WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " VitalSigns is out of memory.  Attempting to exit so the Master service will restart it. ")
                     Thread.Sleep(1000)
                     End
-        Else
+                Else
                     WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " Error starting MonitorWebSphere thread " & ex.ToString, LogLevel.Normal)
-        End If
+                End If
 
             End Try
             CurrentWebSphereThreadCount = intThreadCount
@@ -3573,7 +3573,7 @@ CleanUp:
                             If String.IsNullOrWhiteSpace(myServer.CommunityUUID) Then
                                 TestCreateWikis(myServer)
                             Else
-                                TestCreateCommunityActivity(myServer, myServer.CommunityUUID)
+                                TestCreateCommunityWiki(myServer, myServer.CommunityUUID)
                             End If
                         Else
                             'adapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", "DELETE FROM StatusDetail WHERE TypeANDName = '" & myServer.Name & "-IBM Connections' and TestName = 'Create Wiki'")
@@ -5494,7 +5494,7 @@ CleanUp:
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Adding acitivity widget.", LogUtilities.LogUtils.LogLevel.Normal)
                     AddWidgetToComunity(myServer, communityUUID, "Activities")
                 Catch ex As Exception
-                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error adding activity widget. Error: " And ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error adding activity widget. Error: " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
                 End Try
 
                 Dim startTime As DateTime
@@ -5959,7 +5959,7 @@ CleanUp:
             Dim TestThreshold As Int32 = myServer.CreateBlogThreshold
 
 
-        Try
+            Try
                 Dim startTime As DateTime = DateTime.Now
 
 
@@ -6076,12 +6076,12 @@ CleanUp:
 
                     myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The blog was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
 
-                        If myServer.StatusCode = "OK" Then
-                            myServer.StatusCode = "Issue"
-                            myServer.Status = "Issue"
+                    If myServer.StatusCode = "OK" Then
+                        myServer.StatusCode = "Issue"
+                        myServer.Status = "Issue"
                         myServer.ResponseDetails = "The blog was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & "."
-                        End If
                     End If
+                End If
 
                 Try
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Removing blog widget.", LogUtilities.LogUtils.LogLevel.Normal)
@@ -6246,7 +6246,7 @@ CleanUp:
                         Else
                             'It failed to delete...send alert
                             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Failed to purge file.", LogUtilities.LogUtils.LogLevel.Normal)
-                            End If
+                        End If
 
                     Catch ex As Exception
 
@@ -6382,40 +6382,44 @@ CleanUp:
         httpWR.CookieContainer = cookieContainer
 
         Dim webResponse As HttpWebResponse
+        Dim count As Int16 = 0
+        While (count < 5)
+            count = count + 1
+            Try
+                Dim startTime As DateTime = DateTime.Now
+                webResponse = httpWR.GetResponse()
+                Dim endTime As DateTime = DateTime.Now
+                Dim span As TimeSpan = endTime - startTime
+                Dim createTime As Double = Math.Round(span.TotalMilliseconds, 1)
 
-        Try
-            Dim startTime As DateTime = DateTime.Now
-            webResponse = httpWR.GetResponse()
-            Dim endTime As DateTime = DateTime.Now
-            Dim span As TimeSpan = endTime - startTime
-            Dim createTime As Double = Math.Round(span.TotalMilliseconds, 1)
+                If (webResponse.StatusCode = HttpStatusCode.Created) Then
+                    'Created Correctly...do things
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Widget was added in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
+                    Return True
+                Else
+                    'Created wrongly...do things
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Widget failed to be added. It took " & createTime & " ms and produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
+                    'Return False
+                End If
+            Catch ex As WebException
+                Dim errResp As HttpWebResponse = ex.Response
+                Using respStream As Stream = errResp.GetResponseStream()
 
-            If (webResponse.StatusCode = HttpStatusCode.Created) Then
-                'Created Correctly...do things
-                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Widget was added in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
-                Return True
-            Else
-                'Created wrongly...do things
-                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Widget failed to be added. It took " & createTime & " ms and produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
-                Return False
-            End If
-        Catch ex As WebException
-            Dim errResp As HttpWebResponse = ex.Response
-            Using respStream As Stream = errResp.GetResponseStream()
+                    Dim reader As StreamReader = New StreamReader(respStream)
+                    Dim text As String = reader.ReadToEnd()
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Widget failed to be added due to " & ex.Message.ToString() & " and a resposne of " & text, LogUtilities.LogUtils.LogLevel.Normal)
+                End Using
 
-                Dim reader As StreamReader = New StreamReader(respStream)
-                Dim text As String = reader.ReadToEnd()
-                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Widget failed to be added due to " & ex.Message.ToString() & " and a resposne of " & text, LogUtilities.LogUtils.LogLevel.Normal)
-            End Using
-
-        Catch ex As Exception
-            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Widget failed to be added due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
-            Return False
-        Finally
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Widget failed to be added due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                'Return False
+            Finally
                 If webResponse IsNot Nothing Then
                     webResponse.Close()
                 End If
             End Try
+        End While
+        Return False
     End Function
 
     Public Sub RemoveWidgetFromComunity(ByRef myServer As MonitoredItems.IBMConnect, ByVal communityUUID As String, ByVal widgetDefId As String)
@@ -6493,9 +6497,9 @@ CleanUp:
                         Else
                             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Widget was NOT removed. Status code of " + webResponse2.StatusCode, LogUtilities.LogUtils.LogLevel.Normal)
                         End If
-        Catch ex As Exception
+                    Catch ex As Exception
 
-        End Try
+                    End Try
                 End If
             Else
                 'Created wrongly...do things
@@ -6884,11 +6888,11 @@ CleanUp:
                                                             If (webResponse2.StatusCode = HttpStatusCode.OK) Then
                                                                 'It deleted...do nothing
                                                                 'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " purgerd community in CleanAllCommunitites.", LogUtilities.LogUtils.LogLevel.Normal)
-                                                    Else
+                                                            Else
                                                                 'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " failed to purge community in CleanAllCommunitites.", LogUtilities.LogUtils.LogLevel.Normal)
-                                                    End If
+                                                            End If
 
-                                                Catch ex As Exception
+                                                        Catch ex As Exception
                                                             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " exception tryign to purge the community in CleanAllCommunitites. Error : " & ex.Message(), LogUtilities.LogUtils.LogLevel.Normal)
                                                         End Try
                                                     End If
@@ -11013,11 +11017,11 @@ CleanUp:
     End Sub
 
     Public Sub GetSametimeMeetingStatsFromDB(ByRef Server As MonitoredItems.SametimeServer)
-        Dim sql As String = "SELECT COUNT(*) NUM_OF_TOTAL_MEETING_ROOMS FROM MTG.ROOM;" & _
-            "SELECT COUNT(DISTINCT ROOM_ID) NUM_OF_ROOMS_ACTIVE_YESTERDAY FROM MTG.ROOM_USAGE WHERE DATE(ROOM_ACTIVE) = CURRENT_DATE - 1 DAY;" & _
-            "SELECT COUNT(DISTINCT USER_ID) NUM_OF_USERS_ACTIVE_YESTERDAY FROM MTG.USER_USAGE WHERE IS_ANONYMOUS = 0 AND DATE(JOIN_TIME) = CURRENT_DATE - 1 DAY;" & _
-            "SELECT COUNT(*) NUM_OF_MEETINGS_YESTERDAY FROM MTG.ROOM_USAGE WHERE DATE(ROOM_ACTIVE) = CURRENT_DATE - 1 DAY;" & _
-            "SELECT COUNT(DISTINCT USER_ID) NUM_OF_USERS_ACTIVE_WITHIN_A_WEEK FROM MTG.USER_USAGE WHERE IS_ANONYMOUS = 0 AND DATE(JOIN_TIME) >= CURRENT_DATE - 7 DAYS;" & _
+        Dim sql As String = "SELECT COUNT(*) NUM_OF_TOTAL_MEETING_ROOMS FROM MTG.ROOM;" &
+            "SELECT COUNT(DISTINCT ROOM_ID) NUM_OF_ROOMS_ACTIVE_YESTERDAY FROM MTG.ROOM_USAGE WHERE DATE(ROOM_ACTIVE) = CURRENT_DATE - 1 DAY;" &
+            "SELECT COUNT(DISTINCT USER_ID) NUM_OF_USERS_ACTIVE_YESTERDAY FROM MTG.USER_USAGE WHERE IS_ANONYMOUS = 0 AND DATE(JOIN_TIME) = CURRENT_DATE - 1 DAY;" &
+            "SELECT COUNT(*) NUM_OF_MEETINGS_YESTERDAY FROM MTG.ROOM_USAGE WHERE DATE(ROOM_ACTIVE) = CURRENT_DATE - 1 DAY;" &
+            "SELECT COUNT(DISTINCT USER_ID) NUM_OF_USERS_ACTIVE_WITHIN_A_WEEK FROM MTG.USER_USAGE WHERE IS_ANONYMOUS = 0 AND DATE(JOIN_TIME) >= CURRENT_DATE - 7 DAYS;" &
             "SELECT COUNT(DISTINCT ROOM_ID) NUM_OF_ROOMS_ACTIVE_WITHIN_A_WEEK FROM MTG.ROOM_USAGE WHERE DATE(ROOM_ACTIVE) >= CURRENT_DATE - 7 DAYS;"
 
 
