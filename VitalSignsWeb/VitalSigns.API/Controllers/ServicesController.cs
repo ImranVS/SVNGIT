@@ -1613,14 +1613,20 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("disk_space")]
-        public APIResponse GetDiskSpace(string deviceId = "")
+        public APIResponse GetDiskSpace(string deviceId = "",string ismonitored ="")
         {
             FilterDefinition<Status> filterDefStatus;
             List<dynamic> result = new List<dynamic>();
             List<DiskStatus> disks = new List<DiskStatus>();
+            //statusRepository = new Repository<Status>(ConnectionString);
+            //serverRepository = new Repository<Server>(ConnectionString);
+            //var servers = serverRepository.Find(x => true).ToList();
             try
             {
                 statusRepository = new Repository<Status>(ConnectionString);
+                serverRepository = new Repository<Server>(ConnectionString);
+                var servers = serverRepository.Find(x => true).ToList();
+   
                 if (!string.IsNullOrEmpty(deviceId))
                 {
                     filterDefStatus = statusRepository.Filter.And(statusRepository.Filter.Exists(x => x.Disks, true),
@@ -1642,9 +1648,20 @@ namespace VitalSigns.API.Controllers
 
                 foreach (Status status in result1)
                 {
+                   
                     disks = status.Disks;
                     disks.RemoveAll(item => item.DiskFree == null || item.DiskFree == 0.0);
                     disks.RemoveAll(item => item.DiskSize - item.DiskFree == null || item.DiskFree == 0.0);
+                    if (ismonitored == "true" && (servers.Where(x => x.Id == status.DeviceId).Count() > 0))
+                    {
+                        Server server = servers.Where(x => x.Id == status.DeviceId).First();
+                        if (server.DiskInfo != null)
+                        {
+                            List<DiskSetting> diskSetting = server.DiskInfo;
+                            List<String> diskNames = diskSetting.Select(x => x.DiskName.ToLower()).ToList();
+                            disks = disks.Where(x => diskNames.Contains(x.DiskName.ToLower()) || diskNames.Contains("AllDisks")).ToList();
+                        }
+                    }
                     var data = disks.Select(x => new
                     {
                         Name = x.DiskName,
@@ -1672,6 +1689,7 @@ namespace VitalSigns.API.Controllers
                     //diskUsedSerie.Segments = data.Select(x => new Segment { Label = status.DeviceName + " - " + x.Name, Value = x.Used.Value, Color = "rgba(239, 58, 36, 1)" }).ToList();
 
                 }
+               
                 diskFreeSerie.Segments = diskfreesegments;
                 diskUsedSerie.Segments = diskusedsegments;
                 diskserie.Add(diskFreeSerie);

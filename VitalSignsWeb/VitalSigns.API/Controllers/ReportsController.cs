@@ -42,8 +42,9 @@ namespace VitalSigns.API.Controllers
 
 
         [HttpGet("disk_availability_trend")]
-        public APIResponse GetDiskAvailabilityTrend(string deviceId = "", int year = -1, bool isChart = true)
+        public APIResponse GetDiskAvailabilityTrend(string deviceId = "", int year = -1, bool isChart = true, string ismonitored = "")
         {
+            List<DiskStatus> disks = new List<DiskStatus>();
             FilterDefinition<SummaryStatistics> filterDef = null;
             if (year == -1)
             {
@@ -61,12 +62,16 @@ namespace VitalSigns.API.Controllers
             Repository<Server> serverRepository = new Repository<Server>(ConnectionString);
             try
             {
+                statusRepository = new Repository<Status>(ConnectionString);
+                var servers = serverRepository.Find(x => true).ToList();
+
                 if (string.IsNullOrEmpty(deviceId))
                 {
                     filterDef = summaryRepository.Filter.And(summaryRepository.Filter.Gte(p => p.StatDate, dtStart),
                     summaryRepository.Filter.Lt(p => p.StatDate, dtEnd),
                     summaryRepository.Filter.Ne(p => p.DeviceName, null),
                     summaryRepository.Filter.Regex(p => p.StatName, new BsonRegularExpression("/Disk.*Free/i")));
+                    //statusRepository.Filter.Eq(x => x.DeviceId, deviceId);
                 }
                 else
                 {
@@ -92,14 +97,31 @@ namespace VitalSigns.API.Controllers
                         Date = mfi.GetMonthName(row.Key.Month).ToString(),
                         Value = Math.Round(row.Average(x => x.StatValue) / 1024 / 1024 / 1024, 2),
                         StatName = row.Key.StatName,
-                        DiskName = row.Key.DeviceName + " - " + row.Key.StatName
+                        DiskName = row.Key.DeviceName + " - " + row.Key.StatName,
+                        DeviceId = row.Key.DeviceId,
+                        _DiskName = row.Key.StatName.Replace(".Free","")
                     }).ToList();
                 List<Serie> series = new List<Serie>();
                 foreach (var disk in result.Select(i => i.DiskName).Distinct())
                 {
+                   
                     Serie serie = new Serie();
                     var output = result.Where(x => x.DiskName == disk).ToList();
                     var segments = new List<Segment>();
+ 
+                    if (ismonitored == "true" && (servers.Where(x => x.Id == output[0].DeviceId).Count() > 0))
+                    {
+
+                        Server server = servers.Where(x => x.Id == output[0].DeviceId).First();
+                        if (server.DiskInfo != null)
+                        {
+                            List<DiskSetting> diskSetting = server.DiskInfo;
+                            List<String> diskNames = diskSetting.Select(x => x.DiskName.ToLower()).ToList();
+                            output = output.Where(x => diskNames.Contains(x._DiskName.ToLower()) || diskNames.Contains("AllDisks")).ToList();
+                        }
+                    }
+                    if (output.Count == 0)
+                        continue;
                     foreach (var item in output)
                     {
                         segments.Add(new Segment()
@@ -113,16 +135,14 @@ namespace VitalSigns.API.Controllers
                     }
                     series.Add(serie);
                 }
-
-
                 Chart chart = new Chart();
                 chart.Title = "";
                 chart.Series = series;
                 Response = Common.CreateResponse(chart);
-
                 return Response;
 
             }
+
             catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, "Error", exception.Message);
