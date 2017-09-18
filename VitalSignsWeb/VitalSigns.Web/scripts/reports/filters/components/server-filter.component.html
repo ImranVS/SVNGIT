@@ -34,6 +34,10 @@
         <div id="dtPanel3" style="display:none">
             <span class="headerBlock">Date:</span> <wj-input-date format="yyyy-MM-dd" [(value)]="currentDate" style="width:125px;"></wj-input-date>
         </div>
+        <div id="dtDate" style="display:inline-block">
+            <span class="headerBlock">Date:</span>
+            <wj-input-date format="yyyy-MM-dd" [(value)]="currentDate" style="width:125px;"></wj-input-date>
+        </div>
         <div id="dtServer" style="display:inline-block">
             <span class="headerBlock">Servers:</span> <wj-multi-select #multisel1
                                                                        [placeholder]="'Select Servers'"
@@ -45,6 +49,15 @@
                                                                        [(ngModel)]="selectedServers" style="width:150px;">
             </wj-multi-select>
         </div>
+
+        <div id="dtSort" style="display:none">
+            <span class="headerBlock">Displayed Disks : </span>
+            <select (change)="onChange($event.target.value)">
+                <option value="false" selected="selected">show all disks</option>
+                <option value="true">show monitored disks</option>
+            </select>
+        </div>
+
         <div id="dtFilter" style="display:inline-block">
             <button class="btn btn-success" (click)="applyFilters(multisel1)">Filter</button>
         </div>

@@ -14,12 +14,16 @@ export class ServerFilter {
     selectedServers: any;
     serverType: string;
     statName: string;
+    dropdownvalue: string;
     @Input() deviceType: any; 
     @Input() widgetName: string;
     @Input() widgetURL: string;
     @Input() hideDatePanel: boolean;
     @Input() showSingleDatePanel: boolean;
     @Input() hideServerControl: boolean;
+    @Input() showdisksdropdown: boolean;
+    @Input() HideSingleDTControl: boolean;
+   
     endDate: Date = new Date();
     startDate: Date = new Date(this.endDate.getFullYear() ,this.endDate.getMonth(),this.endDate.getDate()-7);
     currentDate: Date = new Date();
@@ -72,9 +76,23 @@ export class ServerFilter {
             var v = <HTMLDivElement>document.getElementById("dtPanel3");
             v.style.display = "inline-block";
         }
-        
+
+        if (this.showdisksdropdown == true) {
+            var v = <HTMLDivElement>document.getElementById("dtSort");
+            v.style.display = "inline-block";
+        }
+        if (this.HideSingleDTControl == true) {
+            var v = <HTMLDivElement>document.getElementById("dtDate");
+            v.style.display = "inline-block";
+        }
         //Set a selected value of the Status drop down box to the passed query parameter or -All- if no parameter is available
         //this.deviceStatus = paramstatus;
+    }
+    onChange(value) {
+
+        console.log(value)
+        this.dropdownvalue = value;
+
     }
     applyFilters(multisel1: wijmo.input.MultiSelect) {
         //var v = multisel1.checkedItems;
@@ -118,6 +136,9 @@ export class ServerFilter {
         var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + selectedServers + `&startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString();
         if (this.showSingleDatePanel)
             URL += "&date=" + newCurrentDate.toISOString();
+        if (this.showdisksdropdown)
+            URL += "&ismonitored=" + this.dropdownvalue;
+
         //if (this.statName != "")
         //    URL += "&statName=" + this.statName;
         //});

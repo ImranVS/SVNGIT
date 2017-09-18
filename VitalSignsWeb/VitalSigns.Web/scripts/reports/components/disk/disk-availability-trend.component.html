@@ -11,10 +11,10 @@
         </ul>
     </div>
     <div class="container-fluid">
-        <traveler-filter [(widgetName)]="currentWidgetName" [(widgetURL)]="currentWidgetURL" [(hideServerControl)]="currentHideServerControl"
-                         [(hideMailServerControl)]="currentHideMailServerControl" [(hideIntervalControl)]="currentHideIntervalControl"
-                         [(hideDatePanel)]="currentHideDTControl" [(hideAllServerControl)]="currentHideAllServerControl"
-                         [(hideSingleDatePanel)]="currentHideSingleDTControl"></traveler-filter>
+        
+        <server-filter [(deviceType)]="currentDeviceType" [(widgetName)]="currentWidgetName" [(widgetURL)]="currentWidgetURL"
+                       [(hideServerControl)]="currentHideServerControl"
+                       [(hideDatePanel)]="currentHideDatePanel" [(showdisksdropdown)]="currentshowdiskdropdown"[(HideSingleDTControl)]="currentHideSingleDTControl"></server-filter>
         <div class="reportsPage">
             <h1>Disk Availability - Annual Trend</h1>
             <div *ngFor="let widget of widgets">

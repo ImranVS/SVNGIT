@@ -23,11 +23,13 @@ export class DiskHealthReport extends WidgetController {
 
     currentHideDTControl: boolean = true;
     currentHideSingleDTControl: boolean = true;
-    currentHideServerControl: boolean = true;
+    currentHideServerControl: boolean = false;
     currentHideIntervalControl: boolean = true;
     currentHideMailServerControl: boolean = true;
     currentHideAllServerControl: boolean = false;
+    currentshowdiskdropdown: boolean = true;
     currentWidgetName: string = `diskHealthChart`;
+    currentHideDatePanel: boolean = true;
     currentWidgetURL: string;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
