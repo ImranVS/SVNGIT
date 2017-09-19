@@ -15,80 +15,25 @@ declare var injectSVG: any;
         helpers.UrlHelperService
     ]
 })
+
 export class DiskSpaceConsumptionReport extends WidgetController implements OnInit {
     contextMenuSiteMap: any;
-    serviceId: any;
-    private data: any[];
-    private drives: any[] = [];
-
-    private chartTpl: any = {
-        chart: {
-            renderTo: null,
-            type: 'pie',
-            height: 200
-        },
-        title: { text: '' },
-        subtitle: { text: '' },
-        xAxis: {
-            categories: []
-        },
-        yAxis: {
-            min: 0,
-            endOnTick: false,
-            allowDecimals: false,
-            title: {
-                enabled: false
-            }
-        },
-        legend: {
-            enabled: false
-        },
-        credits: {
-            enabled: false
-        },
-        exporting: {
-            enabled: false
-        },
-        series: []
-    };
-
+    widgets: WidgetContract[];
     currentHideServerControl: boolean = false;
     currentHideDatePanel: boolean = true;
+    currentshowdiskdropdown: boolean = true;
+    currentHideSingleDTControl: boolean = true;
     currentDeviceType: string = "Domino";
-    currentWidgetName: string = `avgcpuutilchart`;
+    currentWidgetName: string = `DiskConsumption`;
     currentWidgetURL: string = `/dashboard/overall/disk-space`;
+   
+  
+
+    
 
     constructor(protected resolver: ComponentFactoryResolver, private service: RESTService, protected widgetService: WidgetService,
         protected urlHelpers: helpers.UrlHelperService) {
         super(resolver, widgetService);
-    }
-
-    renderChart(ref: any) {
-
-        let drive = this.drives[ref.id];
-
-        let driveChart = Object.assign({}, this.chartTpl);
-
-        driveChart.chart.renderTo = ref.clientId;
-
-        driveChart.series = [{
-            name: drive.name,
-            data: [
-                {
-                    name: 'Percent Free',
-                    y: drive.percent_free,
-                    color: '#008000'
-                },
-                {
-                    name: "Percent Used",
-                    y: 1 - drive.percent_free,
-                    color: '#f80000'
-                }
-            ]
-        }];
-
-        new Highcharts.Chart(driveChart);
-
     }
 
     ngOnInit() {
@@ -98,50 +43,16 @@ export class DiskSpaceConsumptionReport extends WidgetController implements OnIn
             data => this.contextMenuSiteMap = data,
             error => console.log(error)
             );
+        this.widgets = [
 
-        let i = 0;
-        
-        //http://private-f4c5b-vitalsignssandboxserver.apiary-mock.com/reports/disk-space-consumption
-        this.service.get(this.currentWidgetURL)
-            .subscribe((response) => {
-                //data: any[];
-                response.data.forEach(server => server.drives.forEach(drive => {
+            {
+                id: 'DiskConsumption',
+                name: 'DiskSpaceWidgetReport',
 
-                    drive.id = i++;
-
-                    this.drives.push(drive);
-
-                }));
-
-                this.data = response.data;
-
-            });
-
+            }
+        ];
         injectSVG();
         
 
-    }
-
-    onPropertyChanged(key: string, value: any) {
-
-        if (key === 'serviceId') {
-
-            this.serviceId = value;
-            let i = 0;
-            this.service.get(`/dashboard/overall/disk-space?deviceId=${this.serviceId}`)
-                .subscribe((response) => {
-                    //data: any[];
-                    response.data.forEach(server => server.drives.forEach(drive => {
-
-                        drive.id = i++;
-
-                        this.drives.push(drive);
-
-                    }));
-
-                    this.data = response.data;
-
-                });
-        }
     }
 }

@@ -170,3 +170,5 @@ export * from './dashboards/components/ibm-connections/ibm-connections-community
 export * from './dashboards/components/ibm-connections/ibm-connections-communities-detail-grid.component'
 
 export * from './dashboards/components/executive-summary-widget.component';
+
+export * from  './reports/components/disk/disk-space-widget.component';

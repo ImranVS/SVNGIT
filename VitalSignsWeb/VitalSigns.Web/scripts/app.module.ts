@@ -121,7 +121,8 @@ import {FileUploadSample} from './configurator/components/serverImport/file-uplo
 import {SametimeServerFilter} from './reports/filters/components/sametime-server-filter.component';
 import {AnyStatisticFilter} from './reports/filters/components/any-statistic-filter.component';
 import {ServerAvailabilityFilter} from './reports/filters/components/server-availability-filter.component'
-import {DiskSpaceConsumptionReport} from './reports/components/disk/disk-space-consumption.component';
+import { DiskSpaceConsumptionReport } from './reports/components/disk/disk-space-consumption.component';
+//import { DiskSpaceWidgetReport } from './reports/components/disk/disk-space-widget.component';
 import { TravelerHTTPSessionsReport } from './reports/components/ibm-traveler/traveler-http-sessions.component';
 import { TravelerDeviceSyncReport } from './reports/components/ibm-traveler/traveler-device-syncs.component';
 import { TravelerCPUUtilReport } from './reports/components/ibm-traveler/traveler-cpu-util.component';
@@ -406,6 +407,7 @@ import { ExecutiveSummaryWidget } from './dashboards/components/executive-summar
         widgets.AnyStatisticReportGrid,
         widgets.OverallStatusReportGrid,
         widgets.LogFileList,
+        widgets.DiskSpaceWidgetReport,
         widgets.MailThresholdList,
         widgets.NotesDatabaseList,
         widgets.DominoServerTasksList,
@@ -547,6 +549,7 @@ import { ExecutiveSummaryWidget } from './dashboards/components/executive-summar
         widgets.DominoServerTasks,
         widgets.ServerCredentials,
         widgets.Location,
+        widgets.DiskSpaceWidgetReport,
         widgets.MaintainUser,
         widgets.TravelerDataStore,
         widgets.PreferencesForm,
