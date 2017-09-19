@@ -454,7 +454,7 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("overall/disk-space")]
-        public APIResponse GetStatusOfServerDiskDrives(string deviceId = "")
+        public APIResponse GetStatusOfServerDiskDrives(string deviceId = "" ,string ismonitored = "")
         {
             //List<dynamic> disksizes = new List<dynamic>();
             DateTime maxDt = new DateTime();
@@ -471,11 +471,12 @@ namespace VitalSigns.API.Controllers
                 List<ServerDiskStatus> serverDiskStatusList = new List<ServerDiskStatus>();
                 summaryStatisticsRepository = new Repository<SummaryStatistics>(ConnectionString);
                 statusRepository = new Repository<Status>(ConnectionString);
-
-                if (deviceId != "")
+                serverRepository = new Repository<Server>(ConnectionString);
+                if (deviceId != "" && deviceId != null)
                 {
                     Expression<Func<Status, bool>> expression = (p => p.Disks != null && p.DeviceId == deviceId);
                     var results = statusRepository.Find(expression).AsQueryable().ToList();
+                    var allServers = serverRepository.Find(x => x.Id == deviceId).ToList();
                     if (results.Count > 0)
                     {
                         foreach(var result in results)
@@ -483,8 +484,24 @@ namespace VitalSigns.API.Controllers
                             serverDiskStatus = new ServerDiskStatus();
                             serverDiskStatus.Id = result.Id;
                             serverDiskStatus.Name = result.DeviceName;
+                            var currServer = allServers.Where(x => x.Id == result.DeviceId).Count() > 0 ? allServers.Where(x => x.Id == result.DeviceId).First() : null;
                             foreach (DiskStatus drive in result.Disks)
                             {
+                                if (ismonitored == "true" && currServer != null)
+                                {
+                                    var diskInfo = currServer.DiskInfo;
+                                    var allDrives = diskInfo.Select(x => x.DiskName).ToList();
+
+                                    if (allDrives.Contains(drive.DiskName) || allDrives.Contains("AllDisks"))
+                                    {
+                                        //do nothing
+                                    }
+                                    else
+                                    {
+                                        continue;
+                                    }
+
+                                }
                                 avgDailyGrowth = 0;
                                 var disksizes = summaryStatisticsRepository.Collection.AsQueryable()
                                     .Where(x => x.StatName == drive.DiskName + ".Free" && x.DeviceId == deviceId)
@@ -529,7 +546,9 @@ namespace VitalSigns.API.Controllers
                                 daysRemain = disk.AvgDailyGrowth <= 0 ? "INF" : Math.Round((disk.DiskFree * 1024 / disk.AvgDailyGrowth).Value, 0).ToString();
                                 disk.DaysRemain = daysRemain;
                             }
-                            serverDiskStatusList.Add(serverDiskStatus);
+
+                            if (serverDiskStatus.Drives.Count > 0)
+                                serverDiskStatusList.Add(serverDiskStatus);
                         }
                         
                     }
@@ -538,15 +557,33 @@ namespace VitalSigns.API.Controllers
                 {
                     Expression<Func<Status, bool>> expression = (p => p.Disks != null);
                     var results = statusRepository.Find(expression).AsQueryable().ToList();
+                    var allServers = serverRepository.Find(x => true).ToList();
                     if (results.Count > 0)
                     {
+                       
                         foreach (var result in results)
                         {
+                            var currServer = allServers.Where(x => x.Id == result.DeviceId).Count() > 0 ? allServers.Where(x => x.Id == result.DeviceId).First() : null;
+                           
                             serverDiskStatus = new ServerDiskStatus();
                             serverDiskStatus.Id = result.Id;
                             serverDiskStatus.Name = result.DeviceName;
                             foreach (DiskStatus drive in result.Disks)
                             {
+                                if (ismonitored == "true" && currServer != null && currServer.DiskInfo !=null)
+                                {
+                                    var diskInfo = currServer.DiskInfo;
+                                    var allDrives = diskInfo.Select(x => x.DiskName).ToList();
+                                    if (allDrives.Contains(drive.DiskName) || allDrives.Contains("AllDisks"))
+                                    {
+                                        //do nothing
+                                    }
+                                    else
+                                    {
+                                        continue;
+                                    }
+
+                                }
                                 avgDailyGrowth = 0;
                                 var disksizes = summaryStatisticsRepository.Collection.AsQueryable()
                                     .Where(x => x.StatName == drive.DiskName + ".Free" && x.DeviceId == result.DeviceId)
@@ -598,6 +635,7 @@ namespace VitalSigns.API.Controllers
                                 daysRemain = disk.AvgDailyGrowth <= 0 ? "INF" : Math.Round((disk.DiskFree * 1024 / disk.AvgDailyGrowth).Value, 0).ToString();
                                 disk.DaysRemain = daysRemain;
                             }
+                            if(serverDiskStatus.Drives.Count>0)
                             serverDiskStatusList.Add(serverDiskStatus);
                         }
 
