@@ -167,6 +167,12 @@ namespace VSNext.Mongo.Entities
         [BsonElement("logon_name")]
         [BsonIgnoreIfNull]
         public string LogonName { get; set; }
+
+        //Users only
+        [DataMember]
+        [BsonElement("last_login_date")]
+        [BsonIgnoreIfNull]
+        public DateTime? LastLoginDate { get; set; }
     }
 
     public class IbmConnectionChildren

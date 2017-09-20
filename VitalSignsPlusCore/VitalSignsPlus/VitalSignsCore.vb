@@ -9623,9 +9623,10 @@ CleanUp:
             "SELECT COUNT(*) NUM_OF_PROFILES_EDITED_YESTERDAY FROM EMPINST.EMPLOYEE WHERE DATE(PROF_LAST_UPDATE) = CURRENT_DATE - 1 DAY;" &
             "SELECT COUNT(*) NUM_OF_PROFILES_PROFILES FROM EMPINST.EMPLOYEE;" &
             "SELECT COUNT(*) NUM_OF_PROFILES_CREATED_YESTERDAY FROM EMPINST.EMP_ROLE_MAP E1 INNER JOIN EMPINST.EMPLOYEE E2 ON E1.PROF_KEY = E2.PROF_KEY WHERE DATE(E1.CREATED) = CURRENT_DATE - 1 DAY;" &
-            "SELECT PROF_GUID, PROF_DISPLAY_NAME, PROF_MODE, PROF_STATE, PROF_UID_LOWER FROM EMPINST.EMPLOYEE;" &
+            "SELECT PROF_KEY, PROF_GUID, PROF_DISPLAY_NAME, PROF_MODE, PROF_STATE, PROF_UID_LOWER FROM EMPINST.EMPLOYEE;" &
             "SELECT COUNT(*) NUM_OF_PROFILES_WITH_PICTURE FROM EMPINST.EMPLOYEE WHERE PROF_KEY IN (SELECT PROF_KEY FROM EMPINST.PHOTO);" &
-            "SELECT COUNT(*) NUM_OF_PROFILES_WITH_MANAGER FROM EMPINST.EMPLOYEE WHERE PROF_MANAGER_UID IN (SELECT PROF_UID FROM EMPINST.EMPLOYEE);"
+            "SELECT COUNT(*) NUM_OF_PROFILES_WITH_MANAGER FROM EMPINST.EMPLOYEE WHERE PROF_MANAGER_UID IN (SELECT PROF_UID FROM EMPINST.EMPLOYEE);" &
+            "SELECT PROF_KEY, PROF_LAST_LOGIN FROM EMPINST.PROFILE_LAST_LOGIN"
 
 
 
@@ -9787,6 +9788,14 @@ CleanUp:
                         For Each row As DataRow In ds.Tables(12).Rows()
                             Try
                                 Dim myServerName As String = myServer.Name
+
+                                Dim lastLoginTime As DateTime? = Nothing
+                                'PROF_KEY, PROF_LAST_LOGIN
+                                If ds.Tables(15).AsEnumerable.Where(Function(x) x.Field(Of String)("PROF_KEY").ToLower() = row("PROF_KEY").ToString().ToLower()).Count > 0 Then
+                                    'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Inside for ") ' & ds.Tables(15).Select("PROF_KEY = '" & row("PROF_GUID").ToString() & "'").First()("PROF_LAST_LOGIN").ToString() & "...." & ds.Tables(15).Select("PROF_KEY = '" & row("PROF_GUID").ToString() & "'").First()("PROF_KEY").ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                                    lastLoginTime = DateTime.Parse(ds.Tables(15).AsEnumerable.Where(Function(x) x("PROF_KEY").ToString().ToLower() = row("PROF_KEY").ToString().ToLower()).First()("PROF_LAST_LOGIN").ToString())
+                                End If
+
                                 Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
                                 Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Where(Function(i) i.GUID.Equals(row("PROF_GUID").ToString()) And i.DeviceName.Equals(myServerName) And i.Type.Equals("Users"))
                                 Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects)
@@ -9797,13 +9806,14 @@ CleanUp:
                                             .Set(Function(i) i.IsActive, Convert.ToBoolean(IIf(row("PROF_STATE").ToString() = "0", True, False))) _
                                             .Set(Function(i) i.IsInternal, Convert.ToBoolean(IIf(row("PROF_MODE").ToString() = "0", True, False))) _
                                             .Set(Function(i) i.DeviceId, myServer.ServerObjectID) _
-                                            .Set(Function(i) i.LogonName, row("PROF_UID_LOWER").ToString())
+                                            .Set(Function(i) i.LogonName, row("PROF_UID_LOWER").ToString()) _
+                                            .Set(Function(i) i.LastLoginDate, lastLoginTime)
                                 repo.Upsert(filterdef, updatedef)
 
                                 'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Inserting Users in Profile Stats.", LogUtilities.LogUtils.LogLevel.Normal)
                                 ' UpdateStatusTable(strSQL)
                             Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error Inserting Users in Profile Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error Inserting Users in Profile Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                             End Try
                         Next
                     Catch ex As Exception
@@ -10474,9 +10484,11 @@ CleanUp:
 
     Private Sub DataSetToLog(ByRef myServer As MonitoredItems.IBMConnect, ByVal ds As DataSet)
         Dim output As String = ""
-        Exit Sub
+        'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In DataSetToLog ")
+        'Exit Sub
         'Exiting since some evnirements are WAY too big
         For Each table As DataTable In ds.Tables
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Table " & table.TableName)
             ' Loop through each row in the table. '
             output = ""
             For Each col As DataColumn In table.Columns
