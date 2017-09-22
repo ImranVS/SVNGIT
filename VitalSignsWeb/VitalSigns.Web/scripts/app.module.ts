@@ -107,6 +107,7 @@ import {ConnectionsProfilesReport} from './reports/components/ibm-connections/co
 import {ConnectionsTagsReport} from './reports/components/ibm-connections/connections-tags-report.component';
 import { ConnectionsWikiReport } from './reports/components/ibm-connections/connections-wiki-report.component';
 import { Office365DisabledUsersSort } from './reports/filters/components/office365-disabled-users-sort.component';
+import { IbmInactiveUsersSort } from './reports/filters/components/ibm-inactive-users-sort.component';
 import { Office365StatisticsReport } from './reports/components/office365/office365-statistics-report.component';
 
 import { ConnectionsCommunityActivityReport } from './reports/components/ibm-connections/connections-community-activity-report.component';
@@ -134,6 +135,7 @@ import { Office365MailLatencyReport } from './reports/components/office365/offic
 import { Office365OneDriveReport } from './reports/components/office365/office365-onedrive.component';
 import { Office365MailboxReport } from './reports/components/office365/office365-mailbox.component';
 import { Office365DisabledUsersReport } from './reports/components/office365/office365-disabled-users.component';
+import { ibmconnectionsinactiveUsersReport } from './reports/components/ibm-connections/inactive-users.component';
 
 import { MobileDevicesSummaryOS } from './reports/components/mobile-users/mobile-users-os-summary.component';
 import {RepeatableChart} from './reports/components/repeatable-chart.component';
@@ -261,7 +263,9 @@ import { ExecutiveSummaryWidget } from './dashboards/components/executive-summar
         MobileUsersReport,
         ConnectionsExecutiveOverviewReport,
         Office365DisabledUsersReport,
+        ibmconnectionsinactiveUsersReport,
         Office365DisabledUsersSort,
+        IbmInactiveUsersSort,
         MsExchangeDetail,
         Office365StatisticsReport,
         dashboards.SampleDashboard,
@@ -434,6 +438,7 @@ import { ExecutiveSummaryWidget } from './dashboards/components/executive-summar
         widgets.MobileUsersReportGrid,
         widgets.MailboxList,
         widgets.Office365DisabledUsersList,
+        widgets.ibmdominoinactiveUsersList,
         widgets.ExecutiveSummaryWidget,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
@@ -629,6 +634,7 @@ import { ExecutiveSummaryWidget } from './dashboards/components/executive-summar
         widgets.MailboxList,
         //widgets.MsExchangeDetail,
         widgets.Office365DisabledUsersList,
+        widgets.ibmdominoinactiveUsersList,
         widgets.ExecutiveSummaryWidget,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,

@@ -62,7 +62,7 @@ import { ServerConfigurationFilter } from './reports/filters/components/server-c
 import { SametimeServerFilter } from './reports/filters/components/sametime-server-filter.component'
 import { ServerAvailabilityFilter } from './reports/filters/components/server-availability-filter.component'
 import { Office365DisabledUsersSort } from './reports/filters/components/office365-disabled-users-sort.component';
-
+import { IbmInactiveUsersSort } from './reports/filters/components/ibm-inactive-users-sort.component';
 import { ReportsBrowser } from './reports/components/reports-browser.component';
 import { NoSelectedReport } from './reports/components/no-selected-report.component';
 import { SampleReport } from './reports/components/sample-report.component';
@@ -127,6 +127,8 @@ import { Office365MailboxReport} from './reports/components/office365/office365-
 import { MobileDevicesSummaryOS } from './reports/components/mobile-users/mobile-users-os-summary.component';
 import { MobileUsersReport } from './reports/components/mobile-users/mobile-users-report.component';
 import { Office365DisabledUsersReport } from './reports/components/office365/office365-disabled-users.component';
+import { ibmconnectionsinactiveUsersReport } from './reports/components/ibm-connections/inactive-users.component';
+
 import { Office365StatisticsReport } from './reports/components/office365/office365-statistics-report.component';
 
 import { FileUploadSample } from './configurator/components/serverImport/file-upload-sample.component';
@@ -149,6 +151,7 @@ import { NotesMailProbes } from './configurator/components/mail/notesmail-probes
 import { ServerImports } from './configurator/components/serverImport/server-import-tabs-component';
 import { DominoMailDeliveryStatus } from './dashboards/components/mail-delivery-status/domino-mail-delivery-status.component';
 import { DiskSpaceConsumptionReport } from './reports/components/disk/disk-space-consumption.component';
+//import { DiskSpaceWidgetReport } from './reports/components/disk/disk-space-widget.component';
 
 export * from './dashboards/components/overall-dashboard.component';
 export * from './dashboards/components/executive-summary.component';
@@ -556,6 +559,7 @@ const appRoutes: Routes = [
                     {
                         path: 'diskspaceconsumption',
                         component: DiskSpaceConsumptionReport
+
                     },
                     {
                         path: 'travelerhttpsessions',
@@ -608,6 +612,10 @@ const appRoutes: Routes = [
                     {
                         path: 'office365disabledusers',
                         component: Office365DisabledUsersReport
+                    },
+                    {
+                        path: 'ibminactiveusers',
+                        component: ibmconnectionsinactiveUsersReport
                     },
                     {
                         path: 'office365statistics',
