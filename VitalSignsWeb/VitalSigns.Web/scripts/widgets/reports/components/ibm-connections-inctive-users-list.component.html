@@ -1,14 +1,17 @@
 ﻿<table class="table table-condensed small table-striped">
     <thead>
         <tr>
+            <th> Server Name</th>
             <th>Display Name</th>
-            <th>Account Last Modified</th>
+            <th>Account Last Logged-In</th>
         </tr>
     </thead>
     <tbody *ngIf="data">
         <tr *ngFor="let entry of data">
-            <td>{{entry.display_name}}</td>
-            <td>{{entry.account_last_modified | date: 'shortdate'}}</td>
+          
+            <td>{{entry.name}}</td>
+              <td>{{entry.device_name}}
+            <td>{{entry.last_login_date| date: 'shortDate'}}</td>
         </tr>
     </tbody>
 </table>
