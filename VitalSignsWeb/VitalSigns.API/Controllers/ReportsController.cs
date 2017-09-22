@@ -71,7 +71,7 @@ namespace VitalSigns.API.Controllers
                     summaryRepository.Filter.Lt(p => p.StatDate, dtEnd),
                     summaryRepository.Filter.Ne(p => p.DeviceName, null),
                     summaryRepository.Filter.Regex(p => p.StatName, new BsonRegularExpression("/Disk.*Free/i")));
-                    //statusRepository.Filter.Eq(x => x.DeviceId, deviceId);
+                   
                 }
                 else
                 {
@@ -2269,6 +2269,36 @@ namespace VitalSigns.API.Controllers
                     AccountLastModified = x.AccountLastModified
 
                 }).ToList().OrderBy(x => x.DisplayName);
+                Response = Common.CreateResponse(results);
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
+
+
+        [HttpGet("ibm_inactive_users")]
+        public APIResponse DisableInactiveusers(string mailboxType)
+        {
+            try
+            {
+                connectionsObjectsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
+                serverRepository = new Repository<Server>(ConnectionString);
+                var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription())).ToList().Select(x => x.Id).ToList();
+
+                var filterDef = connectionsObjectsRepository.Filter.Eq(x => x.Type, "Users") &
+                    connectionsObjectsRepository.Filter.Lt(x => x.LastLoginDate, DateTime.UtcNow.AddDays(-30));
+                var results = connectionsObjectsRepository.Find(filterDef).ToList().Select(x => new ibmconnections()
+                {
+                    DeviceName = x.Name,
+                    ServerName = x.DeviceName,
+                    LastLoginDate = x.LastLoginDate.ToString()
+
+                }).ToList().OrderBy(x => x.DeviceName);
                 Response = Common.CreateResponse(results);
                 return Response;
             }
