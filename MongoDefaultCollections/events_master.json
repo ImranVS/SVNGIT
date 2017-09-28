@@ -98,3 +98,4 @@
 {"_id":{"$oid":"58d58518ca97a28482f25d82"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"DirSync Export","device_type":"Office365"}
 {"_id":{"$oid":"59b829235a790c6e0531a94d"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Response Time","device_type":"Domino"}
 {"_id":{"$oid":"59b82f435a790c6e0531a95a"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Response Time","device_type":"Exchange"}
+{"_id":{"$oid":"59cd1df9e6082201f647f473"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"URL Test","device_type":"IBM Connections"}

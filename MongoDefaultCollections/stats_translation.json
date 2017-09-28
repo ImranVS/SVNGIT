@@ -114,3 +114,10 @@
 {"_id":{"$oid":"5937428359fe2b91e5a26cd9"},"stat_name":"Hub@Unreachable#Queues","translated_name":"Unreachable queue"}
 {"_id":{"$oid":"5937429659fe2b91e5a26cdb"},"stat_name":"Hub@Submission#Queues","translated_name":"Submission queue"}
 {"_id":{"$oid":"593742a059fe2b91e5a26cdc"},"stat_name":"Hub@Shadow#Queues","translated_name":"Shadow queue"}
+{"_id":{"$oid":"59cbffa3e6082201f647f2ca"},"stat_name":"Mail_DeliverySuccessRate","translated_name":"Delivery Success Rate"}
+{"_id":{"$oid":"59cc0111e6082201f647f2cb"},"stat_name":"Mail_DeliverCount","translated_name":"Delivery Count"}
+{"_id":{"$oid":"59cc011de6082201f647f2cc"},"stat_name":"Mail_ReceivedCount","translated_name":"Received Count"}
+{"_id":{"$oid":"59cc0129e6082201f647f2cd"},"stat_name":"Mail_FailCount","translated_name":"Fail Count"}
+{"_id":{"$oid":"59cc0132e6082201f647f2ce"},"stat_name":"Mail_ReceivedSizeMB","translated_name":"Received Size MB"}
+{"_id":{"$oid":"59cc013ce6082201f647f2cf"},"stat_name":"Mail_SentCount","translated_name":"Sent Count"}
+{"_id":{"$oid":"59cc0145e6082201f647f2d0"},"stat_name":"Mail_SentSizeMB","translated_name":"Sent Size MB"}

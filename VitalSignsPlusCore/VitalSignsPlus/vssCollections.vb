@@ -3099,7 +3099,8 @@ Partial Public Class VitalSignsPlusCore
                 .Include(Function(x) x.DatabaseSettingsCredentialsId) _
                 .Include(Function(x) x.DatabaseSettingsPort) _
                 .Include(Function(x) x.SimulationTests) _
-                .Include(Function(x) x.ConnectionsCommunityUuid)
+                .Include(Function(x) x.ConnectionsCommunityUuid) _
+                .Include(Function(x) x.ConnectionsTestUrl)
 
             listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
@@ -3607,6 +3608,16 @@ Partial Public Class VitalSignsPlusCore
                         End If
                     Catch ex As Exception
                         .CommunityUUID = ""
+                    End Try
+
+                    Try
+                        If entity.ConnectionsTestUrl Is Nothing Then
+                            .TestUrl = ""
+                        Else
+                            .TestUrl = entity.ConnectionsTestUrl
+                        End If
+                    Catch ex As Exception
+                        .TestUrl = ""
                     End Try
 
                     Try

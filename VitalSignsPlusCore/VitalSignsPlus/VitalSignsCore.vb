@@ -3553,7 +3553,7 @@ CleanUp:
                             If String.IsNullOrWhiteSpace(myServer.CommunityUUID) Then
                                 TestCreateFiles(myServer)
                             Else
-                                TestCreateCommunityActivity(myServer, myServer.CommunityUUID)
+                                TestCreateCommunityFiles(myServer, myServer.CommunityUUID)
                             End If
                         Else
                             'adapter.ExecuteNonQueryAny("VitalSigns", "VitalSigns", "DELETE FROM StatusDetail WHERE TypeANDName = '" & myServer.Name & "-IBM Connections' and TestName = 'Create File'")
@@ -3787,6 +3787,22 @@ CleanUp:
         Return System.Convert.ToBase64String(bytes)
     End Function
 
+    Public Function IbmConnectionsFailThreshold(ByVal type As String)
+        Try
+            Dim val As String = ""
+            Try
+                Dim registry As New VSFramework.RegistryHandler
+                val = registry.ReadFromRegistry("IbmConnectionsSimulationFailThreshold")
+            Catch ex As Exception
+                val = "2"
+            End Try
+            Return IIf(IsNumeric(val), Integer.Parse(val), 2)
+        Catch ex As Exception
+            Return 2
+        End Try
+        Return 2
+    End Function
+
     Public Function GetEncodedUsernamePassword(ByVal user As String, ByVal pass As String)
         Return Base64Encode(user & ":" & pass)
     End Function
@@ -3856,12 +3872,16 @@ CleanUp:
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created activity in " & createTime & " ms", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = True
                     InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Activity.TimeMs", createTime.ToString(), myServer.ServerObjectID)
+                    myServer.CreateActivityFailCount = 0
                 Else
                     'Created wrongly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Activity failed to create. It took " & createTime & " ms and produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = False
 
-                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The activity was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
+                    myServer.CreateActivityFailCount += 1
+                    If myServer.CreateActivityFailCount > IbmConnectionsFailThreshold("Activity") Then
+                        myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The activity was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
+                    End If
 
                     If myServer.StatusCode = "OK" Then
                         myServer.StatusCode = "Issue"
@@ -3957,7 +3977,11 @@ CleanUp:
 
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create activity due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
-                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The activity was not created.", myServer.Location)
+
+                myServer.CreateActivityFailCount += 1
+                If myServer.CreateActivityFailCount > IbmConnectionsFailThreshold("Activity") Then
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The activity was not created.", myServer.Location)
+                End If
 
                 If myServer.StatusCode = "OK" Then
                     myServer.StatusCode = "Issue"
@@ -4022,12 +4046,16 @@ CleanUp:
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created blog in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = True
                     InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Blog.TimeMs", createTime.ToString(), myServer.ServerObjectID)
+                    myServer.CreateBlogFailCount = 0
                 Else
                     'Created wrongly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Blog failed to create. It took " & createTime & " ms and produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = False
 
-                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The blog was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
+                    myServer.CreateBlogFailCount += 1
+                    If myServer.CreateBlogFailCount > IbmConnectionsFailThreshold("Blog") Then
+                        myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The blog was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
+                    End If
 
                     If myServer.StatusCode = "OK" Then
                         myServer.StatusCode = "Issue"
@@ -4131,8 +4159,11 @@ CleanUp:
 
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create blog due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
-                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The blog was not created.", myServer.Location)
 
+                myServer.CreateBlogFailCount += 1
+                If myServer.CreateBlogFailCount > IbmConnectionsFailThreshold("Blog") Then
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The blog was not created.", myServer.Location)
+                End If
                 If myServer.StatusCode = "OK" Then
                     myServer.StatusCode = "Issue"
                     myServer.Status = "Issue"
@@ -4198,12 +4229,17 @@ CleanUp:
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created bookmark in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = True
                     InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Bookmark.TimeMs", createTime.ToString(), myServer.ServerObjectID)
+                    myServer.CreateBookmarkFailCount = 0
                 Else
                     'Created wrongly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Bookmark failed to create. It took " & createTime & " ms and produced a status code of " & webResposne.StatusCode & " and description of " & webResposne.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = False
 
-                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The bookmark was not created. It produced a status code of " & webResposne.StatusCode & " and a description of " & webResposne.StatusDescription & ".", myServer.Location)
+                    myServer.CreateBookmarkFailCount += 1
+                    If myServer.CreateBookmarkFailCount > IbmConnectionsFailThreshold("Bookmark") Then
+                        myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The bookmark was not created. It produced a status code of " & webResposne.StatusCode & " and a description of " & webResposne.StatusDescription & ".", myServer.Location)
+                    End If
+
 
                     If myServer.StatusCode = "OK" Then
                         myServer.StatusCode = "Issue"
@@ -4282,7 +4318,11 @@ CleanUp:
                 End If
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create bookmark due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
-                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The bookmark was not created.", myServer.Location)
+
+                myServer.CreateBookmarkFailCount += 1
+                If myServer.CreateBookmarkFailCount > IbmConnectionsFailThreshold("Bookmark") Then
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The bookmark was not created.", myServer.Location)
+                End If
 
                 If myServer.StatusCode = "OK" Then
                     myServer.StatusCode = "Issue"
@@ -4350,12 +4390,17 @@ CleanUp:
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created community in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = True
                     InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Community.TimeMs", createTime.ToString(), myServer.ServerObjectID)
+                    myServer.CreateCommunitiesFailCount = 0
                 Else
                     'Created wrongly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Community failed to create. It took " & createTime & " ms and produced a status code of " & webResposne.StatusCode & " and description of " & webResposne.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = False
 
-                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The community was not created. It produced a status code of " & webResposne.StatusCode & " and a description of " & webResposne.StatusDescription & ".", myServer.Location)
+                    myServer.CreateCommunitiesFailCount += 1
+                    If myServer.CreateCommunitiesFailCount > IbmConnectionsFailThreshold("Community") Then
+                        myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The community was not created. It produced a status code of " & webResposne.StatusCode & " and a description of " & webResposne.StatusDescription & ".", myServer.Location)
+                    End If
+
 
                     If myServer.StatusCode = "OK" Then
                         myServer.StatusCode = "Issue"
@@ -4468,7 +4513,10 @@ CleanUp:
                 End If
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create community due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
-                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The community was not created.", myServer.Location)
+                myServer.CreateCommunitiesFailCount += 1
+                If myServer.CreateCommunitiesFailCount > IbmConnectionsFailThreshold("Community") Then
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The community was not created.", myServer.Location)
+                End If
                 If myServer.StatusCode = "OK" Then
                     myServer.StatusCode = "Issue"
                     myServer.Status = "Issue"
@@ -4553,12 +4601,17 @@ CleanUp:
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created file in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = True
                     InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.File.TimeMs", createTime.ToString(), myServer.ServerObjectID)
+                    myServer.CreateFilesFailCount = 0
                 Else
                     'Created wrongly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " File failed to create. It took " & createTime & " ms and produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = False
 
-                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The file was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
+                    myServer.CreateFilesFailCount += 1
+                    If myServer.CreateFilesFailCount > IbmConnectionsFailThreshold("File") Then
+                        myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The file was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
+                    End If
+
                     If myServer.StatusCode = "OK" Then
                         myServer.StatusCode = "Issue"
                         myServer.Status = "Issue"
@@ -4649,7 +4702,11 @@ CleanUp:
                 End If
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create file due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
-                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The file was not created.", myServer.Location)
+
+                myServer.CreateFilesFailCount += 1
+                If myServer.CreateFilesFailCount > IbmConnectionsFailThreshold("File") Then
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The file was not created.", myServer.Location)
+                End If
 
                 If myServer.StatusCode = "OK" Then
                     myServer.StatusCode = "Issue"
@@ -4712,12 +4769,16 @@ CleanUp:
                 If (webResponse.StatusCode = HttpStatusCode.Created) Then
                     'Created Correctly...do nothing
                     alertReset = True
-
+                    myServer.CreateForumsFailCount = 0
                 Else
                     'Created wrongly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " forum failed to create. It produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = False
-                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The forum was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
+
+                    myServer.CreateForumsFailCount += 1
+                    If myServer.CreateForumsFailCount > IbmConnectionsFailThreshold("Forum") Then
+                        myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The forum was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
+                    End If
 
                     If myServer.StatusCode = "OK" Then
                         myServer.StatusCode = "Issue"
@@ -4796,7 +4857,11 @@ CleanUp:
                 End If
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create forum due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
-                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The forum was not created.", myServer.Location)
+
+                myServer.CreateForumsFailCount += 1
+                If myServer.CreateForumsFailCount > IbmConnectionsFailThreshold("Forum") Then
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The forum was not created.", myServer.Location)
+                End If
 
                 If myServer.StatusCode = "OK" Then
                     myServer.StatusCode = "Issue"
@@ -5094,12 +5159,16 @@ CleanUp:
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created wiki in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = True
                     InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Wiki.TimeMs", createTime.ToString(), myServer.ServerObjectID)
+                    myServer.CreateWikisFailCount = 0
                 Else
                     'Created wrongly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Wiki failed to create. It took " & createTime & " ms and produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = False
 
-                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The wiki was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
+                    myServer.CreateWikisFailCount += 1
+                    If myServer.CreateWikisFailCount > IbmConnectionsFailThreshold("Wiki") Then
+                        myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The wiki was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
+                    End If
 
                     If myServer.StatusCode = "OK" Then
                         myServer.StatusCode = "Issue"
@@ -5202,7 +5271,11 @@ CleanUp:
                 End If
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create wiki due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
-                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The wiki was not created.", myServer.Location)
+
+                myServer.CreateWikisFailCount += 1
+                If myServer.CreateWikisFailCount > IbmConnectionsFailThreshold("Wiki") Then
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The wiki was not created.", myServer.Location)
+                End If
 
                 If myServer.StatusCode = "OK" Then
                     myServer.StatusCode = "Issue"
@@ -5270,13 +5343,17 @@ CleanUp:
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created community in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = True
                     InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Community.TimeMs", createTime.ToString(), myServer.ServerObjectID)
-
+                    myServer.CreateCommunitiesFailCount = 0
                 Else
                     'Created wrongly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Community failed to create. It took " & createTime & " ms and produced a status code of " & webResposne.StatusCode & " and description of " & webResposne.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = False
 
-                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The community was not created. It produced a status code of " & webResposne.StatusCode & " and a description of " & webResposne.StatusDescription & ".", myServer.Location)
+                    myServer.CreateCommunitiesFailCount += 1
+                    If myServer.CreateCommunitiesFailCount > IbmConnectionsFailThreshold("Community") Then
+                        myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The community was not created. It produced a status code of " & webResposne.StatusCode & " and a description of " & webResposne.StatusDescription & ".", myServer.Location)
+                    End If
+
 
                     If myServer.StatusCode = "OK" Then
                         myServer.StatusCode = "Issue"
@@ -5430,7 +5507,10 @@ CleanUp:
                 End If
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create community due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
-                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The community was not created.", myServer.Location)
+                myServer.CreateCommunitiesFailCount += 1
+                If myServer.CreateCommunitiesFailCount > IbmConnectionsFailThreshold("Community") Then
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The community was not created.", myServer.Location)
+                End If
                 If myServer.StatusCode = "OK" Then
                     myServer.StatusCode = "Issue"
                     myServer.Status = "Issue"
@@ -5526,12 +5606,16 @@ CleanUp:
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created activity in " & createTime & " ms", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = True
                     InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Activity.TimeMs", createTime.ToString(), myServer.ServerObjectID)
+                    myServer.CreateActivityFailCount = 0
                 Else
                     'Created wrongly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Activity failed to create. It took " & createTime & " ms and produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = False
 
-                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The activity was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
+                    myServer.CreateActivityFailCount += 1
+                    If myServer.CreateActivityFailCount > IbmConnectionsFailThreshold("Activity") Then
+                        myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The activity was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
+                    End If
 
                     If myServer.StatusCode = "OK" Then
                         myServer.StatusCode = "Issue"
@@ -5629,7 +5713,11 @@ CleanUp:
 
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create activity due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
-                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The activity was not created.", myServer.Location)
+
+                myServer.CreateActivityFailCount += 1
+                If myServer.CreateActivityFailCount > IbmConnectionsFailThreshold("Activity") Then
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The activity was not created.", myServer.Location)
+                End If
 
                 If myServer.StatusCode = "OK" Then
                     myServer.StatusCode = "Issue"
@@ -5648,7 +5736,7 @@ CleanUp:
 
     Public Sub TestCreateCommunityBookmarks(ByRef myServer As MonitoredItems.IBMConnect, ByVal communityUUID As String)
         Try
-            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateBookmarks", LogUtilities.LogUtils.LogLevel.Normal)
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateCommunityBookmarks", LogUtilities.LogUtils.LogLevel.Normal)
             Dim AlertType As String = "Create Bookmark"
             Dim alertReset As Boolean
 
@@ -5695,12 +5783,17 @@ CleanUp:
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created bookmark in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = True
                     InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Bookmark.TimeMs", createTime.ToString(), myServer.ServerObjectID)
+                    myServer.CreateBookmarkFailCount = 0
                 Else
                     'Created wrongly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Bookmark failed to create. It took " & createTime & " ms and produced a status code of " & webResposne.StatusCode & " and description of " & webResposne.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = False
 
-                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The bookmark was not created. It produced a status code of " & webResposne.StatusCode & " and a description of " & webResposne.StatusDescription & ".", myServer.Location)
+                    myServer.CreateBookmarkFailCount += 1
+                    If myServer.CreateBookmarkFailCount > IbmConnectionsFailThreshold("Bookmark") Then
+                        myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The bookmark was not created. It produced a status code of " & webResposne.StatusCode & " and a description of " & webResposne.StatusDescription & ".", myServer.Location)
+                    End If
+
 
                     If myServer.StatusCode = "OK" Then
                         myServer.StatusCode = "Issue"
@@ -5779,8 +5872,11 @@ CleanUp:
                 End If
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create bookmark due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
-                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The bookmark was not created.", myServer.Location)
 
+                myServer.CreateBookmarkFailCount += 1
+                If myServer.CreateBookmarkFailCount > IbmConnectionsFailThreshold("Bookmark") Then
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The bookmark was not created.", myServer.Location)
+                End If
                 If myServer.StatusCode = "OK" Then
                     myServer.StatusCode = "Issue"
                     myServer.Status = "Issue"
@@ -5793,7 +5889,7 @@ CleanUp:
                 End If
             End Try
         Catch ex As Exception
-            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error in TestCreateBookmark. Error: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error in TestCreateCommunityBookmarks. Error: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
         End Try
 
 
@@ -5844,13 +5940,16 @@ CleanUp:
                 If (webResponse.StatusCode = HttpStatusCode.Created) Then
                     'Created Correctly...do nothing
                     alertReset = True
-
+                    myServer.CreateForumsFailCount = 0
                 Else
                     'Created wrongly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " the community forum failed to create. It produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = False
-                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The  forum was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
 
+                    myServer.CreateForumsFailCount += 1
+                    If myServer.CreateBookmarkFailCount > IbmConnectionsFailThreshold("Forum") Then
+                        myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The  forum was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
+                    End If
                     If myServer.StatusCode = "OK" Then
                         myServer.StatusCode = "Issue"
                         myServer.Status = "Issue"
@@ -5928,8 +6027,11 @@ CleanUp:
                 End If
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create community forum due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
-                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The forum was not created.", myServer.Location)
 
+                myServer.CreateForumsFailCount += 1
+                If myServer.CreateBookmarkFailCount > IbmConnectionsFailThreshold("Forum") Then
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The forum was not created.", myServer.Location)
+                End If
                 If myServer.StatusCode = "OK" Then
                     myServer.StatusCode = "Issue"
                     myServer.Status = "Issue"
@@ -5973,11 +6075,15 @@ CleanUp:
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created blog in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = True
                     InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Blog.TimeMs", createTime.ToString(), myServer.ServerObjectID)
+                    myServer.CreateBlogFailCount = 0
                 Else
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Blog failed to create. It took " & createTime & " ms to respond.", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = False
 
-                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The blog was not created.", myServer.Location)
+                    myServer.CreateBlogFailCount += 1
+                    If myServer.CreateBlogFailCount > IbmConnectionsFailThreshold("Blog") Then
+                        myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The blog was not created.", myServer.Location)
+                    End If
 
                     If myServer.StatusCode = "OK" Then
                         myServer.StatusCode = "Issue"
@@ -5995,8 +6101,11 @@ CleanUp:
 
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create blog due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
-                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The blog was not created.", myServer.Location)
 
+                myServer.CreateBlogFailCount += 1
+                If myServer.CreateBlogFailCount > IbmConnectionsFailThreshold("Blog") Then
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The blog was not created.", myServer.Location)
+                End If
                 If myServer.StatusCode = "OK" Then
                     myServer.StatusCode = "Issue"
                     myServer.Status = "Issue"
@@ -6069,12 +6178,17 @@ CleanUp:
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created blog in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = True
                     InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Blog.TimeMs", createTime.ToString(), myServer.ServerObjectID)
+                    myServer.CreateBlogFailCount = 0
                 Else
                     'Created wrongly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Blog failed to create. It took " & createTime & " ms and produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = False
 
-                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The blog was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
+                    myServer.CreateBlogFailCount += 1
+                    If myServer.CreateBlogFailCount > IbmConnectionsFailThreshold("Blog") Then
+                        myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The blog was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
+                    End If
+
 
                     If myServer.StatusCode = "OK" Then
                         myServer.StatusCode = "Issue"
@@ -6092,7 +6206,11 @@ CleanUp:
 
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create blog due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
-                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The blog was not created.", myServer.Location)
+
+                myServer.CreateBlogFailCount += 1
+                If myServer.CreateBlogFailCount > IbmConnectionsFailThreshold("Blog") Then
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The blog was not created.", myServer.Location)
+                End If
 
                 If myServer.StatusCode = "OK" Then
                     myServer.StatusCode = "Issue"
@@ -6177,12 +6295,17 @@ CleanUp:
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created file in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = True
                     InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.File.TimeMs", createTime.ToString(), myServer.ServerObjectID)
+                    myServer.CreateFilesFailCount = 0
                 Else
                     'Created wrongly...do things
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " File failed to create. It took " & createTime & " ms and produced a status code of " & webResponse.StatusCode & " and description of " & webResponse.StatusDescription & ".", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = False
 
-                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The file was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
+                    myServer.CreateFilesFailCount += 1
+                    If myServer.CreateFilesFailCount > IbmConnectionsFailThreshold("File") Then
+                        myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The file was not created. It produced a status code of " & webResponse.StatusCode & " and a description of " & webResponse.StatusDescription & ".", myServer.Location)
+                    End If
+
                     If myServer.StatusCode = "OK" Then
                         myServer.StatusCode = "Issue"
                         myServer.Status = "Issue"
@@ -6273,7 +6396,11 @@ CleanUp:
                 End If
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create file due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
-                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The file was not created.", myServer.Location)
+
+                myServer.CreateFilesFailCount += 1
+                If myServer.CreateFilesFailCount > IbmConnectionsFailThreshold("File") Then
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The file was not created.", myServer.Location)
+                End If
 
                 If myServer.StatusCode = "OK" Then
                     myServer.StatusCode = "Issue"
@@ -6314,11 +6441,15 @@ CleanUp:
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Created wiki in " & createTime & " ms.", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = True
                     InsertIntoIBMConnectionsDailyStats(myServer.ServerName, "Create.Wiki.TimeMs", createTime.ToString(), myServer.ServerObjectID)
+                    myServer.CreateWikisFailCount = 0
                 Else
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Wiki failed to create. It took " & createTime & " ms to respond.", LogUtilities.LogUtils.LogLevel.Normal)
                     alertReset = False
 
-                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The wiki was not created.", myServer.Location)
+                    myServer.CreateWikisFailCount += 1
+                    If myServer.CreateWikisFailCount > IbmConnectionsFailThreshold("Wiki") Then
+                        myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The wiki was not created.", myServer.Location)
+                    End If
 
                     If myServer.StatusCode = "OK" Then
                         myServer.StatusCode = "Issue"
@@ -6336,7 +6467,11 @@ CleanUp:
 
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create wiki due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
-                myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The wiki was not created.", myServer.Location)
+
+                myServer.CreateWikisFailCount += 1
+                If myServer.CreateWikisFailCount > IbmConnectionsFailThreshold("Wiki") Then
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The wiki was not created.", myServer.Location)
+                End If
 
                 If myServer.StatusCode = "OK" Then
                     myServer.StatusCode = "Issue"
@@ -7558,6 +7693,10 @@ CleanUp:
             httpWR.Method = "POST"
             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
             httpWR.ContentType = "application/x-www-form-urlencoded"
+
+            Dim cookies As New CookieContainer()
+            httpWR.CookieContainer = cookies
+
             'httpWR.CookieContainer
             Dim s As String = "service.name=&secure=&fragment=&j_username=" & myServer.UserName & "&j_password=" & Uri.EscapeUriString(myServer.Password)
 
@@ -7593,6 +7732,47 @@ CleanUp:
                     myAlert.ResetAlert(myServer.DeviceType, myServer.Name, "Login Test", myServer.Location, "The account logged in after " & createTime & " ms.")
                     InsertIntoIBMConnectionsDailyStats(myServer.Name, "ResponseTime", createTime, myServer.ServerObjectID)
                     myServer.ResponseTime = createTime
+
+                    Try
+
+
+                        If Not String.IsNullOrWhiteSpace(myServer.TestUrl) Then
+                            Dim httpWR2 As HttpWebRequest = WebRequest.Create(myServer.TestUrl)
+                            httpWR2.Timeout = 6000000
+                            httpWR2.Method = "GET"
+                            httpWR2.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                            httpWR2.CookieContainer = cookies
+                            httpWR2.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+
+                            Dim webresp2 As HttpWebResponse
+
+                            Try
+                                webresp2 = httpWR2.GetResponse()
+                                Dim content As String = (New StreamReader(webresp2.GetResponseStream(), Encoding.UTF8)).ReadToEnd()
+                                Dim queryString2 As String = webresp2.ResponseUri.Query
+                                Dim responseStatusCode As String = webresp2.StatusCode
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " URL Content: " + content, LogUtilities.LogUtils.LogLevel.Verbose)
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " URL Query String: " + queryString2, LogUtilities.LogUtils.LogLevel.Verbose)
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " URL Status Code: " + responseStatusCode.ToString(), LogUtilities.LogUtils.LogLevel.Verbose)
+                                If responseStatusCode = HttpStatusCode.OK Then
+                                    myAlert.ResetAlert(myServer.DeviceType, myServer.Name, "URL Test", myServer.Location, "The URL responded.")
+                                Else
+                                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, "URL Test", "The URL failed to respond and resulted in a " & responseStatusCode.ToString() & " status code.", myServer.Location)
+                                End If
+                            Catch ex As Exception
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error with test url 2. Error: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                            Finally
+
+                                If webresp2 IsNot Nothing Then
+                                    webresp2.Close()
+                                End If
+
+                            End Try
+
+                        End If
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error with test url. Error: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                    End Try
 
                 End If
             Catch ex As Exception
@@ -7823,6 +8003,9 @@ CleanUp:
                     Dim repoIbmConnectionsUsers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
                     Try
 
+                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))
+                        Dim allUsers As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Find(repoIbmConnectionsUsers.Filter.Eq(Function(x) x.Type, "Users") And repoIbmConnectionsUsers.Filter.Eq(Function(x) x.DeviceId, myServerId)).ToList()
+
 
                         For Each row As DataRow In ds.Tables(6).Rows()
                             Try
@@ -7866,10 +8049,11 @@ CleanUp:
                                 Dim users As New List(Of String)
                                 For Each userRow As DataRow In ds.Tables(8).Select("NODEUUID = '" & row("ACTIVITYUUID").ToString() & "'")
                                     Try
-                                        Dim filterdefIbmConnectionsUsers2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Filter.Where(Function(j) j.GUID.Equals(userRow("EXID").ToString()) And j.DeviceId.Equals(myServerId) And j.Type.Equals("Users"))
-                                        Dim projectDefIbmConnectionsUsers2 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Project.Include(Function(j) j.Id)
+                                        'Dim filterdefIbmConnectionsUsers2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Filter.Where(Function(j) j.GUID.Equals(userRow("EXID").ToString()) And j.DeviceId.Equals(myServerId) And j.Type.Equals("Users"))
+                                        'Dim projectDefIbmConnectionsUsers2 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Project.Include(Function(j) j.Id)
                                         'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
-                                        Dim objIbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers2, projectDefIbmConnectionsUsers2).FirstOrDefault()
+                                        'Dim objIbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers2, projectDefIbmConnectionsUsers2).FirstOrDefault()
+                                        Dim objIbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsObjects = allUsers.Where(Function(x) x.GUID = userRow("EXID").ToString()).FirstOrDefault()
                                         If Not users.Contains(objIbmConnectionsUsers.Id) Then
                                             users.Add(objIbmConnectionsUsers.Id)
                                         End If
@@ -7881,11 +8065,13 @@ CleanUp:
 
                                 IbmConnectionsObjects2.users = users
 
-                                repo.Insert(IbmConnectionsObjects2)
+                                'repo.Insert(IbmConnectionsObjects2)
+                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects2))
                             Catch ex As Exception
                                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Activity Stats. Exception in Activities Loop. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                             End Try
                         Next
+                        repoIbmConnectionsUsers.BulkInsert(bulkOps)
                     Catch ex As Exception
                         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Get Activity Stats Error trying to get table 6. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                     End Try
@@ -8185,6 +8371,7 @@ CleanUp:
                     Dim connectionsUserId As String = ""
 
                     Try
+                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))
                         For Each row As DataRow In ds.Tables(18).Rows()
 
                             ' first get the 
@@ -8219,9 +8406,10 @@ CleanUp:
                                     Try
                                         'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Num of entries as a parent : " & ds.Tables(21).Select("WEBSITEID = '" + row("ID").ToString() + "'").Count(), LogUtilities.LogUtils.LogLevel.Verbose)
                                         Dim parentGUID As String = ds.Tables(21).Select("WEBSITEID = '" + row("ID").ToString() + "'").First()("ASSOCID").ToString()
+
                                         IbmConnectionsObjects2.ParentGUID = dictOfCommunityIds(parentGUID)
                                     Catch ex As Exception
-                                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. Exception getting parent guid. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                                        'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. Exception getting parent guid. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                                     End Try
 
                                 End If
@@ -8237,7 +8425,8 @@ CleanUp:
 
                                     Next
                                     IbmConnectionsObjects2.tags = tags
-                                    repoObjects.Insert(IbmConnectionsObjects2)
+                                    bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects2))
+                                    'repoObjects.Insert(IbmConnectionsObjects2)
                                 Catch ex As Exception
                                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. Exception getting tags. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                                 End Try
@@ -8246,6 +8435,7 @@ CleanUp:
                             End Try
 
                         Next
+                        repoIbmConnectionsUsers.BulkInsert(bulkOps)
                     Catch ex As Exception
                         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. No table 18. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                     End Try
@@ -8253,13 +8443,15 @@ CleanUp:
                     Dim myServerName As String = myServer.Name
                     Dim ParentObjectID As String = ""
                     Try
+                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))
+                        Dim allUsers As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(repoObjects.Filter.Eq(Function(x) x.Type, "Blog") And repoObjects.Filter.Eq(Function(x) x.DeviceName, myServerName)).ToList()
                         For Each row As DataRow In ds.Tables(20).Rows()
 
-                            Dim FilterDefIbmConnectionsObjects4 As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Filter.Where(Function(i) i.GUID.Equals(row("WEBSITEID").ToString()) And i.DeviceName.Equals(myServerName))
-                            Dim projectDefIbmConnections4 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Project.Include(Function(i) i.Id)
+                            'Dim FilterDefIbmConnectionsObjects4 As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Filter.Where(Function(i) i.GUID.Equals(row("WEBSITEID").ToString()) And i.DeviceName.Equals(myServerName))
+                            'Dim projectDefIbmConnections4 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Project.Include(Function(i) i.Id)
                             'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
                             Try
-                                Dim s As VSNext.Mongo.Entities.IbmConnectionsObjects = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).First()
+                                Dim s As VSNext.Mongo.Entities.IbmConnectionsObjects = allUsers.Where(Function(x) x.GUID = row("WEBSITEID").ToString()).First()   'repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).First()
 
                                 'For Each s As VSNext.Mongo.Entities.IbmConnectionsObjects In serverList
                                 ParentObjectID = s.Id
@@ -8280,13 +8472,13 @@ CleanUp:
                                 IbmConnectionsObjects4.Type = "Blog Entry"
                                 IbmConnectionsObjects4.ObjectCreatedDate = Convert.ToDateTime(row("PUBTIME").ToString())
                                 IbmConnectionsObjects4.ObjectModifiedDate = Convert.ToDateTime(row("UPDATETIME").ToString())
-                                repoObjects.Insert(IbmConnectionsObjects4)
+                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects4))
+                                'repoObjects.Insert(IbmConnectionsObjects4)
                             Catch ex As Exception
                                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. Exception makign blog entry object. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                             End Try
-
-
                         Next
+                        repoIbmConnectionsUsers.BulkInsert(bulkOps)
                     Catch ex As Exception
                         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. Exception finding table 20. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                     End Try
@@ -8477,15 +8669,18 @@ CleanUp:
                         End Try
                     Next
 
-                    Dim repoIbmConnectionsUsers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
-
                     Dim repoIbmConnectionsObjects As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
 
 
                     Dim filterdefIbmConnectionsObjects As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Filter.Where(Function(i) i.Type.Equals("Community") And i.DeviceName.Equals(myServerName))
                     repoIbmConnectionsObjects.Delete(filterdefIbmConnectionsObjects)
-                    'sql = "DELETE FROM IbmConnectionsTopStats WHERE Type = 'NumOfEntryTagUses'; INSERT INTO IbmConnectionsTopStats (ServerId, ServerName, Ranking, Name, UsageCount, Type, DateTime) VALUES "
+
+                    'Processes
+                    Dim list As New List(Of String)()
                     Try
+                        Dim allUsers As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Find(repoIbmConnectionsObjects.Filter.Eq(Function(x) x.Type, "Users") And repoIbmConnectionsObjects.Filter.Eq(Function(x) x.DeviceName, myServerName)).ToList()
+                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))
+
                         For Each row As DataRow In ds.Tables(6).Rows()
                             Try
                                 Dim tags As New List(Of String)
@@ -8495,10 +8690,11 @@ CleanUp:
                                     End If
                                 Next
 
-                                Dim filterdefIbmConnectionsUsers As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Filter.Where(Function(i) i.GUID.Equals(row("DIRECTORY_UUID").ToString()) And i.DeviceName.Equals(myServerName) And i.Type.Equals("Users"))
-                                Dim projectDefIbmConnectionsUsers As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Project.Include(Function(i) i.Id)
+                                'Dim filterdefIbmConnectionsUsers As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Filter.Where(Function(i) i.GUID.Equals(row("DIRECTORY_UUID").ToString()) And i.DeviceName.Equals(myServerName) And i.Type.Equals("Users"))
+                                'Dim projectDefIbmConnectionsUsers As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Project.Include(Function(i) i.Id)
                                 'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
-                                Dim sxs As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).DefaultIfEmpty(New VSNext.Mongo.Entities.IbmConnectionsObjects() With {.Id = Nothing}).First()
+                                'Dim sxs As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).DefaultIfEmpty(New VSNext.Mongo.Entities.IbmConnectionsObjects() With {.Id = Nothing}).First()
+                                Dim sxs As VSNext.Mongo.Entities.IbmConnectionsObjects = allUsers.Where(Function(x) x.GUID = row("DIRECTORY_UUID").ToString()).FirstOrDefault()
                                 Dim userId2 As String = sxs.Id
 
                                 Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
@@ -8517,104 +8713,137 @@ CleanUp:
                                 IbmConnectionsObjects.NumOfOwners = row("OWNER_COUNT").ToString()
                                 IbmConnectionsObjects.ObjectUrl = myServer.IPAddress + "/communities/service/html/communitystart?communityUuid=" + row("COMMUNITY_UUID").ToString()
                                 IbmConnectionsObjects.Description = row("PLAIN_DESCR").ToString()
+                                IbmConnectionsObjects.users = New List(Of String)()
 
-                                repoIbmConnectionsObjects.Insert(IbmConnectionsObjects)
-
-                                Dim filterdefIbmConnectionsObjects2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Filter.Where(Function(i) i.GUID.Equals(row("COMMUNITY_UUID").ToString()) And i.DeviceName.Equals(myServerName))
-                                Dim projectDefIbmConnectionsObjects2 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Project.Include(Function(i) i.Id)
-
-                                Try
-                                    For Each bookmarkRow As DataRow In ds.Tables(8).Select("COMMUNITY_UUID = '" & row("COMMUNITY_UUID").ToString() & "'")
-                                        Try
-                                            Dim filterdefIbmConnectionsUsers2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Filter.Where(Function(i) i.GUID.Equals(bookmarkRow("DIRECTORY_UUID").ToString()) And i.DeviceName.Equals(myServerName) And i.Type.Equals("Users"))
-                                            Dim projectDefIbmConnectionsUsers2 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Project.Include(Function(i) i.Id)
-                                            'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
-                                            Dim sxs3 As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers2, projectDefIbmConnectionsUsers2).DefaultIfEmpty(New VSNext.Mongo.Entities.IbmConnectionsObjects() With {.Id = Nothing}).First()
-                                            Dim userId3 As String = sxs3.Id
+                                'repoIbmConnectionsObjects.Insert(IbmConnectionsObjects)
+                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects))
 
 
-                                            Dim filterdefIbmConnectionsObjects3 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Filter.Where(Function(i) i.GUID.Equals(bookmarkRow("COMMUNITY_UUID").ToString()) And i.DeviceName.Equals(myServerName))
-                                            Dim projectDefIbmConnectionsObjects3 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Project.Include(Function(i) i.Id)
-                                            'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
-                                            Dim sxs4 As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsObjects.Find(filterdefIbmConnectionsObjects2, projectDefIbmConnectionsObjects2).DefaultIfEmpty(New VSNext.Mongo.Entities.IbmConnectionsObjects() With {.Id = Nothing}).First()
-                                            Dim id3 As String = sxs4.Id
-
-                                            Dim IbmConnectionsObjects2 As New VSNext.Mongo.Entities.IbmConnectionsObjects
-                                            IbmConnectionsObjects2.DeviceId = myServer.ServerObjectID
-                                            IbmConnectionsObjects2.DeviceName = myServer.Name
-                                            IbmConnectionsObjects2.Name = bookmarkRow("NAME").ToString()
-                                            IbmConnectionsObjects2.Type = "Bookmark"
-                                            IbmConnectionsObjects2.ParentGUID = id3
-                                            IbmConnectionsObjects2.OwnerId = userId3
-                                            IbmConnectionsObjects2.GUID = bookmarkRow("REF_UUID").ToString()
-                                            IbmConnectionsObjects2.ObjectCreatedDate = Convert.ToDateTime(row("CREATED").ToString())
-                                            IbmConnectionsObjects2.ObjectModifiedDate = Convert.ToDateTime(row("LASTMOD").ToString())
-                                            repoIbmConnectionsObjects.Insert(IbmConnectionsObjects2)
-                                        Catch ex As Exception
-                                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Stats. Exception adding bookmarks. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                                        End Try
-                                    Next
-                                Catch ex As Exception
-                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Stats. Exception adding finding table 8. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                                End Try
                             Catch ex As Exception
                                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Stats. Exception adding community object. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                             End Try
+
                         Next
-                    Catch ex As Exception
-                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Stats. Exception finding table 6. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                    End Try
-                    'End Using
+                        'list.AddRange(bulkOps.Select(Function(x) CType(x, MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)).Document.Id))
+                        'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Wes " + String.Join(",", list).ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                        repoIbmConnectionsObjects.BulkInsert(bulkOps)
+
+                        'Grabs a lsit of all comunity IDs and their GUIDs
+                        Try
+                            Dim listOfComms As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Find(filterdefIbmConnectionsObjects).ToList()
+                            For Each entity As VSNext.Mongo.Entities.IbmConnectionsObjects In listOfComms
+                                dictOfCommunityIds.Add(entity.GUID, entity.Id)
+                            Next
+
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Stats. There are " & dictOfCommunityIds.Count & " communities found", LogUtilities.LogUtils.LogLevel.Normal)
+
+                        Catch ex As Exception
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Stats. Exception adding communities to list. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                        End Try
 
 
-                    Dim userId As String = ""
-                    'Using sqlConn As SqlClient.SqlConnection = adapter.StartConnectionSQL("VitalSigns")
-                    Try
+                        bulkOps = New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))()
+                        Try
+                            For Each bookmarkRow As DataRow In ds.Tables(8).Rows()     '.Select("COMMUNITY_UUID = '" & row("COMMUNITY_UUID").ToString() & "'")
+                                Try
+                                    'Dim filterdefIbmConnectionsUsers2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Filter.Where(Function(i) i.GUID.Equals(bookmarkRow("DIRECTORY_UUID").ToString()) And i.DeviceName.Equals(myServerName) And i.Type.Equals("Users"))
+                                    'Dim projectDefIbmConnectionsUsers2 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Project.Include(Function(i) i.Id)
+                                    ''Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
+                                    'Dim sxs3 As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers2, projectDefIbmConnectionsUsers2).DefaultIfEmpty(New VSNext.Mongo.Entities.IbmConnectionsObjects() With {.Id = Nothing}).First()
+
+                                    Dim sxs3 As VSNext.Mongo.Entities.IbmConnectionsObjects = allUsers.Where(Function(x) x.GUID = bookmarkRow("DIRECTORY_UUID").ToString()).FirstOrDefault()
+                                    Dim userId3 As String = sxs3.Id
+
+
+                                    ' Dim filterdefIbmConnectionsObjects3 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Filter.Where(Function(i) i.GUID.Equals(bookmarkRow("COMMUNITY_UUID").ToString()) And i.DeviceName.Equals(myServerName))
+                                    ' Dim projectDefIbmConnectionsObjects3 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Project.Include(Function(i) i.Id)
+                                    'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
+
+
+                                    'Dim filterdefIbmConnectionsObjects2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Filter.Where(Function(i) i.GUID.Equals(row("COMMUNITY_UUID").ToString()) And i.DeviceName.Equals(myServerName))
+                                    'Dim projectDefIbmConnectionsObjects2 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Project.Include(Function(i) i.Id)
+
+                                    'Dim sxs4 As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsObjects.Find(filterdefIbmConnectionsObjects2, projectDefIbmConnectionsObjects2).DefaultIfEmpty(New VSNext.Mongo.Entities.IbmConnectionsObjects() With {.Id = Nothing}).First()
+
+                                    Dim id3 As String = Nothing
+                                    Try
+                                        Dim sxs4 As String = dictOfCommunityIds(bookmarkRow("COMMUNITY_UUID").ToString())
+                                        id3 = sxs4
+                                    Catch ex As Exception
+
+                                    End Try
+
+
+                                    Dim IbmConnectionsObjects2 As New VSNext.Mongo.Entities.IbmConnectionsObjects
+                                    IbmConnectionsObjects2.DeviceId = myServer.ServerObjectID
+                                    IbmConnectionsObjects2.DeviceName = myServer.Name
+                                    IbmConnectionsObjects2.Name = bookmarkRow("NAME").ToString()
+                                    IbmConnectionsObjects2.Type = "Bookmark"
+                                    IbmConnectionsObjects2.ParentGUID = id3
+                                    IbmConnectionsObjects2.OwnerId = userId3
+                                    IbmConnectionsObjects2.GUID = bookmarkRow("REF_UUID").ToString()
+                                    IbmConnectionsObjects2.ObjectCreatedDate = Convert.ToDateTime(bookmarkRow("CREATED").ToString())
+                                    IbmConnectionsObjects2.ObjectModifiedDate = Convert.ToDateTime(bookmarkRow("LASTMOD").ToString())
+
+                                    bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects2))
+                                    'repoIbmConnectionsObjects.Insert(IbmConnectionsObjects2)
+                                Catch ex As Exception
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Stats. Exception adding bookmarks. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                                End Try
+                            Next
+
+                            repoIbmConnectionsObjects.BulkInsert(bulkOps)
+                        Catch ex As Exception
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Stats. Exception adding finding table 8. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                        End Try
+
+
+
+                        Dim userId As String = ""
+                        bulkOps = New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))()
+                        'Using sqlConn As SqlClient.SqlConnection = adapter.StartConnectionSQL("VitalSigns")
+
                         For Each row As DataRow In ds.Tables(7).Rows()
-                            Dim filterdefIbmConnectionsObjects2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Filter.Where(Function(i) i.Type.Equals("Community") And i.DeviceId.Equals(myServerId) And i.Name.Equals(row("NAME").ToString()))
-                            Dim projectDefIbmConnectionsUsers2 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Project.Include(Function(i) i.users)
-                            Dim filterdefIbmConnectionsUsers As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Filter.Where(Function(i) i.GUID.Equals(row("DIRECTORY_UUID").ToString()) And i.DeviceId.Equals(myServerId) And i.Type.Equals("Users"))
-                            Dim projectDefIbmConnectionsUsers As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Project.Include(Function(i) i.Id)
+                            'Dim filterdefIbmConnectionsObjects2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Filter.Where(Function(i) i.Type.Equals("Community") And i.DeviceId.Equals(myServerId) And i.Name.Equals(row("NAME").ToString()))
+                            'Dim projectDefIbmConnectionsUsers2 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Project.Include(Function(i) i.users)
+                            'Dim filterdefIbmConnectionsUsers As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Filter.Where(Function(i) i.GUID.Equals(row("DIRECTORY_UUID").ToString()) And i.DeviceId.Equals(myServerId) And i.Type.Equals("Users"))
+                            'Dim projectDefIbmConnectionsUsers As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Project.Include(Function(i) i.Id)
                             'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
+                            userId = Nothing
                             Try
-                                Dim objIbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).FirstOrDefault()
+                                Dim objIbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsObjects = allUsers.Where(Function(x) x.GUID = row("DIRECTORY_UUID").ToString()).First()   'x.GUID.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).FirstOrDefault()
                                 userId = objIbmConnectionsUsers.Id
                             Catch ex As Exception
 
                             End Try
 
 
-                            Dim commUsers As List(Of String) = repoIbmConnectionsObjects.Find(filterdefIbmConnectionsObjects2, projectDefIbmConnectionsUsers2).DefaultIfEmpty(New VSNext.Mongo.Entities.IbmConnectionsObjects() With {.Id = Nothing}).First().users
-                            If commUsers Is Nothing Then
-                                commUsers = New List(Of String)
-                            End If
+                            'Dim commUsers As List(Of String) = repoIbmConnectionsObjects.Find(filterdefIbmConnectionsObjects2, projectDefIbmConnectionsUsers2).DefaultIfEmpty(New VSNext.Mongo.Entities.IbmConnectionsObjects() With {.Id = Nothing}).First().users
+                            'If commUsers Is Nothing Then
+                            'commUsers = New List(Of String)
+                            'End If
+                            'Dim commUsers As New List(Of String)()
+                            'If Not commUsers.Contains(userId) Then
+                            '    commUsers.Add(userId)
+                            'End If
 
-                            If Not commUsers.Contains(userId) Then
-                                commUsers.Add(userId)
-                            End If
-
+                            Dim filterdefIbmConnectionsObjects2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Filter.Where(Function(i) i.Type.Equals("Community") And i.DeviceId.Equals(myServerId) And i.Name.Equals(row("NAME").ToString()))
                             Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects)
                             updatedef = repoIbmConnectionsObjects.Updater _
-                                .Set(Function(i) i.users, commUsers)
+                                .AddToSet(Function(i) i.users, userId)
 
-                            repoIbmConnectionsObjects.Update(filterdefIbmConnectionsObjects2, updatedef)
+                            bulkOps.Add(New MongoDB.Driver.UpdateOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(filterdefIbmConnectionsObjects2, updatedef))
+
+                            'repoIbmConnectionsObjects.Update(filterdefIbmConnectionsObjects2, updatedef)
 
                         Next
+
+                        repoIbmConnectionsObjects.BulkUpsert(bulkOps)
                     Catch ex As Exception
                         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Stats. Exception finding table 7. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                     End Try
 
-                    Try
-                        Dim listOfComms As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Find(filterdefIbmConnectionsObjects).ToList()
-                        For Each entity As VSNext.Mongo.Entities.IbmConnectionsObjects In listOfComms
-                            dictOfCommunityIds.Add(entity.GUID, entity.Id)
-                        Next
 
-                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Stats. There are " & dictOfCommunityIds.Count & " communities found", LogUtilities.LogUtils.LogLevel.Normal)
-
-                    Catch ex As Exception
-                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Stats. Exception adding communities to list. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                    End Try
 
                     'End Using
                 End If
@@ -8996,9 +9225,12 @@ CleanUp:
                     Next
 
                     Try
+                        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))()
+
                         For Each row As DataRow In ds.Tables(3).Rows()
                             Try
-                                Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+
                                 Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
                                 IbmConnectionsObjects.Name = row("TITLE").ToString()
                                 IbmConnectionsObjects.DeviceName = myServer.Name
@@ -9021,11 +9253,14 @@ CleanUp:
                                     End Try
                                 Next
                                 IbmConnectionsObjects.tags = tags
-                                repo.Insert(IbmConnectionsObjects)
+
+                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects))
+                                'repo.Insert(IbmConnectionsObjects)
                             Catch ex As Exception
                                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Bookmark Stats. Exception at making bookmark. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                             End Try
                         Next
+                        repo.BulkInsert(bulkOps)
                     Catch ex As Exception
                         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Bookmark Stats. Exception at table 3. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                     End Try
@@ -9187,8 +9422,10 @@ CleanUp:
 
                     'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
 
-
+                    Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))()
                     Try
+
+                        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
                         For Each row As DataRow In ds.Tables(6).Rows()
                             Try
                                 Dim type As String = ""
@@ -9209,13 +9446,22 @@ CleanUp:
                                     parentType = "Forum"
                                 End If
 
-                                Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+
                                 Dim parentObjectId As String = Nothing
 
                                 Try
-                                    Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Eq(Function(x) x.GUID, parent) And
-                                        repo.Filter.Eq(Function(x) x.Type, parentType)
-                                    parentObjectId = repo.Find(filterDef).ToList()(0).Id
+                                    If (parentType = "Community") Then
+                                        parentObjectId = dictOfCommunityIds(parent)
+                                    Else
+
+                                        Dim writeModel As WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = bulkOps.Where(Function(x) CType(x, MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)).Document.GUID = parent And
+                                                          CType(x, MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)).Document.Type = parentType).First()
+                                        parentObjectId = CType(writeModel, MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)).Document.Id
+
+                                        'Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Eq(Function(x) x.GUID, parent) And
+                                        '    repo.Filter.Eq(Function(x) x.Type, parentType)
+                                        'parentObjectId = repo.Find(filterDef).ToList()(0).Id
+                                    End If
                                 Catch ex As Exception
                                     parentObjectId = Nothing
                                 End Try
@@ -9230,7 +9476,8 @@ CleanUp:
                                     .OwnerId = getObjectUser(myServer.Name, row("EXID").ToString()),
                                     .GUID = row("NODEUUID").ToString(),
                                     .Type = type,
-                                    .ParentGUID = parentObjectId
+                                    .ParentGUID = parentObjectId,
+                                    .Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString()
                                 }
 
                                 Dim tagList As New List(Of String)()
@@ -9263,11 +9510,12 @@ CleanUp:
 
                                 entity.tags = tagList
 
-                                repo.Insert(entity)
-
+                                'repo.Insert(entity)
+                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(entity))
                             Catch ex As Exception
                                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Forum Stats. Exception at inserting fourm first. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                             End Try
+                            'repo.BulkInsert(bulkOps)
                         Next
 
                     Catch ex As Exception
@@ -9277,6 +9525,8 @@ CleanUp:
                     'node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD, node.CREATED
 
                     Try
+                        'Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))()
+                        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
                         For Each row As DataRow In ds.Tables(7).Rows()
                             Try
                                 Dim type As String = ""
@@ -9297,12 +9547,22 @@ CleanUp:
                                     parentType = "Forum"
                                 End If
 
-                                Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+
                                 Dim parentObjectId As String = Nothing
                                 Try
-                                    Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Eq(Function(x) x.GUID, parent) And
-                                repo.Filter.Eq(Function(x) x.Type, parentType)
-                                    parentObjectId = repo.Find(filterDef).ToList()(0).Id
+
+                                    If (parentType = "Community") Then
+                                        parentObjectId = dictOfCommunityIds(parent)
+                                    Else
+
+                                        Dim writeModel As WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = bulkOps.Where(Function(x) CType(x, MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)).Document.GUID = parent And
+                                                          CType(x, MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)).Document.Type = parentType).First()
+                                        parentObjectId = CType(writeModel, MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)).Document.Id
+
+                                        'Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Eq(Function(x) x.GUID, parent) And
+                                        '    repo.Filter.Eq(Function(x) x.Type, parentType)
+                                        'parentObjectId = repo.Find(filterDef).ToList()(0).Id
+                                    End If
                                 Catch ex As Exception
                                     parentObjectId = Nothing
                                 End Try
@@ -9317,7 +9577,8 @@ CleanUp:
                                     .OwnerId = getObjectUser(myServer.Name, row("EXID").ToString()),
                                     .GUID = row("NODEUUID").ToString(),
                                     .Type = type,
-                                    .ParentGUID = parentObjectId
+                                    .ParentGUID = parentObjectId,
+                                    .Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString()
                                 }
 
                                 Dim tagList As New List(Of String)()
@@ -9351,14 +9612,15 @@ CleanUp:
 
                                 entity.tags = tagList
 
-                                repo.Insert(entity)
+                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(entity))
+                                'repo.Insert(entity)
 
                             Catch ex As Exception
                                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Forum Stats. Exception at inserting fourms objects 2. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                             End Try
 
                         Next
-
+                        repo.BulkInsert(bulkOps)
                     Catch ex As Exception
                         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Forum Stats. Exception at table 7. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                     End Try
@@ -9506,17 +9768,31 @@ CleanUp:
                     Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
 
                     Try
+                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))()
+                        Dim allUsers As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Find(
+                            repo.Filter.Eq(Function(x) x.Type, "Users") And
+                            repo.Filter.Eq(Function(x) x.DeviceName, myServer.Name)
+                        ).ToList()
                         For Each row As DataRow In ds.Tables(6).Rows()
                             Try
+
+                                Dim ownerId As String = Nothing
+                                Try
+                                    ownerId = allUsers.Where(Function(x) x.GUID = HexToGUID(row("DIRECTORY_ID").ToString())).First().Id
+                                Catch ex As Exception
+
+                                End Try
+
                                 Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
                                 IbmConnectionsObjects.Name = row("LABEL").ToString()
                                 IbmConnectionsObjects.DeviceName = myServer.Name
                                 IbmConnectionsObjects.DeviceId = myServer.ServerObjectID
                                 IbmConnectionsObjects.Type = "Wiki"
-                                IbmConnectionsObjects.OwnerId = getObjectUser(myServer.Name, row("DIRECTORY_ID").ToString())
+                                IbmConnectionsObjects.OwnerId = ownerId
                                 IbmConnectionsObjects.ObjectCreatedDate = Convert.ToDateTime(row("CREATE_DATE").ToString())
                                 IbmConnectionsObjects.ObjectModifiedDate = Convert.ToDateTime(row("LAST_UPDATE").ToString())
                                 IbmConnectionsObjects.GUID = HexToGUID(row("ID").ToString())
+                                IbmConnectionsObjects.tags = New List(Of String)()
                                 If (row("EXTERNAL_CONTAINER_ID") IsNot Nothing And row("EXTERNAL_CONTAINER_ID").ToString() <> "") Then
                                     IbmConnectionsObjects.ParentGUID = dictOfCommunityIds(row("EXTERNAL_CONTAINER_ID").ToString())
                                 End If
@@ -9527,56 +9803,91 @@ CleanUp:
                                     IbmConnectionsObjects.NumOfFollowers = 0
                                 End If
 
-
-                                repo.Insert(IbmConnectionsObjects)
+                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects))
+                                'repo.Insert(IbmConnectionsObjects)
                             Catch ex As Exception
                                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Stats. Exception at making wiki. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                             End Try
 
                         Next
+                        repo.BulkInsert(bulkOps)
                     Catch ex As Exception
                         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Stats. Exception at table 6. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                     End Try
 
                     Dim myServerName As String = myServer.Name
                     Try
+                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))()
                         For Each tagRow As DataRow In ds.Tables(7).Rows()
                             Try
-                                Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Where(Function(i) i.GUID.Equals(HexToGUID(tagRow("LIBRARY_ID").ToString())) And i.DeviceName.Equals(myServerName) And i.Type.Equals("Wiki"))
-                                Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects)
-                                Dim projectDef As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Project.Include(Function(i) i.tags)
-                                Dim IbmConnectionsObjects As VSNext.Mongo.Entities.IbmConnectionsObjects = repo.Find(filterdef, projectDef).DefaultIfEmpty(New VSNext.Mongo.Entities.IbmConnectionsObjects() With {.Id = Nothing}).First()
-                                Dim tags As List(Of String) = IbmConnectionsObjects.tags
+                                'Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Where(Function(i) i.GUID.Equals(HexToGUID(tagRow("LIBRARY_ID").ToString())) And i.DeviceName.Equals(myServerName) And i.Type.Equals("Wiki"))
+                                'Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects)
+                                'Dim projectDef As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Project.Include(Function(i) i.tags)
+                                'Dim IbmConnectionsObjects As VSNext.Mongo.Entities.IbmConnectionsObjects = repo.Find(filterdef, projectDef).DefaultIfEmpty(New VSNext.Mongo.Entities.IbmConnectionsObjects() With {.Id = Nothing}).First()
+                                'Dim tags As List(Of String) = IbmConnectionsObjects.tags
                                 'tags = IbmConnectionsObjects.tags
-                                If tags Is Nothing Then
-                                    tags = New List(Of String)
-                                End If
+                                'If tags Is Nothing Then
+                                '    tags = New List(Of String)
+                                'End If
 
-                                If Not tags.Contains(tagRow("TAG").ToString()) Then
-                                    tags.Add(tagRow("TAG").ToString())
-                                End If
+                                'If Not tags.Contains(tagRow("TAG").ToString()) Then
+                                '    tags.Add(tagRow("TAG").ToString())
+                                'End If
 
-                                updatedef = repo.Updater _
-                                            .Set(Function(i) i.tags, tags)
-                                repo.Update(filterdef, updatedef)
+                                Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Where(Function(i) i.GUID.Equals(HexToGUID(tagRow("LIBRARY_ID").ToString())) And i.DeviceName.Equals(myServerName) And i.Type.Equals("Wiki"))
+                                Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Updater _
+                                            .AddToSet(Function(i) i.tags, tagRow("TAG").ToString())
+
+                                bulkOps.Add(New MongoDB.Driver.UpdateOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(filterdef, updatedef))
+                                'repo.Update(filterdef, updatedef)
                             Catch ex As Exception
                                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Stats. Exception at insering tags. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                             End Try
                         Next
+                        repo.BulkUpsert(bulkOps)
                     Catch ex As Exception
                         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Stats. Exception at table 7. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                     End Try
 
                     Try
+                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))()
+                        Dim allWikis As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Find(
+                            repo.Filter.Eq(Function(x) x.Type, "Wiki") And
+                            repo.Filter.Eq(Function(x) x.DeviceName, myServer.Name)
+                        ).ToList()
+
+                        Dim allUsers As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Find(
+                            repo.Filter.Eq(Function(x) x.Type, "Users") And
+                            repo.Filter.Eq(Function(x) x.DeviceName, myServer.Name)
+                        ).ToList()
+
                         For Each row As DataRow In ds.Tables(8).Rows()
                             Try
+                                Dim parentId As String = Nothing
+                                Try
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Topic Lib Id: " & HexToGUID(row("LIBRARY_ID").ToString()), LogUtilities.LogUtils.LogLevel.Normal)
+                                    parentId = allWikis.Where(Function(x) x.GUID = HexToGUID(row("LIBRARY_ID").ToString())).First().Id
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Topic parent: " & parentId, LogUtilities.LogUtils.LogLevel.Normal)
+                                Catch ex As Exception
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Topic parent Exception: " & ex.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                                End Try
+
+                                Dim ownerId As String = Nothing
+                                Try
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Topic DIRECTORY_ID Id: " & HexToGUID(row("DIRECTORY_ID").ToString()), LogUtilities.LogUtils.LogLevel.Normal)
+                                    ownerId = allUsers.Where(Function(x) x.GUID = row("DIRECTORY_ID").ToString()).First().Id
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Topic ownerId: " & parentId, LogUtilities.LogUtils.LogLevel.Normal)
+                                Catch ex As Exception
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Topic ownerId Exception: " & ex.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                                End Try
+
                                 Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
                                 IbmConnectionsObjects.Name = row("LABEL").ToString()
                                 IbmConnectionsObjects.DeviceName = myServer.Name
                                 IbmConnectionsObjects.DeviceId = myServer.ServerObjectID
                                 IbmConnectionsObjects.Type = "Wiki Entry"
-                                IbmConnectionsObjects.ParentGUID = getObjectOwner(myServer.Name, HexToGUID(row("LIBRARY_ID").ToString()))
-                                IbmConnectionsObjects.OwnerId = getObjectUser(myServer.Name, row("DIRECTORY_ID").ToString())
+                                IbmConnectionsObjects.ParentGUID = parentId
+                                IbmConnectionsObjects.OwnerId = ownerId
                                 IbmConnectionsObjects.ObjectCreatedDate = Convert.ToDateTime(row("CREATE_DATE").ToString())
                                 IbmConnectionsObjects.ObjectModifiedDate = Convert.ToDateTime(row("LAST_UPDATE").ToString())
                                 IbmConnectionsObjects.GUID = HexToGUID(row("ID").ToString())
@@ -9587,11 +9898,13 @@ CleanUp:
                                     IbmConnectionsObjects.NumOfFollowers = 0
                                 End If
 
-                                repo.Insert(IbmConnectionsObjects)
+                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects))
+                                'repo.Insert(IbmConnectionsObjects)
                             Catch ex As Exception
                                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Stats. Exception at inserting wiki entries. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                             End Try
                         Next
+                        repo.BulkInsert(bulkOps)
                     Catch ex As Exception
                         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Stats. Exception at table 8. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                     End Try
@@ -9785,6 +10098,9 @@ CleanUp:
                     Next
 
                     Try
+                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))
+                        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+
                         For Each row As DataRow In ds.Tables(12).Rows()
                             Try
                                 Dim myServerName As String = myServer.Name
@@ -9796,19 +10112,35 @@ CleanUp:
                                     lastLoginTime = DateTime.Parse(ds.Tables(15).AsEnumerable.Where(Function(x) x("PROF_KEY").ToString().ToLower() = row("PROF_KEY").ToString().ToLower()).First()("PROF_LAST_LOGIN").ToString())
                                 End If
 
-                                Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
-                                Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Where(Function(i) i.GUID.Equals(row("PROF_GUID").ToString()) And i.DeviceName.Equals(myServerName) And i.Type.Equals("Users"))
-                                Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects)
+
+                                Dim entry As New VSNext.Mongo.Entities.IbmConnectionsObjects With {
+                                    .GUID = row("PROF_GUID").ToString(),
+                                    .DeviceName = myServerName,
+                                    .Type = "Users",
+                                    .Name = row("PROF_DISPLAY_NAME").ToString(),
+                                    .IsActive = Convert.ToBoolean(IIf(row("PROF_STATE").ToString() = "0", True, False)),
+                                    .IsInternal = Convert.ToBoolean(IIf(row("PROF_MODE").ToString() = "0", True, False)),
+                                    .DeviceId = myServer.ServerObjectID,
+                                    .LogonName = row("PROF_UID_LOWER").ToString(),
+                                    .LastLoginDate = lastLoginTime,
+                                    .CreatedOn = DateTime.Now
+                                }
+                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(entry))
 
 
-                                updatedef = repo.Updater _
-                                            .Set(Function(i) i.Name, row("PROF_DISPLAY_NAME").ToString()) _
-                                            .Set(Function(i) i.IsActive, Convert.ToBoolean(IIf(row("PROF_STATE").ToString() = "0", True, False))) _
-                                            .Set(Function(i) i.IsInternal, Convert.ToBoolean(IIf(row("PROF_MODE").ToString() = "0", True, False))) _
-                                            .Set(Function(i) i.DeviceId, myServer.ServerObjectID) _
-                                            .Set(Function(i) i.LogonName, row("PROF_UID_LOWER").ToString()) _
-                                            .Set(Function(i) i.LastLoginDate, lastLoginTime)
-                                repo.Upsert(filterdef, updatedef)
+                                'Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Where(Function(i) i.GUID.Equals(row("PROF_GUID").ToString()) And i.DeviceName.Equals(myServerName) And i.Type.Equals("Users"))
+                                'Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects)
+
+
+                                'updatedef = repo.Updater _
+                                '            .Set(Function(i) i.Name, row("PROF_DISPLAY_NAME").ToString()) _
+                                '            .Set(Function(i) i.IsActive, Convert.ToBoolean(IIf(row("PROF_STATE").ToString() = "0", True, False))) _
+                                '            .Set(Function(i) i.IsInternal, Convert.ToBoolean(IIf(row("PROF_MODE").ToString() = "0", True, False))) _
+                                '            .Set(Function(i) i.DeviceId, myServer.ServerObjectID) _
+                                '            .Set(Function(i) i.LogonName, row("PROF_UID_LOWER").ToString()) _
+                                '            .Set(Function(i) i.LastLoginDate, lastLoginTime)
+
+                                'repo.Upsert(filterdef, updatedef)
 
                                 'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Inserting Users in Profile Stats.", LogUtilities.LogUtils.LogLevel.Normal)
                                 ' UpdateStatusTable(strSQL)
@@ -9816,6 +10148,7 @@ CleanUp:
                                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error Inserting Users in Profile Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                             End Try
                         Next
+                        repo.BulkInsert(bulkOps.AsEnumerable())
                     Catch ex As Exception
                         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Profile Stats. Exception at table 12. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                     End Try

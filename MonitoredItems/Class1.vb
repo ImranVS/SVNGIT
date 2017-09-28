@@ -4270,12 +4270,22 @@ Public Class IBMConnect
     Public SearchProfilesThreshold As Int32
     Public CreateWikisThreshold As Int32
 
+    Public CreateActivityFailCount As Int32
+    Public CreateBlogFailCount As Int32
+    Public CreateBookmarkFailCount As Int32
+    Public CreateCommunitiesFailCount As Int32
+    Public CreateFilesFailCount As Int32
+    Public CreateForumsFailCount As Int32
+    Public SearchProfilesFailCount As Int32
+    Public CreateWikisFailCount As Int32
+
     Public DBUserName As String
     Public DBPassword As String
     Public DBPort As String
     Public DBHostName As String
 
     Public CommunityUUID As String
+    Public TestUrl As String
 
 End Class
 
