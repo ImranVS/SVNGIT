@@ -1014,6 +1014,11 @@ namespace VSNext.Mongo.Entities
 
         [DataMember]
         [BsonIgnoreIfNull]
+        [BsonElement("connections_test_url")]
+        public string ConnectionsTestUrl { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNull]
         [BsonElement("simulation_tests")]
         public List<NameValuePair> SimulationTests { get; set; }
 
