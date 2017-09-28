@@ -121,6 +121,7 @@ import { WebSphereResponseTimes } from './reports/components/ibm-websphere/websp
 import { WebSphereActiveThreads } from './reports/components/ibm-websphere/websphere-active-threads.component';
 import { WebSphereCurrentHeapSize } from './reports/components/ibm-websphere/websphere-heap-size.component';
 import { Office365UptimeReport } from './reports/components/office365/office365-uptime.component';
+
 import { Office365MailLatencyReport } from './reports/components/office365/office365-mail-latency.component';
 import { Office365OneDriveReport } from './reports/components/office365/office365-onedrive.component';
 import { Office365MailboxReport} from './reports/components/office365/office365-mailbox.component';
@@ -130,6 +131,13 @@ import { Office365DisabledUsersReport } from './reports/components/office365/off
 import { ibmconnectionsinactiveUsersReport } from './reports/components/ibm-connections/inactive-users.component';
 
 import { Office365StatisticsReport } from './reports/components/office365/office365-statistics-report.component';
+
+import { exchangequeuereport } from './reports/components/ms-exchange/ms-exchange-queue.component';
+import { exchangeresponsetimereport } from './reports/components/ms-exchange/ms-exchange-responsetime.component';
+import { exchangeuptimereport } from './reports/components/ms-exchange/ms-exchange-uptime.component';
+import { exchangecpuutilreport } from './reports/components/ms-exchange/ms-exchange-cpuutil.component';
+import { memorypercentagereport } from './reports/components/ms-exchange/ms-exchange-memory-percentage.component';
+import { ExchnageStatisticReport } from './reports/components/ms-exchange/ms-exchange-statistic-report.component';
 
 import { FileUploadSample } from './configurator/components/serverImport/file-upload-sample.component';
 
@@ -589,6 +597,7 @@ const appRoutes: Routes = [
                         path: 'office365uptime',
                         component: Office365UptimeReport
                     },
+                    
                     {
                         path: 'office365onedrive',
                         component: Office365OneDriveReport
@@ -620,7 +629,32 @@ const appRoutes: Routes = [
                     {
                         path: 'office365statistics',
                         component: Office365StatisticsReport
+                    },
+                    {
+                        path: 'exchangequeue',
+                        component: exchangequeuereport
+                    },
+                    {
+                        path: 'exchangeresponsetime',
+                        component: exchangeresponsetimereport
+                    },
+                    {
+                        path: 'exchangeuptime',
+                        component: exchangeuptimereport
+                    },
+                    {
+                        path: 'exchangecpuutil',
+                        component: exchangecpuutilreport
+                    },
+                    {
+                        path: 'memorypercentage',
+                        component: memorypercentagereport
+                    },
+                    {
+                        path: 'exchnagestatistic',
+                        component: ExchnageStatisticReport
                     }
+                    
                 ]
             },
             {

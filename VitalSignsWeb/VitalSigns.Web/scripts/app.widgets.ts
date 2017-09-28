@@ -57,8 +57,8 @@ export * from './widgets/reports/components/connections-executive-overview-list.
 export * from './widgets/file-upload/components/file-upload.component';
 export * from './widgets/mobile-users/components/console-commands-list.component';
 export * from './widgets/sample/sample-widget.component';
-export * from './widgets/reports/components/mailbox-list.component'
-export * from './widgets/reports/components/o365-disabled-users-list.component'
+export * from './widgets/reports/components/mailbox-list.component';
+export * from './widgets/reports/components/o365-disabled-users-list.component';
 export * from './widgets/reports/components/ibm-connections-inctive-users-list.component';
 export * from './widgets/reports/components/inactive-community-list.component';
 
@@ -145,6 +145,7 @@ export * from './reports/filters/components/server-availability-filter.component
 export * from './reports/filters/components/user-filter.component'
 export * from './reports/components/mobile-users/mobile-users-report-grid.component'
 
+
 //Server Import
 export * from './configurator/components/serverImport/server-import-domino.component'
 export * from './configurator/components/serverImport/server-import-websphere.component'
@@ -154,6 +155,8 @@ export * from './reports/filters/components/server-filter.component'
 export * from './reports/filters/components/server-configuration-filter.component'
 export * from './reports/filters/components/sametime-server-filter.component'
 export * from './reports/filters/components/any-statistic-filter.component'
+export * from './reports/filters/components/exchange-statistic-filter.component'
+
 
 //Mobile users
 export * from './configurator/components/mobileusers/mobile-users.component'
@@ -169,7 +172,6 @@ export * from './reports/components/configuration/server-list-location-report-gr
 export * from './dashboards/components/ibm-connections/ibm-connections-users-compare.component'
 export * from './dashboards/components/ibm-connections/ibm-connections-community-user.component'
 export * from './dashboards/components/ibm-connections/ibm-connections-communities-detail-grid.component'
+export * from './dashboards/components/executive-summary-widget.component'
+export * from './reports/components/disk/disk-space-widget.component'
 
-export * from './dashboards/components/executive-summary-widget.component';
-
-export * from  './reports/components/disk/disk-space-widget.component';

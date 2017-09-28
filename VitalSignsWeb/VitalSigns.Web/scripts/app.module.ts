@@ -120,7 +120,9 @@ import { ConnectionsInactiveCommunityReport } from './reports/components/ibm-con
 import {ServerConfigurationFilter} from './reports/filters/components/server-configuration-filter.component';
 import {FileUploadSample} from './configurator/components/serverImport/file-upload-sample.component';
 import {SametimeServerFilter} from './reports/filters/components/sametime-server-filter.component';
-import {AnyStatisticFilter} from './reports/filters/components/any-statistic-filter.component';
+import { AnyStatisticFilter } from './reports/filters/components/any-statistic-filter.component';
+import { ExchangeStatisticFilter } from './reports/filters/components/exchange-statistic-filter.component';
+
 import {ServerAvailabilityFilter} from './reports/filters/components/server-availability-filter.component'
 import { DiskSpaceConsumptionReport } from './reports/components/disk/disk-space-consumption.component';
 //import { DiskSpaceWidgetReport } from './reports/components/disk/disk-space-widget.component';
@@ -143,6 +145,13 @@ import { MobileUsersReport } from './reports/components/mobile-users/mobile-user
 import { ConnectionsExecutiveOverviewReport } from './reports/components/ibm-connections/connections-executive-overview-report.component';
 
 import { ExecutiveSummaryWidget } from './dashboards/components/executive-summary-widget.component';
+import { exchangequeuereport } from './reports/components/ms-exchange/ms-exchange-queue.component';
+import { exchangeresponsetimereport } from './reports/components/ms-exchange/ms-exchange-responsetime.component';
+import { exchangeuptimereport } from './reports/components/ms-exchange/ms-exchange-uptime.component';
+import { exchangecpuutilreport } from './reports/components/ms-exchange/ms-exchange-cpuutil.component';
+import { memorypercentagereport } from './reports/components/ms-exchange/ms-exchange-memory-percentage.component';
+import { ExchnageStatisticReport } from './reports/components/ms-exchange/ms-exchange-statistic-report.component';
+
 
 @NgModule({
     imports: [
@@ -201,6 +210,7 @@ import { ExecutiveSummaryWidget } from './dashboards/components/executive-summar
         AnyStatisticReport,
         StatisticsReport,
         ResponseTimeReport,
+        ExchnageStatisticReport,
         ConsoleCommands,
         DailyServerTrans,
         ClusterSecQueue,
@@ -246,6 +256,7 @@ import { ExecutiveSummaryWidget } from './dashboards/components/executive-summar
         FileUploadSample,
         SametimeServerFilter,
         AnyStatisticFilter,
+        ExchangeStatisticFilter,
         ServerAvailabilityFilter,
         DiskSpaceConsumptionReport,
         RepeatableChart,
@@ -268,6 +279,11 @@ import { ExecutiveSummaryWidget } from './dashboards/components/executive-summar
         IbmInactiveUsersSort,
         MsExchangeDetail,
         Office365StatisticsReport,
+        exchangequeuereport,
+        exchangeresponsetimereport,
+        exchangeuptimereport,
+        memorypercentagereport,
+        exchangecpuutilreport,
         dashboards.SampleDashboard,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
@@ -428,6 +444,7 @@ import { ExecutiveSummaryWidget } from './dashboards/components/executive-summar
         widgets.ServerConfigurationFilter,
         widgets.SametimeServerFilter,
         widgets.AnyStatisticFilter,
+        widgets.ExchangeStatisticFilter,
         widgets.ServerAvailabilityFilter,
         widgets.CommunityActivityList,
         widgets.UserActivityList,
@@ -622,6 +639,7 @@ import { ExecutiveSummaryWidget } from './dashboards/components/executive-summar
         widgets.ServerConfigurationFilter,
         widgets.SametimeServerFilter,
         widgets.AnyStatisticFilter,
+        widgets.ExchangeStatisticFilter,
         widgets.ServerAvailabilityFilter,
         widgets.CommunityActivityList,
         widgets.UserActivityList,
@@ -632,7 +650,7 @@ import { ExecutiveSummaryWidget } from './dashboards/components/executive-summar
         widgets.MobileUsersReportGrid,
         widgets.DatabaseSettings,
         widgets.MailboxList,
-        //widgets.MsExchangeDetail,
+
         widgets.Office365DisabledUsersList,
         widgets.ibmdominoinactiveUsersList,
         widgets.ExecutiveSummaryWidget,
