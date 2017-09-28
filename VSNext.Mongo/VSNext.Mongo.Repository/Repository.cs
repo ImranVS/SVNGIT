@@ -182,7 +182,12 @@ namespace VSNext.Mongo.Repository
             }
         }
 
-        public void BulkUpsert(IEnumerable<UpdateOneModel<T>> entities)
+        public void BulkUpsert(IEnumerable<WriteModel<T>> entities)
+        {
+            Collection.BulkWrite(entities);
+        }
+
+        public void BulkInsert(IEnumerable<WriteModel<T>> entities)
         {
             Collection.BulkWrite(entities);
         }
