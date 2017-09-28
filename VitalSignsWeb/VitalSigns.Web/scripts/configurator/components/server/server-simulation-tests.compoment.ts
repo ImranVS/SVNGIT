@@ -44,7 +44,8 @@ export class SimulationTests implements OnInit {
             'create_file': [false],
             'create_wiki': [false],
             'search_profile': [false],
-            'community_uuid': []
+            'community_uuid': [],
+            'test_url': []
         });
         this.appComponentService = appComponentService;
 }

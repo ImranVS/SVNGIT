@@ -6199,7 +6199,10 @@ namespace VitalSigns.API.Controllers
                     nameValuePairs.Add(new NameValuePair { Name = "Search Profile Threshold", Value = Convert.ToString(ibmsimulations.SearchProfileThreshold) });
 
                 Server server = serversRepository.Get(ibmsimulations.Id);
-                var updateDefination = serversRepository.Updater.Set(p => p.SimulationTests, nameValuePairs).Set(p => p.ConnectionsCommunityUuid, ibmsimulations.CommunityUUID);
+                var updateDefination = serversRepository.Updater
+                    .Set(p => p.SimulationTests, nameValuePairs)
+                    .Set(p => p.ConnectionsCommunityUuid, ibmsimulations.CommunityUUID)
+                    .Set(p => p.ConnectionsTestUrl, ibmsimulations.TestUrl);
                 var result = serversRepository.Update(server, updateDefination);
                 //2/24/2017 NS added for VSPLUS-3506
                 Licensing licensing = new Licensing();
@@ -6274,6 +6277,7 @@ namespace VitalSigns.API.Controllers
                     ibmsimulations.SearchProfileThreshold = 10000;
                 }
                 ibmsimulations.CommunityUUID = result.ConnectionsCommunityUuid;
+                ibmsimulations.TestUrl = result.ConnectionsTestUrl;
                 Response = Common.CreateResponse(ibmsimulations);
             }
             catch (Exception exception)
