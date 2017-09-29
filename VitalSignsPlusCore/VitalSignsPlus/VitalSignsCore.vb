@@ -3470,6 +3470,7 @@ CleanUp:
         Dim WsDll As New VitalSignsWebSphereDLL.VitalSignsWebSphereDLL()
         'Dim WsDllForObjs As VitalSignsWebSphereDLL.VitalSignsWebSphereDLL
         ServicePointManager.ServerCertificateValidationCallback = AddressOf ValidateRemoteCertificate
+        ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3
         Dim adapter As New VSAdaptor()
         Do While boolTimeToStop <> True
 
@@ -3829,7 +3830,7 @@ CleanUp:
 
 
             Dim httpWR As HttpWebRequest = WebRequest.Create(activityURL)
-            httpWR.Timeout = 60000
+            httpWR.Timeout = 90000
             httpWR.Method = "POST"
             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
             httpWR.ContentType = "application/atom+xml"
@@ -3906,7 +3907,7 @@ CleanUp:
                     Dim deleteString As String = resposne.Substring(k + 6, m - (k + 6))
 
                     httpWR = WebRequest.Create(deleteString)
-                    httpWR.Timeout = 6000000
+                    httpWR.Timeout = 90000
                     httpWR.Method = "DELETE"
                     httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                     httpWR.ContentType = "application/atom+xml"
@@ -4017,7 +4018,7 @@ CleanUp:
             CleanAllVitalSignBlogs(myServer)
 
             Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
-            httpWR.Timeout = 60000
+            httpWR.Timeout = 90000
             httpWR.Method = "POST"
             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
             httpWR.ContentType = "application/atom+xml"
@@ -4087,7 +4088,7 @@ CleanUp:
 
 
                     httpWR = WebRequest.Create(deleteString)
-                    httpWR.Timeout = 6000000
+                    httpWR.Timeout = 90000
                     httpWR.Method = "DELETE"
                     httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                     httpWR.ContentType = "application/atom+xml"
@@ -4200,7 +4201,7 @@ CleanUp:
             CleanAllVitalSignBookmarks(myServer)
 
             Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
-            httpWR.Timeout = 60000
+            httpWR.Timeout = 90000
             httpWR.Method = "POST"
             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
             httpWR.ContentType = "application/atom+xml"
@@ -4253,7 +4254,7 @@ CleanUp:
                     Dim deleteString As String = URL & "?url=" & testUrl
 
                     httpWR = WebRequest.Create(deleteString)
-                    httpWR.Timeout = 6000000
+                    httpWR.Timeout = 90000
                     httpWR.Method = "DELETE"
                     httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                     httpWR.ContentType = "application/atom+xml"
@@ -4361,7 +4362,7 @@ CleanUp:
             CleanAllVitalSignCommunities(myServer)
 
             Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
-            httpWR.Timeout = 60000
+            httpWR.Timeout = 90000
             httpWR.Method = "POST"
             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
             httpWR.ContentType = "application/atom+xml"
@@ -4424,7 +4425,7 @@ CleanUp:
 
 
                     httpWR = WebRequest.Create(deleteString)
-                    httpWR.Timeout = 60000
+                    httpWR.Timeout = 90000
                     httpWR.Method = "DELETE"
                     httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                     httpWR.ContentType = "application/atom+xml"
@@ -4444,7 +4445,7 @@ CleanUp:
 
                             Try
                                 httpWR = WebRequest.Create(deleteString)
-                                httpWR.Timeout = 60000
+                                httpWR.Timeout = 90000
                                 httpWR.Method = "DELETE"
                                 httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                                 httpWR.ContentType = "application/atom+xml"
@@ -4553,7 +4554,7 @@ CleanUp:
             CleanAllVitalSignFiles(myServer)
 
             Dim httpWR As HttpWebRequest = WebRequest.Create(GetURL)
-            httpWR.Timeout = 60000
+            httpWR.Timeout = 90000
             httpWR.Method = "Get"
             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
             httpWR.ContentType = "application/atom+xml"
@@ -4580,7 +4581,7 @@ CleanUp:
             End Try
 
             httpWR = WebRequest.Create(URL)
-            httpWR.Timeout = 6000000
+            httpWR.Timeout = 90000
             httpWR.Method = "POST"
             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
             httpWR.ContentType = "text/plain"
@@ -4632,7 +4633,7 @@ CleanUp:
                     Dim docId = reg.Match(deleteString).Value.ToString()
 
                     httpWR = WebRequest.Create(deleteString)
-                    httpWR.Timeout = 6000000
+                    httpWR.Timeout = 90000
                     httpWR.Method = "DELETE"
                     httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                     httpWR.ContentType = "application/atom+xml"
@@ -4648,7 +4649,7 @@ CleanUp:
                         If (webResponse2.StatusCode = HttpStatusCode.NoContent) Then
                             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "TestCreateFiles purge url:" & purgeUrl.Replace("{document-id}", docId), LogUtilities.LogUtils.LogLevel.Verbose)
                             httpWR = WebRequest.Create(purgeUrl.Replace("{document-id}", docId))
-                            httpWR.Timeout = 6000000
+                            httpWR.Timeout = 90000
                             httpWR.Method = "DELETE"
                             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                             httpWR.ContentType = "application/atom+xml"
@@ -4743,7 +4744,7 @@ CleanUp:
             CleanAllVitalSignForums(myServer)
 
             Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
-            httpWR.Timeout = 60000
+            httpWR.Timeout = 90000
             httpWR.Method = "POST"
             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
             httpWR.ContentType = "application/atom+xml"
@@ -4796,7 +4797,7 @@ CleanUp:
                     webResponse.Close()
 
                     httpWR = WebRequest.Create(LocationsHeader)
-                    httpWR.Timeout = 6000000
+                    httpWR.Timeout = 90000
                     httpWR.Method = "DELETE"
                     httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                     httpWR.ContentType = "application/atom+xml"
@@ -4899,7 +4900,7 @@ CleanUp:
             'CleanAllVitalSignCommunities(myServer)
 
             Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
-            httpWR.Timeout = 60000
+            httpWR.Timeout = 90000
             httpWR.Method = "POST"
             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
             httpWR.ContentType = "application/atom+xml"
@@ -4948,7 +4949,7 @@ CleanUp:
                     webResponse.Close()
 
                     httpWR = WebRequest.Create(LocationsHeader)
-                    httpWR.Timeout = 6000000
+                    httpWR.Timeout = 90000
                     httpWR.Method = "DELETE"
                     httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                     httpWR.ContentType = "application/atom+xml"
@@ -5043,7 +5044,7 @@ CleanUp:
             URL = URL + "/profiles/atom/search.do?name=A"
 
             Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
-            httpWR.Timeout = 60000
+            httpWR.Timeout = 90000
             httpWR.Method = "GET"
             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
             httpWR.Accept = "*/*"
@@ -5130,7 +5131,7 @@ CleanUp:
             CleanAllVitalSignWikis(myServer)
 
             Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
-            httpWR.Timeout = 60000
+            httpWR.Timeout = 90000
             httpWR.Method = "POST"
             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
             httpWR.ContentType = "application/atom+xml"
@@ -5208,7 +5209,7 @@ CleanUp:
 
 
                     httpWR = WebRequest.Create(deleteString)
-                    httpWR.Timeout = 6000000
+                    httpWR.Timeout = 90000
                     httpWR.Method = "DELETE"
                     httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                     httpWR.ContentType = "application/atom+xml"
@@ -5314,7 +5315,7 @@ CleanUp:
             CleanAllVitalSignCommunities(myServer)
 
             Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
-            httpWR.Timeout = 60000
+            httpWR.Timeout = 90000
             httpWR.Method = "POST"
             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
             httpWR.ContentType = "application/atom+xml"
@@ -5418,7 +5419,7 @@ CleanUp:
 
 
                     httpWR = WebRequest.Create(deleteString)
-                    httpWR.Timeout = 60000
+                    httpWR.Timeout = 90000
                     httpWR.Method = "DELETE"
                     httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                     httpWR.ContentType = "application/atom+xml"
@@ -5438,7 +5439,7 @@ CleanUp:
 
                             Try
                                 httpWR = WebRequest.Create(deleteString)
-                                httpWR.Timeout = 60000
+                                httpWR.Timeout = 90000
                                 httpWR.Method = "DELETE"
                                 httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                                 httpWR.ContentType = "application/atom+xml"
@@ -5529,7 +5530,7 @@ CleanUp:
 
     Public Sub TestCreateCommunityActivity(ByRef myServer As MonitoredItems.IBMConnect, ByVal communityUUID As String)
         Try
-
+            'Thread.Sleep(60000)
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateCommunityActivity. communityUuid: " & communityUUID, LogUtilities.LogUtils.LogLevel.Normal)
             Dim AlertType As String = "Create Activity"
             Dim URL As String = myServer.IPAddress
@@ -5549,7 +5550,7 @@ CleanUp:
 
 
             Dim httpWR As HttpWebRequest = WebRequest.Create(activityURL)
-            httpWR.Timeout = 60000
+            httpWR.Timeout = 90000
             httpWR.Method = "POST"
             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
             httpWR.ContentType = "application/atom+xml"
@@ -5635,7 +5636,7 @@ CleanUp:
                     Dim deleteString As String = webResponse.Headers.Get("Location")
 
                     httpWR = WebRequest.Create(deleteString)
-                    httpWR.Timeout = 6000000
+                    httpWR.Timeout = 90000
                     httpWR.Method = "DELETE"
                     httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                     httpWR.ContentType = "application/atom+xml"
@@ -5736,6 +5737,7 @@ CleanUp:
 
     Public Sub TestCreateCommunityBookmarks(ByRef myServer As MonitoredItems.IBMConnect, ByVal communityUUID As String)
         Try
+            ' Thread.Sleep(60000)
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateCommunityBookmarks", LogUtilities.LogUtils.LogLevel.Normal)
             Dim AlertType As String = "Create Bookmark"
             Dim alertReset As Boolean
@@ -5754,7 +5756,7 @@ CleanUp:
             'CleanAllVitalSignBookmarks(myServer)
 
             Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
-            httpWR.Timeout = 60000
+            httpWR.Timeout = 90000
             httpWR.Method = "POST"
             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
             httpWR.ContentType = "application/atom+xml"
@@ -5807,7 +5809,7 @@ CleanUp:
                     Dim deleteString As String = webResposne.Headers.Get("Location")
 
                     httpWR = WebRequest.Create(deleteString)
-                    httpWR.Timeout = 6000000
+                    httpWR.Timeout = 90000
                     httpWR.Method = "DELETE"
                     httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                     httpWR.ContentType = "application/atom+xml"
@@ -5897,6 +5899,7 @@ CleanUp:
 
     Public Sub TestCreateCommunityForumsTopic(ByRef myServer As MonitoredItems.IBMConnect, ByRef forumId As String)
         Try
+            'Thread.Sleep(60000)
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateCommunityForumsTopic", LogUtilities.LogUtils.LogLevel.Normal)
             Dim AlertType As String = "Create Forum"
             Dim alertReset As Boolean
@@ -5914,7 +5917,7 @@ CleanUp:
             'CleanAllVitalSignCommunities(myServer)
 
             Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
-            httpWR.Timeout = 60000
+            httpWR.Timeout = 90000
             httpWR.Method = "POST"
             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
             httpWR.ContentType = "application/atom+xml"
@@ -5966,7 +5969,7 @@ CleanUp:
                     webResponse.Close()
 
                     httpWR = WebRequest.Create(LocationsHeader)
-                    httpWR.Timeout = 6000000
+                    httpWR.Timeout = 90000
                     httpWR.Method = "DELETE"
                     httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                     httpWR.ContentType = "application/atom+xml"
@@ -6051,6 +6054,7 @@ CleanUp:
 
     Public Sub TestCreateCommunityBlog(ByRef myServer As MonitoredItems.IBMConnect, ByVal communityUUID As String)
         Try
+            'Thread.Sleep(60000)
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateCommunityBlog", LogUtilities.LogUtils.LogLevel.Normal)
             Dim AlertType As String = "Create Blog"
             Dim alertReset As Boolean
@@ -6122,6 +6126,7 @@ CleanUp:
 
     Public Sub TestCreateCommunityBlogPost(ByRef myServer As MonitoredItems.IBMConnect, ByVal communityUUID As String)
         Try
+            'Thread.Sleep(60000)
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateCommunityBlogPost", LogUtilities.LogUtils.LogLevel.Normal)
             Dim AlertType As String = "Create Blog"
             Dim alertReset As Boolean
@@ -6139,7 +6144,7 @@ CleanUp:
             'CleanAllVitalSignCommunityBlogPosts(myServer)
 
             Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
-            httpWR.Timeout = 60000
+            httpWR.Timeout = 90000
             httpWR.Method = "POST"
             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
             httpWR.ContentType = "application/atom+xml"
@@ -6230,7 +6235,8 @@ CleanUp:
 
     Public Sub TestCreateCommunityFiles(ByRef myServer As MonitoredItems.IBMConnect, ByVal communityUUID As String)
         Try
-            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateCommunityFiles", LogUtilities.LogUtils.LogLevel.Normal)
+            'Thread.Sleep(60000)
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateCommunityFiles " & communityUUID, LogUtilities.LogUtils.LogLevel.Normal)
             Dim AlertType As String = "Create File"
             Dim alertReset As Boolean
 
@@ -6242,12 +6248,12 @@ CleanUp:
             Dim Name As String = "VitalSignsTestFiles.txt"
             Dim GetURL As String = URL & "/files/basic/api/nonce"
             URL = URL & "/files/basic/api/communitylibrary/" & communityUUID & "/feed"
-
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateCommunityFiles " & URL, LogUtilities.LogUtils.LogLevel.Normal)
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Will first try deleting all undeleted VitalSigns Files", LogUtilities.LogUtils.LogLevel.Normal)
             CleanAllVitalSignFiles(myServer)
 
             Dim httpWR As HttpWebRequest = WebRequest.Create(GetURL)
-            httpWR.Timeout = 60000
+            httpWR.Timeout = 90000
             httpWR.Method = "Get"
             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
             httpWR.ContentType = "application/atom+xml"
@@ -6272,9 +6278,9 @@ CleanUp:
                     webResponse.Close()
                 End If
             End Try
-
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateCommunityFiles Nonice" & response, LogUtilities.LogUtils.LogLevel.Normal)
             httpWR = WebRequest.Create(URL)
-            httpWR.Timeout = 6000000
+            httpWR.Timeout = 90000
             httpWR.Method = "POST"
             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
             httpWR.ContentType = "text/plain"
@@ -6326,7 +6332,7 @@ CleanUp:
                     Dim docId = reg.Match(deleteString).Value.ToString()
 
                     httpWR = WebRequest.Create(deleteString)
-                    httpWR.Timeout = 6000000
+                    httpWR.Timeout = 90000
                     httpWR.Method = "DELETE"
                     httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                     httpWR.ContentType = "application/atom+xml"
@@ -6342,7 +6348,7 @@ CleanUp:
                         If (webResponse2.StatusCode = HttpStatusCode.NoContent) Then
                             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "TestCreateFiles purge url:" & deleteString.Replace("/document/", "/view/recyclebin/"), LogUtilities.LogUtils.LogLevel.Verbose)
                             httpWR = WebRequest.Create(deleteString.Replace("/document/", "/view/recyclebin/"))
-                            httpWR.Timeout = 6000000
+                            httpWR.Timeout = 90000
                             httpWR.Method = "DELETE"
                             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                             httpWR.ContentType = "application/atom+xml"
@@ -6372,15 +6378,15 @@ CleanUp:
                         End If
 
                     Catch ex As Exception
-
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Exception purging the file. Exception: " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
                     Finally
                         If webResponse2 IsNot Nothing Then
                             webResponse2.Close()
                         End If
 
                         If TestThreshold < createTime Then
-                            myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The file was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
-
+                            myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The file was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.", myServer.Location)
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Failed to purge file.", LogUtilities.LogUtils.LogLevel.Normal)
                             If myServer.StatusCode = "OK" Then
                                 myServer.StatusCode = "Issue"
                                 myServer.Status = "Issue"
@@ -6388,7 +6394,8 @@ CleanUp:
                             End If
 
                         Else
-                            myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The file was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
+                            myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The file was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.")
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Resetting file alert.", LogUtilities.LogUtils.LogLevel.Normal)
                         End If
 
                     End Try
@@ -6396,7 +6403,7 @@ CleanUp:
                 End If
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create file due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
-
+                'Thread.Sleep(60000)
                 myServer.CreateFilesFailCount += 1
                 If myServer.CreateFilesFailCount > IbmConnectionsFailThreshold("File") Then
                     myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The file was not created.", myServer.Location)
@@ -6420,6 +6427,7 @@ CleanUp:
 
     Public Sub TestCreateCommunityWiki(ByRef myServer As MonitoredItems.IBMConnect, ByVal communityUUID As String)
         Try
+            'Thread.Sleep(60000)
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In TestCreateCommunityWiki", LogUtilities.LogUtils.LogLevel.Normal)
             Dim AlertType As String = "Create Wiki"
             Dim alertReset As Boolean
@@ -6501,7 +6509,7 @@ CleanUp:
         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In AddWidgetToComunity. URL: " & URL, LogUtilities.LogUtils.LogLevel.Verbose)
         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In AddWidgetToComunity. Body: " & Body, LogUtilities.LogUtils.LogLevel.Verbose)
         Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
-        httpWR.Timeout = 60000
+        httpWR.Timeout = 90000
         httpWR.Method = "POST"
         httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
         httpWR.ContentType = "application/atom+xml"
@@ -6567,7 +6575,7 @@ CleanUp:
         URL = URL + "/communities/service/atom/community/widgets?communityUuid=" & communityUUID & "&widgetDefId=" & widgetDefId
 
         Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
-        httpWR.Timeout = 60000
+        httpWR.Timeout = 90000
         httpWR.Method = "GET"
         httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
         httpWR.ContentType = "application/atom+xml"
@@ -6614,7 +6622,7 @@ CleanUp:
                 If deleteString <> "" Then
 
                     httpWR = WebRequest.Create(deleteString)
-                    httpWR.Timeout = 60000
+                    httpWR.Timeout = 90000
                     httpWR.Method = "DELETE"
                     httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                     httpWR.ContentType = "application/atom+xml"
@@ -6665,7 +6673,7 @@ CleanUp:
 
 
             Dim httpWR As HttpWebRequest = WebRequest.Create(activityURL)
-            httpWR.Timeout = 60000
+            httpWR.Timeout = 90000
             httpWR.Method = "GET"
             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
             httpWR.ContentType = "application/atom+xml"
@@ -6706,7 +6714,7 @@ CleanUp:
 
                         Try
                             Dim httpWR2 As HttpWebRequest = WebRequest.Create(deleteURL)
-                            httpWR2.Timeout = 60000
+                            httpWR2.Timeout = 90000
                             httpWR2.Method = "DELETE"
                             httpWR2.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                             httpWR2.ContentType = "application/atom+xml"
@@ -6770,7 +6778,7 @@ CleanUp:
             While BlogURL <> ""
                 deleteThisLoop = False
                 Dim httpWR As HttpWebRequest = WebRequest.Create(BlogURL)
-                httpWR.Timeout = 60000
+                httpWR.Timeout = 90000
                 httpWR.Method = "GET"
                 httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                 httpWR.ContentType = "application/atom+xml"
@@ -6813,7 +6821,7 @@ CleanUp:
 
                                 Try
                                     Dim httpWR2 As HttpWebRequest = WebRequest.Create(deleteURL)
-                                    httpWR2.Timeout = 60000
+                                    httpWR2.Timeout = 90000
                                     httpWR2.Method = "DELETE"
                                     httpWR2.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                                     httpWR2.ContentType = "application/atom+xml"
@@ -6895,7 +6903,7 @@ CleanUp:
                 deletedEntry = False
 
                 Dim httpWR As HttpWebRequest = WebRequest.Create(fullURL)
-                httpWR.Timeout = 6000000
+                httpWR.Timeout = 90000
                 httpWR.Method = "DELETE"
                 httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                 httpWR.ContentType = "application/atom+xml"
@@ -6952,7 +6960,7 @@ CleanUp:
                 deleteThisLoop = False
 
                 Dim httpWR As HttpWebRequest = WebRequest.Create(CommunityURL)
-                httpWR.Timeout = 60000
+                httpWR.Timeout = 90000
                 httpWR.Method = "GET"
                 httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                 httpWR.ContentType = "application/atom+xml"
@@ -6993,7 +7001,7 @@ CleanUp:
 
                                             Try
                                                 Dim httpWR2 As HttpWebRequest = WebRequest.Create(deleteURL)
-                                                httpWR2.Timeout = 60000
+                                                httpWR2.Timeout = 90000
                                                 httpWR2.Method = "DELETE"
                                                 httpWR2.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                                                 httpWR2.ContentType = "application/atom+xml"
@@ -7010,7 +7018,7 @@ CleanUp:
                                                         deleteThisLoop = True
                                                         Try
                                                             httpWR = WebRequest.Create(deleteURL)
-                                                            httpWR.Timeout = 60000
+                                                            httpWR.Timeout = 90000
                                                             httpWR.Method = "DELETE"
                                                             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                                                             httpWR.ContentType = "application/atom+xml"
@@ -7105,7 +7113,7 @@ CleanUp:
             While URL <> ""
                 deleteThisLoop = False
                 Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
-                httpWR.Timeout = 60000
+                httpWR.Timeout = 90000
                 httpWR.Method = "GET"
                 httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                 httpWR.ContentType = "application/atom+xml"
@@ -7147,7 +7155,7 @@ CleanUp:
                                             deleteURL = reg.Replace(deleteURL, "/myuserlibrary/")
                                             Try
                                                 Dim httpWR2 As HttpWebRequest = WebRequest.Create(deleteURL)
-                                                httpWR2.Timeout = 60000
+                                                httpWR2.Timeout = 90000
                                                 httpWR2.Method = "DELETE"
                                                 httpWR2.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                                                 httpWR2.ContentType = "application/atom+xml"
@@ -7282,7 +7290,7 @@ CleanUp:
                                             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "CleanAllPurgeFiles delete url:" & deleteURL, LogUtilities.LogUtils.LogLevel.Verbose)
                                             Try
                                                 Dim httpWR2 As HttpWebRequest = WebRequest.Create(deleteURL)
-                                                httpWR2.Timeout = 60000
+                                                httpWR2.Timeout = 90000
                                                 httpWR2.Method = "DELETE"
                                                 httpWR2.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                                                 httpWR2.ContentType = "application/atom+xml"
@@ -7375,7 +7383,7 @@ CleanUp:
             While URL <> ""
                 deleteThisLoop = False
                 Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
-                httpWR.Timeout = 60000
+                httpWR.Timeout = 90000
                 httpWR.Method = "GET"
                 httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                 httpWR.ContentType = "application/atom+xml"
@@ -7416,7 +7424,7 @@ CleanUp:
 
                                             Try
                                                 Dim httpWR2 As HttpWebRequest = WebRequest.Create(deleteURL)
-                                                httpWR2.Timeout = 60000
+                                                httpWR2.Timeout = 90000
                                                 httpWR2.Method = "DELETE"
                                                 httpWR2.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                                                 httpWR2.ContentType = "application/atom+xml"
@@ -7509,7 +7517,7 @@ CleanUp:
 
             While URL <> ""
                 Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
-                httpWR.Timeout = 60000
+                httpWR.Timeout = 90000
                 httpWR.Method = "GET"
                 httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                 httpWR.ContentType = "application/atom+xml"
@@ -7550,7 +7558,7 @@ CleanUp:
 
                                             Try
                                                 Dim httpWR2 As HttpWebRequest = WebRequest.Create(deleteURL)
-                                                httpWR2.Timeout = 60000
+                                                httpWR2.Timeout = 90000
                                                 httpWR2.Method = "DELETE"
                                                 httpWR2.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                                                 httpWR2.ContentType = "application/atom+xml"
@@ -7639,7 +7647,7 @@ CleanUp:
             Dim URL As String = myServer.IPAddress & "/homepage/j_security_check"
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "URL: " & URL, LogUtilities.LogUtils.LogLevel.Normal)
             Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
-            httpWR.Timeout = 6000000
+            httpWR.Timeout = 90000
             httpWR.Method = "POST"
             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
             httpWR.ContentType = "application/x-www-form-urlencoded"
@@ -7689,7 +7697,7 @@ CleanUp:
             Dim URL As String = myServer.IPAddress & "/homepage/j_security_check"
 
             Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
-            httpWR.Timeout = 6000000
+            httpWR.Timeout = 90000
             httpWR.Method = "POST"
             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
             httpWR.ContentType = "application/x-www-form-urlencoded"
@@ -7738,7 +7746,7 @@ CleanUp:
 
                         If Not String.IsNullOrWhiteSpace(myServer.TestUrl) Then
                             Dim httpWR2 As HttpWebRequest = WebRequest.Create(myServer.TestUrl)
-                            httpWR2.Timeout = 6000000
+                            httpWR2.Timeout = 90000
                             httpWR2.Method = "GET"
                             httpWR2.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
                             httpWR2.CookieContainer = cookies
