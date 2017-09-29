@@ -83,7 +83,7 @@ export class ServerFilter {
         }
         if (this.HideSingleDTControl == true) {
             var v = <HTMLDivElement>document.getElementById("dtDate");
-            v.style.display = "inline-block";
+            v.style.display = "none";
         }
         //Set a selected value of the Status drop down box to the passed query parameter or -All- if no parameter is available
         //this.deviceStatus = paramstatus;
@@ -138,13 +138,6 @@ export class ServerFilter {
             URL += "&date=" + newCurrentDate.toISOString();
         if (this.showdisksdropdown)
             URL += "&ismonitored=" + this.dropdownvalue;
-
-        //if (this.statName != "")
-        //    URL += "&statName=" + this.statName;
-        //});
-        //this.widgetService.refreshWidget('avgcpuutilchart', `/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil&deviceId=` + selectedServers + `&start=` + this.startDate.toISOString() + `&end=` + this.endDate.toISOString())
-        //    .catch(error => console.log(error));
-
         this.widgetService.refreshWidget(this.widgetName, URL )
             .catch(error => console.log(error));
 
