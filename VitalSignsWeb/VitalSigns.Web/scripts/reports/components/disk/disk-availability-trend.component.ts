@@ -23,10 +23,12 @@ export class DiskAvailabilityTrendReport extends WidgetController {
 
     currentHideDTControl: boolean = true;
     currentHideSingleDTControl: boolean = false;
-    currentHideServerControl: boolean = true;
+    currentHideServerControl: boolean = false;
     currentHideIntervalControl: boolean = true;
     currentHideMailServerControl: boolean = true;
-    currentHideAllServerControl: boolean = false;
+    currentHideAllServerControl: boolean = true;
+    currentshowdiskdropdown: boolean = true;
+    currentHideDatePanel: boolean = true;
     currentWidgetName: string = `diskTrendChart`;
     currentWidgetURL: string;
 
