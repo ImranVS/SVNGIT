@@ -138,6 +138,7 @@ import { exchangeuptimereport } from './reports/components/ms-exchange/ms-exchan
 import { exchangecpuutilreport } from './reports/components/ms-exchange/ms-exchange-cpuutil.component';
 import { memorypercentagereport } from './reports/components/ms-exchange/ms-exchange-memory-percentage.component';
 import { ExchnageStatisticReport } from './reports/components/ms-exchange/ms-exchange-statistic-report.component';
+import { ExchangeMailboxReport } from './reports/components/ms-exchange/ms-exchange-mailbox-report.component';
 
 import { FileUploadSample } from './configurator/components/serverImport/file-upload-sample.component';
 
@@ -653,6 +654,10 @@ const appRoutes: Routes = [
                     {
                         path: 'exchnagestatistic',
                         component: ExchnageStatisticReport
+                    },
+                    {
+                        path: 'mailboxcount',
+                        component: ExchangeMailboxReport
                     }
                     
                 ]

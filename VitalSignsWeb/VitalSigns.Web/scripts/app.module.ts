@@ -151,6 +151,7 @@ import { exchangeuptimereport } from './reports/components/ms-exchange/ms-exchan
 import { exchangecpuutilreport } from './reports/components/ms-exchange/ms-exchange-cpuutil.component';
 import { memorypercentagereport } from './reports/components/ms-exchange/ms-exchange-memory-percentage.component';
 import { ExchnageStatisticReport } from './reports/components/ms-exchange/ms-exchange-statistic-report.component';
+import { ExchangeMailboxReport } from './reports/components/ms-exchange/ms-exchange-mailbox-report.component';
 
 
 @NgModule({
@@ -284,6 +285,7 @@ import { ExchnageStatisticReport } from './reports/components/ms-exchange/ms-exc
         exchangeuptimereport,
         memorypercentagereport,
         exchangecpuutilreport,
+        ExchangeMailboxReport,
         dashboards.SampleDashboard,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
