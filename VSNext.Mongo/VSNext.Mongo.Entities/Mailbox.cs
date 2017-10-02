@@ -97,6 +97,41 @@ namespace VSNext.Mongo.Entities
         [BsonElement("inactive_days_count")]
         [BsonIgnoreIfNull]
         public int? InactiveDaysCount { get; set; }
+
+        [DataMember]
+        [BsonElement("sam_account_name")]
+        [BsonIgnoreIfNullAttribute]
+        public string SAMAccountName { get; set; }
+
+        [DataMember]
+        [BsonElement("primary_smtp_address")]
+        [BsonIgnoreIfNullAttribute]
+        public string PrimarySmtpAddress { get; set; }
+
+        [DataMember]
+        [BsonElement("company")]
+        [BsonIgnoreIfNullAttribute]
+        public string Company { get; set; }
+
+        [DataMember]
+        [BsonElement("department")]
+        [BsonIgnoreIfNullAttribute]
+        public string Department { get; set; }
+
+        [DataMember]
+        [BsonElement("max_folder_count")]
+        [BsonIgnoreIfNullAttribute]
+        public int? MaxFolderCount { get; set; }
+
+        [DataMember]
+        [BsonElement("max_folder_size_mb")]
+        [BsonIgnoreIfNullAttribute]
+        public double? MaxFolderSizeMb { get; set; }
+
+        [DataMember]
+        [BsonElement("folder_count")]
+        [BsonIgnoreIfNullAttribute]
+        public int? FolderCount { get; set; }
     }
 
 }
