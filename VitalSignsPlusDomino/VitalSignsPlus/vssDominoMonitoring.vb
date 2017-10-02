@@ -996,7 +996,9 @@ Cleanup:
             Catch ex As Exception
                 threadLife = 10
             End Try
-
+            If threadLife <= 2 Then
+                threadLife = 10
+            End If
             WriteDeviceHistoryEntry("Domino", myServer.Name, Now.ToString & " Starting Scan.", LogLevel.Normal)
             Try
                 t = New Thread(Sub() Me.MonitorDomino(myServer))

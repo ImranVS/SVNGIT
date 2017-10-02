@@ -3470,7 +3470,7 @@ CleanUp:
         Dim WsDll As New VitalSignsWebSphereDLL.VitalSignsWebSphereDLL()
         'Dim WsDllForObjs As VitalSignsWebSphereDLL.VitalSignsWebSphereDLL
         ServicePointManager.ServerCertificateValidationCallback = AddressOf ValidateRemoteCertificate
-        ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3
+        'ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3
         Dim adapter As New VSAdaptor()
         Do While boolTimeToStop <> True
 
