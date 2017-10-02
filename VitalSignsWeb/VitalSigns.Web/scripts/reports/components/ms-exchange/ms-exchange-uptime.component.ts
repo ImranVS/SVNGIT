@@ -55,7 +55,7 @@ export class exchangeuptimereport extends WidgetController {
             error => console.log(error)
         );
 
-        this.currentWidgetURL = `/reports/summarystats_chart?statName=[HourlyUpTimePercent]`;
+        this.currentWidgetURL = `/reports/summarystats_chart?type=Exchange&statName=[HourlyUpTimePercent]`;
         
         this.widgets = [
             {

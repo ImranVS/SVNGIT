@@ -55,7 +55,7 @@ export class exchangeresponsetimereport extends WidgetController {
             error => console.log(error)
         );
 
-        this.currentWidgetURL = `/reports/summarystats_chart?statName=[ResponseTime]`;
+        this.currentWidgetURL = `/reports/summarystats_chart?type=Exchange&statName=[ResponseTime]`;
         
         this.widgets = [
             {

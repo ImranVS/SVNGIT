@@ -55,7 +55,7 @@ export class exchangecpuutilreport extends WidgetController {
             error => console.log(error)
         );
 
-        this.currentWidgetURL = `/reports/summarystats_chart?statName=[Platform.System.PctCombinedCpuUtil]`;
+        this.currentWidgetURL = `/reports/summarystats_chart?type=Exchange&statName=[Platform.System.PctCombinedCpuUtil]`;
         
         this.widgets = [
             {

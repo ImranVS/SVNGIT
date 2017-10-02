@@ -13,7 +13,7 @@
     <div class="container-fluid">
         <server-filter [(deviceType)]="currentDeviceType" [(widgetName)]="currentWidgetName" [(widgetURL)]="currentWidgetURL" [(hideServerControl)]="currentHideServerControl" [(hideDatePanel)]="currentHideDatePanel" [(HideSingleDTControl)]="currentHideSingleDTControl"></server-filter>
         <div class="reportsPage">
-            <h1>Exchange UpTime Report</h1>
+            <h1>Exchange UpTime </h1>
             <div *ngFor="let widget of widgets">
                 <h3>{{widget.title}}</h3>
                 <div id="{{widget.id}}">

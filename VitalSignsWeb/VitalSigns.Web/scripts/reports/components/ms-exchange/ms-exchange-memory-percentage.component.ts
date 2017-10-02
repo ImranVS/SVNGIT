@@ -55,7 +55,7 @@ export class memorypercentagereport extends WidgetController {
             error => console.log(error)
         );
 
-        this.currentWidgetURL = `/reports/summarystats_chart?statName=[Mem.PercentAvailable]`;
+        this.currentWidgetURL = `/reports/summarystats_chart?type=Exchange&statName=[Mem.PercentAvailable]`;
         
         this.widgets = [
             {
