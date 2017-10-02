@@ -2309,6 +2309,77 @@ namespace VitalSigns.API.Controllers
                 return Response;
             }
         }
+
+        [HttpGet("exchange_mailbox_type")]
+        public APIResponse ExcahngeMailboxes(string statname ="")
+        {
+            
+            mailboxRepository = new Repository<Mailbox>(ConnectionString);
+            var result = mailboxRepository.Find(x => x.DeviceName == "Exchange").ToList();
+            List<Segment> listsegments = new List<Segment>();
+            if (statname == "folder_count")
+            {
+                listsegments = result.OrderByDescending(x => x.FolderCount).Take(25)
+                    .Select(x => new Segment()
+                    {
+                        Label = x.DisplayName,
+                        Value = x.FolderCount,
+                    }).ToList();
+            }
+            else if(statname == "item_count")
+            {
+                listsegments = result.OrderByDescending(x => x.ItemCount).Take(25)
+                    .Select(x => new Segment()
+                    {
+                        Label = x.DisplayName,
+                        Value = x.ItemCount,
+                    }).ToList();
+            }
+            else if (statname == "total_item_size_mb")
+            {
+                listsegments = result.OrderByDescending(x => x.TotalItemSizeMb).Take(25)
+                    .Select(x => new Segment()
+                    {
+                        Label = x.DisplayName,
+                        Value = x.TotalItemSizeMb,
+                    }).ToList();
+            }
+            else if (statname == "max_folder_count")
+            {
+                listsegments = result.OrderByDescending(x => x.MaxFolderCount).Take(25)
+                    .Select(x => new Segment()
+                    {
+                        Label = x.DisplayName,
+                        Value = x.MaxFolderCount,
+                    }).ToList();
+            }
+            else if (statname == "max_folder_size_mb")
+            {
+                listsegments = result.OrderByDescending(x => x.MaxFolderSizeMb).Take(25)
+                    .Select(x => new Segment()
+                    {
+                        Label = x.DisplayName,
+                        Value = x.MaxFolderSizeMb,
+                    }).ToList();
+            }
+            Serie serie = new Serie();
+                serie.Title = "Mail Box Count";
+                serie.Segments = listsegments;
+                List<Serie> series = new List<Serie>();
+                series.Add(serie);
+                Serie subserie = new Serie();
+                List<Serie> subseries = new List<Serie>();
+                Chart chart = new Chart();
+                chart.Title = "Mailbox Count";
+                chart.Series = series;
+                chart.Series2 = subseries;
+                Response = Common.CreateResponse(chart);
+                return Response;
+          
+        }
+
+       
+
     }
-    
+
 }
