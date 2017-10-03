@@ -24,11 +24,6 @@ export class ExchnageStatisticReport extends WidgetController {
     currentWidgetURL: string;
     
     statName: string;
-    //url: string = `/reports/summarystats_aggregation`;
-
-    //currentWidgetName: string = `ExchnageStatisticsChart`;
-    //currentWidgetURL: string = this.url;
-    ////currentHideServerControl: boolean = false;
     constructor(
         protected resolver: ComponentFactoryResolver,
         protected widgetService: WidgetService,
