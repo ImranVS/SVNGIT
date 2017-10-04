@@ -11,6 +11,9 @@ namespace VitalSigns.API.Models
         [JsonProperty("display_name")]
         public string DisplayName { get; set; }
 
+        [JsonProperty("database_name")]
+        public string DatabaseName { get; set; }
+
         [JsonProperty("issue_warning_quota")]
         public string IssueWarningQuota { get; set; }
 
@@ -31,5 +34,8 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("last_logon_time")]
         public DateTime? LastLogonTime { get; set; }
+
+        [JsonProperty("prohibit_send_percentage")]
+        public double? ProhibitedSendPercentage { get; set; }
     }
 }
