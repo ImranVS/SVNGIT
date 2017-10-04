@@ -206,10 +206,45 @@
         "component": "MsdatabaseavailablitydatabaseTab",
         "path": "/app/dashboards/components/ms-database-availablity-group/ms-database-availablity-database-tab.component"
       },
-       {
+      {
         "tab_id": 4,
         "title": "Database Status",
         "type": "Dashboard",
+        "component": "DatabaseStatusTab",
+        "path": "/app/dashboards/components/ms-database-availablity-group/ms-database-availablity-group-databasestatus-tab.component"
+      },
+      {
+        "tab_id": 5,
+        "title": "Health Assessment",
+        "type": "Dashboard",
+        "component": "ServiceMainHealthTab",
+        "path": "/app/services/components/service-mainhealth-tab.component"
+      },
+      {
+        "tab_id": 1,
+        "title": "Activation Preferences",
+        "type": "Health",
+        "component": "ActivationPreferencesTab",
+        "path": "/app/dashboards/components/ms-database-availablity-group/ms-database-availablity-group-activationpreferences-tab.component"
+      },
+      {
+        "tab_id": 2,
+        "title": "Members",
+        "type": "Health",
+        "component": "Memberstab",
+        "path": "/app/dashboards/components/ms-database-availablity-group/ms-database-availablity-group-members-grid.component"
+      },
+      {
+        "tab_id": 3,
+        "title": "Databases",
+        "type": "Health",
+        "component": "MsdatabaseavailablitydatabaseTab",
+        "path": "/app/dashboards/components/ms-database-availablity-group/ms-database-availablity-database-tab.component"
+      },
+      {
+        "tab_id": 4,
+        "title": "Database Status",
+        "type": "Health",
         "component": "DatabaseStatusTab",
         "path": "/app/dashboards/components/ms-database-availablity-group/ms-database-availablity-group-databasestatus-tab.component"
       }
