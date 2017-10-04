@@ -82,7 +82,7 @@ Public Class VSMaster
     Public VitalSignsPlusDomino As String = "VitalSignsPlusDomino"
     Public VitalSignsPlusCore As String = "VitalSignsPlusCore"
     Public VitalSignsPlusAlerting As String = "VitalSignsAlerts"
-    Public VitalSignsPlusClusterHealth As String = "VitalSigns Cluster Health"
+    'Public VitalSignsPlusClusterHealth As String = "VitalSigns Cluster Health"   -- this service was discontinued and integrated into the Domino service
     Public VitalSignsDailyService As String = "VitalSigns Daily Tasks"
     Public MasterServiceName As String = "VitalSigns Plus Master Service"
     Public VitalSignsPlusDBHealthService As String = "VitalSigns Database Health"
@@ -1748,8 +1748,7 @@ Public Class VSMaster
            VitalSignsPlusDomino,
            VitalSignsPlusCore,
            VitalSignsPlusAlerting,
-           VitalSignsPlusClusterHealth,
-           VitalSignsDailyService,
+        VitalSignsDailyService,
            MasterServiceName,
            VitalSignsPlusDBHealthService,
            EXJournalServiceName,
@@ -1762,7 +1761,6 @@ Public Class VSMaster
          "VSService_Domino",
          "VSService_Core",
          "VSService_Alerting",
-         "VSService_Cluster Health",
          "VSService_Daily Service",
          "VSService_Master Service",
          "VSService_DB Health",
