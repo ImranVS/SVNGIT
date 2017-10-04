@@ -2417,7 +2417,36 @@ namespace VitalSigns.API.Controllers
           
         }
 
-       
+        [HttpGet("exchnage_mailboxes_prohbited_warning")]
+        public APIResponse ExchangeMailboxesProhibtedWarning()
+        {
+            try
+            {
+               
+                mailboxRepository = new Repository<Mailbox>(ConnectionString);
+                var filterDef = mailboxRepository.Filter.Eq(x => x.DeviceName,"Exchange") &
+                    mailboxRepository.Filter.Ne(x => x.IssueWarningQuota, "Unlimited");
+                var results = mailboxRepository.Find(filterDef).ToList()
+                    .Where(x=>double.Parse(x.IssueWarningQuota) < x.TotalItemSizeMb)
+                    .Select(x => new MailboxModel()
+                {
+                    DisplayName = x.DisplayName,
+                    DatabaseName = x.DatabaseName,
+                    IssueWarningQuota =Math.Round(double.Parse( x.IssueWarningQuota)/1024,2).ToString(),
+                    TotalItemSizeMb= Math.Round((double)x.TotalItemSizeMb/1024,2),
+                    ProhibitSendQuota = Math.Round(double.Parse(x.ProhibitSendQuota) / 1024, 2).ToString(),
+                    ProhibitedSendPercentage =Math.Round((x.TotalItemSizeMb.Value/double.Parse(x.ProhibitSendQuota))*100,2)
+                    }).ToList().OrderBy(x => x.DisplayName);
+                Response = Common.CreateResponse(results);
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
 
     }
 
