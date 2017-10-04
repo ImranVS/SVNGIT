@@ -2219,6 +2219,45 @@ namespace VitalSigns.API.Controllers
             }
         }
 
+        [HttpGet("connections/inactive_community_list")]
+        public APIResponse InactiveCommunityList(string deviceId = "")
+        {
+            try
+            {
+                connectionsObjectsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
+                serverRepository = new Repository<Server>(ConnectionString);
+                var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.IBMConnections.ToDescription())).ToList().Select(x => x.Id).ToList();
+                if (!String.IsNullOrWhiteSpace(deviceId))
+                {
+                    listOfDevices = deviceId.Split(',').ToList();
+                }
+                var filterDef = connectionsObjectsRepository.Filter.In(x => x.DeviceId, listOfDevices)
+                    & ( (connectionsObjectsRepository.Filter.Lt(x => x.ObjectModifiedDate, DateTime.UtcNow.AddDays(-28)) & connectionsObjectsRepository.Filter.Eq(x => x.Type, "Community"))  
+                    | (connectionsObjectsRepository.Filter.Eq(x => x.Type, "Users" )));
+                
+                var allResults = connectionsObjectsRepository.Find(filterDef).ToList();
+                var users = allResults.Where(x => x.Type == "Users").ToList();
+                var results = allResults.Where(x => x.Type == "Community").Select(x => new CommunityActivity()
+                {
+                    ServerName = x.DeviceName,
+                    ObjectName = x.Name,
+                    Community = x.CommunityType,
+                    ObjectCreatedDate = x.ObjectCreatedDate.HasValue ? x.ObjectCreatedDate.Value.ToString(DateFormat) : null,
+                    ObjectModifiedDate = x.ObjectModifiedDate.HasValue ? x.ObjectModifiedDate.Value.ToString(DateFormat) : null,
+                    ObjectOwner = users.Exists(y => y.Id == x.OwnerId) ? users.Where(y => y.Id == x.OwnerId).First().Name : "Unknown"
+
+                }).ToList().OrderBy(x => x.ObjectModifiedDate);
+                Response = Common.CreateResponse(results);
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
+
         [HttpGet("mailboxes")]
         public APIResponse Mailboxes(string deviceType, string mailboxType)
         {

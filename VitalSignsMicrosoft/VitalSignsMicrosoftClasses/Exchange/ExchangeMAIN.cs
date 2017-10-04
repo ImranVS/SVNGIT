@@ -2070,20 +2070,57 @@ namespace VitalSignsMicrosoftClasses
                 if (myExchangeServers != null)
                     foreach (MonitoredItems.ExchangeServer server in myExchangeServers)
                     {
-                        if (Convert.ToInt32(server.VersionNo) > newestVersion)
+                        if ((Convert.ToInt32(server.VersionNo) > newestVersion || newestVersion == 0) && server.StatusCode != "Not Responding")
                         {
-                            newestVersion = Convert.ToInt32(server.VersionNo);
+                            newestVersion = server.VersionNo == null ? 1: Convert.ToInt32(server.VersionNo);
                             testServer = server;
                         }
                     }
+                
+
+
+                
+
+                        
+
+                if (testServer != null)
+                {
+
+                    Common.WriteDeviceHistoryEntry("All", "Exchange", "Server " + testServer.Name + " will be used to perform tests.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                    Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs.Name, "Server " + testServer.Name + " will be used to perform tests.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                    
+                    ExchangeMB EMB = new ExchangeMB();
+
+                    string cmdlets = "-CommandName Get-ExchangeServer, Get-MailboxDatabase, Get-MailboxStatistics, Get-Mailbox, Get-MessageTrackingLog, ";
+                    cmdlets += "Get-OWAVirtualDirectory, Get-ECPVirtualDirectory, Get-OABVirtualDirectory, Get-WebServicesVirtualDirectory, Get-MAPIVirtualDirectory, Get-ActiveSyncVirtualDirectory, ";
+                    cmdlets += "Get-OutlookAnywhere, Get-ClientAccessServer, Get-TransportServer, Get-MailboxRepairRequest, New-MailboxRepairRequest, Get-MailboxFolderStatistics, Get-DatabaseAvailabilityGroup, Get-User";
+
+                    using (ReturnPowerShellObjects results = Common.PrereqForExchangeWithCmdlets(testServer.Name, testServer.UserName, testServer.Password, "Exchange", testServer.IPAddress, commonEnums.ServerRoles.Empty, cmdlets, testServer.AuthenticationType))
+                    {
+                        Collection<PSObject> DBCorruptionTest = TestDatabaseCorruptionQueue(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS);
+                        EMB.getMailBoxInfo(testServer, ref AllTestResults, DummyServerForLogs.Name, myExchangeServers, results);
+                    }
+
+                    GC.Collect();
+                    
+                    CommonDB DB = new CommonDB();
+                    DB.UpdateSQLStatements(AllTestResults, DummyServerForLogs);
+                }
+                else
+                {
+                    //no server was found to be used to scan
+                }
+
+
+
+
+
+
                 Common.CommonDailyTasks(testServer, ref AllTestResults, testServer.ServerType);
 
 
 
-
-
-
-				Common.WriteDeviceHistoryEntry("All", "Exchange", "Finished Daily Tasks.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                Common.WriteDeviceHistoryEntry("All", "Exchange", "Finished Daily Tasks.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 				Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs.Name, "Finished Daily Tasks.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
 			}
@@ -2256,7 +2293,7 @@ namespace VitalSignsMicrosoftClasses
                             {
                                 Collection<PSObject> DBCorruptionTest = TestDatabaseCorruptionQueue(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS);
                                 checkHealthCheckPages(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS);
-                                EMB.getMailBoxInfo(testServer, ref AllTestResults, testServer.VersionNo.ToString(), DummyServerForLogs.Name, myExchangeServers, results);
+                                //EMB.getMailBoxInfo(testServer, ref AllTestResults, testServer.VersionNo.ToString(), DummyServerForLogs.Name, myExchangeServers, results);
                                 TestDatabaseCorruptionStatus(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS, DBCorruptionTest);
                             }
 
@@ -2351,92 +2388,6 @@ namespace VitalSignsMicrosoftClasses
 
                     }
 
-
-
-
-
-
-                    /*
-
-                    int newestVersion = -1;
-                    MonitoredItems.ExchangeServer myServer = null;
-                    if (myDagCollection != null)
-                    {
-                        foreach (MonitoredItems.ExchangeServer server in myDagCollection)
-                        {
-
-
-
-
-
-                            if(server.Status == "Not Responding")
-                                continue;
-
-                            MonitoredItems.ExchangeServer primaryServer = myExchangeServers.SearchByIPAddress(server.DAGPrimaryIPAddress);
-                            MonitoredItems.ExchangeServer secondaryServer = myExchangeServers.SearchByIPAddress(server.DAGBackupIPAddress);
-
-                            if (primaryServer != null && Convert.ToInt32(primaryServer.VersionNo) > newestVersion && primaryServer.Status != "Not Responding" && primaryServer.Status != "Maintenance")
-                            {
-                                newestVersion = Convert.ToInt32(primaryServer.VersionNo);
-                                myServer = server;
-                            }
-
-                            if (secondaryServer != null && Convert.ToInt32(secondaryServer.VersionNo) > newestVersion && secondaryServer.Status != "Not Responding" && secondaryServer.Status != "Maintenance")
-                            {
-                                newestVersion = Convert.ToInt32(secondaryServer.VersionNo);
-                                myServer = server;
-                            }
-                        }
-                    }
-
-                    if (myServer != null)
-                    {
-
-
-
-
-
-                        Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs.Name, "Server " + myServer.Name + " will be used to perform tests.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-
-                        TestResults AllTestResults = new TestResults();
-                        string Version = "";
-
-                        string cmdlets = "-CommandName ";//g;
-		                ReturnPowerShellObjects results = Common.PrereqForExchangeWithCmdlets(myServer.Name, myServer.DAGPrimaryUserName, myServer.DAGPrimaryPassword, myServer.ServerType, myServer.DAGPrimaryIPAddress, commonEnums.ServerRoles.Empty, cmdlets, myServer.DAGPrimaryAuthenticationType);
-                        Version = myExchangeServers.SearchByIPAddress(myServer.DAGPrimaryIPAddress) == null ? "" : myExchangeServers.SearchByIPAddress(myServer.DAGPrimaryIPAddress).VersionNo;
-		                string IPAddress = myServer.DAGPrimaryIPAddress;
-                        if (results.Connected == false)
-		                {
-			                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Unable to connect to primary server.  Will attempt backup",commonEnums.ServerRoles.Empty,Common.LogLevel.Normal);
-			                results.Dispose();
-			                results = Common.PrereqForExchangeWithCmdlets(myServer.Name, myServer.DAGBackupUserName, myServer.DAGBackupPassword, myServer.ServerType, myServer.DAGBackupIPAddress, commonEnums.ServerRoles.Empty, cmdlets, myServer.DAGBackupAuthenticationType);
-			                IPAddress = myServer.DAGBackupIPAddress;
-                            Version = myExchangeServers.SearchByIPAddress(myServer.DAGBackupIPAddress) == null ? "" : myExchangeServers.SearchByIPAddress(myServer.DAGBackupIPAddress).VersionNo;
-		                }
-                        if (results.Connected == false)
-                        {
-                            Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Unable to connect to backup server.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-                            results.Dispose();
-                            return;
-                        }
-                        else
-                        {
-                            //getMailboxDatabaseDetails(myServer, results.PS, ref AllTestResults, Version, DummyServerForLogs.Name)
-                        }
-
-
-                        GC.Collect();
-
-                        Common.SetHourlyAlertsToObject(AllTestResults, myExchangeServers);
-
-                        CommonDB DB = new CommonDB();
-                        DB.UpdateSQLStatements(AllTestResults, DummyServerForLogs);
-                    }
-                    else
-                    {
-                        //no server was found to be used to scan
-                    }
-                     * */
                 });
                 DAGHourly.CurrentCulture = c;
                 DAGHourly.IsBackground = true;

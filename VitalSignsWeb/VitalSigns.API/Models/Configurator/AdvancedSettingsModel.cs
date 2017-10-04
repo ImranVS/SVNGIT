@@ -118,7 +118,7 @@ namespace VitalSigns.API.Models
         public int? PortNo { get; set; }
 
         [JsonProperty("global_security")]
-        public bool GlobalSecurity { get; set; }
+        public bool? GlobalSecurity { get; set; }
 
         [JsonProperty("credentials_id")]
         public string CredentialsId { get; set; }
@@ -137,5 +137,8 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("nodes_data")]
         public List<NodeInfo> NodesData { get; set; }
+
+        [JsonProperty("simulation_tests")]
+        public List<NameValueModel> SimulationTests { get; set; }
     }
 }

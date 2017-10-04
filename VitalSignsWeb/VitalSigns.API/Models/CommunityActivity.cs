@@ -25,5 +25,14 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("date_range")]
         public string DateRange { get; set; }
+
+        [JsonProperty("object_created_date")]
+        public string ObjectCreatedDate { get; set; }
+
+        [JsonProperty("object_modified_date")]
+        public string ObjectModifiedDate { get; set; }
+
+        [JsonProperty("object_owner")]
+        public string ObjectOwner { get; set; }
     }
 }

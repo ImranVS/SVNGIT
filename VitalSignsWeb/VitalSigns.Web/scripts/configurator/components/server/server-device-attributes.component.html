@@ -72,10 +72,22 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-group" *ngIf="serverAttributes.device_type !='URL' && serverAttributes.device_type !='Office365'">
-                    <label class="control-label col-sm-2">Description</label>
-                    <div class="col-sm-3" *ngIf="serverAttributes.device_type !='URL'">
-                        <input type="text" [(ngModel)]="serverAttributes.description" class="form-control">
+                <div class="form-group">
+                    <div *ngIf="serverAttributes.device_type !='URL' && serverAttributes.device_type !='Office365'">
+                        <label class="control-label col-sm-2">Description</label>
+                        <div class="col-sm-3" *ngIf="serverAttributes.device_type !='URL'">
+                            <input type="text" [(ngModel)]="serverAttributes.description" class="form-control">
+                        </div>
+                    </div>
+
+                    <div *ngIf="serverAttributes.device_type =='Exchange'">
+                        <label class="control-label col-sm-2">Authentication Type</label>
+                        <div class="col-sm-3">
+                            <select class="form-control" name="serverAttributes.authentication_type" id="serverAttributes.authentication_type" [(ngModel)]="serverAttributes.authentication_type">
+                                <option Value="Default">Default</option>
+                                <option Value="Kerberos">Kerberos</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group" *ngIf="serverAttributes.device_type=='URL' || serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Sametime'">
@@ -91,17 +103,17 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-group" *ngIf="serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' || 
-                     serverAttributes.device_type=='Exchange'">
+                <div class="form-group" *ngIf="serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' ||
+                    serverAttributes.device_type=='Exchange'">
                     <label class="control-label col-sm-2">Credentials</label>
                     <div class="col-sm-3">
                         <wj-combo-box name="serverAttributes.credentials_id" displayMemberPath="text" selectedValuePath="value" [itemsSource]="deviceCredentialData"
-                                      [(ngModel)]="serverAttributes.credentials_id" placeholder="Select Credentials" [isEditable]="true">
+                                        [(ngModel)]="serverAttributes.credentials_id" placeholder="Select Credentials" [isEditable]="true">
                         </wj-combo-box>
                     </div>
                 </div>
-                <div class="form-group" *ngIf="serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' || 
-                     serverAttributes.device_type=='Exchange'">
+                <div class="form-group" *ngIf="serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' ||
+                    serverAttributes.device_type=='Exchange'">
                     <div class="col-sm-2">&nbsp;</div>
                     <div class="col-sm-5">
                         <button class="btn btn-primary" (click)="adddominoCredentials(frmDialog)">

@@ -36,12 +36,26 @@ export class ServerAdvancedSettings implements OnInit {
     websphereData: any;
     database_settings_credentials_id: any;
 
+    checkboxGroup: FormGroup;
+
+    cas_tests: any = [
+        { name: "SMTP", value: true },
+        { name: "Outlook Anywhere", value: false },
+        { name: "OWA", value: false },
+        { name: "POP3", value: false },
+        { name: "Auto Discovery", value: false },
+        { name: "Outlook Native RPC", value: false },
+        { name: "IMAP", value: false },
+        { name: "Active Sync", value: false }
+    ];
+
     constructor(
         private formBuilder: FormBuilder,
         private dataProvider: RESTService,
         private route: ActivatedRoute,
         appComponentService: AppComponentService)
-        { 
+    { 
+
         this.advancedSettingsForm = this.formBuilder.group({
             'memory_threshold': [''],
             'cpu_threshold': [''],
@@ -82,7 +96,8 @@ export class ServerAdvancedSettings implements OnInit {
             'realm': [''],
             'user_name': [''],
             'password': [''],
-            'nodes_data': ['']
+            'nodes_data': [''],
+            'simulation_tests': [this.cas_tests]
         });
 
         this.addCredentialForm = this.formBuilder.group({
@@ -141,7 +156,14 @@ export class ServerAdvancedSettings implements OnInit {
                         this.websphereplatform = this.websphereplatform;
                     }
                 });
+                if (response.data.results.simulation_tests) {
+                    for (var i = 0; i < response.data.results.simulation_tests.length; i++) {
+                        let temp = this.cas_tests.find(x => x.name == response.data.results.simulation_tests[i].name);
+                        if (temp)
+                            temp.value = true;
+                    }
 
+                }
             },
             (error) => {
                 this.errorMessage = <any>error

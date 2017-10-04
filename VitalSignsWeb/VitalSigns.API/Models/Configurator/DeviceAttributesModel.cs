@@ -61,6 +61,9 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("device_attributes")]
         public List<DeviceAttributesModel> DeviceAttributes { get; set; }
+
+        [JsonProperty("authentication_type")]
+        public string AuthenticationType { get; set; }
     }
     public class DeviceAttributesModel
     {

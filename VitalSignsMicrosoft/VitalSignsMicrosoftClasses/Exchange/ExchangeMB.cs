@@ -169,10 +169,10 @@ namespace VitalSignsMicrosoftClasses
 
 
 
-		public void getMailBoxInfo(MonitoredItems.ExchangeServer Server, ref TestResults AllTestsList, string serverVersionNo, string DummyServernameForLogs, MonitoredItems.ExchangeServersCollection MyExchangeServers, ReturnPowerShellObjects results)
+		public void getMailBoxInfo(MonitoredItems.ExchangeServer Server, ref TestResults AllTestsList, string DummyServernameForLogs, MonitoredItems.ExchangeServersCollection MyExchangeServers, ReturnPowerShellObjects results)
 		{
 			getIndividualMailboxes(results.PS, ref AllTestsList, DummyServernameForLogs, MyExchangeServers);
-			getMailStats(Server, results.PS, ref AllTestsList, serverVersionNo, DummyServernameForLogs, MyExchangeServers);
+			getMailStats(Server, results.PS, ref AllTestsList, DummyServernameForLogs, MyExchangeServers);
 			results.PS.Commands.Clear();
 		}
 		
@@ -208,19 +208,35 @@ namespace VitalSignsMicrosoftClasses
 
 					string DisplayName = ps.Properties["DisplayName"].Value == null ? "" : ps.Properties["DisplayName"].Value.ToString();
 					string Database = ps.Properties["Database"].Value == null ? "" : ps.Properties["Database"].Value.ToString();
-					string IssueWarningQuota = "Unlimited"; //ps.Properties["IssueWarningQuota"].Value == null ? "Unlimited" : ps.Properties["IssueWarningQuota"].Value.ToString();
-					string ProhibitSendQuota = "Unlimited";// ps.Properties["ProhibitSendQuota"].Value == null ? "Unlimited" : ps.Properties["ProhibitSendQuota"].Value.ToString();
-					string ProhibitSendReceiveQuota = "Unlimited";//ps.Properties["ProhibitSendReceiveQuota"].Value == null ? "Unlimited" : ps.Properties["ProhibitSendReceiveQuota"].Value.ToString();
+					string IssueWarningQuota = ps.Properties["IssueWarningQuota"].Value == null ? "Unlimited" : ps.Properties["IssueWarningQuota"].Value.ToString();
+					string ProhibitSendQuota =  ps.Properties["ProhibitSendQuota"].Value == null ? "Unlimited" : ps.Properties["ProhibitSendQuota"].Value.ToString();
+					string ProhibitSendReceiveQuota = ps.Properties["ProhibitSendReceiveQuota"].Value == null ? "Unlimited" : ps.Properties["ProhibitSendReceiveQuota"].Value.ToString();
 					string TotalItemSize = ps.Properties["TotalItemSize"].Value == null ? "0" : ps.Properties["TotalItemSize"].Value.ToString();
 					string ItemCount = ps.Properties["ItemCount"].Value == null ? "0" : ps.Properties["ItemCount"].Value.ToString();
 					string StorageLimitStatus = ps.Properties["StorageLimitStatus"].Value == null ? "" : ps.Properties["StorageLimitStatus"].Value.ToString();
 					string ServerName = ps.Properties["ServerName"].Value == null ? "" : ps.Properties["ServerName"].Value.ToString();
+                    string MaxFolderCount = ps.Properties["MaxFolderCount"].Value == null ? "" : ps.Properties["MaxFolderCount"].Value.ToString();
+                    string MaxFolderSize = ps.Properties["MaxFolderSize"].Value == null ? "" : ps.Properties["MaxFolderSize"].Value.ToString();
+                    string FolderCount = ps.Properties["FolderCount"].Value == null ? "" : ps.Properties["FolderCount"].Value.ToString();
+                    string SAMAccountName = ps.Properties["SAMAccountName"].Value == null ? "" : ps.Properties["SAMAccountName"].Value.ToString();
+                    string PrimarySmtpAddress = ps.Properties["PrimarySmtpAddress"].Value == null ? "" : ps.Properties["PrimarySmtpAddress"].Value.ToString();
+                    string Company = ps.Properties["Company"].Value == null ? "" : ps.Properties["Company"].Value.ToString();
+                    string Department = ps.Properties["Department"].Value == null ? "" : ps.Properties["Department"].Value.ToString();
 
-					if (MyExchangeServers.SearchByName(ServerName) == null)
+
+                    if (MyExchangeServers.SearchByName(ServerName) == null)
 					{
 						Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "In loop.  Server not being scanned on this server.  Will not be added.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-						continue;
+						//continue;
 					}
+
+                    int tempInt = 0;
+                    double tempDouble = 0;
+                    string bytesInFolder = "0";
+
+                    System.Text.RegularExpressions.MatchCollection matches = new System.Text.RegularExpressions.Regex(@"(?<=\()(\d+[,.]?)*").Matches(MaxFolderSize);
+                    if (matches.Count > 0)
+                        bytesInFolder = matches[0].Value;
 
                     MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox>();
                     mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DatabaseName == Database && i.DisplayName == DisplayName && i.DeviceName == "Exchange");
@@ -230,7 +246,14 @@ namespace VitalSignsMicrosoftClasses
                         .Set(i => i.ProhibitSendReceiveQuota, ProhibitSendReceiveQuota)
                         .Set(i => i.TotalItemSizeMb, Convert.ToDouble(TotalItemSize))
                         .Set(i => i.ItemCount, Convert.ToInt32(ItemCount))
-                        .Set(i => i.StorageLimitStatus, StorageLimitStatus);
+                        .Set(i => i.StorageLimitStatus, StorageLimitStatus)
+                        .Set(i => i.SAMAccountName, SAMAccountName)
+                        .Set(i => i.PrimarySmtpAddress, PrimarySmtpAddress)
+                        .Set(i => i.Company, Company)
+                        .Set(i => i.Department, Department)
+                        .Set(i => i.MaxFolderCount, int.TryParse(MaxFolderCount, out tempInt) ? (int?) tempInt : null)
+                        .Set(i => i.MaxFolderSizeMb, double.TryParse(bytesInFolder, out tempDouble) ? (double?)tempDouble/1024/1024 : null)
+                        .Set(i => i.FolderCount, int.TryParse(FolderCount, out tempInt) ? (int?)tempInt : null);
 
                     AllTestResults.MongoEntity.Add(mongoStatement);
                     
@@ -313,7 +336,7 @@ namespace VitalSignsMicrosoftClasses
 
 		}
 
-		private void getMailStats(MonitoredItems.ExchangeServer Server, PowerShell powershell, ref TestResults AllTestResults, string serverVersionNo, string DummyServerForLogs, MonitoredItems.ExchangeServersCollection MyExchangeServers)
+		private void getMailStats(MonitoredItems.ExchangeServer Server, PowerShell powershell, ref TestResults AllTestResults, string DummyServerForLogs, MonitoredItems.ExchangeServersCollection MyExchangeServers)
 		{
 
 

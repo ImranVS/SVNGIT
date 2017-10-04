@@ -23,7 +23,7 @@ namespace VitalSigns.API.Models
         [JsonProperty("monitored")]
         public bool Monitored { get; set; }
 
-        [JsonProperty("Status")]
+        [JsonProperty("status")]
         public string Status { get; set; }
 
         [JsonProperty("id")]

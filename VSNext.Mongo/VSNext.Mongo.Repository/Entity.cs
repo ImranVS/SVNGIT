@@ -11,10 +11,16 @@ namespace VSNext.Mongo.Repository
     [BsonIgnoreExtraElements(Inherited = true)]
     public class Entity : IEntity
     {    
+        public Entity()
+        {
+            if (string.IsNullOrEmpty(Id))
+                Id = ObjectId.GenerateNewId().ToString();
+        }
+
         [DataMember]
         [BsonElement("_id",Order = 0)]
         [BsonRepresentation(BsonType.ObjectId)]
-        //[BsonIgnoreIfNull]
+        [BsonIgnoreIfNull]
         public string Id { get; set; }
 
         [DataMember]

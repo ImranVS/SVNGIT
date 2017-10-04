@@ -1,5 +1,5 @@
 ﻿<form [formGroup]="advancedSettingsForm">
-    <div class="form-group" *ngIf="deviceType=='Domino'">
+    <div class="form-group" *ngIf="deviceType=='Domino' || deviceType == 'Exchange'">
         <div class="panel panel-default">
             <div class="panel-heading">Memory Usage Alert</div>
             <div class="panel-body">
@@ -49,7 +49,7 @@
 
             </div>
         </div>
-        <div class="panel panel-default">
+        <div class="panel panel-default" *ngIf="deviceType=='Domino'">
 
             <div class="panel-heading">Cluster Replication Delays Alert</div>
 
@@ -81,6 +81,28 @@
                 </div>
             </div>
         </div>
+
+        <div class="panel panel-default" *ngIf="deviceType=='Exchange'">
+            <div class="panel-heading">CAS Server Tests</div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <input type="hidden" name="cas_tests" formControlName="simulation_tests" [(ngModel)]="cas_tests">
+                                    <div *ngFor="let test of cas_tests" class="col-sm-4">
+                                        <input type="checkbox" [value]="test.value" [checked]="test.value" (change)="$event.target.checked ? test.value = true : test.value = false"> <label>{{test.name}}</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
 
     </div>
     <div class="form-horizontal" *ngIf="deviceType=='Sametime'">
@@ -283,9 +305,6 @@ webSphereServerNodeData.pageIndex + 1 | number
                                     <input type="text" class="form-control" name="DominoServerName" formControlName="domino_server_name">
                                 </div>
                             </div>
-
-                    
-
                         </div>
                         <!--<div>
                             <div class="form-group col-sm-4" *ngIf="websphereplatform!='Domino'">
@@ -372,7 +391,7 @@ webSphereServerNodeData.pageIndex + 1 | number
                             </div>
                         </div>
                     </div>-->
-               <!--  </div> -->
+                </div>
             </div>
         </div>
     </div>

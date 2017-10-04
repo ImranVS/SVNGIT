@@ -1573,20 +1573,28 @@ namespace VitalSigns.API.Controllers
         /// <param name=""></param>
         /// <returns></returns>
         [HttpGet("get_windows_services")]
-        public APIResponse GetAllWindowservices()
+        public APIResponse GetAllWindowservices(string deviceId)
         {
             try
             {
-                windowsservicesRepository = new Repository<WindowsService>(ConnectionString);
-                var result = windowsservicesRepository.All().Select(x => new WindowsServiceModel
-                {
-                    // Id = x.Id,
-                    ServiceName = x.ServiceName,
-                    IsSelected = false
-                    // Id = x.Id
+                serversRepository = new Repository<Server>(ConnectionString);
+                var result = serversRepository.Find(x => x.Id == deviceId).ToList()
+                    .First()
+                    .WindowServices
+                    .Select(x => new WindowsServiceModel
+                    {
+                        // Id = x.Id,
+                        ServiceName = x.ServiceName,
+                        ServerRequired = x.ServerRequired,
+                        Monitored = x.Monitored,
+                        Status = x.Status,
+                        IsSelected = false,
+                        StartupMode = x.StartupMode,
+                        DisplayName = x.DisplayName
+                        // Id = x.Id
 
 
-                }).ToList();
+                    }).ToList();
 
 
                 Response = Common.CreateResponse(result);
@@ -1861,7 +1869,8 @@ namespace VitalSigns.API.Controllers
                     NodeId = s.NodeId,
                     CredentialsId = s.CredentialsId,
                     Mode = s.Mode,
-                   RequireSSL = s.RequireSSL
+                    RequireSSL = s.RequireSSL,
+                    AuthenticationType = s.AuthenticationType
 
                     // CellName = serversRepository.Collection.Find(filter).AsQueryable().Select(x => x.NodeId).FirstOrDefault(),
                     //   NodeName = serversRepository.Collection.AsQueryable().Select(x => x.NodeIds).FirstOrDefault()
@@ -2272,7 +2281,8 @@ namespace VitalSigns.API.Controllers
                     .Set(p => p.RequireSSL, deviceAttributes.RequireSSL)
                     .Set(p => p.Platform, deviceAttributes.Platform)
                     .Set(p => p.Mode, deviceAttributes.Mode)
-                    .Set(p => p.CredentialsId, deviceAttributes.CredentialsId);
+                    .Set(p => p.CredentialsId, deviceAttributes.CredentialsId)
+                    .Set(p => p.AuthenticationType, deviceAttributes.AuthenticationType);
 
                 var serverresult = serversRepository.Update(filterDefination, updateDefination);
 
@@ -2840,7 +2850,8 @@ namespace VitalSigns.API.Controllers
                     cell.CredentialsName = credential.DisplayText;
                 }
                 var platform = serversRepository.Collection.AsQueryable().Where(x => x.Id == id).Select(x => x.Platform).FirstOrDefault();
-                var results = serversRepository.Collection.AsQueryable().Where(x => x.Id == id)
+                var dbResults = serversRepository.Collection.AsQueryable().Where(x => x.Id == id).ToList();
+                var results = dbResults
                             .Select(x => new AdvancedSettingsModel
                             {
                                 MemoryThreshold = x.MemoryThreshold == null ? 0 : x.MemoryThreshold * 100,
@@ -2868,8 +2879,10 @@ namespace VitalSigns.API.Controllers
                                 DeviceType = x.DeviceType,
                                 DominoServerName = x.DominoServerName,
                                 CollectConferenceStatistics = x.CollectConferenceStatistics,
-                                ClusterReplicationQueueThreshold = x.ClusterReplicationQueueThreshold
+                                ClusterReplicationQueueThreshold = x.ClusterReplicationQueueThreshold,
+                                SimulationTests = x.SimulationTests != null ? x.SimulationTests.Select(y => new NameValueModel() { Name = y.Name, Value = y.Value}).ToList(): null
                             }).FirstOrDefault();
+                //var simulationTests = dbResults.Select(x => x.SimulationTests).FirstOrDefault();
                 if (results != null)
                 {
                     results.DeviceId = cell.DeviceId;
@@ -2885,7 +2898,7 @@ namespace VitalSigns.API.Controllers
                     results.NodesData = cell.NodesData;
                 }
                 var credentialsData = credentialsRepository.Collection.AsQueryable().Where(x => x.DeviceType == results.DeviceType).Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);                          
-                Response = Common.CreateResponse(new { results = results, platform = platform, credentialsData = credentialsData, wsCredentialsData = wsCredentialsData });
+                Response = Common.CreateResponse(new { results = results, platform = platform, credentialsData = credentialsData, wsCredentialsData = wsCredentialsData});
             }
             catch (Exception exception)
             {
@@ -2957,12 +2970,24 @@ namespace VitalSigns.API.Controllers
                         Licensing licensing = new Licensing();
                         licensing.refreshServerCollectionWrapper();
                         Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Advanced settings updated successfully");
+                    } else if (advancedSettings.DeviceType == "Exchange")
+                    {
+                        var updateDefination = serversRepository.Updater.Set(p => p.MemoryThreshold, advancedSettings.MemoryThreshold / 100)
+                            .Set(p => p.CpuThreshold, advancedSettings.CpuThreshold / 100)
+                            .Set(p => p.ServerDaysAlert, advancedSettings.ServerDaysAlert)
+                            .Set(p => p.SimulationTests, advancedSettings.SimulationTests.Where(x => x.Value != "False").Select(x => new NameValuePair() { Name = x.Name }).ToList());
+                        var result = serversRepository.Update(filterDefinition, updateDefination);
+                        //2/24/2017 NS added for VSPLUS-3506
+                        Licensing licensing = new Licensing();
+                        licensing.refreshServerCollectionWrapper();
+                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Advanced settings updated successfully");
                     }
                 }
                 catch (Exception exception)
                 {
                     Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Saving advanced settings has failed.\n Error Message :" + exception.Message);
                 }
+
                 return Response;
             }
             catch (Exception exception)

@@ -236,6 +236,20 @@
         "path": "/app/configurator/components/server/server-exchange-services.component"
       },
       {
+        "tab_id": 3,
+        "title": "Disk Settings",
+        "type": "Configurator",
+        "component": "DominoServerDiskSettings",
+        "path": "/app/configurator/components/server/server-disk-settings.component"
+      },
+      {
+        "tab_id": 4,
+        "title": "Advanced Settings",
+        "type": "Configurator",
+        "component": "ServerAdvancedSettings",
+        "path": "/app/configurator/components/server/server-advanced-settings.component"
+      },
+      {
         "tab_id": 5,
         "title": "Maintenance Window",
         "type": "Configurator",

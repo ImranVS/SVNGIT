@@ -1,12 +1,13 @@
 ﻿<div class="col-xs-12">
     <div class="widgetWrapper">
         <div class="widgetContent">
-            <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" headersVisibility="Column" [isReadOnly]="true">
+            <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" headersVisibility="Column">
                 <wj-flex-grid-filter></wj-flex-grid-filter>
                 <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" [width]="100"> </wj-flex-grid-column>
-                <wj-flex-grid-column [header]="'Service Name'" [binding]="'service_name'" [width]="300" is-read-only="true"> </wj-flex-grid-column>
-                <!--<wj-flex-grid-column [header]="'Startup Mode'" [binding]="'startup_mode'" [width]="150"></wj-flex-grid-column>
-                <wj-flex-grid-column [header]="'Status'" [binding]="'status'" [width]="200">
+                <wj-flex-grid-column [header]="'Display Name'" [binding]="'display_name'" [width]="300" [isReadOnly]="true"> </wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Service Name'" [binding]="'service_name'" [width]="200" [isReadOnly]="true"> </wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Startup Mode'" [binding]="'startup_mode'" [width]="150" [isReadOnly]="true"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Status'" [binding]="'status'" [width]="200" [isReadOnly]="true">
                     <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
                         <div [ngSwitch]="cell.item.status">
                             <span *ngSwitchCase="'Running'" class="label label-pill label-success">{{cell.item.status}}</span>
@@ -14,7 +15,7 @@
                             <span *ngSwitchDefault class="label label-pill label-warning">{{cell.item.status}}</span>
                         </div>
                     </template>
-                </wj-flex-grid-column>-->
+                </wj-flex-grid-column>
             </wj-flex-grid>
             <div class="btn-group" *ngIf="data != null">
                 <button type="button" class="btn btn-default"

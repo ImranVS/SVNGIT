@@ -1,5 +1,5 @@
 ﻿<div *ngFor="let entry of data" style="float: left" class="col-xs-4 col-sm-3 col-md-2 col-lg-2">
-    <a [routerLink]="['/services/dashboard/' + entry.id]">
+    <a [routerLink]="['/services/dashboard/' + entry.id + (entry.type == 'Office365' ? ';' + entry.category : '')]">
         <div class="widgetWrapper h-xs-75 zeusColorReactBg" data-widget-type="widgetImageText" style="justify-content: left;" 
              [ngStyle]="{'background-color' : entry.status_code.toLowerCase() == 'ok' ? 'rgba(95, 190, 127, 0.85)' : (
                 entry.status_code.toLowerCase() == 'issue' ? 'rgba(249, 156, 28, 0.85)' : (

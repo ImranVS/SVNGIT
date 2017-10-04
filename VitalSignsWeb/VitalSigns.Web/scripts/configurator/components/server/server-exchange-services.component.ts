@@ -47,7 +47,7 @@ export class Services extends GridBase implements OnInit {
         //    },
         //    (error) => this.errorMessage = <any>error
         //    );
-        this.initialGridBind('/Configurator/get_windows_services');
+        this.initialGridBind(`/Configurator/get_windows_services?deviceId=${this.deviceId}`);
     }
 
     buildPostData(setting: string, dlg) {

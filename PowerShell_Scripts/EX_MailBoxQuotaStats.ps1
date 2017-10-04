@@ -1,8 +1,27 @@
 $AllMailboxes = @()
-$Mailboxes = Get-Mailbox -ResultSize Unlimited | Select DisplayName, Database, IssueWarningQuota, ProhibitSendQuota, ProhibitSendReceiveQuota, Alias
+$Mailboxes = Get-Mailbox -ResultSize Unlimited -WarningAction SilentlyContinue | Select DisplayName, Database, IssueWarningQuota, ProhibitSendQuota, ProhibitSendReceiveQuota, Alias, PrimarySmtpAddress, SAMAccountName
+$Users = Get-User -WarningAction SilentlyContinue | select SAMAccountName, Company, Department
+
+$MailboxStatistics = @()
+ForEach ($DAGServer in (Get-DatabaseAvailabilityGroup).Servers) {
+	ForEach ($MailboxStats in (Get-MailboxStatistics -Server $DAGServer  | Where {$_.DisconnectDate -eq $Null})) {
+		$NewMBXStatsDTRow = "" |Select  TotalitemSize,ItemCount,LastLogonTime,LastLogoffTime,MailboxGUID, StorageLimitStatus, ServerName
+        $NewMBXStatsDTRow.TotalitemSize = $MailboxStats.TotalItemSize
+		$NewMBXStatsDTRow.ItemCount = $MailboxStats.ItemCount
+        $NewMBXStatsDTRow.StorageLimitStatus = $MailboxStats.StorageLimitStatus
+        $NewMBXStatsDTRow.LastLogonTime = $MailboxStats.LastLogonTime
+        $NewMBXStatsDTRow.LastLogoffTime = $MailboxStats.LastLogoffTime
+        $NewMBXStatsDTRow.ServerName = $MailboxStats.ServerName
+        $NewMBXStatsDTRow.MailboxGUID = $MailboxStats.MailboxGuid.ToString()
+		$MailboxStatistics += $NewMBXStatsDTRow
+	}
+}
+
+
 foreach ($Mailbox in $Mailboxes){   
-    $MailboxStats = "" |Select  DisplayName,Database,IssueWarningQuota,ProhibitSendQuota,ProhibitSendReceiveQuota,TotalItemSize,ItemCount,StorageLimitStatus,ServerName
-    $Stats = Get-MailboxStatistics -Identity $Mailbox.Alias
+    $MailboxStats = "" |Select  DisplayName,Database,IssueWarningQuota,ProhibitSendQuota,ProhibitSendReceiveQuota,TotalItemSize,ItemCount,StorageLimitStatus,ServerName, SAMAccountName, PrimarySmtpAddress,Company, Department, MaxFolderCount,MaxFolderSize,FolderCount
+    $Stats = ($MailboxStatistics | ? {$_.$MailboxGUID -eq $Mailbox.ExchangeGuid})[0]
+    $User = ($Users | ? {$_.SAMAccountName -eq $Mailbox.SAMAccountName})[0]
     $MailboxStats.DisplayName = $Mailbox.DisplayName
     $MailboxStats.Database = $Mailbox.Database
     $MailboxStats.IssueWarningQuota = $("{0:f2}" -f ($Mailbox.IssueWarningQuota.ToString().Split("(")[1].Split(" ")[0].Replace(",","")/1MB),2)
@@ -12,11 +31,19 @@ foreach ($Mailbox in $Mailboxes){
     $MailboxStats.ItemCount = $Stats.ItemCount
     $MailboxStats.StorageLimitStatus = $Stats.StorageLimitStatus
     $MailboxStats.ServerName = $stats.ServerName
+
+    $folders = Get-MailboxFolderStatistics $Mailbox.Alias
+    $MailboxStats.MaxFolderCount = ($folders | Measure-Object -Property ItemsInFolderAndSubfolders -Maximum).Maximum
+    $MailboxStats.MaxFolderSize = ($folders |Measure-Object -Property FolderAndSubfolderSize -Maximum).Maximum
+    $MailboxStats.FolderCount = ($folders).Count
+
+    $MailboxStats.SAMAccountName = $Mailbox.SAMAccountName
+    $MailboxStats.PrimarySmtpAddress = $Mailbox.PrimarySmtpAddress
+    $MailboxStats.Company = $User.Company
+    $MailboxStats.Department = $User.Department
+    
     $AllMailboxes += $MailboxStats
 }
-
-#$AllMailboxes| Sort-Object "itemCount" -Descending | ft -AutoSize
-
 
 ForEach($ob in $AllMailboxes)
 {	
