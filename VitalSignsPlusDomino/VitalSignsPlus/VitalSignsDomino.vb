@@ -147,6 +147,9 @@ Public Class VitalSignsPlusDomino
     Dim MyNotesDatabase As MonitoredItems.NotesDatabase
     Dim MyNotesDatabases As New MonitoredItems.NotesDatabaseCollection
 
+    'Collection of Sametime serves
+    Dim MySametimeServer As MonitoredItems.SametimeServer
+    Dim mySametimeServers As New MonitoredItems.SametimeServersCollection
 
     'Collection of NotesMailProbes
     Dim MyNotesMailProbe As MonitoredItems.DominoMailProbe
@@ -1471,6 +1474,20 @@ Public Class VitalSignsPlusDomino
             WriteAuditEntry(Now.ToString & " Error processing Domino hourly tasks: " & ex.Message)
         End Try
 
+        Try
+            For Each ST As MonitoredItems.SametimeServer In mySametimeServers
+                Try
+                    If ST.Enabled = True Then
+                        WriteDeviceHistoryEntry("Sametime", ST.Name, Now.ToString & " Getting stats from Notes db...")
+                        GetSametimeUsageStatsFromNotesDB(ST)
+                    End If
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry("Sametime", ST.Name, Now.ToString & " Exception querying stlog.nsf: " & ex.ToString)
+                End Try
+            Next
+        Catch ex As Exception
+
+        End Try
         'Try
         '    For Each URL In MyURLs
         '        If URL.Enabled = True Then
@@ -1553,7 +1570,7 @@ Public Class VitalSignsPlusDomino
     Protected Sub PerformHourlyDailyTasks()
         'performs operations that need to be done hourly or daily, such as summarize statistics, and look at mail files again
         Dim myRegistry As New VSFramework.RegistryHandler
-        Dim LastDate, MyDate As DateTime
+
         Dim Hour As Integer
 
         Dim DominoServer As MonitoredItems.DominoServer
@@ -1561,7 +1578,6 @@ Public Class VitalSignsPlusDomino
         Dim NMP As MonitoredItems.DominoMailProbe
 
         Dim NDB As MonitoredItems.NotesDatabase
-        Dim Q As MonitoredItems.BlackBerryQueue
 
 
         Do While True
@@ -1583,7 +1599,9 @@ Public Class VitalSignsPlusDomino
                     'NMP.OffHours = OffHours(NMP.Name)
                     NMP.OffHours = OffHours(NMP.SourceServer)
                 Next
-
+                For Each ST As MonitoredItems.SametimeServer In mySametimeServers
+                    ST.OffHours = OffHours(ST.Name)
+                Next
 
             Catch ex As Exception
                 WriteAuditEntry(Now.ToString & " Error in Daily Tasks thread setting off hours: " & ex.Message)
@@ -1609,8 +1627,6 @@ Public Class VitalSignsPlusDomino
             Catch ex As Exception
                 WriteAuditEntry(Now.ToString & " Error in Daily Tasks thread starting hourly tasks: " & ex.Message)
             End Try
-
-
 
         Loop
     End Sub

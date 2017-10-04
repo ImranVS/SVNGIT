@@ -53,7 +53,901 @@ Partial Public Class VitalSignsPlusDomino
             WriteAuditEntry(Now.ToString & " Error creating Notes Database collection: " & ex.Message)
         End Try
 
+        Try
+            CreateSametimeServersCollection()
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Error creating Sametime Servers collection: " & ex.Message)
+        End Try
     End Sub
+
+
+    Private Sub CreateSametimeServersCollection()
+        'start with fresh data
+        'Connect to the data source
+        Dim mySecrets As New VSFramework.TripleDES
+
+        Dim listOfServers As New List(Of VSNext.Mongo.Entities.Server)
+        Dim listOfStatus As New List(Of VSNext.Mongo.Entities.Status)
+
+        Try
+
+            'removed UserThreshold, ChatThreshold, NChatThreshold, PlacesThreshold
+
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Sametime.ToDescription()) And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
+            Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
+                .Include(Function(x) x.Id) _
+                .Include(Function(x) x.DeviceName) _
+                .Include(Function(x) x.DeviceType) _
+                .Include(Function(x) x.RequireSSL) _
+                .Include(Function(x) x.LocationId) _
+                .Include(Function(x) x.Description) _
+                .Include(Function(x) x.IsEnabled) _
+                .Include(Function(x) x.IPAddress) _
+                .Include(Function(x) x.ResponseTime) _
+                .Include(Function(x) x.OffHoursScanInterval) _
+                .Include(Function(x) x.ScanInterval) _
+                .Include(Function(x) x.Category) _
+                .Include(Function(x) x.RetryInterval) _
+                .Include(Function(x) x.MeetingHostName) _
+                .Include(Function(x) x.CollectMeetingStatistics) _
+                .Include(Function(x) x.MeetingRequireSSL) _
+                .Include(Function(x) x.MeetingPort) _
+                .Include(Function(x) x.ConferenceRequireSSL) _
+                .Include(Function(x) x.ConferencePort) _
+                .Include(Function(x) x.ConferenceHostName) _
+                .Include(Function(x) x.Platform) _
+                .Include(Function(x) x.User1CredentialsId) _
+                .Include(Function(x) x.User2CredentialsId) _
+                .Include(Function(x) x.ExtendedStatisticsPort) _
+                .Include(Function(x) x.CollectExtendedStatistics) _
+                .Include(Function(x) x.TestChatSimulation) _
+                .Include(Function(x) x.DatabaseSettingsHostName) _
+                .Include(Function(x) x.DatabaseSettingsPort) _
+                .Include(Function(x) x.DatabaseSettingsCredentialsId) _
+                .Include(Function(x) x.DominoServerName) _
+                 .Include(Function(x) x.LastStatsProcessedDate) _
+                .Include(Function(x) x.CurrentNode)
+
+            listOfServers = repository.Find(filterDef, projectionDef).ToList()
+
+            Dim repositoryStatus As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+            Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Sametime.ToDescription())
+            Dim projectionDefStatus As ProjectionDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Project _
+                .Include(Function(x) x.StatusCode) _
+                .Include(Function(x) x.CurrentStatus) _
+                .Include(Function(x) x.LastUpdated) _
+                .Include(Function(x) x.DeviceType) _
+                .Include(Function(x) x.DeviceName)
+
+            listOfStatus = repositoryStatus.Find(filterDefStatus, projectionDefStatus).ToList()
+
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Failed to create dataset in CreateSametimeServersCollection processing code. Exception: " & ex.Message)
+            Exit Sub
+        End Try
+
+
+
+        '***
+        'but first delete any that are in the collection but not in the database anymore
+        'Delete propogation
+        Dim MyServerNames As String
+
+        If mySametimeServers.Count > 0 Then
+            WriteAuditEntry(Now.ToString & " Checking to see if any ST databases should be deleted. ")
+            'Get all the names of all the servers in the data table
+            For Each entity As VSNext.Mongo.Entities.Server In listOfServers
+                MyServerNames += entity.DeviceName & "  "
+            Next
+        End If
+
+        Dim ST As MonitoredItems.SametimeServer
+        Dim myIndex As Integer
+
+        If mySametimeServers.Count > 0 Then
+            For myIndex = mySametimeServers.Count - 1 To 0 Step -1
+                ST = mySametimeServers.Item(myIndex)
+                Try
+                    WriteAuditEntry(Now.ToString & " Checking to see if ST Server " & MySametimeServer.Name & " should be deleted...")
+                    If InStr(MyServerNames, ST.Name) > 0 Then
+                        'the server has not been deleted
+                        WriteAuditEntry(Now.ToString & " " & ST.Name & " is not marked for deletion. ")
+                    Else
+                        'the server has been deleted, so delete from the collection
+                        Try
+                            mySametimeServers.Delete(ST.Name)
+                            WriteAuditEntry(Now.ToString & " " & ST.Name & " has been deleted by the service.")
+                        Catch ex As Exception
+                            WriteAuditEntry(Now.ToString & " " & ST.Name & " was not deleted by the service because " & ex.Message)
+                        End Try
+                    End If
+                Catch ex As Exception
+                    WriteAuditEntry(Now.ToString & " Exception ST servers Deletion Loop on " & ST.Name & ".  The error was " & ex.Message)
+                End Try
+            Next
+        End If
+
+        MyServerNames = Nothing
+        ST = Nothing
+        myIndex = Nothing
+
+        '*** End delete propogation
+
+        Dim i As Integer = 0
+        'Add the Sametime servers to the collection
+        Try
+            If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & "  Reading configuration settings for " & listOfServers.Count.ToString() & " Sametime Servers.")
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Error with sametime table " & ex.Message, LogLevel.Normal)
+        End Try
+        Try
+            Dim myString As String = ""
+            For Each entity As VSNext.Mongo.Entities.Server In listOfServers
+                i += 1
+                Dim MyName As String
+                If entity.DeviceName Is Nothing Then
+                    MyName = "Sametime Server #" & i.ToString
+                Else
+                    MyName = entity.DeviceName
+                End If
+                'See if this server is already in the collection; if so, update its settings otherwise create a new one
+                MySametimeServer = mySametimeServers.SearchByName(MyName)
+                If MySametimeServer Is Nothing Then
+                    Try
+                        MySametimeServer = New MonitoredItems.SametimeServer
+                        MySametimeServer.Name = MyName
+                        MySametimeServer.LastScan = Now
+                        MySametimeServer.NextScan = Now
+                        MySametimeServer.AlertCondition = False
+                        MySametimeServer.Status = "Not Scanned"
+                        MySametimeServer.IncrementUpCount()
+                        MySametimeServer.ServerType = VSNext.Mongo.Entities.Enums.ServerType.Sametime.ToDescription()
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " Error adding new empty stats collection to " & MySametimeServer.Name)
+                    End Try
+                    mySametimeServers.Add(MySametimeServer)
+                    If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Adding new Sametime server -- " & MySametimeServer.Name & " -- to the collection.")
+                Else
+                    If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Updating settings for existing Sametime server-- " & MySametimeServer.Name & ".")
+                End If
+
+                With MySametimeServer
+
+                    Try
+                        If entity.Id Is Nothing Then
+                            .ServerObjectID = ""
+                            WriteAuditEntry(Now.ToString & " Error: No filename specified for " & .Name)
+                        Else
+                            .ServerObjectID = entity.Id
+                        End If
+                    Catch ex As Exception
+                        .ServerObjectID = ""
+                        WriteAuditEntry(Now.ToString & " Error: No filename specified for " & .Name)
+                    End Try
+
+                    'Sametime Specific
+                    Try
+                        If entity.RequireSSL Then
+                            .SSL = True
+                        Else
+                            .SSL = False
+                        End If
+                    Catch ex As Exception
+                        .SSL = False
+                    End Try
+
+                    'BEGIN Running Processes to monitor *****************
+                    'Dim myMonitoredServices As New MonitoredItems.SametimeMonitoredProcessCollection
+
+                    'Try
+                    '    If dr.Item("nserver") = True Then
+                    '        Dim myMonitoredService As New MonitoredItems.SametimeMonitoredProcess
+                    '        myMonitoredService.Name = "nserver"
+                    '        myMonitoredServices.Add(myMonitoredService)
+                    '    End If
+                    'Catch ex As Exception
+
+                    'End Try
+
+                    'Try
+                    '    If dr.Item("stcommlaunch") = True Then
+                    '        Dim myMonitoredService As New MonitoredItems.SametimeMonitoredProcess
+                    '        myMonitoredService.Name = "stcommlaunch"
+                    '        myMonitoredServices.Add(myMonitoredService)
+                    '    End If
+                    'Catch ex As Exception
+
+                    'End Try
+
+                    'Try
+                    '    If dr.Item("stcommunity") = True Then
+                    '        Dim myMonitoredService As New MonitoredItems.SametimeMonitoredProcess
+                    '        myMonitoredService.Name = "stcommunity"
+                    '        myMonitoredServices.Add(myMonitoredService)
+                    '    End If
+                    'Catch ex As Exception
+
+                    'End Try
+
+
+                    'Try
+                    '    If dr.Item("stconfigurationapp") = True Then
+                    '        Dim myMonitoredService As New MonitoredItems.SametimeMonitoredProcess
+                    '        myMonitoredService.Name = "stconfigurationapp"
+                    '        myMonitoredServices.Add(myMonitoredService)
+                    '    End If
+                    'Catch ex As Exception
+
+                    'End Try
+
+                    'Try
+                    '    If dr.Item("stplaces") = True Then
+                    '        Dim myMonitoredService As New MonitoredItems.SametimeMonitoredProcess
+                    '        myMonitoredService.Name = "stplaces"
+                    '        myMonitoredServices.Add(myMonitoredService)
+                    '    End If
+                    'Catch ex As Exception
+
+                    'End Try
+
+                    'Try
+                    '    If dr.Item("stmux") = True Then
+                    '        Dim myMonitoredService As New MonitoredItems.SametimeMonitoredProcess
+                    '        myMonitoredService.Name = "stmux"
+                    '        myMonitoredServices.Add(myMonitoredService)
+                    '    End If
+                    'Catch ex As Exception
+
+                    'End Try
+
+                    'Try
+                    '    If dr.Item("stusers") = True Then
+                    '        Dim myMonitoredService As New MonitoredItems.SametimeMonitoredProcess
+                    '        myMonitoredService.Name = "stusers"
+                    '        myMonitoredServices.Add(myMonitoredService)
+                    '    End If
+                    'Catch ex As Exception
+
+                    'End Try
+
+                    'Try
+                    '    If dr.Item("stonlinedir") = True Then
+                    '        Dim myMonitoredService As New MonitoredItems.SametimeMonitoredProcess
+                    '        myMonitoredService.Name = "stonlinedir"
+                    '        myMonitoredServices.Add(myMonitoredService)
+                    '    End If
+                    'Catch ex As Exception
+
+                    'End Try
+
+                    'Try
+                    '    If dr.Item("stdirectory") = True Then
+                    '        Dim myMonitoredService As New MonitoredItems.SametimeMonitoredProcess
+                    '        myMonitoredService.Name = "stdirectory"
+                    '        myMonitoredServices.Add(myMonitoredService)
+                    '    End If
+                    'Catch ex As Exception
+
+                    'End Try
+
+                    'Try
+                    '    If dr.Item("stlogger") = True Then
+                    '        Dim myMonitoredService As New MonitoredItems.SametimeMonitoredProcess
+                    '        myMonitoredService.Name = "stlogger"
+                    '        myMonitoredServices.Add(myMonitoredService)
+                    '    End If
+                    'Catch ex As Exception
+
+                    'End Try
+
+
+                    'Try
+                    '    If dr.Item("stlinks") = True Then
+                    '        Dim myMonitoredService As New MonitoredItems.SametimeMonitoredProcess
+                    '        myMonitoredService.Name = "stlinks"
+                    '        myMonitoredServices.Add(myMonitoredService)
+                    '    End If
+                    'Catch ex As Exception
+
+                    'End Try
+
+
+                    'Try
+                    '    If dr.Item("stprivacy") = True Then
+                    '        Dim myMonitoredService As New MonitoredItems.SametimeMonitoredProcess
+                    '        myMonitoredService.Name = "stprivacy"
+                    '        myMonitoredServices.Add(myMonitoredService)
+                    '    End If
+                    'Catch ex As Exception
+
+                    'End Try
+
+                    'Try
+                    '    If dr.Item("stsecurity") = True Then
+                    '        Dim myMonitoredService As New MonitoredItems.SametimeMonitoredProcess
+                    '        myMonitoredService.Name = "stsecurity"
+                    '        myMonitoredServices.Add(myMonitoredService)
+                    '    End If
+                    'Catch ex As Exception
+
+                    'End Try
+
+                    'Try
+                    '    If dr.Item("stpresencemgr") = True Then
+                    '        Dim myMonitoredService As New MonitoredItems.SametimeMonitoredProcess
+                    '        myMonitoredService.Name = "stpresencemgr"
+                    '        myMonitoredServices.Add(myMonitoredService)
+                    '    End If
+                    'Catch ex As Exception
+
+                    'End Try
+
+                    'Try
+                    '    If dr.Item("stservicemanager") = True Then
+                    '        Dim myMonitoredService As New MonitoredItems.SametimeMonitoredProcess
+                    '        myMonitoredService.Name = "stservicemanager"
+                    '        myMonitoredServices.Add(myMonitoredService)
+                    '    End If
+                    'Catch ex As Exception
+
+                    'End Try
+
+                    'Try
+                    '    If dr.Item("stpresencesubmgr") = True Then
+                    '        Dim myMonitoredService As New MonitoredItems.SametimeMonitoredProcess
+                    '        myMonitoredService.Name = "stpresencesubmgr"
+                    '        myMonitoredServices.Add(myMonitoredService)
+                    '    End If
+                    'Catch ex As Exception
+
+                    'End Try
+
+
+                    'Try
+                    '    If dr.Item("steventserver") = True Then
+                    '        Dim myMonitoredService As New MonitoredItems.SametimeMonitoredProcess
+                    '        myMonitoredService.Name = "steventserver"
+                    '        myMonitoredServices.Add(myMonitoredService)
+                    '    End If
+                    'Catch ex As Exception
+
+                    'End Try
+
+                    'Try
+                    '    If dr.Item("stpolicy") = True Then
+                    '        Dim myMonitoredService As New MonitoredItems.SametimeMonitoredProcess
+                    '        myMonitoredService.Name = "stpolicy"
+                    '        myMonitoredServices.Add(myMonitoredService)
+                    '    End If
+                    'Catch ex As Exception
+
+                    'End Try
+
+                    'Try
+                    '    If dr.Item("stconfigurationbridge") = True Then
+                    '        Dim myMonitoredService As New MonitoredItems.SametimeMonitoredProcess
+                    '        myMonitoredService.Name = "stconfigurationbridge"
+                    '        myMonitoredServices.Add(myMonitoredService)
+                    '    End If
+                    'Catch ex As Exception
+
+                    'End Try
+
+
+                    'Try
+                    '    If dr.Item("stadminsrv") = True Then
+                    '        Dim myMonitoredService As New MonitoredItems.SametimeMonitoredProcess
+                    '        myMonitoredService.Name = "stadminsrv"
+                    '        myMonitoredServices.Add(myMonitoredService)
+                    '    End If
+                    'Catch ex As Exception
+
+                    'End Try
+
+                    'Try
+                    '    If dr.Item("stuserstorage") = True Then
+                    '        Dim myMonitoredService As New MonitoredItems.SametimeMonitoredProcess
+                    '        myMonitoredService.Name = "stuserstorage"
+                    '        myMonitoredServices.Add(myMonitoredService)
+                    '    End If
+                    'Catch ex As Exception
+
+                    'End Try
+                    'Try
+                    '    If dr.Item("stchatlogging") = True Then
+                    '        Dim myMonitoredService As New MonitoredItems.SametimeMonitoredProcess
+                    '        myMonitoredService.Name = "stchatlogging"
+                    '        myMonitoredServices.Add(myMonitoredService)
+                    '    End If
+                    'Catch ex As Exception
+
+                    'End Try
+
+                    'Try
+                    '    If dr.Item("stpolling") = True Then
+                    '        Dim myMonitoredService As New MonitoredItems.SametimeMonitoredProcess
+                    '        myMonitoredService.Name = "stpolling"
+                    '        myMonitoredServices.Add(myMonitoredService)
+                    '    End If
+                    'Catch ex As Exception
+
+                    'End Try
+
+                    'Try
+                    '    If dr.Item("stresolve") = True Then
+                    '        Dim myMonitoredService As New MonitoredItems.SametimeMonitoredProcess
+                    '        myMonitoredService.Name = "stresolve"
+                    '        myMonitoredServices.Add(myMonitoredService)
+                    '    End If
+                    'Catch ex As Exception
+
+                    'End Try
+
+
+                    'Try
+                    '    If dr.Item("stpresencecompatmgr") = True Then
+                    '        Dim myMonitoredService As New MonitoredItems.SametimeMonitoredProcess
+                    '        myMonitoredService.Name = "stpresencecompatmgr"
+                    '        myMonitoredServices.Add(myMonitoredService)
+                    '    End If
+                    'Catch ex As Exception
+
+                    'End Try
+
+                    'Try
+                    '    If myMonitoredServices.Count > 0 Then
+                    '        MySametimeServer.MonitoredProcesses = myMonitoredServices
+                    '    End If
+
+                    'Catch ex As Exception
+
+                    'End Try
+
+                    'END Running Processes to monitor *****************
+                    'Try
+                    '    WriteAuditEntry(Now.ToString & " The following processes will be monitored for this Sametime server: ")
+                    '    For Each Process As MonitoredItems.SametimeMonitoredProcess In MySametimeServer.MonitoredProcesses
+                    '        WriteAuditEntry(Now.ToString & " " & Process.Name)
+                    '    Next
+                    'Catch ex As Exception
+
+                    'End Try
+
+
+                    'Standard attributes
+
+                    Try
+                        If entity.LocationId Is Nothing Then
+                            .Location = "Not Set"
+                        Else
+
+                            Dim repositoryLocation As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Location)(connectionString)
+                            Dim filterDefLocation As FilterDefinition(Of VSNext.Mongo.Entities.Location) = repositoryLocation.Filter.Eq(Function(x) x.Id, entity.LocationId)
+                            .Location = repositoryLocation.Find(filterDefLocation).ToList()(0).LocationName
+
+                        End If
+                    Catch ex As Exception
+                        .Location = "Not Set"
+                    End Try
+
+                    Try
+                        If entity.Description Is Nothing Then
+                            .Description = ""
+                        Else
+                            .Description = entity.Description
+                        End If
+                    Catch ex As Exception
+                        .Description = ""
+                    End Try
+
+                    Try
+                        .OffHours = False
+                    Catch ex As Exception
+                        .OffHours = False
+                    End Try
+
+                    Try
+                        If entity.IsEnabled Is Nothing Then
+                            .Enabled = True
+                        Else
+                            .Enabled = entity.IsEnabled
+                        End If
+
+                    Catch ex As Exception
+                        .Enabled = True
+                    End Try
+
+                    If .Enabled = False Then
+                        .Status = "Disabled"
+                    End If
+
+                    If .Enabled = True And .Status = "Disabled" Then
+                        .Status = "Not Scanned"
+                    End If
+
+                    Try
+                        If entity.IPAddress Is Nothing Then
+                            .IPAddress = ""
+                        Else
+                            .IPAddress = entity.IPAddress
+                        End If
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " Invalid IP Address")
+                        .IPAddress = ""
+                        .Status = "Invalid IP Address"
+                        .Enabled = True
+                    End Try
+
+                    Try
+                        If entity.ResponseTime Is Nothing Then
+                            .ResponseThreshold = 100
+                        Else
+                            .ResponseThreshold = entity.ResponseTime
+                        End If
+                    Catch ex As Exception
+                        .ResponseThreshold = 100
+                    End Try
+
+                    Try
+                        If entity.DominoServerName Is Nothing Then
+                            .DominoServerName = ""
+                        Else
+                            .DominoServerName = entity.DominoServerName
+                        End If
+                    Catch ex As Exception
+                        .DominoServerName = ""
+                    End Try
+
+                    Try
+                        If entity.LastStatsProcessedDate Is Nothing Then
+                            .LastStatsProcessedDate = Date.MinValue
+                        Else
+                            .LastStatsProcessedDate = DateTime.Parse(entity.LastStatsProcessedDate)
+                        End If
+                    Catch ex As Exception
+                        .LastStatsProcessedDate = Date.MinValue
+                    End Try
+
+                    Try
+                        If entity.ScanInterval Is Nothing Then
+                            .ScanInterval = 10
+                        Else
+                            .ScanInterval = entity.ScanInterval
+                        End If
+                    Catch ex As Exception
+                        .ScanInterval = 10
+                    End Try
+
+                    Try
+                        If entity.OffHoursScanInterval Is Nothing Then
+                            .OffHoursScanInterval = 30
+                        Else
+                            .OffHoursScanInterval = entity.OffHoursScanInterval
+                        End If
+                    Catch ex As Exception
+                        .OffHoursScanInterval = 30
+                    End Try
+                    Try
+                        '   WriteAuditEntry(Now.ToString & "Adding Category")
+                        If entity.Category Is Nothing Then
+                            .Category = "Not Categorized"
+                        Else
+                            .Category = entity.Category
+                        End If
+                    Catch ex As Exception
+                        .Category = "Not Categorized"
+                    End Try
+
+
+
+                    Try
+                        If entity.RetryInterval Is Nothing Then
+                            .RetryInterval = 2
+                            WriteAuditEntry(Now.ToString & " " & .Name & " Notes Database retry scan interval not set, using default of 10 minutes.")
+                        Else
+                            .RetryInterval = entity.RetryInterval
+                        End If
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " " & .Name & " Notes Database retry scan interval not set, using default of 10 minutes.")
+                        .RetryInterval = 2
+                    End Try
+
+                    Try
+                        Dim entityStatus As VSNext.Mongo.Entities.Status
+                        Try
+                            entityStatus = listOfStatus.Where(Function(x) x.DeviceType.Equals(entity.DeviceType) And x.DeviceName.Equals(entity.DeviceName)).ToList()(0)
+                        Catch ex As Exception
+                        End Try
+
+                        Try
+                            If entityStatus.CurrentStatus Is Nothing Then
+                                .Status = "Not Scanned"
+                            Else
+                                .Status = entityStatus.CurrentStatus
+                            End If
+                        Catch ex As Exception
+                            .Status = "Not Scanned"
+                        End Try
+
+                        Try
+                            If entityStatus.LastUpdated Is Nothing Then
+                                .LastScan = Now
+                            Else
+                                .LastScan = entityStatus.LastUpdated
+                            End If
+                        Catch ex As Exception
+                            .LastScan = Now
+                        End Try
+
+                    Catch ex As Exception
+
+                    End Try
+
+                    'Try
+                    '    If dr.Item("CurrentNodeID") Is Nothing Then
+                    '        .InsufficentLicenses = True
+                    '    Else
+                    '        If dr.Item("CurrentNodeID").ToString() = "-1" Then
+                    '            .InsufficentLicenses = True
+                    '        Else
+                    '            .InsufficentLicenses = False
+                    '        End If
+
+                    '    End If
+                    'Catch ex As Exception
+                    '    '7/8/2015 NS modified for VSPLUS-1959
+                    '    WriteAuditEntry(Now.ToString & " " & .Name & " Sametime insufficient licenses not set.")
+
+                    'End Try
+
+                    Try
+                        If entity.MeetingHostName Is Nothing Then
+                            .WsMeetingHost = ""
+                        Else
+                            .WsMeetingHost = entity.MeetingHostName
+                        End If
+                    Catch ex As Exception
+                        .WsMeetingHost = ""
+                    End Try
+
+                    Try
+                        If entity.CollectMeetingStatistics Is Nothing Then
+                            .WsScanMeetingServer = False
+                        Else
+                            .WsScanMeetingServer = entity.CollectMeetingStatistics
+                        End If
+                    Catch ex As Exception
+                        .WsScanMeetingServer = False
+                    End Try
+
+                    Try
+                        If entity.MeetingRequireSSL Is Nothing Then
+                            .WsMeetingRequireSSL = False
+                        Else
+                            .WsMeetingRequireSSL = entity.MeetingRequireSSL
+                        End If
+                    Catch ex As Exception
+                        .WsMeetingRequireSSL = False
+                    End Try
+
+                    Try
+                        .WsMeetingPort = entity.MeetingPort
+                    Catch ex As Exception
+                        .WsMeetingPort = "80"
+                    End Try
+
+
+                    Try
+                        If entity.CollectConferenceStatistics Is Nothing Then
+                            .WsScanMediaServer = False
+                        Else
+                            .WsScanMediaServer = entity.CollectConferenceStatistics
+                        End If
+                    Catch ex As Exception
+                        .WsScanMediaServer = False
+                    End Try
+
+                    Try
+                        If entity.ConferenceRequireSSL Is Nothing Then
+                            .WsMediaRequireSSL = False
+                        Else
+                            .WsMediaRequireSSL = entity.ConferenceRequireSSL
+                        End If
+                    Catch ex As Exception
+                        .WsMediaRequireSSL = False
+                    End Try
+
+                    Try
+                        .WsMediaPort = entity.ConferencePort
+                    Catch ex As Exception
+                        .WsMediaPort = "80"
+                    End Try
+
+                    .WsMediaHost = entity.ConferenceHostName
+
+                    .Platform = entity.Platform
+                    Dim myRegistry As New VSFramework.RegistryHandler()
+                    Dim userOne As String = "", userTwo As String = "", pass1 As Byte(), pass2 As Byte()
+                    Dim strEncryptedPassword As String = ""
+
+                    Try
+
+                        Dim repositoryCredentials As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Credentials)(connectionString)
+                        Dim filterDefCredentials As FilterDefinition(Of VSNext.Mongo.Entities.Credentials) = repositoryCredentials.Filter.Eq(Function(x) x.Id, entity.User1CredentialsId)
+                        Dim entityCredentials As VSNext.Mongo.Entities.Credentials = repositoryCredentials.Find(filterDefCredentials).ToList()(0)
+
+                        userOne = entityCredentials.UserId
+                        WriteAuditEntry(Now.ToString & " Sametime User One is " & userOne)
+                        WriteAuditEntry(Now.ToString & " Sametime User One pwd is " & entityCredentials.Password)
+                        strEncryptedPassword = entityCredentials.Password   'sametime password as encrypted byte stream
+                        Try
+                            Dim str1() As String
+                            str1 = strEncryptedPassword.Split(",")
+                            Dim bstr1(str1.Length - 1) As Byte
+                            For j As Integer = 0 To str1.Length - 1
+                                bstr1(j) = str1(j).ToString()
+                            Next
+                            pass1 = bstr1
+                        Catch ex As Exception
+
+                        End Try
+
+                        If Not pass1 Is Nothing Then
+                            .Password1 = mySecrets.Decrypt(pass1)  'password in clear text, stored in memory now
+                        Else
+                            .Password1 = ""
+                        End If
+                        .UserId1 = userOne
+                        WriteAuditEntry(Now.ToString & " Sametime User One decrypt pwd is " & entity.Password)
+                    Catch ex As Exception
+                        .UserId1 = ""
+                        WriteAuditEntry(Now.ToString & " Cannot Set user id1 " + ex.ToString(), LogLevel.Normal)
+                    End Try
+
+                    Try
+
+                        Dim repositoryCredentials As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Credentials)(connectionString)
+                        Dim filterDefCredentials As FilterDefinition(Of VSNext.Mongo.Entities.Credentials) = repositoryCredentials.Filter.Eq(Function(x) x.Id, entity.User2CredentialsId)
+                        Dim entityCredentials As VSNext.Mongo.Entities.Credentials = repositoryCredentials.Find(filterDefCredentials).ToList()(0)
+
+                        userTwo = entityCredentials.UserId
+                        WriteAuditEntry(Now.ToString & " Sametime User two is " & userTwo)
+                        WriteAuditEntry(Now.ToString & " Sametime User One is " & entity.Password)
+                        strEncryptedPassword = entityCredentials.Password  'sametime password as encrypted byte stream
+                        Try
+                            Dim str1() As String
+                            str1 = strEncryptedPassword.Split(",")
+                            Dim bstr1(str1.Length - 1) As Byte
+                            For j As Integer = 0 To str1.Length - 1
+                                bstr1(j) = str1(j).ToString()
+                            Next
+                            pass2 = bstr1
+                        Catch ex As Exception
+
+                        End Try
+
+                        If Not pass2 Is Nothing Then
+                            .Password2 = mySecrets.Decrypt(pass2)  'password in clear text, stored in memory now
+                        Else
+                            .Password2 = ""
+                        End If
+                        .UserId2 = userTwo
+                    Catch ex As Exception
+                        .UserId2 = ""
+                        WriteAuditEntry(Now.ToString & " Cannot Set user id2 ", LogLevel.Normal)
+                    End Try
+
+                    Try
+                        .ExtendedChatPort = entity.ExtendedStatisticsPort
+                    Catch ex As Exception
+                        .ExtendedChatPort = "80"
+                    End Try
+
+
+
+                    Try
+                        If entity.CollectExtendedStatistics Is Nothing Then
+                            .CollectExtendedChat = False
+                        Else
+                            .CollectExtendedChat = entity.CollectExtendedStatistics
+                        End If
+                    Catch ex As Exception
+                        .CollectExtendedChat = False
+                    End Try
+
+                    Try
+                        If entity.TestChatSimulation Is Nothing Then
+                            .TestChatSimulation = False
+                        Else
+                            .TestChatSimulation = entity.TestChatSimulation
+                        End If
+                    Catch ex As Exception
+                        .TestChatSimulation = False
+                    End Try
+
+                    Try
+                        If entity.DatabaseSettingsHostName Is Nothing Then
+                            .DBHostName = ""
+                        Else
+                            .DBHostName = entity.DatabaseSettingsHostName
+                        End If
+                    Catch ex As Exception
+                        .DBHostName = ""
+                    End Try
+
+                    Try
+                        If entity.DatabaseSettingsPort Is Nothing Then
+                            .DBPort = 0
+                        Else
+                            .DBPort = entity.DatabaseSettingsPort
+                        End If
+                    Catch ex As Exception
+                        .DBPort = 0
+                    End Try
+
+                    Try
+
+                        Dim repositoryCredentials As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Credentials)(connectionString)
+                        Dim filterDefCredentials As FilterDefinition(Of VSNext.Mongo.Entities.Credentials) = repositoryCredentials.Filter.Eq(Function(x) x.Id, entity.DatabaseSettingsCredentialsId)
+                        Dim entityCredentials As VSNext.Mongo.Entities.Credentials = repositoryCredentials.Find(filterDefCredentials).ToList()(0)
+
+                        Dim user As String = entity.Username
+                        WriteAuditEntry(Now.ToString & " Sametime User two is " & user)
+                        WriteAuditEntry(Now.ToString & " Sametime User One is " & entity.Password)
+                        strEncryptedPassword = entity.Password  'sametime password as encrypted byte stream
+                        Try
+                            Dim str1() As String
+                            str1 = strEncryptedPassword.Split(",")
+                            Dim bstr1(str1.Length - 1) As Byte
+                            For j As Integer = 0 To str1.Length - 1
+                                bstr1(j) = str1(j).ToString()
+                            Next
+                            pass2 = bstr1
+                        Catch ex As Exception
+
+                        End Try
+
+                        If Not pass2 Is Nothing Then
+                            .DBPassword = mySecrets.Decrypt(pass2)  'password in clear text, stored in memory now
+                        Else
+                            .DBPassword = ""
+                        End If
+                        .DBUserName = user
+                    Catch ex As Exception
+                        .DBUserName = ""
+                        WriteAuditEntry(Now.ToString & " Cannot Set user db2 password ", LogLevel.Normal)
+                    End Try
+
+                    Try
+                        If entity.CurrentNode Is Nothing Then
+                            .InsufficentLicenses = True
+                        Else
+                            If entity.CurrentNode.ToString() = "-1" Then
+                                .InsufficentLicenses = True
+                            Else
+                                .InsufficentLicenses = False
+                            End If
+                        End If
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " " & .Name & " Sametime Servers insufficient licenses not set.")
+                    End Try
+
+                End With
+                MySametimeServer = Nothing
+            Next
+
+        Catch exception As DataException
+            WriteAuditEntry(Now.ToString & " Sametime Servers data exception " & exception.Message)
+
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Sametime Servers general exception " & ex.ToString)
+        End Try
+
+        InsufficentLicensesTest(mySametimeServers)
+
+    End Sub
+
 
     Private Sub CreateNotesDatabaseCollection()
         'start with fresh data
