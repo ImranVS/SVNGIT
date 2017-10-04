@@ -86,7 +86,7 @@ export class ExchangeMailboxReport extends WidgetController {
                             allowDecimals: false,
                             title: {
                                 enabled: true,
-                                text: 'Amount'
+                                text: this.statname.indexOf('mb')>=0 ?'Size (MB)':'Amount'
                             }
                         },
                         plotOptions: {
