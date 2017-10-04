@@ -152,6 +152,7 @@ import { exchangecpuutilreport } from './reports/components/ms-exchange/ms-excha
 import { memorypercentagereport } from './reports/components/ms-exchange/ms-exchange-memory-percentage.component';
 import { ExchnageStatisticReport } from './reports/components/ms-exchange/ms-exchange-statistic-report.component';
 import { ExchangeMailboxReport } from './reports/components/ms-exchange/ms-exchange-mailbox-report.component';
+import { exchnagemaillistreport } from './reports/components/ms-exchange/ms-exchange-mailbox.component';
 
 
 @NgModule({
@@ -286,6 +287,7 @@ import { ExchangeMailboxReport } from './reports/components/ms-exchange/ms-excha
         memorypercentagereport,
         exchangecpuutilreport,
         ExchangeMailboxReport,
+        exchnagemaillistreport,
         dashboards.SampleDashboard,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
@@ -456,6 +458,7 @@ import { ExchangeMailboxReport } from './reports/components/ms-exchange/ms-excha
         widgets.NotesMailProbes,
         widgets.MobileUsersReportGrid,
         widgets.MailboxList,
+        widgets.ExchnagemailboxList,
         widgets.Office365DisabledUsersList,
         widgets.ibmdominoinactiveUsersList,
         widgets.ExecutiveSummaryWidget,
@@ -652,7 +655,7 @@ import { ExchangeMailboxReport } from './reports/components/ms-exchange/ms-excha
         widgets.MobileUsersReportGrid,
         widgets.DatabaseSettings,
         widgets.MailboxList,
-
+        widgets.ExchnagemailboxList,
         widgets.Office365DisabledUsersList,
         widgets.ibmdominoinactiveUsersList,
         widgets.ExecutiveSummaryWidget,
