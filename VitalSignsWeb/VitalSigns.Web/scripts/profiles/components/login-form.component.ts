@@ -12,6 +12,7 @@ import {AppComponentService} from '../../core/services';
 })
 export class LoginForm {
     @ViewChildren('emailid') emailid;
+    @ViewChildren('usernameInput') username;
     model: any = {};
     loading = false;
     error = '';
@@ -29,12 +30,16 @@ export class LoginForm {
         this.loading = true;
         this.authenticationService.login(this.model.username, this.model.password)
             .subscribe(result => {
-                this.wesTest(result);
+                this.reroute(result);
                 
             }, error => this.error = error);
     }
 
-    wesTest(result) {
+    ngAfterViewInit() {
+        this.username.first.nativeElement.focus();
+    }
+
+    reroute(result) {
         if (result === true) {
 
             let referrer = this.route.snapshot.params['ref'];

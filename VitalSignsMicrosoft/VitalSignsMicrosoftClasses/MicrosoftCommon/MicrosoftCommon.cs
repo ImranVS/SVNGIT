@@ -269,7 +269,8 @@ namespace VitalSignsMicrosoftClasses
 					int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
 
                     AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "Mem.PercentAvailable", (ActualVal * 100).ToString()));
-                    
+                    AllTestsList.MongoEntity.Add(Common.GetInsertIntoDailyStats(myServer, "Mem.PercentUsed", (100 - (ActualVal * 100)).ToString()));
+
                     MongoStatementsUpdate<VSNext.Mongo.Entities.Status> mongoUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
                     mongoUpdate.filterDef = mongoUpdate.repo.Filter.Where(i => i.TypeAndName == myServer.TypeANDName);
                     mongoUpdate.updateDef = mongoUpdate.repo.Updater.Set(i => i.Memory, percentUsed);

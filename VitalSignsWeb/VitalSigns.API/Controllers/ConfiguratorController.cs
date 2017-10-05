@@ -1588,13 +1588,15 @@ namespace VitalSigns.API.Controllers
                         ServerRequired = x.ServerRequired,
                         Monitored = x.Monitored,
                         Status = x.Status,
-                        IsSelected = false,
                         StartupMode = x.StartupMode,
                         DisplayName = x.DisplayName
                         // Id = x.Id
 
 
-                    }).ToList();
+                    }).OrderByDescending(x => x.ServerRequired)
+                    .ThenByDescending(x => x.Monitored)
+                    .ThenBy(x => x.DisplayName)
+                    .ToList();
 
 
                 Response = Common.CreateResponse(result);
@@ -6076,9 +6078,20 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-                var windowsServiceValues = ((Newtonsoft.Json.Linq.JArray)windowsservicesettings.Value).ToObject<List<WindowsServicesValue>>();
+                var windowsServiceValues = ((Newtonsoft.Json.Linq.JArray)windowsservicesettings.Setting).ToObject<List<string>>();
                 var devicesList = ((Newtonsoft.Json.Linq.JArray)windowsservicesettings.Devices).ToObject<string[]>();
-                UpdateDefinition<Server> updateDefinition = null;
+                
+                serversRepository = new Repository<Server>(ConnectionString);
+                FilterDefinition<Server> filterDefinition = serversRepository.Filter.In(x => x.Id, devicesList);
+                Server serverDoc = serversRepository.Find(filterDefinition).First();
+
+                serverDoc.WindowServices.ForEach(x => x.Monitored = windowsServiceValues.Contains(x.ServiceName));
+
+                UpdateDefinition<Server> updateDefinition = serversRepository.Updater.Set(x => x.WindowServices, serverDoc.WindowServices);
+                serversRepository.Update(filterDefinition, updateDefinition);
+
+                Response = Common.CreateResponse("Success", "Ok", "Window services have successfully been updated.");
+
                 //if (devicesList.Count() > 0 && windowsServiceValues.Count() > 0)
                 //{
 
@@ -6117,7 +6130,7 @@ namespace VitalSigns.API.Controllers
 
             catch (Exception exception)
             {
-                Response = Common.CreateResponse(null, "Error", "Getting user information has failed.\n Error Message :" + exception.Message);
+                Response = Common.CreateResponse(null, "Error", "Saving Windows Services has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }

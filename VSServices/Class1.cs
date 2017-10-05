@@ -287,7 +287,7 @@ namespace RPRWyatt.VitalSigns.Services
             }
             catch (Exception ex)
             {
-
+                LogUtils.WriteDeviceHistoryEntry("All", "SelectServer", tNow.ToString() + " Exception finding a ScanNow server.  Exception: " + ex.Message.ToString());
             }
 
             //Scans not scanned servers
@@ -304,7 +304,7 @@ namespace RPRWyatt.VitalSigns.Services
             }
             catch (Exception ex)
             {
-
+                LogUtils.WriteDeviceHistoryEntry("All", "SelectServer", tNow.ToString() + " Exception finding not scanned servers.  Exception: " + ex.Message.ToString());
             }
 
             //Scans not responding server
@@ -324,32 +324,44 @@ namespace RPRWyatt.VitalSigns.Services
             }
             catch (Exception ex)
             {
-
+                LogUtils.WriteDeviceHistoryEntry("All", "SelectServer", tNow.ToString() + " Exception finding a not responding server.  Exception: " + ex.Message.ToString());
             }
 
-            MonitoredItems.MonitoredDevicesCollection ScanCanidates = new MonitoredItems.MonitoredDevicesCollection();
-            foreach(MonitoredItems.MonitoredDevice server in collection)
+            try
             {
-                if(server.IsBeingScanned == false && server.Enabled == true)
+                MonitoredItems.MonitoredDevicesCollection ScanCanidates = new MonitoredItems.MonitoredDevicesCollection();
+                foreach (MonitoredItems.MonitoredDevice server in collection)
                 {
-                    tNow = DateTime.Now;
-                    if(DateTime.Compare(tNow, server.NextScan) > 0)
+                    if (server.IsBeingScanned == false && server.Enabled == true)
                     {
-                        ScanCanidates.Add(server);
+                        tNow = DateTime.Now;
+                        if (DateTime.Compare(tNow, server.NextScan) > 0)
+                        {
+                            ScanCanidates.Add(server);
+                        }
                     }
                 }
-            }
 
-            if(ScanCanidates.Count == 0)
+                if (ScanCanidates.Count == 0)
+                {
+                    Thread.Sleep(10000);
+                    return null;
+                }
+
+                LogUtils.WriteDeviceHistoryEntry("All", "SelectServer", tNow.ToString() + " >>> Scan Canidates are: " + String.Join(",", ScanCanidates.Cast<MonitoredItems.MonitoredDevice>().Select(x => x.Name)));
+                //Returns the server that is the most overdue
+                tNow = DateTime.Now;
+                var returnServer = ScanCanidates.Cast<MonitoredItems.MonitoredDevice>().OrderBy(x => x.NextScan).ToList()[0];
+                LogUtils.WriteDeviceHistoryEntry("All", "SelectServer", tNow.ToString() + " >>> Selecting " + returnServer.Name + " since it is next due to scan at " + returnServer.NextScan.ToString());
+                return returnServer;
+            }
+            catch(Exception ex)
             {
-                Thread.Sleep(10000);
-                return null;
+                LogUtils.WriteDeviceHistoryEntry("All", "SelectServer", tNow.ToString() + " Exception finding a server that is due to be scanned.  Exception: " + ex.Message.ToString());
             }
 
-            //Returns the server that is the most overdue
-            tNow = DateTime.Now;
-            return ScanCanidates.Cast<MonitoredItems.MonitoredDevice>().OrderBy(x => x.NextScan).ToList()[0];
-
+            Thread.Sleep(10000);
+            return null;
         }
 
         public static Boolean UpdateServiceCollection(VSNext.Mongo.Entities.Enums.ServerType ServerType, String NodeName)

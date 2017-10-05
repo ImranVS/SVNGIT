@@ -427,10 +427,10 @@ ThreadSleep:
 
             For Each filePath In dbPathlist
                 Try
-                    WriteAuditEntry(Now.ToString & " Attempting to open  " & Cluster.Server_A_Name & " - " & filePath, LogLevel.Verbose)
+                    WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Attempting to open  " & Cluster.Server_A_Name & " - " & filePath, LogLevel.Verbose)
                     db = mySession.GetDatabase(Cluster.Server_A_Name, filePath)
                 Catch ex As Exception
-                    WriteAuditEntry(Now.ToString & " Exception getting database " & ex.ToString)
+                    WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Exception getting database " & ex.ToString)
                     GoTo SkipDatabase
                 End Try
 
@@ -679,10 +679,10 @@ SkipDatabase:
         Try
             For Each filePath In dbPathlist
                 Try
-                    WriteAuditEntry(Now.ToString & " Attempting to open  " & Cluster.Server_B_Name & " - " & filePath, LogLevel.Verbose)
+                    WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Attempting to open  " & Cluster.Server_B_Name & " - " & filePath, LogLevel.Verbose)
                     db = mySession.GetDatabase(Cluster.Server_B_Name, filePath)
                 Catch ex As Exception
-                    WriteAuditEntry(Now.ToString & " Exception getting database " & ex.ToString)
+                    WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Exception getting database " & ex.ToString)
                     GoTo SkipDatabase2
                 End Try
 
@@ -940,10 +940,10 @@ SkipDatabase2:
         Try
             For Each filePath In dbPathlist
                 Try
-                    WriteAuditEntry(Now.ToString & " Attempting to open  " & Cluster.Server_C_Name & " - " & filePath, LogLevel.Verbose)
+                    WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Attempting to open  " & Cluster.Server_C_Name & " - " & filePath, LogLevel.Verbose)
                     db = mySession.GetDatabase(Cluster.Server_C_Name, filePath)
                 Catch ex As Exception
-                    WriteAuditEntry(Now.ToString & " Exception getting database " & ex.ToString)
+                    WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Exception getting database " & ex.ToString)
                     GoTo SkipDatabase3
                 End Try
 

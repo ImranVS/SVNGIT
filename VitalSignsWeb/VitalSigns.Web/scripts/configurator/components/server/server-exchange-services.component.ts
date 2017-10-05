@@ -47,18 +47,45 @@ export class Services extends GridBase implements OnInit {
         //    },
         //    (error) => this.errorMessage = <any>error
         //    );
-        this.initialGridBind(`/Configurator/get_windows_services?deviceId=${this.deviceId}`);
+
+        this.service.get(`/Configurator/get_windows_services?deviceId=${this.deviceId}`)
+            .subscribe(
+            response => {
+                if (response.status == "Success") {
+                    this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
+                    this.data.pageSize = 50;
+                    var groupDesc = new wijmo.collections.PropertyGroupDescription('server_required');
+                    this.data.groupDescriptions.push(groupDesc);
+
+                } else {
+                    this.appComponentService.showErrorMessage(response.message);
+                }
+
+            }, error => {
+                var errorMessage = <any>error;
+                this.appComponentService.showErrorMessage(errorMessage);
+            });
     }
 
-    buildPostData(setting: string, dlg) {
-        var postData = {
-            "setting": setting,
+    buildPostData() {
+        var listOfServiceNames = [];
+        if (this.flex.collectionView) {
+            if (this.flex.collectionView.items.length > 0) {
+                for (var _i = 0; _i < this.flex.collectionView.sourceCollection.length; _i++) {
+                    var item = (<wijmo.collections.CollectionView>this.flex.collectionView.sourceCollection)[_i];
+                    if (item.monitored)
+                        listOfServiceNames.push(item.service_name);
+                }
+            }
+        }
 
+        var postData = {
+            "setting": listOfServiceNames,
+            "devices": [ this.deviceId ]
         };
-        this.currentForm.setValue(postData);
 
         //this.saveGridRow('/configurator/save_server_tasks', postData, dlg)
-        this.service.put('/Configurator/save_domino_server_tasks', postData)
+        this.service.put('/Configurator/save_windows_services', postData)
             .subscribe(
             response => {
 

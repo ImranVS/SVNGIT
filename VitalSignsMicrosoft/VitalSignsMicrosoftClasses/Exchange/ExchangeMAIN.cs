@@ -458,6 +458,55 @@ namespace VitalSignsMicrosoftClasses
                     //MyExchangeServer.CASPassword = decodePasswordFromEncodedString(DR["CASPassword"].ToString(), MyExchangeServer.Name);
                     //MyExchangeServer.URLs =  DR["URLs"].ToString();
                     Common.WriteDeviceHistoryEntry("All", myExchangeServer.ServerType, "In SetExchangeServerSettings: 1", Common.LogLevel.Normal);
+
+
+                    if(entity.SimulationTests != null)
+                    {
+
+                        if (entity.SimulationTests.Where(x => x.Name == "SMTP").Count() > 0)
+                            myExchangeServer.CASSmtp = true;
+                        else
+                            myExchangeServer.CASSmtp = false;
+
+                        if (entity.SimulationTests.Where(x => x.Name == "Outlook Anywhere").Count() > 0)
+                            myExchangeServer.CASEWS = true;
+                        else
+                            myExchangeServer.CASEWS = false;
+
+                        if (entity.SimulationTests.Where(x => x.Name == "OWA").Count() > 0)
+                            myExchangeServer.CASOWA = true;
+                        else
+                            myExchangeServer.CASOWA = false;
+
+                        if (entity.SimulationTests.Where(x => x.Name == "POP3").Count() > 0)
+                            myExchangeServer.CASPop3 = true;
+                        else
+                            myExchangeServer.CASPop3 = false;
+
+                        if (entity.SimulationTests.Where(x => x.Name == "Auto Discovery").Count() > 0)
+                            myExchangeServer.CASAutoDiscovery = true;
+                        else
+                            myExchangeServer.CASAutoDiscovery = false;
+
+                        if (entity.SimulationTests.Where(x => x.Name == "Outlook Native RPC").Count() > 0)
+                            myExchangeServer.CASOARPC = true;
+                        else
+                            myExchangeServer.CASOARPC = false;
+
+                        if (entity.SimulationTests.Where(x => x.Name == "IMAP").Count() > 0)
+                            myExchangeServer.CASImap = true;
+                        else
+                            myExchangeServer.CASImap = false;
+
+                        if (entity.SimulationTests.Where(x => x.Name == "Active Sync").Count() > 0)
+                            myExchangeServer.CASActiveSync = true;
+                        else
+                            myExchangeServer.CASActiveSync = false;
+
+                    }
+
+
+
                     /*
                     CommonDB db = new CommonDB();
                     DataTable dt = db.GetData("select TestName,cr3.UserID CASUserId,cr3.Password CASPassword,CT.URLs from [ExchangeTestNames] ET inner join [CASServerTests] CT on ET.TestId=CT.TestId left outer join credentials cr3 on cr3.ID=CT.CredentialsId  where ServerId=" + MyExchangeServer.ServerId + "");
