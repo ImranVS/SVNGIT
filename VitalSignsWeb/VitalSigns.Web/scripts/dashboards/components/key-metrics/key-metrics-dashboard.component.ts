@@ -82,7 +82,7 @@ export class KeyMetricsDashboard extends WidgetController implements OnInit {
         },
         {
             id: 'biggestMailFiles',
-            title: 'Top 20 Biggest Mail Files',
+            title: 'Top 20 Largest Mail Files',
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-6',
             settings: {
