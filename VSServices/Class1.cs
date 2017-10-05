@@ -258,8 +258,17 @@ namespace RPRWyatt.VitalSigns.Services
             DateTime tNow = DateTime.Now;
             MonitoredItems.MonitoredDevice SelectedServer = null;
             VSFramework.RegistryHandler myRegistry = new VSFramework.RegistryHandler();
-
+            if (collection.Count == 0)
+                return null;
             //Look for ScanNow's
+            try
+            {
+                //LogUtils.WriteDeviceHistoryEntry("All", "SelectServer", tNow.ToString() + " >>> Looking for " + collection.get_Item(0).ServerType, LogUtils.LogLevel.Verbose);
+            }
+            catch(Exception ex)
+            {
+                //LogUtils.WriteDeviceHistoryEntry("All", "SelectServer", tNow.ToString() + " >>> Exception getting server type. Exception: " + ex.Message.ToString(), LogUtils.LogLevel.Verbose);
+            }
             try
             {
                 if(String.IsNullOrWhiteSpace(connectionString)) connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["VitalSignsMongo"].ToString();
@@ -280,6 +289,7 @@ namespace RPRWyatt.VitalSigns.Services
                         filterDef = repository.Filter.Eq(x => x.Id, list[0].Id);
                         UpdateDefinition<VSNext.Mongo.Entities.Server> updateDef = repository.Updater.Set(x => x.ScanNow, false);
                         repository.Update(filterDef, updateDef);
+                        LogUtils.WriteDeviceHistoryEntry("All", "SelectServer", tNow.ToString() + " >>> Selecting " + SelectedServer.Name + " because the status is " + SelectedServer.Status, LogUtils.LogLevel.Verbose);
                         return SelectedServer;
                     }
                 }
