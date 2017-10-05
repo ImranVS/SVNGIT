@@ -423,20 +423,20 @@ Public Class VitalSignsPlusCore
         'Get the passwords from the registry
         'Dim MyPass As Byte()
         'Dim mySecrets As New VSFramework.TripleDES
-        Dim NotesSystemMessageString As String = "Incorrect Notes Password."
-        If mySametimeServers.Count > 0 Then
-            Try
-                MyDominoPassword = GetNotesPassword()
-                NotesSession.Initialize(MyDominoPassword)
-                WriteAuditEntry(Now.ToString & " Initialized NotesSession for " & NotesSession.CommonUserName)
-                'CleanAlertsDB()
-            Catch ex As Exception
-                ' System.Runtime.InteropServices.Marshal.ReleaseComObject(NotesSession)
-                '3/13/2015 NS added for VSPLUS-1476
-                myAlert.QueueSysMessage(NotesSystemMessageString)
-                WriteAuditEntry(Now.ToString & " Error Initializing NotesSession required to obtain Sametime statistics.  Many problems will follow....  " & ex.ToString)
-            End Try
-        End If
+        'Dim NotesSystemMessageString As String = "Incorrect Notes Password."
+        'If mySametimeServers.Count > 0 Then
+        '    Try
+        '        MyDominoPassword = GetNotesPassword()
+        '        NotesSession.Initialize(MyDominoPassword)
+        '        WriteAuditEntry(Now.ToString & " Initialized NotesSession for " & NotesSession.CommonUserName)
+        '        'CleanAlertsDB()
+        '    Catch ex As Exception
+        '        ' System.Runtime.InteropServices.Marshal.ReleaseComObject(NotesSession)
+        '        '3/13/2015 NS added for VSPLUS-1476
+        '        myAlert.QueueSysMessage(NotesSystemMessageString)
+        '        WriteAuditEntry(Now.ToString & " Error Initializing NotesSession required to obtain Sametime statistics.  Many problems will follow....  " & ex.ToString)
+        '    End Try
+        'End If
         WriteAuditEntry(Now.ToString & " Start up is complete.")
 
     End Sub
