@@ -95,6 +95,19 @@
                                         <input type="checkbox" [value]="test.value" [checked]="test.value" (change)="$event.target.checked ? test.value = true : test.value = false"> <label>{{test.name}}</label>
                                     </div>
                                 </div>
+                                <div class="form-group" >
+                                    <label class="control-label col-sm-2">Credentials</label>
+                                    <div class="col-sm-3">
+                                        <wj-combo-box formControlName="cas_credentials_id" name="cas_credentials_id" [itemsSource]="deviceCredentialData" displayMemberPath="text" selectedValuePath="value"
+                                                      placeholder="Select Credential" [isEditable]="true" selectedItem="cas_credentials_id" [(ngModel)]="casCredentialsId">
+                                        </wj-combo-box>
+                                    </div>
+                                    <div class="col-sm-5">
+                                        <button class="btn btn-primary" (click)="addCredentials(frmDialog)">
+                                            Add Credentials
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

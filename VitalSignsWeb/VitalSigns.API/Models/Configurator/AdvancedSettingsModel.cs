@@ -140,5 +140,8 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("simulation_tests")]
         public List<NameValueModel> SimulationTests { get; set; }
+
+        [JsonProperty("cas_credentials_id")]
+        public string CasCredentialsId { get; set; }
     }
 }

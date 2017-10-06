@@ -263,7 +263,8 @@ namespace VitalSignsMicrosoftClasses
                     .Include(x => x.DeviceType)
                     .Include(x => x.CurrentNode)
                     .Include(x => x.SimulationTests)
-                    .Include(x => x.ArePrerequisitesDone);
+                    .Include(x => x.ArePrerequisitesDone)
+                    .Include(x => x.ActiveSyncCredentialsId);
 
 
                 listOfServers = repository.Find(filterDef, projectionDef).ToList();
@@ -505,6 +506,16 @@ namespace VitalSignsMicrosoftClasses
 
                     }
 
+                    try
+                    {
+                        var creds = listOfCredentials.Where(x => x.Id == entity.ActiveSyncCredentialsId).First();
+                        myExchangeServer.ActiveSyncCASUserName = creds.UserId;
+                        myExchangeServer.ActiveSyncCASPassword = decodePasswordFromEncodedString(creds.Password, myExchangeServer.Name);
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
 
 
                     /*
@@ -687,9 +698,9 @@ namespace VitalSignsMicrosoftClasses
 
                     //myExchangeServer = SetExchangeServerSettings(myExchangeServer, DR);
 
-					//newCollection.Add(SetExchangeServerSettings(myExchangeServer, DR));
+                    //newCollection.Add(SetExchangeServerSettings(myExchangeServer, DR));
 
-				}
+                }
 
 				
 

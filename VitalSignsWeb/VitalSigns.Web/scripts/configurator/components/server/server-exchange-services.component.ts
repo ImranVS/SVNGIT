@@ -88,7 +88,14 @@ export class Services extends GridBase implements OnInit {
         this.service.put('/Configurator/save_windows_services', postData)
             .subscribe(
             response => {
+                if (response.status == "Success") {
 
+                    this.appComponentService.showSuccessMessage(response.message);
+
+                } else {
+
+                    this.appComponentService.showErrorMessage(response.message);
+                }
             });
 
     }

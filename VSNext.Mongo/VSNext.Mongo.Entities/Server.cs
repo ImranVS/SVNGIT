@@ -371,6 +371,12 @@ namespace VSNext.Mongo.Entities
         [BsonElement("cas_tests")]
         public List<CASTest> CASTests { get; set; }
 
+        [DataMember]
+        [BsonElement("active_sync_credentials_id")]
+        [BsonIgnoreIfNull]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string ActiveSyncCredentialsId { get; set; }
+
         #endregion
 
         #region URL

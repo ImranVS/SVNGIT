@@ -2882,7 +2882,8 @@ namespace VitalSigns.API.Controllers
                                 DominoServerName = x.DominoServerName,
                                 CollectConferenceStatistics = x.CollectConferenceStatistics,
                                 ClusterReplicationQueueThreshold = x.ClusterReplicationQueueThreshold,
-                                SimulationTests = x.SimulationTests != null ? x.SimulationTests.Select(y => new NameValueModel() { Name = y.Name, Value = y.Value}).ToList(): null
+                                SimulationTests = x.SimulationTests != null ? x.SimulationTests.Select(y => new NameValueModel() { Name = y.Name, Value = y.Value}).ToList(): null,
+                                CasCredentialsId = x.ActiveSyncCredentialsId
                             }).FirstOrDefault();
                 //var simulationTests = dbResults.Select(x => x.SimulationTests).FirstOrDefault();
                 if (results != null)
@@ -2977,7 +2978,8 @@ namespace VitalSigns.API.Controllers
                         var updateDefination = serversRepository.Updater.Set(p => p.MemoryThreshold, advancedSettings.MemoryThreshold / 100)
                             .Set(p => p.CpuThreshold, advancedSettings.CpuThreshold / 100)
                             .Set(p => p.ServerDaysAlert, advancedSettings.ServerDaysAlert)
-                            .Set(p => p.SimulationTests, advancedSettings.SimulationTests.Where(x => x.Value != "False").Select(x => new NameValuePair() { Name = x.Name }).ToList());
+                            .Set(p => p.SimulationTests, advancedSettings.SimulationTests.Where(x => x.Value != "False").Select(x => new NameValuePair() { Name = x.Name }).ToList())
+                            .Set(p => p.ActiveSyncCredentialsId, advancedSettings.CasCredentialsId);
                         var result = serversRepository.Update(filterDefinition, updateDefination);
                         //2/24/2017 NS added for VSPLUS-3506
                         Licensing licensing = new Licensing();

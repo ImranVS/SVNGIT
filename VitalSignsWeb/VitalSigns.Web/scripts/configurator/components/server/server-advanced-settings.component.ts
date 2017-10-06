@@ -1,4 +1,4 @@
-﻿import {Component, OnInit} from '@angular/core';
+﻿import {Component, OnInit, ViewChildren} from '@angular/core';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import {RESTService} from '../../../core/services';
 import {Router, ActivatedRoute} from '@angular/router';
@@ -10,6 +10,7 @@ import {AppComponentService} from '../../../core/services';
 
 })
 export class ServerAdvancedSettings implements OnInit {
+    casCredentialsId: string;
     advancedSettingsForm: FormGroup;
     errorMessage: string;
     deviceId: any;
@@ -97,7 +98,8 @@ export class ServerAdvancedSettings implements OnInit {
             'user_name': [''],
             'password': [''],
             'nodes_data': [''],
-            'simulation_tests': [this.cas_tests]
+            'simulation_tests': [this.cas_tests],
+            'cas_credentials_id': ['']
         });
 
         this.addCredentialForm = this.formBuilder.group({
@@ -137,7 +139,6 @@ export class ServerAdvancedSettings implements OnInit {
                     this.webSphereServerNodeData.pageSize = 10;
                 }
                 this.database_settings_credentials_id = response.data.results.database_settings_credentials_id;
-                this.deviceCredentialData = response.data.credentialsData;
                 this.wsDeviceCredentialData = response.data.wsCredentialsData;
                 this.websphereData = response.data.websphereData;
                 this.db2CredentialsId = response.data.results.db2_settings_credentials_id;
@@ -146,6 +147,7 @@ export class ServerAdvancedSettings implements OnInit {
                 this.deviceType = response.data.results.device_type;
                 this.deviceCredentialData = response.data.credentialsData;
                 this.ConnectionsCredentialData = response.data.credentialsData;
+                this.casCredentialsId = response.data.results.cas_credentials_id;
                 this.route.queryParams.subscribe(params => {
                     this.websphereplatform = params['platform'];
                     if (this.websphereplatform == "undefined" || this.websphereplatform == null)
@@ -203,15 +205,27 @@ export class ServerAdvancedSettings implements OnInit {
             this.serverType = "Sametime"
         }
     }
+
+    addCredentials(dlg: wijmo.input.Popup) {
+        if (dlg) {
+            dlg.modal = this.modal;
+            dlg.hideTrigger = dlg.modal ? wijmo.input.PopupTrigger.None : wijmo.input.PopupTrigger.Blur;
+            dlg.show();
+            this.serverType = this.deviceType
+        }
+    }
+
     SaveCredential(addCrdential: any, dialog: wijmo.input.Popup) {
-        if (this.serverType == "IBM Connections")
+        if (this.deviceType == "IBM Connections")
             addCrdential.device_type = "IBM Connections";
-        else if (this.serverType = "Sametime")
-            addCrdential.device_type = "Sametime";
+        else if (this.deviceType == "Sametime")
+            addCrdential.device_type = "Sametime"
+        else
+            addCrdential.device_type = this.deviceType;
 
         addCrdential.confirm_password = "";
         addCrdential.id = null;
-        addCrdential.is_modified = true;
+        addCrdential.is_modified = false;
         this.dataProvider.put('/Configurator/save_credentials', addCrdential)
             .subscribe(
 
