@@ -897,7 +897,7 @@ Cleanup:
         If myKeywords.Count = 0 Then
             WriteDeviceHistoryEntry("Domino_Log", DominoServer.Name, Now.ToString & " Not scanning the log file because no keywords are defined.")
             DominoServer.IsLogFileBeingScanned = False
-            Exit Sub
+            GoTo Cleanup
         Else
             'Iterate through the list of keywords to figure out whether the current server has any associated keywords
             keyInd = myKeywords.Find(DominoServer.Name)
@@ -2368,7 +2368,7 @@ WaitHere:
 
         End If
 
-        If ResponseTime <> 0 Then
+        If ResponseTime <> 0 And myKeywords.Count > 0 Then
             'Log File Scanning
             '8/17/2016 NS modified for VSPLUS-3167
             Dim t As Thread
