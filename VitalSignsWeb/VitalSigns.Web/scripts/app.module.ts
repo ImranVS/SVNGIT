@@ -328,6 +328,7 @@ import { exchnagemaillistreport } from './reports/components/ms-exchange/ms-exch
         dashboards.ServerImports,
         dashboards.MobileUser,
         dashboards.Issues,
+        dashboards.ExchangemailstatisticsviewGrid,
         dashboards.DominoStatistics,
         dashboards.SametimeStatistics,
         dashboards.ExecutiveSummary,

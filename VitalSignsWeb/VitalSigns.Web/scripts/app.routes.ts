@@ -40,6 +40,8 @@ import { FinancialDashboard } from './dashboards/components/financial-dashboard.
 import { StatusMapDashboard } from './dashboards/components/status-map-dashboard.component';
 import { MailDeliveryStatus } from './dashboards/components/mail-delivery-status/maildelivery-tabs-component';
 import { Issues } from './dashboards/components/issues/issues.component';
+import { ExchangemailstatisticsviewGrid } from './dashboards/components/key-metrics/exchange-mailbox-view.component';
+
 import { DominoStatistics } from './dashboards/components/overall-statistics/overall-domino-statistics.component';
 import { SametimeStatistics } from './dashboards/components/overall-statistics/overall-sametime-statistics.component';
 
@@ -176,6 +178,8 @@ export * from './dashboards/components/ms-database-availablity-group/ms-database
 
 export * from './dashboards/components/mail-delivery-status/maildelivery-tabs-component';
 export * from './dashboards/components/issues/issues.component';
+export * from './dashboards/components/key-metrics/exchange-mailbox-view.component';
+
 export * from './dashboards/components/overall-statistics/overall-domino-statistics.component';
 export * from './dashboards/components/overall-statistics/overall-sametime-statistics.component';
 export * from './dashboards/components/key-metrics/key-metrics-dashboard.component'
@@ -335,6 +339,10 @@ const appRoutes: Routes = [
                 component: Issues
             },
 
+            {
+                path: 'dashboard/mailstatisticsviewgrid',
+                component: ExchangemailstatisticsviewGrid
+            },
             {
                 path: 'dashboard/domino-statistics',
                 component: DominoStatistics
@@ -664,6 +672,7 @@ const appRoutes: Routes = [
                         path: 'mailboxreport',
                         component: exchnagemaillistreport
                     }
+                    
                     
                 ]
             },
