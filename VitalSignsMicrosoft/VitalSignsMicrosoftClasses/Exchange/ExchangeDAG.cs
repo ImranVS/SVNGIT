@@ -428,7 +428,7 @@ namespace VitalSignsMicrosoftClasses
 				   }
 				   else
 				   {
-					   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Member_Health, ref AllTestsList, "More than one test failed for this DAG. Please visit the VitalSigns dashboard for more details.", "Member Report");
+					   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Member_Health, ref AllTestsList, "More than one test failed for this Database Availability Group.", "Member Report");
 				   }
 			   }
 		   }
@@ -708,7 +708,7 @@ namespace VitalSignsMicrosoftClasses
 			   {
 				   if (serverErrors.Contains(','))
 				   {
-					   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Activation_Preference, ref AllTestsList, "Multiple DAGs are not mounted on their first preference. Please visit the VitalSigns dashboard for more details.", "Activation Preference");
+					   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Activation_Preference, ref AllTestsList, "Multiple DAGs are not mounted on their first preference. ", "Activation Preference");
 				   }
 				   else
 				   {
