@@ -1,5 +1,5 @@
 $AllMailboxes = @()
-$Mailboxes = Get-Mailbox -ResultSize Unlimited -WarningAction SilentlyContinue | Select DisplayName, Database, IssueWarningQuota, ProhibitSendQuota, ProhibitSendReceiveQuota, Alias, PrimarySmtpAddress, SAMAccountName
+$Mailboxes = Get-Mailbox -ResultSize Unlimited -WarningAction SilentlyContinue | Select DisplayName, Database, IssueWarningQuota, ProhibitSendQuota, ProhibitSendReceiveQuota, Alias, PrimarySmtpAddress, SAMAccountName, ExchangeGuid
 $Users = Get-User -WarningAction SilentlyContinue | select SAMAccountName, Company, Department
 
 $MailboxStatistics = @()
