@@ -2448,6 +2448,38 @@ namespace VitalSigns.API.Controllers
             }
         }
 
+        [HttpGet("exchnage_mailboxes_Statistics_View")]
+        public APIResponse ExchangeMailboxesStatisticsView()
+        {
+            try
+            {
+
+                mailboxRepository = new Repository<Mailbox>(ConnectionString);
+                var filterDef = mailboxRepository.Filter.Eq(x => x.DeviceName, "Exchange");
+                var results = mailboxRepository.Find(filterDef).ToList().Select(x => new MailboxModel()
+     
+                  {
+                    DisplayName = x.DisplayName,
+                    SAMAccountName = x.SAMAccountName,
+                    PrimarySmtpAddress = x.PrimarySmtpAddress,
+                    Company = x.Company,
+                    Department= x.Department,
+                    MaxFolderSizeMb = Math.Round((double)x.MaxFolderSizeMb / 1024, 2),
+                    ItemCount =x.ItemCount,
+                    FolderCount=x.FolderCount,
+                    DatabaseName=x.DatabaseName,
+                    LastLogonTime =x.LastLogonTime 
+                }).ToList().OrderBy(x => x.DisplayName);
+                Response = Common.CreateResponse(results);
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
     }
 
 }

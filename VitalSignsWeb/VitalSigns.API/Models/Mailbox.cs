@@ -14,6 +14,9 @@ namespace VitalSigns.API.Models
         [JsonProperty("database_name")]
         public string DatabaseName { get; set; }
 
+        [JsonProperty("sam_account_name")]
+        public string SAMAccountName { get; set; }
+
         [JsonProperty("issue_warning_quota")]
         public string IssueWarningQuota { get; set; }
 
@@ -37,5 +40,21 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("prohibit_send_percentage")]
         public double? ProhibitedSendPercentage { get; set; }
+
+        [JsonProperty("primary_smtp_address")]
+        public string PrimarySmtpAddress { get; set; }
+
+        [JsonProperty("company")]
+        public string Company { get; set; }
+
+        [JsonProperty("department")]
+        public string Department { get; set; }
+
+        [JsonProperty("max_folder_size_mb")]
+        public double? MaxFolderSizeMb { get; set; }
+
+        [JsonProperty("folder_count")]
+        public double? FolderCount { get; set; }
+
     }
 }
