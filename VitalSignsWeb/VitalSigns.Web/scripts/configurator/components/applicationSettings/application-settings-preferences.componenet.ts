@@ -25,6 +25,7 @@ export class PreferencesForm implements OnInit {
     licenceKey: string;   
     expirationDate: any;
     units: any;
+    purge_intreval: any;
     companyName: any;
     installType: any;
     licenseType: any;
@@ -43,6 +44,7 @@ export class PreferencesForm implements OnInit {
             'currency_symbol': ['', Validators.required],
             'monitoring_delay': [0, Validators.required],
             'threshold_show': [0, Validators.required],
+            'purge_intreval': ['',],
             'dashboardonly_exec_summary_buttons': [false],
             'bing_key': ['']
         });     
@@ -59,6 +61,7 @@ export class PreferencesForm implements OnInit {
                     this.companyName = response.data.licenseitem.CompanyName;
                     this.licenseType = response.data.licenseitem.LicenseType;
                     this.installType = response.data.licenseitem.InstallType;
+                    //this.purge_intreval = response.data.licenseitem.purge_intreval;
                 }
                 this.preferencesForm.setValue(response.data.userpreference);
                 //this.licenseForm.setValue(response.data.licenseInfo);
@@ -68,6 +71,14 @@ export class PreferencesForm implements OnInit {
                 this.appComponentService.showErrorMessage(this.errorMessage);
             }
             );
+        this.purge_intreval = [
+            { name: "No Limit", value: -1 },
+            { name: "1 Months", value: 1 },
+            { name: "3 Months", value: 3 },
+            { name: "6 Months", value: 6},
+            { name: "12 Months", value: 12 }
+           
+         ];
     }
     onSubmit(nameValue: any): void {
         this.dataProvider.put('/configurator/save_preferences', nameValue)
