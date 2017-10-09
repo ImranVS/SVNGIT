@@ -100,7 +100,8 @@ namespace VitalSigns.API.Controllers
                                                                 new NameValue { Name = "Monitoring Delay", Value = Convert.ToString(userpreference.MonitoringDelay)},
                                                                 new NameValue { Name = "Threshold Show", Value =Convert.ToString(userpreference.ThresholdShow)},
                                                                 new NameValue { Name = "Dashboard Only", Value = (userpreference.DashboardonlyExecSummaryButtons?"True":"False")},
-                                                                new NameValue { Name = "Bing Key", Value = userpreference.BingKey }
+                                                                new NameValue { Name = "Bing Key", Value = userpreference.BingKey },
+                                                                new NameValue { Name = "Purge Interval", Value = userpreference.PurgeInterval }
                                                              };
                 var result = Common.SaveNameValues(preferencesSettings);
                 Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), " Settings were successully updated.");
@@ -191,7 +192,7 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-                var preferencesSettings = new List<string> { "Company Name", "Currency Symbol", "Monitoring Delay", "Threshold Show", "Dashboard Only", "Bing Key" };
+                var preferencesSettings = new List<string> { "Company Name", "Currency Symbol", "Monitoring Delay", "Threshold Show", "Dashboard Only", "Bing Key", "Purge Interval" };
                 PreferencesModel userpreference = new PreferencesModel();
                 var result = Common.GetNameValues(preferencesSettings);
                 VSNext.Mongo.Repository.Repository<License> repoLic = new VSNext.Mongo.Repository.Repository<License>(ConnectionString);
@@ -208,6 +209,8 @@ namespace VitalSigns.API.Controllers
                     userpreference.DashboardonlyExecSummaryButtons = Convert.ToBoolean(result.FirstOrDefault(x => x.Name == "Dashboard Only").Value);
                 if (result.Exists(x => x.Name == "Bing Key"))
                     userpreference.BingKey = result.FirstOrDefault(x => x.Name == "Bing Key").Value;
+                if (result.Exists(x => x.Name == "Purge Interval"))
+                    userpreference.PurgeInterval = result.FirstOrDefault(x => x.Name == "Purge Interval").Value;
 
                 Response = Common.CreateResponse(new { userpreference = userpreference, licenseitem = licenseItem });
 

@@ -26,5 +26,8 @@ namespace VitalSigns.API.Models.Configurator
         [JsonProperty("bing_key")]
         public string BingKey { get; set; }
 
+        [JsonProperty("purge_intreval")]
+        public string PurgeInterval { get; set; }
+
     }
 }
