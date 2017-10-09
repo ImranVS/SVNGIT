@@ -384,6 +384,23 @@ namespace VitalSignsDailyStats
 
                 try
                 {
+                    WriteAuditEntry("Starting  CleanUpSummaryStatisticsData......");
+                    CleanUpSummaryStatisticsData();
+
+
+                }
+                catch (Exception ex)
+                {
+                    WriteAuditEntry("OOPS, error  CleanUpSummaryStatisticsData...." + ex.ToString());
+                }
+
+
+
+
+                //this would be the last thing done//
+
+                try
+                {
                     BackupMongo();
                 }
                 catch(Exception ex)
@@ -1501,6 +1518,55 @@ namespace VitalSignsDailyStats
            
         }
 
+        private void CleanUpSummaryStatisticsData()
+        {
+            try
+            {
+                WriteAuditEntry(DateTime.Now.ToString() + " Cleaning up Summarystatistics. ");
+
+
+                try
+                {
+                    VSFramework.RegistryHandler registry = new VSFramework.RegistryHandler();
+                    string valFromDB = "-1";
+                    try
+                    {
+                        valFromDB = registry.ReadFromRegistry("Purge Interval").ToString();
+                    }
+                    catch(Exception ex)
+                    {
+                        valFromDB = "-1";
+                    }
+                    if (valFromDB == "-1")
+                        return;
+                    Expression<Func<SummaryStatistics, bool>> expression = (p => p.StatDate <= DateTime.Now.AddMonths(-1 * Convert.ToInt32(valFromDB)));
+                    summaryStatisticsRepository.Delete(expression);
+                    //UpdateDefinition<SummaryStatistics> updateDef = summaryStatisticsRepository.Updater.Set(x => x.Update, "True");
+                    //summaryStatisticsRepository.Update(expression, updateDef);
+                }
+                catch (Exception ex)
+                {
+                    WriteAuditEntry(DateTime.Now.ToString() + " Error in cleaning up Summarystatistics " + ex.ToString());
+                }
+
+                WriteAuditEntry(DateTime.Now.ToString() + " Finished cleaning up Summarystatistics ");
+                try
+                {
+                    GC.Collect();
+                }
+                catch (Exception ex)
+                {
+
+                    WriteAuditEntry(DateTime.Now.ToString() + " Error in processing of garbage collection" + ex.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+
+                WriteAuditEntry(DateTime.Now.ToString() + "Error in  Cleaning up Summarystatistics. ");
+            }
+
+        }
         //TO Do delete
         private void CleanUpVSTables()
         {
