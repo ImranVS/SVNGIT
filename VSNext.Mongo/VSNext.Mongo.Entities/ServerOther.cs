@@ -57,6 +57,12 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         public double? LicenseCost { get; set; }
 
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("notifications")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public List<string> NotificationList { get; set; }
+
         //Notes Database
         [DataMember]
         [BsonElement("domino_server_id")]

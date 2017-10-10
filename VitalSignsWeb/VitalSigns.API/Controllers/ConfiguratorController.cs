@@ -4664,13 +4664,14 @@ namespace VitalSigns.API.Controllers
         /// </summary>
         /// <author></author>
         /// <returns></returns>
-        private List<dynamic> GetNotificationsList()
+        private List<dynamic> GetNotificationsList(string deviceTypes = "")
         {
             List<dynamic> result_disp = new List<dynamic>();
             List<dynamic> result_sendto = new List<dynamic>();
             List<dynamic> result_escalateto = new List<dynamic>();
             List<dynamic> result_events = new List<dynamic>();
             List<dynamic> result_servers = new List<dynamic>();
+            List<ServerObjects> result_servers_obj = new List<ServerObjects>();
             List<dynamic> result = new List<dynamic>();
             List<string> send_to = new List<string>();
             List<string> send_via = new List<string>();
@@ -4686,11 +4687,23 @@ namespace VitalSigns.API.Controllers
             try
             {
                 eventsMasterRepository = new Repository<EventsMaster>(ConnectionString);
-
+                serverOtherRepository = new Repository<ServerOther>(ConnectionString);
                 serversRepository = new Repository<Server>(ConnectionString);
+                locationRepository = new Repository<Location>(ConnectionString);
                 notificationsRepository = new Repository<Notifications>(ConnectionString);
                 notificationDestRepository = new Repository<NotificationDestinations>(ConnectionString);
                 businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
+                string[] deviceTypesArr;
+                if (deviceTypes == "")
+                    deviceTypes = "Domino,Sametime,URL,WebSphere,IBM Connections,Office365,Notes Database Replica,Notes Database";
+                try
+                {
+                    deviceTypesArr = deviceTypes.Split(',');
+                }
+                catch (Exception ex)
+                {
+                    deviceTypesArr = new string[0];
+                }
                 var notificationDestinations = notificationDestRepository.Collection.AsQueryable().ToList();
                 var hoursname = "";
                 foreach (var notificationDest in notificationDestinations)
@@ -4749,18 +4762,11 @@ namespace VitalSigns.API.Controllers
                     event_ids.Add(eventItem.Id);
                 }
 
-                var serversList = serversRepository.Find(_ => true).OrderBy(x => x.DeviceName).ToList();
-                foreach (var serverItem in serversList)
-                {
-                    var is_sel = false;
-                    is_selected_server.Add(is_sel);
-                    server_ids.Add(serverItem.Id);
-                }
-
                 foreach (var notification in notifications)
                 {
                     is_selected_event = new List<bool>();
                     event_ids = new List<string>();
+                    result_servers_obj = new List<ServerObjects>();
                     foreach (var eventItem in eventsList)
                     {
                         var is_sel = false;
@@ -4778,19 +4784,34 @@ namespace VitalSigns.API.Controllers
 
                     is_selected_server = new List<bool>();
                     server_ids = new List<string>();
+                    var locations = locationRepository.Find(x => true).ToList();
+                    var serversList = serversRepository.Find(serversRepository.Filter.In(x => x.DeviceType, deviceTypesArr)).OrderBy(x => x.DeviceName).ToList();
                     foreach (var serverItem in serversList)
                     {
-                        var is_sel = false;
-                        if (serverItem.NotificationList != null)
+                        result_servers_obj.Add(new ServerObjects()
                         {
-                            var found = serverItem.NotificationList.Find(x => x == notification.Id);
-                            if (found != null)
-                            {
-                                is_sel = true;
-                            }
-                        }
-                        is_selected_server.Add(is_sel);
-                        server_ids.Add(serverItem.Id);
+                            DeviceId = serverItem.Id,
+                            IsSelected = serverItem.NotificationList.Find(x => x == notification.Id) != null,
+                            CollectionName = "server",
+                            DeviceName = serverItem.DeviceName,
+                            DeviceType = serverItem.DeviceType,
+                            LocationName = locations.Where(x => x.Id == serverItem.LocationId).Count() > 0 ? locations.Where(x => x.Id == serverItem.LocationId).First().LocationName : "N/A"
+                        });
+                    }
+
+
+                    var serversOtherList = serverOtherRepository.Find(serverOtherRepository.Filter.In(x => x.Type, deviceTypesArr)).OrderBy(x => x.Name).ToList();
+                    foreach (var serverItem in serversOtherList)
+                    {
+                        result_servers_obj.Add(new ServerObjects
+                        {
+                            DeviceId = serverItem.Id,
+                            IsSelected = serverItem.NotificationList.Find(x => x == notification.Id) != null,
+                            CollectionName = "server_other",
+                            DeviceName = serverItem.Name,
+                            DeviceType = serverItem.Type,
+                            LocationName = "N/A"
+                        });
                     }
 
                     is_selected_hour = new List<bool>();
@@ -4828,7 +4849,8 @@ namespace VitalSigns.API.Controllers
                         EventIds = event_ids,
                         IsSelectedEvent = is_selected_event,
                         ServerIds = server_ids,
-                        IsSelectedServer = is_selected_server
+                        IsSelectedServer = is_selected_server,
+                        ServerObjects = result_servers_obj.OrderBy(x => x.LocationName).ThenBy(x => x.DeviceName).ToList()
                     });
                 }
 
@@ -5230,6 +5252,7 @@ namespace VitalSigns.API.Controllers
 
                 notificationsRepository = new Repository<Notifications>(ConnectionString);
                 serversRepository = new Repository<Server>(ConnectionString);
+                serverOtherRepository = new Repository<ServerOther>(ConnectionString);
                 eventsMasterRepository = new Repository<EventsMaster>(ConnectionString);
 
                 notificationData = new List<string>();
@@ -5288,28 +5311,14 @@ namespace VitalSigns.API.Controllers
 
                     // 2. Update the server documents with a list of notifications - add a notification to NotificationList
 
-                    filterServerDef = serversRepository.Filter.In(x => x.Id, serversData);
-                    var serverList = serversRepository.Find(filterServerDef);
+                    filterServerDef = serversRepository.Filter.In(x => x.Id, notificationDefinition.ServerObjects.Where(x => x.CollectionName == "server").Select(x => x.DeviceId));
+                    var updateServerDef = serversRepository.Updater.AddToSet(x => x.NotificationList, notification.Id);
+                    serversRepository.Update(filterServerDef, updateServerDef);
 
-                    foreach (var serverDef in serverList)
-                    {
-                        tempList = new List<string>();
-                        if (serverDef.NotificationList != null)
-                        {
-                            var notificationList = serverDef.NotificationList.ToList();
-                            int ind = notificationList.FindIndex(x => x == notification.Id);
-                            if (ind < 0)
-                            {
-                                serverDef.NotificationList.Add(notification.Id);
-                            }
-                        }
-                        else
-                        {
-                            tempList.Add(notification.Id);
-                            serverDef.NotificationList = tempList;
-                        }
-                        serversRepository.Replace(serverDef);
-                    }
+                    var filterServerOtherDef = serverOtherRepository.Filter.In(x => x.Id, notificationDefinition.ServerObjects.Where(x => x.CollectionName == "server_other").Select(x => x.DeviceId));
+                    var updateServerOtherDef = serverOtherRepository.Updater.AddToSet(x => x.NotificationList, notification.Id);
+                    serversRepository.Update(filterServerDef, updateServerDef);
+
 
                     // 3. Update the events_master documents with a list of notifications - add a notificaion to NotificationList
 
@@ -5353,52 +5362,22 @@ namespace VitalSigns.API.Controllers
                     //    2.3. Get server documents that match the id's listed in the notification - serversData
                     //    2.4. Update the NotificationList of the documents by adding the current notification id to NotificationList
 
-                    filterServerDef = serversRepository.Filter.AnyEq(x => x.NotificationList, _id);
-                    var serversList = serversRepository.Find(filterServerDef).ToList();
 
-                    if (serversList.Count > 0)
-                    {
-                        foreach (var serverDef in serversList)
-                        {
-                            if (!serversData.Contains(serverDef.Id))
-                            {
-                                if (serverDef.NotificationList != null)
-                                {
-                                    var notificationList = serverDef.NotificationList.ToList();
-                                    var itemToRemove = notificationList.Single(r => r == _id);
-                                    serverDef.NotificationList.Remove(itemToRemove);
-                                    serversRepository.Replace(serverDef);
-                                }
+                    filterServerDef = serversRepository.Filter.Where(x => true);
+                    var updateServerDef = serversRepository.Updater.Pull(x => x.NotificationList, _id);
+                    serversRepository.Update(filterServerDef, updateServerDef);
 
-                            }
-                        }
-                    }
+                    filterServerDef = serversRepository.Filter.In(x => x.Id, notificationDefinition.ServerObjects.Where(x => x.CollectionName == "server").Select(x => x.DeviceId));
+                    updateServerDef = serversRepository.Updater.AddToSet(x => x.NotificationList, _id);
+                    serversRepository.Update(filterServerDef, updateServerDef);
 
-                    filterServerDef = serversRepository.Filter.In(x => x.Id, serversData);
-                    serversList = serversRepository.Find(filterServerDef).ToList();
+                    var filterServerOtherDef = serverOtherRepository.Filter.Where(x => true);
+                    var updateServerOtherDef = serverOtherRepository.Updater.Pull(x => x.NotificationList, _id);
 
-                    if (serversList.Count > 0)
-                    {
-                        foreach (var serverDef in serversList)
-                        {
-                            tempList = new List<string>();
-                            if (serverDef.NotificationList != null)
-                            {
-                                var notificationList = serverDef.NotificationList.ToList();
-                                int ind = notificationList.FindIndex(x => x == _id);
-                                if (ind < 0)
-                                {
-                                    serverDef.NotificationList.Add(_id);
-                                }
-                            }
-                            else
-                            {
-                                tempList.Add(_id);
-                                serverDef.NotificationList = tempList;
-                            }
-                            serversRepository.Replace(serverDef);
-                        }
-                    }
+                    filterServerOtherDef = serverOtherRepository.Filter.In(x => x.Id, notificationDefinition.ServerObjects.Where(x => x.CollectionName == "server_other").Select(x => x.DeviceId));
+                    updateServerOtherDef = serverOtherRepository.Updater.AddToSet(x => x.NotificationList, _id);
+                    serverOtherRepository.Update(filterServerOtherDef, updateServerOtherDef);
+
 
                     // 3. Update the events_master documents with a list of notifications. The algorithm is as follows:
                     //    2.1. Get events_master documents that have a NotificationList embedded document containing the notification id

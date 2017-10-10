@@ -583,6 +583,7 @@ Public Class VitalSignsAlertService
         Dim repoNotifications As New Repository(Of Notifications)(connString)
         Dim repoNotificationDest As New Repository(Of NotificationDestinations)(connString)
         Dim repoServers As New Repository(Of Server)(connString)
+        Dim repoServersOther As New Repository(Of ServerOther)(connString)
         Dim repoBusHrs As New Repository(Of BusinessHours)(connString)
         Dim repoEventsDetected As New Repository(Of EventsDetected)(connString)
         Dim repoScripts As New Repository(Of Scripts)(connString)
@@ -591,6 +592,7 @@ Public Class VitalSignsAlertService
         Dim filterNotificationDest As FilterDefinition(Of NotificationDestinations)
         Dim filterEvents As FilterDefinition(Of EventsMaster)
         Dim filterServers As FilterDefinition(Of Server)
+        Dim filterServersOther As FilterDefinition(Of ServerOther)
         Dim filterBusHrs As FilterDefinition(Of BusinessHours)
         Dim filterEventsDetected As FilterDefinition(Of EventsDetected)
         Dim updateEventsDetected As UpdateDefinition(Of EventsDetected)
@@ -669,6 +671,15 @@ Public Class VitalSignsAlertService
                     filterServers = repoServers.Filter.And(repoServers.Filter.Exists(Function(j) j.NotificationList, True),
                             repoServers.Filter.AnyEq(Of String)(Function(j) j.NotificationList, oid))
                     serversEntity = repoServers.Find(filterServers).ToArray()
+
+                    filterServersOther = repoServersOther.Filter.And(repoServersOther.Filter.Exists(Function(j) j.NotificationList, True),
+                            repoServersOther.Filter.AnyEq(Of String)(Function(j) j.NotificationList, oid))
+                    serversEntity = repoServersOther.Find(filterServersOther).ToArray().Select(
+                        Function(x) New Server() With {
+                        .DeviceName = x.Name,
+                        .DeviceType = x.Type
+                        }
+                    ).Concat(serversEntity).ToArray()
 
                     filterNotificationDest = repoNotificationDest.Filter.In(Of String)(Function(j) j.Id, notificationsEntity(i).SendList)
                     notificationDestEntity = repoNotificationDest.Find(filterNotificationDest).ToArray()

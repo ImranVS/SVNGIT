@@ -86,6 +86,31 @@ namespace VitalSigns.API.Models
         [JsonProperty("is_selected_server")]
         public List<bool> IsSelectedServer { get; set; }
 
+        [JsonProperty("server_objects")]
+        public List<ServerObjects> ServerObjects { get; set; }
+
+    }
+
+    public class ServerObjects
+    {
+        [JsonProperty("device_id")]
+        public string DeviceId { get; set; }
+
+        [JsonProperty("is_selected")]
+        public bool? IsSelected { get; set; }
+
+        [JsonProperty("collection_name")]
+        public string CollectionName { get; set; }
+
+        [JsonProperty("device_name")]
+        public string DeviceName { get; set; }
+
+        [JsonProperty("device_type")]
+        public string DeviceType { get; set; }
+
+        [JsonProperty("location_name")]
+        public string LocationName { get; set; }
+        
     }
 
     public class NotificationChildIds

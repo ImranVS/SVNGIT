@@ -28,6 +28,7 @@ export class AlertDefinitions extends GridBase implements OnInit  {
     @ViewChild('flex4') flex4: wijmo.grid.FlexGrid;  
     @ViewChild('flex5') flex5: wijmo.grid.FlexGrid;  
     @ViewChild('flex6') flex6: wijmo.grid.FlexGrid;  
+    @ViewChild('serverFlex') serverFlex: wijmo.grid.FlexGrid;  
     @ViewChild('myModal') myModal: ElementRef;  
     errorMessage: string;
     serversdata: wijmo.collections.CollectionView;
@@ -35,13 +36,13 @@ export class AlertDefinitions extends GridBase implements OnInit  {
     hoursdata: wijmo.collections.CollectionView;
     escalationdata: wijmo.collections.CollectionView;
     devicedata: wijmo.collections.CollectionView;
+    serverGridData: wijmo.collections.CollectionView;
     selected_hours: string[] = [];
     selected_escalation: string[] = [];
     selected_events: string[] = [];
     devices: string[] = [];
     _deviceList: any;
     checkedDevices: any;
-    selDeviceTypes: string = "Domino,Sametime,URL,WebSphere,IBM Connections,Office365";
 
     formObject: any = {
         id: null,
@@ -52,7 +53,10 @@ export class AlertDefinitions extends GridBase implements OnInit  {
         server_ids: null,
         is_selected_hour: null,
         is_selected_event: null,
-        is_selected_server: null
+        servers: null,
+        is_selected_server: null,
+        collection_names: null,
+        server_objects: null
     };
 
     refreshCheckedEvents() {
@@ -205,7 +209,7 @@ export class AlertDefinitions extends GridBase implements OnInit  {
     }
 
     ngOnInit() {
-        this.service.get('/configurator/notifications_list')
+        this.service.get(`/configurator/notifications_list`)
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data[0]));
@@ -313,6 +317,11 @@ export class AlertDefinitions extends GridBase implements OnInit  {
         this.formObject.is_selected_hour = this.flex.collectionView.currentItem.is_selected_hour;
         this.formObject.server_ids = this.flex.collectionView.currentItem.server_ids;
         this.formObject.is_selected_server = this.flex.collectionView.currentItem.is_selected_server;
+        console.log("0" + this.flex.collectionView.currentItem.server_objects)
+        this.serverGridData = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.flex.collectionView.currentItem.server_objects));
+        this.serverGridData.groupDescriptions.push(new wijmo.collections.PropertyGroupDescription('location_name'));
+        this.formObject.server_objects = this.serverGridData;
+        console.log("1" + this.flex.collectionView.currentItem.server_objects)
         for (var _i = 0; _i < this.flex.collectionView.currentItem.is_selected_server.length; _i++) {
             var item = this.formObject.is_selected_server[_i];
             if (item) {
@@ -384,6 +393,11 @@ export class AlertDefinitions extends GridBase implements OnInit  {
                 }
             }
         }
+
+        this.serverGridData = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.flex.collectionView.currentItem.server_objects));
+        this.serverGridData.groupDescriptions.push(new wijmo.collections.PropertyGroupDescription('location_name'));
+        this.formObject.server_objects = this.serverGridData;
+
         this.devices = [];
         this._deviceList = this.devices;
         this.checkedDevices = this._deviceList;
@@ -402,8 +416,28 @@ export class AlertDefinitions extends GridBase implements OnInit  {
         this.refreshCheckedEscalation();
         this.refreshCheckedEvents();
         this.refreshCheckedDevices();
-        var selected_servers = this.checkedDevices;
-        if (this.selected_events.length == 0 || this.selected_hours.length == 0 || selected_servers.length == 0) {
+        console.log("2" + this.flex.collectionView.currentItem.server_objects)
+        var listOfServers = [];
+        if (this.serverFlex.collectionView) {
+            if (this.serverFlex.collectionView.items.length > 0) {
+                for (var _i = 0; _i < this.serverFlex.collectionView.sourceCollection.length; _i++) {
+                    var item = (<wijmo.collections.CollectionView>this.serverFlex.collectionView.sourceCollection)[_i];
+                    if (item.is_selected)
+                        listOfServers.push({
+                            device_id: item.device_id,
+                            is_selected: item.is_selected,
+                            device_name: item.device_name,
+                            device_type: item.device_type,
+                            collection_name: item.collection_name,
+                            location_name: item.location_name
+                        });
+                }
+            }
+        }
+
+        //var selected_servers = this.checkedDevices;
+        this.formObject.server_objects = listOfServers;
+        if (this.selected_events.length == 0 || this.selected_hours.length == 0 || listOfServers.length == 0) {
             this.errorMessage = "No selection made. Please select at least one Hours and Destinations entry, one Events entry, and one Devices entry.";
         }
         if (!this.errorMessage) {
@@ -439,6 +473,7 @@ export class AlertDefinitions extends GridBase implements OnInit  {
             this.flex.refresh();
             this._deviceList = [];
             dlg.hide();
+            console.log("3" + this.flex.collectionView.currentItem.server_objects)
         }
     }
 
@@ -484,5 +519,21 @@ export class AlertDefinitions extends GridBase implements OnInit  {
 
     cancelEditAdd() {
         //this.myModal.nativeElement.className = 'modal fade';
+    }
+
+    selectAllServers() {
+        for (var _i = 0; _i < this.serverFlex.collectionView.sourceCollection.length; _i++) {
+            var item = (<wijmo.collections.CollectionView>this.serverFlex.collectionView.sourceCollection)[_i];
+            item.is_selected = true;
+        }
+        this.serverFlex.refresh();
+    }
+
+    deselectAllServers() {
+        for (var _i = 0; _i < this.serverFlex.collectionView.sourceCollection.length; _i++) {
+            var item = (<wijmo.collections.CollectionView>this.serverFlex.collectionView.sourceCollection)[_i];
+            item.is_selected = false;
+        }
+        this.serverFlex.refresh();
     }
 }
