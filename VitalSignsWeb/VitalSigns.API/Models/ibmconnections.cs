@@ -18,7 +18,7 @@ namespace VitalSigns.API.Models
         public string ServerName { get; set; }
 
         [JsonProperty("last_login_date")]
-        public string LastLoginDate { get; set; }
+        public DateTime? LastLoginDate { get; set; }
 
     }
 }
