@@ -567,29 +567,33 @@ Partial Public Class VitalSignsPlusDomino
 						start = Now.Ticks
 
 						Try
-							Try
-								db = NotesSession.GetDatabase(MyNotesDatabase.ServerName, MyNotesDatabase.FileName, False)
+                            Try
+                                WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " Checking for " & MyNotesDatabase.FileName & " on " & MyNotesDatabase.ServerName, LogLevel.Verbose)
 
-								If db Is Nothing Then
-									MyNotesDatabase.AlertCondition = True
-									MyNotesDatabase.AlertType = NotResponding
-									MyNotesDatabase.Status = "Not Responding"
-									MyNotesDatabase.ResponseDetails = MyNotesDatabase.ServerName & " is not responding."
-									MyNotesDatabase.IncrementDownCount()
-									' Exit Try
-								Else
-									Try
-										If String.IsNullOrWhiteSpace(db.Title) Then
-											db.Title = "Untitled Database"
-										End If
-									Catch ex As Exception
+                                db = NotesSession.GetDatabase(MyNotesDatabase.ServerName, MyNotesDatabase.FileName, False)
+
+                                If db Is Nothing Then
+                                    MyNotesDatabase.AlertCondition = True
+                                    MyNotesDatabase.AlertType = NotResponding
+                                    MyNotesDatabase.Status = "Not Responding"
+                                    MyNotesDatabase.ResponseDetails = MyNotesDatabase.ServerName & " is not responding."
+                                    MyNotesDatabase.IncrementDownCount()
+                                    WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " Could not connect to database", LogLevel.Verbose)
+
+                                    ' Exit Try
+                                Else
+                                    Try
+                                        If String.IsNullOrWhiteSpace(db.Title) Then
+                                            db.Title = "Untitled Database"
+                                        End If
+                                    Catch ex As Exception
                                         WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " Error checking if db name is blank.  Error: " & ex.Message)
-									End Try
-									WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " database is " & db.Title)
-									MyNotesDatabase.IncrementUpCount()
-								End If
-							Catch ex As Exception
-								WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " Exception connecting to database: " & ex.ToString)
+                                    End Try
+                                    WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " database is " & db.Title)
+                                    MyNotesDatabase.IncrementUpCount()
+                                End If
+                            Catch ex As Exception
+                                WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " Exception connecting to database: " & ex.ToString)
 								MyNotesDatabase.AlertCondition = True
 								MyNotesDatabase.AlertType = NotResponding
 								MyNotesDatabase.Status = "Not Responding"
@@ -598,10 +602,10 @@ Partial Public Class VitalSignsPlusDomino
 								'   MyNotesDatabase.LastScan = Now
 							End Try
 
-							WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " about to loop through views in  " & db.Title)
-							'loop through the views until you find the default view
+                            WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " about to loop through views in  " & db.Title, LogLevel.Verbose)
+                            'loop through the views until you find the default view
 
-							If Not db Is Nothing Then
+                            If Not db Is Nothing Then
 								Try
 									For Each v In db.Views
 										'    WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " View name is: " & v.Name)
