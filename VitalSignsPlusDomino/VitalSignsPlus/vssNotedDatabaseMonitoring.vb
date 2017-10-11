@@ -215,22 +215,22 @@ Partial Public Class VitalSignsPlusDomino
     'End Function
 
     Private Sub MonitorNotesDatabase(ByRef MyNotesDatabase As MonitoredItems.NotesDatabase)
-		'this sub checks on Notes databases and compares against threshold of size, count, or performance
-		'  Dim s As New Domino.NotesSession
+        'this sub checks on Notes databases and compares against threshold of size, count, or performance
+        '  Dim s As New Domino.NotesSession
 
-		'  Dim s As New Domino.NotesSession
-		'Try
-		'    s.Initialize(MyDominoPassword)
-		'Catch ex As Exception
-		'    System.Runtime.InteropServices.Marshal.ReleaseComObject(s)
-		'    Exit Sub
-		'End Try
+        '  Dim s As New Domino.NotesSession
+        'Try
+        '    s.Initialize(MyDominoPassword)
+        'Catch ex As Exception
+        '    System.Runtime.InteropServices.Marshal.ReleaseComObject(s)
+        '    Exit Sub
+        'End Try
 
 
-		Dim strResponse, StatusDetails As String
-		Dim Percent As Double = 100
-		Dim myResponseTime As Integer
-		WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " Begin Notes Database Scan for " & MyNotesDatabase.Name & ", which is triggered on: " & MyNotesDatabase.TriggerType)
+        '	Dim strResponse, StatusDetails As String
+        Dim Percent As Double = 100
+        '	Dim myResponseTime As Integer
+        WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " Begin Notes Database Scan for " & MyNotesDatabase.Name & ", which is triggered on: " & MyNotesDatabase.TriggerType)
 		'WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " Current Scan Interval: " & MyNotesDatabase.ScanInterval)
 		'WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " Next scheduled scan " & MyNotesDatabase.NextScan)
 
@@ -241,8 +241,8 @@ Partial Public Class VitalSignsPlusDomino
 		Dim docTarget As Domino.NotesDocument
 		Dim view As Domino.NotesView
 		Dim Collection As Domino.NotesDocumentCollection
-		Dim myDate As Domino.IDateTime
-		Dim v As Domino.NotesView
+        '	Dim myDate As Domino.IDateTime
+        Dim v As Domino.NotesView
 
 		Try
 			If MyNotesDatabase.Enabled = False Then
@@ -498,8 +498,8 @@ Partial Public Class VitalSignsPlusDomino
 
                     Case "Database Size"
 						Try
-							Dim span As System.TimeSpan
-							db = NotesSession.GetDatabase(MyNotesDatabase.ServerName, MyNotesDatabase.FileName, False)
+                            'Dim span As System.TimeSpan
+                            db = NotesSession.GetDatabase(MyNotesDatabase.ServerName, MyNotesDatabase.FileName, False)
 							If db Is Nothing Then
 								MyNotesDatabase.AlertCondition = True
 								MyNotesDatabase.AlertType = NotResponding
@@ -560,10 +560,10 @@ Partial Public Class VitalSignsPlusDomino
 
 
                     Case "Database Response Time"
-						Dim start, done, hits As Long
-						Dim elapsed As TimeSpan
-						Dim span As System.TimeSpan
-						MyNotesDatabase.PreviousKeyValue = MyNotesDatabase.ResponseTime
+                        Dim start, done As Long
+                        Dim elapsed As TimeSpan
+                        'Dim span As System.TimeSpan
+                        MyNotesDatabase.PreviousKeyValue = MyNotesDatabase.ResponseTime
 						start = Now.Ticks
 
 						Try
@@ -674,10 +674,10 @@ Partial Public Class VitalSignsPlusDomino
                         UpdateNDBStatisticsTable(MyNotesDatabase.ServerObjectID, MyNotesDatabase.ResponseTime)
 
 					Case "Refresh All Views"
-						Dim start, done, hits As Long
-						Dim elapsed As TimeSpan
-						Dim span As System.TimeSpan
-						MyNotesDatabase.PreviousKeyValue = MyNotesDatabase.ResponseTime
+                        Dim start, done As Long
+                        Dim elapsed As TimeSpan
+                        '	Dim span As System.TimeSpan
+                        MyNotesDatabase.PreviousKeyValue = MyNotesDatabase.ResponseTime
 						start = Now.Ticks
 
 						Try
@@ -759,8 +759,9 @@ Partial Public Class VitalSignsPlusDomino
 							elapsed = New TimeSpan(done - start)
 							MyNotesDatabase.ResponseTime = elapsed.TotalMilliseconds
 							WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " Refreshing all views took " & elapsed.TotalSeconds.ToString & " seconds.")
+                            myAlert.ResetAlert(MyNotesDatabase.ServerType, MyNotesDatabase.Name, "Refresh All Views", MyNotesDatabase.Location, " Refreshing all views took " & elapsed.TotalSeconds.ToString & " seconds.")
 
-							If elapsed.TotalMilliseconds = 0 Then
+                            If elapsed.TotalMilliseconds = 0 Then
 								MyNotesDatabase.ResponseTime = 1
 							End If
 							MyNotesDatabase.Description = "Refreshed " & myViewCount.ToString & " views in " & elapsed.TotalSeconds.ToString("F1") & " seconds at " & Date.Now.ToShortTimeString  '& " on " & Date.Now.ToShortDateString
