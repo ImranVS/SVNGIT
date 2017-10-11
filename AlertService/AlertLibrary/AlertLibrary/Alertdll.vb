@@ -196,7 +196,7 @@ Public Class Alertdll
                         If AlertType = "Not Responding" Then
                             '6/15/2016 NS added
                             'OUTAGES
-                            WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Outages collection update started: " & DeviceType & "/" & DeviceName & " " & AlertType)
+                            WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Outages collection update started:  " & DeviceType & "/" & DeviceName & " " & AlertType)
                             Dim outages As New Outages With {.DeviceId = deviceId, .DeviceName = DeviceName, .DeviceType = DeviceType, .DateTimeDown = Now, .Description = Details}
                             repoOutages.Insert(outages)
                             WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Outages collection insert: " & DeviceType & "/" & DeviceName & " " & AlertType)
@@ -246,6 +246,8 @@ Public Class Alertdll
         Dim repoStatusDetails As New Repository(Of StatusDetails)(connString)
         Dim repoServer As New Repository(Of Server)(connString)
         Dim filterDefServer As MongoDB.Driver.FilterDefinition(Of Server)
+        Dim repoServerOther As New Repository(Of ServerOther)(connString)
+        Dim filterDefServerOther As MongoDB.Driver.FilterDefinition(Of ServerOther)
         Dim filterDefStatusDetails As MongoDB.Driver.FilterDefinition(Of StatusDetails)
         Dim updateDefStatusDetails As MongoDB.Driver.UpdateDefinition(Of StatusDetails)
         Dim serversEntity() As Server
@@ -258,8 +260,17 @@ Public Class Alertdll
         Try
             filterDefServer = repoServer.Filter.Eq(Of String)(Function(i) i.DeviceName, DeviceName) And
                 repoServer.Filter.Eq(Of String)(Function(i) i.DeviceType, DeviceType)
+            filterDefServerOther = repoServerOther.Filter.Eq(Of String)(Function(i) i.Name, DeviceName) And
+                repoServerOther.Filter.Eq(Of String)(Function(i) i.Type, DeviceType)
 
-            serversEntity = repoServer.Find(filterDefServer).ToArray()
+            serversEntity = repoServer.Find(filterDefServer).ToArray().Concat(
+                repoServerOther.Find(filterDefServerOther).ToList().Select(Function(x)
+                                                                               Return New Server() With {
+                                                                               .Id = x.Id
+                                                                               }
+                                                                           End Function
+                ).ToArray()
+                ).ToArray()
             If serversEntity.Count > 0 Then
                 WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Found servers ", LogLevel.Verbose)
                 If (Enums.Utility.getEnumFromDescription(Of Enums.ServerType)(DeviceType).getCrossNodeScanning()) Then
