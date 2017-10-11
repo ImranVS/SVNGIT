@@ -1055,16 +1055,16 @@ Partial Public Class VitalSignsPlusDomino
                 Dim MyName As String
                 MyName = entity.Name
 
-                If InStr(MyName, "'") > 0 Then
-                    MyName = MyName.Replace("'", "")
-                End If
+                'If InStr(MyName, "'") > 0 Then
+                '    MyName = MyName.Replace("'", "")
+                'End If
 
-                Dim Quote As Char
-                Quote = Chr(34)
+                'Dim Quote As Char
+                'Quote = Chr(34)
 
-                If InStr(MyName, Quote) > 0 Then
-                    MyName = MyName.Replace(Quote, "~")
-                End If
+                'If InStr(MyName, Quote) > 0 Then
+                '    MyName = MyName.Replace(Quote, "~")
+                'End If
 
                 If MyName Is Nothing Then
                     MyName = "Notes Database" & i.ToString
