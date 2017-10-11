@@ -52,7 +52,7 @@ export class OverallDatabaseDetails implements OnInit {
         this.route.params.subscribe(params => {
 
             // Get tabs associated with selected service
-            this.dataProvider.get(`/services/device_details?deviceType=Database`)
+            this.dataProvider.get(`/services/device_details?deviceType=Database&destination=Dashboard`)
                 .subscribe(
                 data => {
                     this.service = data.data;

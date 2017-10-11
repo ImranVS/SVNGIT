@@ -505,7 +505,7 @@ namespace VitalSigns.API.Controllers
                 {
                     if (!string.IsNullOrEmpty(deviceType))
                     {
-                        var result = (statusRepository.Collection.AsQueryable()
+                        var result = (statusRepository.Find(x => x.DeviceType == deviceType).AsQueryable()
                                              .Select(x => new ServerStatus
                                              {
                                                  Id = x.Id,
@@ -520,7 +520,8 @@ namespace VitalSigns.API.Controllers
                                                  SecondaryRole = x.SecondaryRole,
                                                  Details = x.Details
                                              })).FirstOrDefault();
-
+                        if (result == null)
+                            result = new ServerStatus();
                         Models.ServerTypeModel serverType = Common.GetServerTypeTabs(deviceType);
                         result.Tabs = serverType.Tabs.Where(x => x.Type.ToUpper() == destination.ToUpper() && x.SecondaryRole == null).ToList();
                         Response = Common.CreateResponse(result);
