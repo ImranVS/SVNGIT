@@ -50,7 +50,7 @@ export class ServiceNotesDatabaseOverallTab extends WidgetController implements 
                 settings: {
                     url: `/services/statistics?statname=ResponseTime&deviceId=${this.serviceId}&operation=hourly`,
                     dateformat: 'time',
-                    overrideName: "Value",
+                    overrideName: "milliseconds",
                     chart: {
                         chart: {
                             renderTo: 'usersConnectionsDuringTheDay',
@@ -60,9 +60,14 @@ export class ServiceNotesDatabaseOverallTab extends WidgetController implements 
                         //colors: ['#5fbe7f'],
                         title: { text: '' },
                         subtitle: { text: '' },
+                        yAxis: {
+                       
+                            title: { text: 'Milliseconds' }
+
+                        },
                         xAxis: {
                             labels: {
-                                step: 6
+                                step: 3
                             },
                             categories: []
                         },
