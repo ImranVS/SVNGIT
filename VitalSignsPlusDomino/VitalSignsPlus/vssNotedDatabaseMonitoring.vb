@@ -731,14 +731,19 @@ Partial Public Class VitalSignsPlusDomino
 								MyNotesDatabase.IncrementUpCount()
 							End If
 						Catch ex As Exception
-							WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " Exception connecting to database: " & ex.ToString)
-							MyNotesDatabase.AlertCondition = True
-							MyNotesDatabase.AlertType = NotResponding
-							MyNotesDatabase.Status = "Not Responding"
-							MyNotesDatabase.ResponseDetails = MyNotesDatabase.ServerName & " is not responding."
-							MyNotesDatabase.IncrementDownCount()
-							'   MyNotesDatabase.LastScan = Now
-						End Try
+                            If ex.ToString.Contains("cannot open") Then
+                                MyNotesDatabase.ResponseDetails = "Insufficient access to " & MyNotesDatabase.Name
+                            Else
+                                MyNotesDatabase.ResponseDetails = "The Notes database is not responding."
+                            End If
+                            WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " Exception connecting to database: " & ex.ToString)
+                            MyNotesDatabase.AlertCondition = True
+                            MyNotesDatabase.AlertType = NotResponding
+                            MyNotesDatabase.Status = "Not Responding"
+
+                            MyNotesDatabase.IncrementDownCount()
+                            '   MyNotesDatabase.LastScan = Now
+                        End Try
 
 						WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " about to loop through views in  " & db.Title)
 						'loop through the views until you find the default view

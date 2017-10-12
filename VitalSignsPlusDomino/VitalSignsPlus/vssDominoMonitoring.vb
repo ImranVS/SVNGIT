@@ -266,45 +266,48 @@ Partial Public Class VitalSignsPlusDomino
 
             'End Try
             '***** Start multiple Notes DB threads
-            Dim EnabledNotesDBCount As Integer = 0
-            Dim notesDB As MonitoredItems.NotesDatabase
-            For n = 0 To MyNotesDatabases.Count - 1
-                notesDB = MyNotesDatabases.Item(n)
-                '6/18/2015 NS modified for VSPLUS-1802
-                If notesDB.Enabled = True Then
-                    'If ServerOne.EXJEnabled = True Then
-                    EnabledNotesDBCount += 1
-                    'End If
+            If MyNotesDatabases.Count > 0 Then
+
+
+                Dim EnabledNotesDBCount As Integer = 0
+                Dim notesDB As MonitoredItems.NotesDatabase
+                For n = 0 To MyNotesDatabases.Count - 1
+                    notesDB = MyNotesDatabases.Item(n)
+                    '6/18/2015 NS modified for VSPLUS-1802
+                    If notesDB.Enabled = True Then
+                        'If ServerOne.EXJEnabled = True Then
+                        EnabledNotesDBCount += 1
+                        'End If
+                    End If
+                Next n
+                Dim maxThreadCount As Integer = getThreadCount("Domino")
+                Dim startThreads As Integer = 0
+                Dim NotesDBThreadCount As Integer = 1
+
+                NotesDBThreadCount = EnabledNotesDBCount / 3
+                If NotesDBThreadCount <= 1 And EnabledNotesDBCount > 0 Then
+                    NotesDBThreadCount = 1
                 End If
-            Next n
-            Dim maxThreadCount As Integer = getThreadCount("Domino")
-            Dim startThreads As Integer = 0
-            Dim NotesDBThreadCount As Integer = 1
 
-            NotesDBThreadCount = EnabledNotesDBCount / 3
-            If NotesDBThreadCount <= 1 And EnabledNotesDBCount > 0 Then
-                NotesDBThreadCount = 1
-            End If
+                WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " There are " & EnabledNotesDBCount & " enabled Notes databases to scan.", LogLevel.Normal)
+                WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " I am launching " & NotesDBThreadCount & " threads to scan these databases.")
+                ' WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " I am launching " & (intThreadCount - ListOfDominoThreads.Count) & " new threads for " & intThreadCount & " total threads to scan these servers.")
 
-            WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " There are " & EnabledNotesDBCount & " enabled Notes databases to scan.", LogLevel.Normal)
-            WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " I am launching " & NotesDBThreadCount & " threads to scan these databases.")
-            ' WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " I am launching " & (intThreadCount - ListOfDominoThreads.Count) & " new threads for " & intThreadCount & " total threads to scan these servers.")
-
-            Try
+                Try
                     For n = startThreads To NotesDBThreadCount
                         ThreadPool.QueueUserWorkItem(New WaitCallback(AddressOf MonitorNotesDatabases))
                     Next
                 Catch ex2 As Exception
-                If InStr(ex2.ToString, "System.OutOfMemoryException") > 0 Then
-                    WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " VitalSigns is out of memory.  Attempting to exit so the Master service will restart it. ")
-                    Thread.Sleep(1000)
-                    End
-                Else
-                    WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " Error starting multiple MonitorNotesDB threads " & ex2.ToString)
-                End If
+                    If InStr(ex2.ToString, "System.OutOfMemoryException") > 0 Then
+                        WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " VitalSigns is out of memory.  Attempting to exit so the Master service will restart it. ")
+                        Thread.Sleep(1000)
+                        End
+                    Else
+                        WriteDeviceHistoryEntry("All", "Performance", Now.ToString & " Error starting multiple MonitorNotesDB threads " & ex2.ToString)
+                    End If
 
-            End Try
-
+                End Try
+            End If
             '*** end 
 
             Try
