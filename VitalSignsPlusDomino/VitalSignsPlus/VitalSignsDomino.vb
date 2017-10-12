@@ -81,6 +81,7 @@ Public Class VitalSignsPlusDomino
     Dim mNotesINI As String ' = "=c:\program files\lotus\notes\notes.ini"
     Dim mUserId As String '= "C:\Program Files\lotus\notes\data\aforbesMZL.id"
     Private Shared DominoSelector_Mutex As New Mutex()
+    Private Shared NotesDB_Selector_Mutex As New Mutex()
     ' Private Shared NotesAPI_Mutex As New Mutex()
     ' Dim Use_NotesAPI_Mutex As Boolean = False
     Dim NotesSession As New Domino.NotesSession

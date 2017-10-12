@@ -15,34 +15,41 @@ Partial Public Class VitalSignsPlusDomino
 
 	Private Sub MonitorNotesDatabases()	'This is the main sub that calls all the other ones
 		Dim MyNotesDatabase As MonitoredItems.NotesDatabase
-		WriteAuditEntry(Now.ToString & " Selecting a Notes database to monitor.", LogLevel.Verbose)
-        MyNotesDatabase = CType(SelectServerToMonitor(MyNotesDatabases), MonitoredItems.NotesDatabase)
-        If MyNotesDatabase Is Nothing Then
-			Exit Sub
-		End If
+        WriteAuditEntry(Now.ToString & " Selecting a Notes database to monitor.", LogLevel.Verbose)
+        Try
+            NotesDB_Selector_Mutex.WaitOne()
+            MyNotesDatabase = CType(SelectServerToMonitor(MyNotesDatabases), MonitoredItems.NotesDatabase)
+            MyNotesDatabase.Status = "Scanning"
+            MyNotesDatabase.IsBeingScanned = True
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Exception with Notes DB mutex." & ex.ToString, LogLevel.Verbose)
 
-		Try
-			Dim Server As MonitoredItems.DominoServer
-			Server = MyDominoServers.Search(MyNotesDatabase.ServerName)
+        Finally
+            NotesDB_Selector_Mutex.ReleaseMutex()
+        End Try
+
+
+        Try
+            If MyNotesDatabase Is Nothing Then
+                Exit Sub
+            End If
+
+            Dim Server As MonitoredItems.DominoServer
+            Server = MyDominoServers.Search(MyNotesDatabase.ServerName)
 			If Server.IsBeingScanned = True Then
 				WriteAuditEntry(Now.ToString & " This server is being scanned, Notes DB scanning is deferred.", LogLevel.Verbose)
 				Exit Sub
 			End If
 
 		Catch ex As Exception
+            Exit Sub
+        End Try
 
-		End Try
 
-		'If MyNotesDatabase.Scanning = True Then
-		'    If MyLogLevel = LogLevel.Verbose Then WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " I am already scanning this database, so I'm not going to start another scan right now.")
-		'    MyNotesDatabase = Nothing
-		'    Exit Sub
-		'End If
+        Try
 
-		Try
-			MyNotesDatabase.Status = "Scanning"
-			'  MyNotesDatabase.Scanning = True
-			MyNotesDatabase.ResponseDetails = "New scan cycle started at " & Date.Now.ToShortTimeString
+
+            MyNotesDatabase.ResponseDetails = "New scan cycle started at " & Date.Now.ToShortTimeString
 			If MyNotesDatabase.TriggerType = "Refresh All Views" Then
 				MyNotesDatabase.Description = "New cycle to refresh all views started at " & Date.Now.ToShortTimeString
 			End If
@@ -56,7 +63,7 @@ Partial Public Class VitalSignsPlusDomino
             '     If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Selecting a Notes database to monitor.")
             MonitorNotesDatabase(MyNotesDatabase)
             UpdateStatusTableNotesDB(MyNotesDatabase, 0)
-            '  MyNotesDatabase.Scanning = False
+            MyNotesDatabase.IsBeingScanned = False
             MyNotesDatabase = Nothing
 		Catch ex As Exception
 
@@ -606,12 +613,17 @@ Partial Public Class VitalSignsPlusDomino
                                     MyNotesDatabase.IncrementUpCount()
                                 End If
                             Catch ex As Exception
+                                If ex.ToString.Contains("cannot open") Then
+                                    MyNotesDatabase.ResponseDetails = "Insufficient access to " & MyNotesDatabase.Name
+                                Else
+                                    MyNotesDatabase.ResponseDetails = "The Notes database is not responding."
+                                End If
                                 WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " Exception connecting to database: " & ex.ToString)
 								MyNotesDatabase.AlertCondition = True
 								MyNotesDatabase.AlertType = NotResponding
 								MyNotesDatabase.Status = "Not Responding"
-								MyNotesDatabase.ResponseDetails = MyNotesDatabase.ServerName & " is not responding."
-								MyNotesDatabase.IncrementDownCount()
+
+                                MyNotesDatabase.IncrementDownCount()
 								'   MyNotesDatabase.LastScan = Now
 							End Try
 
