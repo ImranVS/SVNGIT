@@ -4791,7 +4791,7 @@ namespace VitalSigns.API.Controllers
                         result_servers_obj.Add(new ServerObjects()
                         {
                             DeviceId = serverItem.Id,
-                            IsSelected = serverItem.NotificationList.Find(x => x == notification.Id) != null,
+                            IsSelected = serverItem.NotificationList != null && serverItem.NotificationList.Find(x => x == notification.Id) != null,
                             CollectionName = "server",
                             DeviceName = serverItem.DeviceName,
                             DeviceType = serverItem.DeviceType,
@@ -4806,7 +4806,7 @@ namespace VitalSigns.API.Controllers
                         result_servers_obj.Add(new ServerObjects
                         {
                             DeviceId = serverItem.Id,
-                            IsSelected = serverItem.NotificationList.Find(x => x == notification.Id) != null,
+                            IsSelected = serverItem.NotificationList != null && serverItem.NotificationList.Find(x => x == notification.Id) != null,
                             CollectionName = "server_other",
                             DeviceName = serverItem.Name,
                             DeviceType = serverItem.Type,
