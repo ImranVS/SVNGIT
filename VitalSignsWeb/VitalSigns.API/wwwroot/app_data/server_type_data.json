@@ -451,6 +451,13 @@
         "path": "/app/dashboards/components/ibm-connections/ibm-connections-libraries-tab.component",
         "type": "Dashboard"
       },
+            {
+        "tab_id": 12,
+        "title": "Health Assessment",
+        "type": "Dashboard",
+        "component": "ServiceMainHealthTab",
+        "path": "/app/services/components/service-mainhealth-tab.component"
+      },
       {
         "tab_id": 1,
         "title": "Device Attributes",
