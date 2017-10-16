@@ -2886,7 +2886,8 @@ namespace VitalSigns.API.Controllers
                                 CollectConferenceStatistics = x.CollectConferenceStatistics,
                                 ClusterReplicationQueueThreshold = x.ClusterReplicationQueueThreshold,
                                 SimulationTests = x.SimulationTests != null ? x.SimulationTests.Select(y => new NameValueModel() { Name = y.Name, Value = y.Value}).ToList(): null,
-                                CasCredentialsId = x.ActiveSyncCredentialsId
+                                CasCredentialsId = x.ActiveSyncCredentialsId,
+                                
                             }).FirstOrDefault();
                 //var simulationTests = dbResults.Select(x => x.SimulationTests).FirstOrDefault();
                 if (results != null)
@@ -2899,7 +2900,7 @@ namespace VitalSigns.API.Controllers
                     results.PortNo = cell.PortNo;
                     results.ConnectionType = cell.ConnectionType;
                     results.GlobalSecurity = cell.GlobalSecurity;
-                    results.CredentialsId = cell.CredentialsId;
+                   results.CredentialsId = cell.CredentialsId;
                     results.Realm = cell.Realm;
                     results.NodesData = cell.NodesData;
                 }
@@ -2985,6 +2986,17 @@ namespace VitalSigns.API.Controllers
                             .Set(p => p.ActiveSyncCredentialsId, advancedSettings.CasCredentialsId);
                         var result = serversRepository.Update(filterDefinition, updateDefination);
                         //2/24/2017 NS added for VSPLUS-3506
+                        Licensing licensing = new Licensing();
+                        licensing.refreshServerCollectionWrapper();
+                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Advanced settings updated successfully");
+                    }
+                    else if (advancedSettings.DeviceType == "SharePoint")
+                    {
+                        var updateDefination = serversRepository.Updater.Set(p => p.MemoryThreshold, advancedSettings.MemoryThreshold / 100)
+                            .Set(p => p.CpuThreshold, advancedSettings.CpuThreshold / 100)
+                            .Set(p => p.ServerDaysAlert, advancedSettings.ServerDaysAlert)
+                            .Set(p => p.SimulationTests, advancedSettings.SimulationTests.Where(x => x.Value != "False").Select(x => new NameValuePair() { Name = x.Name }).ToList());
+                        var result = serversRepository.Update(filterDefinition, updateDefination);
                         Licensing licensing = new Licensing();
                         licensing.refreshServerCollectionWrapper();
                         Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Advanced settings updated successfully");

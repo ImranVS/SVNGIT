@@ -166,8 +166,6 @@
 
   },
   {
-
-
     "server_type": "Database Availability Group",
     "icon": "/img/servers/MSExchange.svg",
     "tabs": [
@@ -643,14 +641,14 @@
         "path": "/app/dashboards/components/ibm-sametime/ibm-sametime-chats-tab.component",
         "type": "Dashboard"
       },
-           {
+      {
         "tab_id": 3,
         "title": "Health Assessment",
         "type": "Dashboard",
         "component": "ServiceMainHealthTab",
         "path": "/app/services/components/service-mainhealth-tab.component"
       },
-     
+
       {
         "tab_id": 1,
         "title": "Device Attributes",
@@ -682,6 +680,76 @@
     ]
 
   },
+   {
+
+    "server_type": "SharePoint",
+    "icon": "/img/servers/MSExchange.svg",
+    "tabs": [
+      {
+        "tab_id": 1,
+        "title": "Device Attributes",
+        "type": "Configurator",
+        "component": "ServerAttribute",
+        "path": "/app/configurator/components/server/server-device-attributes.component"
+      },
+      {
+        "tab_id": 2,
+        "title": "Windows Services",
+        "type": "Configurator",
+        "component": "Services",
+        "path": "/app/configurator/components/server/server-exchange-services.component"
+      },
+      {
+        "tab_id": 3,
+        "title": "Disk Settings",
+        "type": "Configurator",
+        "component": "DominoServerDiskSettings",
+        "path": "/app/configurator/components/server/server-disk-settings.component"
+      },
+      {
+        "tab_id": 4,
+        "title": "Advanced Settings",
+        "type": "Configurator",
+        "component": "ServerAdvancedSettings",
+        "path": "/app/configurator/components/server/server-advanced-settings.component"
+      },
+      {
+        "tab_id": 1,
+        "title": "Overall",
+        "type": "Dashboard",
+        "component": "ServiceOverallTab",
+        "path": "/app/services/components/service-overall-tab.component"
+      },
+      {
+        "tab_id": 2,
+        "title": "Health Assessment",
+        "type": "Dashboard",
+        "component": "ServiceMainHealthTab",
+        "path": "/app/services/components/service-mainhealth-tab.component"
+      },
+      {
+        "tab_id": 7,
+        "title": "Maintenance",
+        "type": "Dashboard",
+        "component": "MaintenanceWindows",
+        "path": "/app/configurator/components/server/server-maintenance-windows.component"
+      },
+      {
+        "tab_id": 8,
+        "title": "Events",
+        "type": "Dashboard",
+        "component": "ServiceEventsTab",
+        "path": "/app/services/components/service-events-tab.component"
+      },
+      {
+        "tab_id": 9,
+        "title": "Outages",
+        "type": "Dashboard",
+        "component": "ServiceOutagesTab",
+        "path": "/app/services/components/service-outages-tab.component"
+      }
+    ]
+ },
   {
     "server_type": "SNMP Devices",
     "icon": "/img/servers/Paintbrush.svg",
