@@ -29,6 +29,7 @@ export class DiskAvailabilityTrendReport extends WidgetController {
     currentHideAllServerControl: boolean = true;
     currentshowdiskdropdown: boolean = true;
     currentHideDatePanel: boolean = true;
+    currentDeviceType: string = "Domino";
     currentWidgetName: string = `diskTrendChart`;
     currentWidgetURL: string;
 

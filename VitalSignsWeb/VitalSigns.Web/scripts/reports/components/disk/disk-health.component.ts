@@ -29,6 +29,7 @@ export class DiskHealthReport extends WidgetController {
     currentHideAllServerControl: boolean = false;
     currentshowdiskdropdown: boolean = true;
     currentWidgetName: string = `diskHealthChart`;
+    currentDeviceType: string = "Domino";
     currentHideDatePanel: boolean = true;
     currentWidgetURL: string;
 
@@ -59,6 +60,7 @@ export class DiskHealthReport extends WidgetController {
                         chart: {
                             renderTo: 'diskHealthChart',
                             type: 'bar',
+                           
                             height: 600
                         },
                         title: { text: '' },

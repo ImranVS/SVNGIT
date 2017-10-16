@@ -5,8 +5,10 @@
     <wj-flex-grid-column [header]="'Submission Queue'" [binding]="'submission_queue_count'" [width]="200"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Shadow Queue'" [binding]="'shadow_queue_count'" [width]="200"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Unreachable Queue'" [binding]="'unreachable_queue_count'" [width]="200"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Total'" [binding]="'total'" [width]="200"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Total'" [binding]="'total'" [width]="200">
+    </wj-flex-grid-column>
 </wj-flex-grid>
+
 <div class="btn-group" *ngIf="data != null">
     <button type="button" class="btn btn-default"
             (click)="data.moveToFirstPage()"

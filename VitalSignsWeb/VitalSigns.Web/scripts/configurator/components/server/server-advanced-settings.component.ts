@@ -49,6 +49,15 @@ export class ServerAdvancedSettings implements OnInit {
         { name: "IMAP", value: false },
         { name: "Active Sync", value: false }
     ];
+    site_collections: any = [
+        { name: "Conflicting Content Types", value: true },
+        { name: "Customized Files", value: false },
+        { name: "Missing Galleries", value: false },
+        { name: "Missing Parent Content Types", value: false },
+        { name: "Missing Site Templates", value: false },
+        { name: "Unsupported MUI References", value: false },
+        { name: "Unsupported Language Pack References", value: false }
+    ];
 
     constructor(
         private formBuilder: FormBuilder,
@@ -98,7 +107,7 @@ export class ServerAdvancedSettings implements OnInit {
             'user_name': [''],
             'password': [''],
             'nodes_data': [''],
-            'simulation_tests': [this.cas_tests],
+            'simulation_tests': [''],
             'cas_credentials_id': ['']
         });
 
@@ -127,8 +136,7 @@ export class ServerAdvancedSettings implements OnInit {
         });
         this.dataProvider.get('/Configurator/get_advanced_settings/' + this.deviceId)
             .subscribe(
-            (response) => {
-               
+            (response) => { 
                 this.advancedSettingsForm.setValue(response.data.results);
                 this.advancedSettingsForm.valueChanges.subscribe(websphereobject => {
                     this.limitsChecked = websphereobject['global_security'];
@@ -158,9 +166,23 @@ export class ServerAdvancedSettings implements OnInit {
                         this.websphereplatform = this.websphereplatform;
                     }
                 });
-                if (response.data.results.simulation_tests) {
+                if (response.data.results.simulation_tests && this.deviceType == "Exchange") {
+                    this.advancedSettingsForm.patchValue({
+                        'simulation_tests': [this.cas_tests],
+                    })
                     for (var i = 0; i < response.data.results.simulation_tests.length; i++) {
                         let temp = this.cas_tests.find(x => x.name == response.data.results.simulation_tests[i].name);
+                        if (temp)
+                            temp.value = true;
+                    }
+
+                }
+                if (response.data.results.simulation_tests && this.deviceType == "SharePoint") {
+                    this.advancedSettingsForm.patchValue({
+                        'simulation_tests': [this.site_collections],
+                    });
+                    for (var i = 0; i < response.data.results.simulation_tests.length; i++) {
+                        let temp = this.site_collections.find(x => x.name == response.data.results.simulation_tests[i].name);
                         if (temp)
                             temp.value = true;
                     }

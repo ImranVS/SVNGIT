@@ -27,6 +27,7 @@ export class MSQueuesGrid implements WidgetComponent, OnInit {
     data: wijmo.collections.CollectionView;
     errorMessage: string;
     currentPageSize: any = 20;
+   
 
     constructor(private service: RESTService, protected toolTip: helpers.GridTooltip, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) { }
 
@@ -59,8 +60,20 @@ export class MSQueuesGrid implements WidgetComponent, OnInit {
         this.service.get('/services/status_list?type=Exchange')
             .subscribe(
             (data) => {
-
+                for (var i = 0; i < data.data.length; i++) {
+                    var en = data.data[i];
+                    var sum = 0;
+                    if (!isNaN(en.submission_queue_count))
+                        sum += parseInt(en.submission_queue_count);
+                    if (!isNaN(en.shadow_queue_count))
+                        sum +=parseInt( en.shadow_queue_count);
+                    if (!isNaN(en.unreachable_queue_count))
+                        sum += parseInt(en.unreachable_queue_count);
+                    //en.total = sum;
+                    en["total"] = sum
+                }
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
+                
                 this.data.pageSize = this.currentPageSize;
                 this.data.refresh();
             },
@@ -68,6 +81,7 @@ export class MSQueuesGrid implements WidgetComponent, OnInit {
         );
         this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("MSQueuesGrid", this.authService.CurrentUser.email)}`)
             .subscribe(
+
             (data) => {
                 this.currentPageSize = Number(data.data.value);
                 this.data.pageSize = this.currentPageSize;

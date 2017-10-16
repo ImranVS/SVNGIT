@@ -1,5 +1,5 @@
 ﻿<form [formGroup]="advancedSettingsForm">
-    <div class="form-group" *ngIf="deviceType=='Domino' || deviceType == 'Exchange'">
+    <div class="form-group" *ngIf="deviceType=='Domino'  || deviceType == 'SharePoint' || deviceType == 'Exchange'">
         <div class="panel panel-default">
             <div class="panel-heading">Memory Usage Alert</div>
             <div class="panel-body">
@@ -50,9 +50,7 @@
             </div>
         </div>
         <div class="panel panel-default" *ngIf="deviceType=='Domino'">
-
             <div class="panel-heading">Cluster Replication Delays Alert</div>
-
             <div class="panel-body">
                 <div class="form-group">
                     <div class="alert alert-info col-sm-12">
@@ -115,7 +113,28 @@
             </div>
         </div>
 
-        
+        <div class="panel panel-default" *ngIf="deviceType=='SharePoint'">
+            <div class="panel-heading">Site Collection Health Check</div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <div class="alert alert-info col-sm-12">
+                        Check any items you would like to be tested upon scanning this server.
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <input type="hidden" name="site_collections" formControlName="simulation_tests" [(ngModel)]="site_collections">
+                                    <div *ngFor="let test of site_collections" class="col-sm-4">
+                                        <input type="checkbox" [value]="test.value" [checked]="test.value" (change)="$event.target.checked ? test.value = true : test.value = false"> <label>{{test.name}}</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </div>
     <div class="form-horizontal" *ngIf="deviceType=='Sametime'">
