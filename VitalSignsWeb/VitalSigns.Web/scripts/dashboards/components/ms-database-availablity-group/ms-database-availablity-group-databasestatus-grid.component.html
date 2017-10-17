@@ -1,4 +1,4 @@
-﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" id="flex" headersVisibility="Column" (selectionChanged)="onSelectionChanged($event)" #flex>
+﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row"  [frozenColumns]="1" [isReadOnly]="true" id="flex" headersVisibility="Column" (selectionChanged)="onSelectionChanged($event)" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'Database Name'" [binding]="'database_name'" [width]="150"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Storage Group'" [binding]="'storage_group'" [width]="150"></wj-flex-grid-column>
