@@ -5,5 +5,6 @@ export * from './Ibm-notes-databases.component';
 export * from './Ibm-domino-settings.component';
 export * from './Ibm-travelerdatastore.component';
 export * from './Ibm-custom-statistics.component';
+export * from './notesmail-probes.component';
 export * from './Ibm-domino-log-file-scanning.component';
 export * from './Ibm-save-domino-log-file-scanning.component';

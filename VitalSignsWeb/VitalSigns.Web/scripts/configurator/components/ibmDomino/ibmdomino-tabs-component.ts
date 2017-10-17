@@ -46,13 +46,19 @@ export class IBMDomino implements OnInit {
             {
                 "title": "Notes Database Replicas",
                 "component": "NotesDatabaseReplica",
-                "path": "/app/configurator/components/ibmDomino/Ibm-notes-database-replicas.component",
+                "path": "app/components/ibmDomino/notesmail-probes.component",
                 "active": false
             },
             {
                 "title": "Notes Databases",
                 "component": "NotesDatabases",
                 "path": "/app/configurator/components/ibmDomino/Ibm-notes-databases.component",
+                "active": false
+            },
+            {
+                "title": "Notes Database Maile Probe",
+                "component": "NotesMailProbes",
+                "path": "/app/configurator/components/mail/notesmail-probes.component",
                 "active": false
             },
             {

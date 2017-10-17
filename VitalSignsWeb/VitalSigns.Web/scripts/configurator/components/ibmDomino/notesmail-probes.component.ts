@@ -17,7 +17,7 @@ import {AppComponentService} from '../../../core/services';
 
 @Component({
     selector: 'vs-notesmail-probes',
-    templateUrl: '/app/configurator/components/mail/notesmail-probes.component.html',
+    templateUrl: 'app/configurator/components/ibmDomino/notesmail-probes.component.html',
     providers: [
         HttpModule,
         RESTService,

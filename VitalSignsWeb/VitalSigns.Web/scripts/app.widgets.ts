@@ -62,7 +62,6 @@ export * from './widgets/reports/components/exchange-mailbox-list.component';
 export * from './widgets/reports/components/o365-disabled-users-list.component';
 export * from './widgets/reports/components/ibm-connections-inctive-users-list.component';
 export * from './widgets/reports/components/inactive-community-list.component';
-
 export * from './configurator/components/applicationSettings/application-settings-businesshours.component';
 export * from './configurator/components/applicationSettings/application-settings-servercredentials.component'
 export * from './configurator/components/applicationSettings/application-settings-locations.component'
@@ -136,7 +135,7 @@ export * from './configurator/components/ibmDomino/Ibm-domino-log-file-scanning.
 export * from './configurator/components/ibmDomino/Ibm-save-domino-log-file-scanning.component'
 
 //mail
-export * from './configurator/components/mail/notesmail-probes.component'
+export * from './configurator/components/ibmDomino/notesmail-probes.component'
 
 //reports
 export * from './reports/components/servers/any-statistic-report-grid.component'

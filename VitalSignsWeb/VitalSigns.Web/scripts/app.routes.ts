@@ -158,7 +158,7 @@ import { LogsTabs } from './configurator/components/logFiles/log-files-tabs-comp
 
 import { AddLogFile } from './configurator/components/ibmDomino/Ibm-save-domino-log-file-scanning.component';
 import { MobileUser } from './configurator/components/mobileusers/mobile-users.component';
-import { NotesMailProbes } from './configurator/components/mail/notesmail-probes.component';
+
 
 import { ServerImports } from './configurator/components/serverImport/server-import-tabs-component';
 import { DominoMailDeliveryStatus } from './dashboards/components/mail-delivery-status/domino-mail-delivery-status.component';
@@ -226,7 +226,7 @@ export * from './configurator/components/ibmDomino/Ibm-save-domino-log-file-scan
 export * from './configurator/components/mobileusers/mobile-users.component';
 export * from './configurator/components/serverImport/server-import-tabs-component';
 export * from './dashboards/components/mail-delivery-status/domino-mail-delivery-status.component';
-export * from './configurator/components/mail/notesmail-probes.component';
+
 
 const appRoutes: Routes = [
     {
@@ -739,11 +739,11 @@ const appRoutes: Routes = [
             {
                 path: 'configurator/fileupload',
                 component: FileUploadSample
-            },
-            {
-                path: 'configurator/notesmailprobes',
-                component: NotesMailProbes
             }
+            //{
+            //    path: 'configurator/notesmailprobes',
+            //    component: NotesMailProbes
+            //}
         ]
     },
 
