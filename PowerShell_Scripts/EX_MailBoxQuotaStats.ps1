@@ -20,7 +20,7 @@ ForEach ($DAGServer in (Get-DatabaseAvailabilityGroup).Servers) {
 
 foreach ($Mailbox in $Mailboxes){   
     $MailboxStats = "" |Select  DisplayName,Database,IssueWarningQuota,ProhibitSendQuota,ProhibitSendReceiveQuota,TotalItemSize,ItemCount,StorageLimitStatus,ServerName, SAMAccountName, PrimarySmtpAddress,Company, Department, MaxFolderCount,MaxFolderSize,FolderCount
-    $Stats = ($MailboxStatistics | ? {$_.$MailboxGUID -eq $Mailbox.ExchangeGuid})[0]
+    $Stats = ($MailboxStatistics | ? {$_.MailboxGUID -eq $Mailbox.ExchangeGuid})[0]
     $User = ($Users | ? {$_.SAMAccountName -eq $Mailbox.SAMAccountName})[0]
     $MailboxStats.DisplayName = $Mailbox.DisplayName
     $MailboxStats.Database = $Mailbox.Database
