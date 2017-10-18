@@ -20,6 +20,9 @@ namespace VitalSigns.Web.Models
         [BsonElement("disabled")]
         public bool Disabled { get; set; }
 
+        [BsonElement("server_types")]
+        public List<String> ServerTypes { get; set; }
+
         [BsonElement("nodes")]
         public ICollection<SiteMapNode> Nodes { get; set; }
     }
