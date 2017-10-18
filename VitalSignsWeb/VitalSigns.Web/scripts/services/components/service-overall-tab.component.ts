@@ -44,9 +44,14 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 6
+                                step: 4
                             },
                             categories: []
+                        },
+                        yAxis: {
+                            title: {
+                                text: 'Users'
+                            }
                         },
                         legend: {
                             enabled: false
@@ -139,7 +144,7 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 6
+                                step: 4
                             },
                             categories: []
                         },
@@ -180,7 +185,7 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                         subtitle: { text: '' },
                         xAxis: {
                             labels: {
-                                step: 6
+                                step: 4
                             },
                             categories: []
                         },
