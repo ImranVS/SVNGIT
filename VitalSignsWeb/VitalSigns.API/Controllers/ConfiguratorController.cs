@@ -1581,40 +1581,37 @@ namespace VitalSigns.API.Controllers
             try
             {
                 serversRepository = new Repository<Server>(ConnectionString);
-                var result = serversRepository.Find(x => x.Id == deviceId).ToList()
-                    .First()
-                    .WindowServices
-                    .Select(x => new WindowsServiceModel
-                    {
-                        // Id = x.Id,
-                        ServiceName = x.ServiceName,
-                        ServerRequired = x.ServerRequired,
-                        Monitored = x.Monitored,
-                        Status = x.Status,
-                        StartupMode = x.StartupMode,
-                        DisplayName = x.DisplayName
-                        // Id = x.Id
-
-
-                    }).OrderByDescending(x => x.ServerRequired)
-                    .ThenByDescending(x => x.Monitored)
-                    .ThenBy(x => x.DisplayName)
-                    .ToList();
-
-
-                Response = Common.CreateResponse(result);
-
-            }
-            catch (Exception exception)
+                var serverName = serversRepository.Find(x => x.Id == deviceId).ToList().First();
+                if (serverName.WindowServices == null)
+                {
+                    Response = Common.CreateResponse("No Windows Services availabe");
+                }
+                else
+                { 
+                    var result = serverName
+                               .WindowServices
+                               .Select(x => new WindowsServiceModel
+                               {
+                                   ServiceName = x.ServiceName,
+                                   ServerRequired = x.ServerRequired,
+                                   Monitored = x.Monitored,
+                                   Status = x.Status,
+                                   StartupMode = x.StartupMode,
+                                   DisplayName = x.DisplayName
+                                   }).OrderByDescending(x => x.ServerRequired)
+                               .ThenByDescending(x => x.Monitored)
+                               .ThenBy(x => x.DisplayName)
+                               .ToList();
+                               Response = Common.CreateResponse(result);
+                }
+               }
+             catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, "Error", exception.Message);
             }
-
             return Response;
         }
-
-
-
+       
         #endregion
 
         #region Disk Settings
@@ -5732,7 +5729,7 @@ namespace VitalSigns.API.Controllers
                 {
                     Id = x.Id,
                     Name = x.DeviceName,
-                    IsEnabled = x.IsEnabled,
+                    IsEnabled = x.IsEnabled.HasValue && x.IsEnabled!=null ? x.IsEnabled : false,
                     Category = x.Category,
                     Threshold = x.DeliveryThreshold,
                     ScanInterval = x.ScanInterval,
@@ -5745,7 +5742,10 @@ namespace VitalSigns.API.Controllers
                     ReplyTo = x.ReplyToAddress,
                     DestinationDatabase = x.TargetDatabase
                 }).OrderBy(x => x.Name).ToList();
-
+                foreach(var x in result)
+                {
+                    x.IsEnabled = x.IsEnabled.HasValue && x.IsEnabled != null ? x.IsEnabled : false;
+                }
                 Response = Common.CreateResponse(result);
             }
             catch (Exception exception)
