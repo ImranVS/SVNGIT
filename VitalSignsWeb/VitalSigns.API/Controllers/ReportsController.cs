@@ -375,9 +375,18 @@ namespace VitalSigns.API.Controllers
             {
                 listOfTypes = new List<string>();
             }
+            
             else
             {
                 listOfTypes = type.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
+            }
+            if (listOfTypes.Contains("Traveler"))
+            {
+                statusRepository = new Repository<Status>(ConnectionString);
+                FilterDefinition<Status> filterDefStatus = statusRepository.Filter.Exists(p => p.TravelerStatus);
+                var tempList = statusRepository.Find(filterDefStatus).ToList().Select(x => x.DeviceId).ToList();
+                listOfDevices.AddRange(tempList);
+                listOfTypes.Remove("Traveler");
             }
 
             String[] statNames = statName.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
@@ -431,7 +440,6 @@ namespace VitalSigns.API.Controllers
                     Serie serie = new Serie();
                     serie.Segments = new List<Segment>();
                     serie.Title = currList[0].DeviceName + (statNames.Count() > 1 ? "-" + uc.GetUserFriendlyStatName(curr.StatName) : "");
-
                     for (DateTime date = dtStart; date < dtEnd; date = date.AddDays(1))
                     {
                         var item = currList.Where(x => x.StatDate.Value.Date == date.Date).ToList();
