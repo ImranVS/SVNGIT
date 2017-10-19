@@ -50,7 +50,7 @@ export class TravelerCPUUtilReport extends WidgetController {
             error => console.log(error)
             );
 
-        this.currentWidgetURL = `/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil`;
+        this.currentWidgetURL = `/reports/summarystats_chart?type=Traveler&statName=Platform.System.PctCombinedCpuUtil`;
         this.widgets = [
             {
                 id: 'travelerCPUUtilChart',
