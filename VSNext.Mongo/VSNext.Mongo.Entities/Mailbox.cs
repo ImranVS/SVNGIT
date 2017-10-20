@@ -117,21 +117,47 @@ namespace VSNext.Mongo.Entities
         [BsonElement("department")]
         [BsonIgnoreIfNullAttribute]
         public string Department { get; set; }
-
+        
         [DataMember]
-        [BsonElement("max_folder_count")]
+        [BsonElement("folders")]
         [BsonIgnoreIfNullAttribute]
-        public int? MaxFolderCount { get; set; }
+        public List<Folder> Folders { get; set; }
 
-        [DataMember]
-        [BsonElement("max_folder_size_mb")]
-        [BsonIgnoreIfNullAttribute]
-        public double? MaxFolderSizeMb { get; set; }
+        public class Folder
+        {
 
-        [DataMember]
-        [BsonElement("folder_count")]
-        [BsonIgnoreIfNullAttribute]
-        public int? FolderCount { get; set; }
+            [DataMember]
+            [BsonElement("name")]
+            [BsonIgnoreIfNullAttribute]
+            public string Name { get; set; }
+
+            [DataMember]
+            [BsonElement("total_item_size_mb")]
+            [BsonIgnoreIfNullAttribute]
+            public double? TotalItemSizeMb { get; set; }
+
+            [DataMember]
+            [BsonElement("item_count")]
+            [BsonIgnoreIfNullAttribute]
+            public int? ItemCount { get; set; }
+
+            [DataMember]
+            [BsonElement("items_and_subfolder_items_count")]
+            [BsonIgnoreIfNullAttribute]
+            public int? ItemsAndSubfolderItemsCount { get; set; }
+
+            [DataMember]
+            [BsonElement("items_and_subfolder_items_size_mb")]
+            [BsonIgnoreIfNullAttribute]
+            public double? ItemsAndSubfolderItemsSizeMb { get; set; }
+
+            [DataMember]
+            [BsonElement("deleted_item_count")]
+            [BsonIgnoreIfNullAttribute]
+            public int? DeletedItemCount { get; set; }
+            
+
+        }
     }
 
 }

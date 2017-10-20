@@ -215,28 +215,59 @@ namespace VitalSignsMicrosoftClasses
 					string ItemCount = ps.Properties["ItemCount"].Value == null ? "0" : ps.Properties["ItemCount"].Value.ToString();
 					string StorageLimitStatus = ps.Properties["StorageLimitStatus"].Value == null ? "" : ps.Properties["StorageLimitStatus"].Value.ToString();
 					string ServerName = ps.Properties["ServerName"].Value == null ? "" : ps.Properties["ServerName"].Value.ToString();
-                    string MaxFolderCount = ps.Properties["MaxFolderCount"].Value == null ? "" : ps.Properties["MaxFolderCount"].Value.ToString();
-                    string MaxFolderSize = ps.Properties["MaxFolderSize"].Value == null ? "" : ps.Properties["MaxFolderSize"].Value.ToString();
-                    string FolderCount = ps.Properties["FolderCount"].Value == null ? "" : ps.Properties["FolderCount"].Value.ToString();
                     string SAMAccountName = ps.Properties["SAMAccountName"].Value == null ? "" : ps.Properties["SAMAccountName"].Value.ToString();
                     string PrimarySmtpAddress = ps.Properties["PrimarySmtpAddress"].Value == null ? "" : ps.Properties["PrimarySmtpAddress"].Value.ToString();
                     string Company = ps.Properties["Company"].Value == null ? "" : ps.Properties["Company"].Value.ToString();
                     string Department = ps.Properties["Department"].Value == null ? "" : ps.Properties["Department"].Value.ToString();
 
+                    List<VSNext.Mongo.Entities.Mailbox.Folder> listOfFolders = new List<VSNext.Mongo.Entities.Mailbox.Folder>();
+                    try
+                    {
+                        PSObject folders = (PSObject) ps.Properties["Folders"].Value;
 
+                        PSObject[] results2 = ((System.Collections.ArrayList)folders.BaseObject).OfType<PSObject>().ToArray();
+                        foreach(PSObject ps2 in results2)
+                        {
+                            string Name = ps2.Properties["Name"].Value == null ? "" : ps2.Properties["Name"].Value.ToString();
+                            string ItemsInFolder = ps2.Properties["ItemsInFolder"].Value == null ? "" : ps2.Properties["ItemsInFolder"].Value.ToString();
+                            string DeletedItemsInFolder = ps2.Properties["DeletedItemsInFolder"].Value == null ? "" : ps2.Properties["DeletedItemsInFolder"].Value.ToString();
+                            string FolderSize = ps2.Properties["FolderSize"].Value == null ? "" : ps2.Properties["FolderSize"].Value.ToString();
+                            string ItemsInFolderAndSubfolders = ps2.Properties["ItemsInFolderAndSubfolders"].Value == null ? "" : ps2.Properties["ItemsInFolderAndSubfolders"].Value.ToString();
+                            string FolderAndSubfolderSize = ps2.Properties["FolderAndSubfolderSize"].Value == null ? "" : ps2.Properties["FolderAndSubfolderSize"].Value.ToString();
+
+                            int tempInt = 0;
+                            double tempDouble = 0;
+                            string bytesInFolder = "0";
+                            string bytesInSubFolder = "0";
+
+                            System.Text.RegularExpressions.MatchCollection matches = new System.Text.RegularExpressions.Regex(@"(?<=\()(\d+[,.]?)*").Matches(FolderSize);
+                            if (matches.Count > 0)
+                                bytesInFolder = matches[0].Value;
+
+                            matches = new System.Text.RegularExpressions.Regex(@"(?<=\()(\d+[,.]?)*").Matches(FolderAndSubfolderSize);
+                            if (matches.Count > 0)
+                                bytesInSubFolder = matches[0].Value;
+
+                            VSNext.Mongo.Entities.Mailbox.Folder folder = new VSNext.Mongo.Entities.Mailbox.Folder();
+                            folder.Name = Name;
+                            folder.ItemCount = int.TryParse(ItemCount, out tempInt) ? (int?)tempInt : null;
+                            folder.DeletedItemCount = int.TryParse(DeletedItemsInFolder, out tempInt) ? (int?)tempInt : null;
+                            folder.TotalItemSizeMb = double.TryParse(bytesInFolder, out tempDouble) ? (double?)tempDouble / 1024 / 1024 : null;
+                            folder.ItemsAndSubfolderItemsCount = int.TryParse(ItemsInFolderAndSubfolders, out tempInt) ? (int?)tempInt : null;
+                            folder.ItemsAndSubfolderItemsSizeMb = double.TryParse(bytesInSubFolder, out tempDouble) ? (double?)tempDouble / 1024 / 1024 : null;
+                            listOfFolders.Add(folder);
+                        }
+                    }
+                    catch (Exception fodlerException)
+                    {
+                        Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "Exception processing folders. Exception: " + fodlerException.Message.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                    }
                     if (MyExchangeServers.SearchByName(ServerName) == null)
 					{
 						Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "In loop.  Server not being scanned on this server.  Will not be added.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 						//continue;
 					}
-
-                    int tempInt = 0;
-                    double tempDouble = 0;
-                    string bytesInFolder = "0";
-
-                    System.Text.RegularExpressions.MatchCollection matches = new System.Text.RegularExpressions.Regex(@"(?<=\()(\d+[,.]?)*").Matches(MaxFolderSize);
-                    if (matches.Count > 0)
-                        bytesInFolder = matches[0].Value;
+                    
 
                     MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox>();
                     mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DatabaseName == Database && i.DisplayName == DisplayName && i.DeviceName == "Exchange");
@@ -251,10 +282,8 @@ namespace VitalSignsMicrosoftClasses
                         .Set(i => i.PrimarySmtpAddress, PrimarySmtpAddress)
                         .Set(i => i.Company, Company)
                         .Set(i => i.Department, Department)
-                        .Set(i => i.MaxFolderCount, int.TryParse(MaxFolderCount, out tempInt) ? (int?) tempInt : null)
-                        .Set(i => i.MaxFolderSizeMb, double.TryParse(bytesInFolder, out tempDouble) ? (double?)tempDouble/1024/1024 : null)
-                        .Set(i => i.FolderCount, int.TryParse(FolderCount, out tempInt) ? (int?)tempInt : null);
-
+                        .Set(i => i.Folders, listOfFolders);
+                        
                     AllTestResults.MongoEntity.Add(mongoStatement);
                     
 

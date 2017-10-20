@@ -18,8 +18,8 @@ ForEach ($DAGServer in (Get-DatabaseAvailabilityGroup).Servers) {
 }
 
 
-foreach ($Mailbox in $Mailboxes){   
-    $MailboxStats = "" |Select  DisplayName,Database,IssueWarningQuota,ProhibitSendQuota,ProhibitSendReceiveQuota,TotalItemSize,ItemCount,StorageLimitStatus,ServerName, SAMAccountName, PrimarySmtpAddress,Company, Department, MaxFolderCount,MaxFolderSize,FolderCount
+foreach ($Mailbox in $Mailboxes){ 
+    $MailboxStats = "" |Select  DisplayName,Database,IssueWarningQuota,ProhibitSendQuota,ProhibitSendReceiveQuota,TotalItemSize,ItemCount,StorageLimitStatus,ServerName, SAMAccountName, PrimarySmtpAddress,Company, Department, Folders
     $Stats = ($MailboxStatistics | ? {$_.MailboxGUID -eq $Mailbox.ExchangeGuid})[0]
     $User = ($Users | ? {$_.SAMAccountName -eq $Mailbox.SAMAccountName})[0]
     $MailboxStats.DisplayName = $Mailbox.DisplayName
@@ -32,10 +32,8 @@ foreach ($Mailbox in $Mailboxes){
     $MailboxStats.StorageLimitStatus = $Stats.StorageLimitStatus
     $MailboxStats.ServerName = $stats.ServerName
 
-    $folders = Get-MailboxFolderStatistics $Mailbox.Alias
-    $MailboxStats.MaxFolderCount = ($folders | Measure-Object -Property ItemsInFolderAndSubfolders -Maximum).Maximum
-    $MailboxStats.MaxFolderSize = ($folders |Measure-Object -Property FolderAndSubfolderSize -Maximum).Maximum
-    $MailboxStats.FolderCount = ($folders).Count
+    $folders = Get-MailboxFolderStatistics $Mailbox.Alias | select Name, ItemsInFolder, DeletedItemsInFolder, FolderSize, ItemsInFolderAndSubFolders, FolderAndSubFolderSize
+    $MailboxStats.Folders = $folders
 
     $MailboxStats.SAMAccountName = $Mailbox.SAMAccountName
     $MailboxStats.PrimarySmtpAddress = $Mailbox.PrimarySmtpAddress
