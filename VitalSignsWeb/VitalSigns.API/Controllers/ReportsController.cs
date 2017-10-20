@@ -2364,8 +2364,10 @@ namespace VitalSigns.API.Controllers
             mailboxRepository = new Repository<Mailbox>(ConnectionString);
             var result = mailboxRepository.Find(x => x.DeviceName == "Exchange").ToList();
             List<Segment> listsegments = new List<Segment>();
+            string serietitle = "";
             if (statname == "folder_count")
             {
+                serietitle = "Folder Count";
                 listsegments = result.OrderByDescending(x => x.FolderCount).Take(25)
                     .Select(x => new Segment()
                     {
@@ -2375,6 +2377,7 @@ namespace VitalSigns.API.Controllers
             }
             else if(statname == "item_count")
             {
+                serietitle = "Items";
                 listsegments = result.OrderByDescending(x => x.ItemCount).Take(25)
                     .Select(x => new Segment()
                     {
@@ -2384,6 +2387,7 @@ namespace VitalSigns.API.Controllers
             }
             else if (statname == "total_item_size_mb")
             {
+                serietitle = "Total Item Size(MB)";
                 listsegments = result.OrderByDescending(x => x.TotalItemSizeMb).Take(25)
                     .Select(x => new Segment()
                     {
@@ -2393,6 +2397,7 @@ namespace VitalSigns.API.Controllers
             }
             else if (statname == "max_folder_count")
             {
+                serietitle = "Highest Folder Count";
                 listsegments = result.OrderByDescending(x => x.MaxFolderCount).Take(25)
                     .Select(x => new Segment()
                     {
@@ -2402,6 +2407,7 @@ namespace VitalSigns.API.Controllers
             }
             else if (statname == "max_folder_size_mb")
             {
+                serietitle = "Large Folder Size(MB)";
                 listsegments = result.OrderByDescending(x => x.MaxFolderSizeMb).Take(25)
                     .Select(x => new Segment()
                     {
@@ -2410,7 +2416,7 @@ namespace VitalSigns.API.Controllers
                     }).ToList();
             }
             Serie serie = new Serie();
-                serie.Title = "Mail Box Count";
+                serie.Title = serietitle;
                 serie.Segments = listsegments;
                 List<Serie> series = new List<Serie>();
                 series.Add(serie);
