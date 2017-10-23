@@ -22,7 +22,7 @@ export class MobileUsersDashboard extends WidgetController implements OnInit {
     widgets: WidgetContract[] = [
         {
             id: 'mobileDevicesOSChart',
-            title: 'Mobile devices by OS',
+            title: 'Mobile devices by OS (click to drill down)',
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
             settings: {
