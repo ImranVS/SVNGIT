@@ -133,10 +133,10 @@ export class ChartComponent implements WidgetComponent, OnInit {
                 //START DRILLDOWN
                 if (chart.series2 != null) {
                     let chart2 = <Chart>data.data;
-
-                    let categories2: string[] = []
+                    this.settings.chart.xAxis.categories = null;
+                    
                     chart2.series2.map(serie => {
-
+                        let categories2: string[] = []
                         let length = this.subseries.push({
                             id: null,
                             data: []
@@ -158,15 +158,12 @@ export class ChartComponent implements WidgetComponent, OnInit {
                             let segment = serie.segments.find(s => s.label == category);
                             var x = [];
                             if (segment) {
-                                x.push(segment.label);
-                                x.push(segment.value);
                                 this.subseries[length - 1].name = segment.drilldownname;
                                 this.subseries[length - 1].id = segment.drilldownname;
-                                this.subseries[length - 1].data.push(x);
+                                this.subseries[length - 1].data.push({ name: segment.label, y: segment.value });
                             }
                         });
                     });
-                    this.subseries.splice(0, 1);
                     let chartSeries = new ChartSeries();
                     chartSeries.series = this.subseries;
                     chart.drilldown = chartSeries;

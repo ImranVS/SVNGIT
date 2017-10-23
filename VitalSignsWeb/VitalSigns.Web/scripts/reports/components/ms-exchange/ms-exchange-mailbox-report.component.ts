@@ -78,7 +78,7 @@ export class ExchangeMailboxReport extends WidgetController {
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
-                            categories: []
+                            type: "category"
                         },
                         yAxis: {
                             min: 0,
