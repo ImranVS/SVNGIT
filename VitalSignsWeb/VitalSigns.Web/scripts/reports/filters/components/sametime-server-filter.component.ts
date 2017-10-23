@@ -46,13 +46,13 @@ export class SametimeServerFilter {
         this.route.queryParams.subscribe(params => {
             this.statName = params['statname'];
         });
-        //this.service.get(`/services/server_list_dropdown?type=${this.deviceType}`)
-        //    .subscribe(
-        //    (response) => {
-        //        this.deviceNameData = response.data.deviceNameData;
-        //    },
-        //    (error) => this.errorMessage = <any>error
-        ////);
+        this.service.get(`/services/server_list_dropdown?type=${this.deviceType}`)
+            .subscribe(
+            (response) => {
+                this.deviceNameData = response.data.deviceNameData;
+            },
+            (error) => this.errorMessage = <any>error
+        );
         if (this.hideStatDropdown == true) {
             var v = <HTMLDivElement>document.getElementById("dtServer");
             v.style.display = "none";
