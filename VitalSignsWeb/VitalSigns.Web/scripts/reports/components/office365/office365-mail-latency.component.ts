@@ -81,7 +81,7 @@ export class Office365MailLatencyReport extends WidgetController {
                             allowDecimals: false,
                             title: {
                                 enabled: true,
-                                text: 'Seconds (ms)'
+                                text: 'Milliseconds (ms)'
                             }
                         },
                         plotOptions: {

@@ -81,7 +81,7 @@ export class Office365OneDriveReport extends WidgetController {
                             allowDecimals: false,
                             title: {
                                 enabled: true,
-                                text: 'Seconds (ms)'
+                                text: 'Milliseconds (ms)'
                             }
                         },
                         plotOptions: {
