@@ -73,12 +73,14 @@ namespace VitalSigns.API.Controllers
                     summaryRepository.Filter.Regex(p => p.StatName, new BsonRegularExpression("/Disk.*Free/i")));
                    
                 }
-                else
-                {
+               
+                 else
+                 {  
+                    List<string> listofdevices  = deviceId.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
                     filterDef = summaryRepository.Filter.And(summaryRepository.Filter.Gte(p => p.StatDate, dtStart),
                     summaryRepository.Filter.Lt(p => p.StatDate, dtEnd),
                     summaryRepository.Filter.Ne(p => p.DeviceName, null),
-                    summaryRepository.Filter.Eq(p => p.DeviceId, deviceId),
+                    summaryRepository.Filter.In(p => p.DeviceId, listofdevices),
                     summaryRepository.Filter.Regex(p => p.StatName, new BsonRegularExpression("/Disk.*Free/i")));
                 }
                 var summarylist = summaryRepository.Find(filterDef).OrderBy(p => p.StatDate).ToList();
@@ -2422,13 +2424,12 @@ namespace VitalSigns.API.Controllers
                 series.Add(serie);
                 Serie subserie = new Serie();
                 List<Serie> subseries = new List<Serie>();
-                Chart chart = new Chart();
-                chart.Title = "Mailbox Count";
+            Chart chart = new Chart();
+            chart.Title = "Mailbox Count";
                 chart.Series = series;
                 chart.Series2 = subseries;
-                Response = Common.CreateResponse(chart);
-                return Response;
-          
+            Response = Common.CreateResponse(chart);
+            return Response;
         }
 
         [HttpGet("exchnage_mailboxes_prohbited_warning")]

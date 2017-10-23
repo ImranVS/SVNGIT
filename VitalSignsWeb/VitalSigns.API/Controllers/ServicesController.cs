@@ -1630,8 +1630,9 @@ namespace VitalSigns.API.Controllers
    
                 if (!string.IsNullOrEmpty(deviceId))
                 {
+                    List<string> listofdevices = deviceId.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
                     filterDefStatus = statusRepository.Filter.And(statusRepository.Filter.Exists(x => x.Disks, true),
-                        statusRepository.Filter.Eq(x => x.DeviceId, deviceId));
+                        statusRepository.Filter.In(x => x.DeviceId, listofdevices));
                 }
                 else
                 {
@@ -1646,51 +1647,52 @@ namespace VitalSigns.API.Controllers
 
                 List<Segment> diskfreesegments = new List<Segment>();
                 List<Segment> diskusedsegments = new List<Segment>();
-
-                foreach (Status status in result1)
-                {
-                   
-                    disks = status.Disks;
-                    disks.RemoveAll(item => item.DiskFree == null || item.DiskFree == 0.0);
-                    disks.RemoveAll(item => item.DiskSize - item.DiskFree == null || item.DiskFree == 0.0);
-                    if (ismonitored == "true" && (servers.Where(x => x.Id == status.DeviceId).Count() > 0))
+                   foreach (Status status in result1)
                     {
-                        Server server = servers.Where(x => x.Id == status.DeviceId).First();
-                        if (server.DiskInfo != null)
+
+                        disks = status.Disks;
+                        disks.RemoveAll(item => item.DiskFree == null || item.DiskFree == 0.0);
+                        disks.RemoveAll(item => item.DiskSize - item.DiskFree == null || item.DiskFree == 0.0);
+                        if (ismonitored == "true" && (servers.Where(x => x.Id == status.DeviceId).Count() > 0))
                         {
-                            List<DiskSetting> diskSetting = server.DiskInfo;
-                            List<String> diskNames = diskSetting.Select(x => x.DiskName.ToLower()).ToList();
-                            disks = disks.Where(x => diskNames.Contains(x.DiskName.ToLower()) || diskNames.Contains("AllDisks")).ToList();
+                            Server server = servers.Where(x => x.Id == status.DeviceId).First();
+                            if (server.DiskInfo != null)
+                            {
+                                List<DiskSetting> diskSetting = server.DiskInfo;
+                                List<String> diskNames = diskSetting.Select(x => x.DiskName.ToLower()).ToList();
+                                disks = disks.Where(x => diskNames.Contains(x.DiskName.ToLower()) || diskNames.Contains("AllDisks")).ToList();
+                            }
                         }
-                    }
-                    var data = disks.Select(x => new
-                    {
-                        Name = x.DiskName,
-                        Free = x.DiskFree,
-                        Used = x.DiskSize - x.DiskFree
-                    });
-
-                    //diskFreeSerie.Segments.Add(data.Select(x => new Segment { Label = status.DeviceName + " - " + x.Name, Value = x.Free.Value, Color = "rgba(95, 190, 127, 1)" }).ToList());
-                    foreach (var item in data)
-                    {
-                        diskfreesegments.Add(new Segment()
+                        var data = disks.Select(x => new
                         {
-                            Label = string.IsNullOrEmpty(deviceId) ? status.DeviceName + " - " + item.Name : item.Name,
-                            Value = item.Free.Value,
-                            Color = "rgba(95, 190, 127, 1)"
+                            Name = x.DiskName,
+                            Free = x.DiskFree,
+                            Used = x.DiskSize - x.DiskFree
                         });
-                        diskusedsegments.Add(new Segment()
+
+                        //diskFreeSerie.Segments.Add(data.Select(x => new Segment { Label = status.DeviceName + " - " + x.Name, Value = x.Free.Value, Color = "rgba(95, 190, 127, 1)" }).ToList());
+                        foreach (var item in data)
                         {
-                            Label = string.IsNullOrEmpty(deviceId) ? status.DeviceName + " - " + item.Name : item.Name,
-                            Value = item.Used.Value,
-                            Color = "rgba(239, 58, 36, 1)"
-                        });
+                            diskfreesegments.Add(new Segment()
+                            {
+                              
+                                Label = string.IsNullOrEmpty(deviceId) ? status.DeviceName + " - " + item.Name : item.Name,
+                                Value = item.Free.Value,
+                                Color = "rgba(95, 190, 127, 1)"
+                            });
+                            diskusedsegments.Add(new Segment()
+                            {
+                             
+                                Label = string.IsNullOrEmpty(deviceId) ? status.DeviceName + " - " + item.Name : item.Name,
+                                Value = item.Used.Value,
+                                Color = "rgba(239, 58, 36, 1)"
+                            });
+                        }
+
+                        //diskUsedSerie.Segments = data.Select(x => new Segment { Label = status.DeviceName + " - " + x.Name, Value = x.Used.Value, Color = "rgba(239, 58, 36, 1)" }).ToList();
+
                     }
-
-                    //diskUsedSerie.Segments = data.Select(x => new Segment { Label = status.DeviceName + " - " + x.Name, Value = x.Used.Value, Color = "rgba(239, 58, 36, 1)" }).ToList();
-
-                }
-               
+              
                 diskFreeSerie.Segments = diskfreesegments;
                 diskUsedSerie.Segments = diskusedsegments;
                 diskserie.Add(diskFreeSerie);
