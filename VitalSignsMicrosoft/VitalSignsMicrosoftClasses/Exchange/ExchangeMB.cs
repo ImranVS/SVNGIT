@@ -250,7 +250,7 @@ namespace VitalSignsMicrosoftClasses
 
                             VSNext.Mongo.Entities.Mailbox.Folder folder = new VSNext.Mongo.Entities.Mailbox.Folder();
                             folder.Name = Name;
-                            folder.ItemCount = int.TryParse(ItemCount, out tempInt) ? (int?)tempInt : null;
+                            folder.ItemCount = int.TryParse(ItemsInFolder, out tempInt) ? (int?)tempInt : null;
                             folder.DeletedItemCount = int.TryParse(DeletedItemsInFolder, out tempInt) ? (int?)tempInt : null;
                             folder.TotalItemSizeMb = double.TryParse(bytesInFolder, out tempDouble) ? (double?)tempDouble / 1024 / 1024 : null;
                             folder.ItemsAndSubfolderItemsCount = int.TryParse(ItemsInFolderAndSubfolders, out tempInt) ? (int?)tempInt : null;

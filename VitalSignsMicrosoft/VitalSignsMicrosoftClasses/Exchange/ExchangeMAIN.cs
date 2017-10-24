@@ -114,7 +114,7 @@ namespace VitalSignsMicrosoftClasses
 					StartDAGThreads();
 
 
-                    /*
+                    
                     Thread ExchangeDevices = new Thread(new ThreadStart(ExchangeDevicesLoop));
                     ExchangeDevices.CurrentCulture = c;
                     ExchangeDevices.IsBackground = true;
@@ -124,7 +124,7 @@ namespace VitalSignsMicrosoftClasses
                     Thread.Sleep(2000);
 
 
-                    */
+                    
 
 				}
 				else
