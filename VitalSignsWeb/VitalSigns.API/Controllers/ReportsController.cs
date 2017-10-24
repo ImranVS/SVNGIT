@@ -75,8 +75,10 @@ namespace VitalSigns.API.Controllers
                 }
                
                  else
-                 {  
-                    List<string> listofdevices  = deviceId.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
+                 {
+                    
+                        List<string> listofdevices  = deviceId.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
+     
                     filterDef = summaryRepository.Filter.And(summaryRepository.Filter.Gte(p => p.StatDate, dtStart),
                     summaryRepository.Filter.Lt(p => p.StatDate, dtEnd),
                     summaryRepository.Filter.Ne(p => p.DeviceName, null),
@@ -2366,18 +2368,20 @@ namespace VitalSigns.API.Controllers
             mailboxRepository = new Repository<Mailbox>(ConnectionString);
             var result = mailboxRepository.Find(x => x.DeviceName == "Exchange").ToList();
             List<Segment> listsegments = new List<Segment>();
+            List<Serie> subseries1 = new List<Serie>();
+            List<Serie> series1 = new List<Serie>();
             string serietitle = "";
             if (statname == "folder_count")
             {
                 serietitle = "Folder Count";
-                listsegments = result.OrderByDescending(x => x.FolderCount).Take(25)
+                listsegments = result.Where(x => x.Folders != null).OrderByDescending(x => x.Folders.Count).Take(25)
                     .Select(x => new Segment()
                     {
                         Label = x.DisplayName,
-                        Value = x.FolderCount,
+                        Value = x.Folders.Count,
                     }).ToList();
             }
-            else if(statname == "item_count")
+            else if (statname == "item_count")
             {
                 serietitle = "Items";
                 listsegments = result.OrderByDescending(x => x.ItemCount).Take(25)
@@ -2386,6 +2390,10 @@ namespace VitalSigns.API.Controllers
                         Label = x.DisplayName,
                         Value = x.ItemCount,
                     }).ToList();
+                Serie parentSerie = new Serie();
+                parentSerie.Title = "items";
+                parentSerie.Segments = listsegments;
+                series1.Add(parentSerie);
             }
             else if (statname == "total_item_size_mb")
             {
@@ -2396,38 +2404,83 @@ namespace VitalSigns.API.Controllers
                         Label = x.DisplayName,
                         Value = x.TotalItemSizeMb,
                     }).ToList();
+                Serie parentSerie = new Serie();
+                parentSerie.Title = "Total Item Size(MB)";
+                parentSerie.Segments = listsegments;
+                series1.Add(parentSerie);
             }
             else if (statname == "max_folder_count")
             {
                 serietitle = "Highest Folder Count";
-                listsegments = result.OrderByDescending(x => x.MaxFolderCount).Take(25)
-                    .Select(x => new Segment()
+                var listOfMailboxes = result.Where(x => x.Folders != null).OrderByDescending(x => x.Folders.Max(y => y.ItemCount)).Take(25).ToList();
+                listsegments = listOfMailboxes.Select(x => new Segment()
+                {
+                    Label = x.DisplayName,
+                    Value = x.Folders.Max(y => y.ItemCount),
+                    DrillDownName = x.SAMAccountName
+                }).ToList();
+                Serie parentSerie = new Serie();
+                parentSerie.Title = "Highest Folder Count";
+                parentSerie.Segments = listsegments;
+                series1.Add(parentSerie);
+                foreach (Segment seg in listsegments)
+                {
+                    var samAcct = seg.DrillDownName;
+                    var mailbox = listOfMailboxes.Where(x => x.SAMAccountName == samAcct).First();
+                    if (mailbox.Folders != null)
                     {
-                        Label = x.DisplayName,
-                        Value = x.MaxFolderCount,
-                    }).ToList();
+                        var subSerie = new Serie();
+                        var subsegements = mailbox.Folders.OrderByDescending(x => x.ItemCount).Take(10).Select(x => new Segment()
+                        {
+                            Label = x.Name,
+                            Value = x.ItemCount,
+                            DrillDownName = samAcct
+                        }).ToList();
+                        subSerie.Segments = subsegements;
+                        subSerie.Title = "Folder Count";
+                        subseries1.Add(subSerie);
+                    }
+
+                }
+
             }
             else if (statname == "max_folder_size_mb")
             {
                 serietitle = "Large Folder Size(MB)";
-                listsegments = result.OrderByDescending(x => x.MaxFolderSizeMb).Take(25)
-                    .Select(x => new Segment()
+                var listofmaxfolders = result.Where(x => x.Folders != null).OrderByDescending(x => x.Folders.Max(z => z.TotalItemSizeMb)).Take(25).ToList();
+                listsegments = listofmaxfolders.Select(x => new Segment()
+                {
+                    Label = x.DisplayName,
+                    Value = x.Folders.Max(z => z.TotalItemSizeMb),
+                    DrillDownName = x.SAMAccountName
+                }).ToList();
+                Serie parentSerie = new Serie();
+                parentSerie.Title = "Large Folder Size(MB)";
+                parentSerie.Segments = listsegments;
+                series1.Add(parentSerie);
+                foreach (Segment seg in listsegments)
+                {
+                    var samAcct = seg.DrillDownName;
+                    var mailbox = listofmaxfolders.Where(x => x.SAMAccountName == samAcct).First();
+                    if (mailbox.Folders != null)
                     {
-                        Label = x.DisplayName,
-                        Value = x.MaxFolderSizeMb,
-                    }).ToList();
+                        var subSerie = new Serie();
+                        var subsegements = mailbox.Folders.OrderByDescending(x => x.TotalItemSizeMb).Take(10).Select(x => new Segment()
+                        {
+                            Label = x.Name,
+                            Value = Math.Round(x.TotalItemSizeMb.GetValueOrDefault(),2),
+                            DrillDownName = samAcct
+                        }).ToList();
+                        subSerie.Segments = subsegements;
+                        subSerie.Title = "Large Folder Size(MB)";
+                        subseries1.Add(subSerie);
+                    }
+                }
             }
-            Serie serie = new Serie();
-                serie.Title = serietitle;
-                serie.Segments = listsegments;
-                List<Serie> series = new List<Serie>();
-                series.Add(serie);
-                Serie subserie = new Serie();
-                List<Serie> subseries = new List<Serie>();
             Chart chart = new Chart();
             chart.Title = "Mailbox Count";
-                chart.Series = series;
-                chart.Series2 = subseries;
+            chart.Series = series1;
+            chart.Series2 = subseries1;
             Response = Common.CreateResponse(chart);
             return Response;
         }
@@ -2472,17 +2525,18 @@ namespace VitalSigns.API.Controllers
                 mailboxRepository = new Repository<Mailbox>(ConnectionString);
                 var filterDef = mailboxRepository.Filter.Eq(x => x.DeviceName, "Exchange");
                 var results = mailboxRepository.Find(filterDef).ToList().Select(x => new MailboxModel()
-     
-                  {
+
+                {
                     DisplayName = x.DisplayName,
                     SAMAccountName = x.SAMAccountName,
                     PrimarySmtpAddress = x.PrimarySmtpAddress,
                     Company = x.Company,
-                    Department= x.Department,
-                    MaxFolderSizeMb = Math.Round((double)x.MaxFolderSizeMb / 1024, 2),
-                    ItemCount =x.ItemCount,
-                    FolderCount=x.FolderCount,
-                    DatabaseName=x.DatabaseName,
+                    Department = x.Department,
+                    MaxFolderSizeMb = Math.Round(x.Folders == null ? 0 : (double)x.Folders.Max(z => z.TotalItemSizeMb) / 1024, 2),
+                    // MaxFolderSizeMb = Math.Round((double)x.MaxFolderSizeMb / 1024, 2),
+                    ItemCount = x.ItemCount,
+                    FolderCount = x.Folders == null ? 0: x.Folders.Count,
+                    DatabaseName =x.DatabaseName,
                     LastLogonTime =x.LastLogonTime 
                 }).ToList().OrderBy(x => x.DisplayName);
                 Response = Common.CreateResponse(results);
