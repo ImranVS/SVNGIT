@@ -474,9 +474,11 @@ namespace VitalSigns.API.Controllers
                 serverRepository = new Repository<Server>(ConnectionString);
                 if (deviceId != "" && deviceId != null)
                 {
-                    Expression<Func<Status, bool>> expression = (p => p.Disks != null && p.DeviceId == deviceId);
-                    var results = statusRepository.Find(expression).AsQueryable().ToList();
-                    var allServers = serverRepository.Find(x => x.Id == deviceId).ToList();
+                    List<string> listofdevices = deviceId.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
+                    var serverfilterdef = serverRepository.Filter.In(x => x.Id, listofdevices);
+                    var statusfilterdef = statusRepository.Filter.In(x => x.DeviceId, listofdevices) & statusRepository.Filter.Ne(x => x.Disks, null);
+                    var results = statusRepository.Find(statusfilterdef).AsQueryable().ToList();
+                    var allServers = serverRepository.Find(serverfilterdef).ToList();
                     if (results.Count > 0)
                     {
                         foreach(var result in results)
@@ -504,7 +506,7 @@ namespace VitalSigns.API.Controllers
                                 }
                                 avgDailyGrowth = 0;
                                 var disksizes = summaryStatisticsRepository.Collection.AsQueryable()
-                                    .Where(x => x.StatName == drive.DiskName + ".Free" && x.DeviceId == deviceId)
+                                    .Where(x => x.StatName == drive.DiskName + ".Free" && x.DeviceId == result.DeviceId)
                                     .OrderByDescending(x => x.StatDate).ToList();
                                 if (disksizes.Count > 0)
                                 {
