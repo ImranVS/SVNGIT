@@ -56,7 +56,7 @@ export class IBMDomino implements OnInit {
                 "active": false
             },
             {
-                "title": "Notes Database Mail Probe",
+                "title": "NotesMail Probes",
                 "component": "NotesMailProbes",
                 "path": "/app/configurator/components/mail/notesmail-probes.component",
                 "active": false
