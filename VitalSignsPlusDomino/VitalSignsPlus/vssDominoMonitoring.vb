@@ -514,7 +514,7 @@ Partial Public Class VitalSignsPlusDomino
 
         End Try
 
-        If SametimeServer.LastStatsProcessedDate = Now.ToShortDateString Then
+        If SametimeServer.LastStatsProcessedDate.ToShortDateString = Now.ToShortDateString Then
             WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Statistics have already been processed for today")
             Exit Sub
         End If
@@ -6890,7 +6890,7 @@ Cleanup:
                 DominoServer.ResponseDetails = "The cluster replication threshold is " & DominoServer.ClusterRep_Threshold & " and the current value is " & DominoServer.ReplicaClusterSecondsOnQueue
                 myAlert.QueueAlert(DominoServer.ServerType, DominoServer.Name, "Cluster Replicator Delay", DominoServer.ResponseDetails, DominoServer.Location)
             Else
-                myAlert.ResetAlert(DominoServer.ServerType, DominoServer.Name, "Cluster Replicator Delay", DominoServer.Location)
+                myAlert.ResetAlert(DominoServer.ServerType, DominoServer.Name, "Cluster Replicator Delay", DominoServer.Location, "The cluster replicator is up to date.")
             End If
         Catch ex As Exception
 
@@ -6962,7 +6962,7 @@ Cleanup:
                 UpdateDominoStatusTable(DominoServer)
                 myAlert.QueueAlert(DominoServer.ServerType, DominoServer.Name, "Failover", DominoServer.ResponseDetails, DominoServer.Location)
             Else
-                myAlert.ResetAlert(DominoServer.ServerType, DominoServer.Name, "Failover", DominoServer.Location)  'no need to be busy and overloaded
+                myAlert.ResetAlert(DominoServer.ServerType, DominoServer.Name, "Failover", DominoServer.Location, "This server is not redirecting users to another server.")  'no need to be busy and overloaded
             End If
         Catch ex As Exception
 

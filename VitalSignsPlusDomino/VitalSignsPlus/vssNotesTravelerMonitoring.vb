@@ -136,7 +136,7 @@ Partial Public Class VitalSignsPlusDomino
                 WriteDeviceHistoryEntry(myDominoServer.ServerType, myDominoServer.Name, Now.ToString & " Traveler.Constrained.State = " & Constrained)
                 If Constrained = 0 Then
                     updateDef = updateDef.Set(Function(x) x.ResourceConstraint, "Pass")
-                    myAlert.ResetAlert(myDominoServer.ServerType, myDominoServer.Name, "Traveler Resource Constraint", "The Traveler server is not operating under a detected resource constraint.")
+                    myAlert.ResetAlert(myDominoServer.ServerType, myDominoServer.Name, "Traveler Resource Constraint", myDominoServer.Location, "The Traveler server is not operating under a detected resource constraint.", "Traveler")
                 ElseIf Constrained = 1 Then
                     updateDef = updateDef.Set(Function(x) x.ResourceConstraint, "Fail")
                     Dim myDetails As String
@@ -308,11 +308,11 @@ Partial Public Class VitalSignsPlusDomino
                     .Traveler_Status = "Insufficient HTTP Sessions"
                     Status = "Insufficient HTTP Sessions"
                     'Details = "The maximum number of actual HTTP sessions has hit the configured limit of " & .HTTP_Configured_Max_Sessions & ". This can adversely affect Traveler performance."
-                    Details = "Insufficient"
+                    Details = .Description
                     myAlert.QueueAlert(.ServerType, .Name, "Traveler Insufficient Threads", Details, .Location, "Traveler")
                 Else
-                    myAlert.ResetAlert(.ServerType, .Name, "Traveler Insufficient Threads", .Location)
-				End If
+                    myAlert.ResetAlert(.ServerType, .Name, "Traveler Insufficient Threads", .Location, "This server has sufficient threads.", "Traveler")
+                End If
 			End With
 		Catch ex As Exception
 
@@ -430,7 +430,7 @@ Partial Public Class VitalSignsPlusDomino
 							If ScanInterval.TotalMinutes > 30 Then
 								.Status = "Traveler Not Syncing"
 								.Traveler_Status = "Not Syncing"
-                                myAlert.QueueAlert(.ServerType, .Name, "Traveler Device Sync", "The device synchronization counts for the Lotus Traveler server task haven't changed in " & ScanInterval.TotalMinutes & " minutes, and this COULD indicate a problem with Lotus Traveler. Then again, it could just indicate that nobody has been retrieving their mail remotely in a while.  Still, VitalSigns thought you should know.  When the number changes you'll get another message stating that fact.", .Location)
+                                myAlert.QueueAlert(.ServerType, .Name, "Traveler Device Sync", "The device synchronization counts for the Lotus Traveler server task haven't changed in " & ScanInterval.TotalMinutes & " minutes, and this COULD indicate a problem with Lotus Traveler. Then again, it could just indicate that nobody has been retrieving their mail remotely in a while.  Still, VitalSigns thought you should know.  When the number changes you'll get another message stating that fact.", .Location, "Traveler")
 
                                 updateDef = repository.Updater.Set(Function(x) x.TravelerStatus, "Not Syncing")
                                 repository.Update(filterDef, updateDef)
@@ -441,8 +441,8 @@ Partial Public Class VitalSignsPlusDomino
 						End Try
 
 					Else
-                        myAlert.ResetAlert(.ServerType, .Name, "Traveler Device Sync", .Location)
-					End If
+                        myAlert.ResetAlert(.ServerType, .Name, "Traveler Device Sync", .Location, "The total number of device syncs is increasing.", "Traveler")
+                    End If
 				Else
 
                     UpdateDominoDailyStatTable(myDominoServer, "Traveler.IncrementalDeviceSyncs", 0)

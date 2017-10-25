@@ -153,9 +153,7 @@
     <Compile Include="vssNotesTravelerMonitoring.vb">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="vssURLMonitoring.vb">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="vssURLMonitoring.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="My Project\Resources.resx">
