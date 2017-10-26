@@ -82,7 +82,7 @@ export class exchangeresponsetimereport extends WidgetController {
                             allowDecimals: false,
                             title: {
                                 enabled: true,
-                                text: 'Percent'
+                                text: 'Time (MS)'
                             }
                         },
                         plotOptions: {

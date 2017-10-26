@@ -6,14 +6,15 @@
         <div id="dtPanel2" style="display:inline-block">
             <span class="headerBlock">End Date:</span> <wj-input-date format="MM-dd-yyyy" [(value)]="endDate" style="width:125px;"></wj-input-date>
         </div>
-        <div id="dtServer" style="display:inline-block">
-
-            <span class="headerBlock">Statistic : </span> <select name="selecttype" [(ngModel)]="statisticDropdown">
+        <div id="dtstat" style="display:inline-block">
+            <span class="headerBlock">Statistic : </span> 
+            <select (change)="onChange($event.target.value)">
                 <option value="PeakLogins">Peak Logins</option>
                 <option value="Total2WayChats">Total 2-Way Chats</option>
-                <option value="TotalnWayChats">Total n-Way Chats</option>
-            </select>
-        </div>
+                <option value="TotalnWayChats" selected="selected">Total n-Way Chats</option>
+                 </select>
+            
+</div>
         <div id="dtFilter" style="display:inline-block">
             <button class="btn btn-success" (click)="applyFilters()">Filter</button>
         </div>

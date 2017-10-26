@@ -73,7 +73,7 @@ export class ExchnageStatisticReport extends WidgetController {
                             allowDecimals: false,
                             title: {
                                 enabled: true,
-                                text: 'Percent'
+                                text: 'value'
                             }
                         },
                         plotOptions: {

@@ -82,7 +82,7 @@ export class exchangequeuereport extends WidgetController {
                             allowDecimals: false,
                             title: {
                                 enabled: true,
-                                text: 'Percent'
+                                text: 'Count'
                             }
                         },
                         plotOptions: {

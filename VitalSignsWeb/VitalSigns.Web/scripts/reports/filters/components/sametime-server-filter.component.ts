@@ -42,7 +42,7 @@ export class SametimeServerFilter {
     
     constructor(private service: RESTService, private router: Router, private route: ActivatedRoute, private widgetService: WidgetService) { }
     ngOnInit() {
-
+        this.statisticDropdown = "TotalnWayChats";
         this.route.queryParams.subscribe(params => {
             this.statName = params['statname'];
         });
@@ -54,10 +54,13 @@ export class SametimeServerFilter {
             (error) => this.errorMessage = <any>error
         );
         if (this.hideStatDropdown == true) {
-            var v = <HTMLDivElement>document.getElementById("dtServer");
+            var v = <HTMLDivElement>document.getElementById("dtstat");
             v.style.display = "none";
         }
         
+    }
+    onChange(value) {
+        this.statisticDropdown = value;
     }
     applyFilters() {  
         //var v = multisel1.checkedItems;
@@ -98,9 +101,8 @@ export class SametimeServerFilter {
         //    URL += "&statName=" + this.statName;
         var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString();
         if (this.hideStatDropdown == false)
-            URL += `&statName=` + this.statisticDropdown;
-   
-        //});
+            URL += "&statName=" + this.statisticDropdown;
+         //});
         //this.widgetService.refreshWidget('avgcpuutilchart', `/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil&deviceId=` + selectedServers + `&start=` + this.startDate.toISOString() + `&end=` + this.endDate.toISOString())
         //    .catch(error => console.log(error));
         //var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + "Temp";
