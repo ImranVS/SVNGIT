@@ -66,6 +66,14 @@ export class DiskSpaceWidgetReport implements WidgetComponent, OnInit {
         let driveChart = Object.assign({}, this.chartTpl);
 
         driveChart.chart.renderTo = ref.clientId;
+        //console.log(drive)
+        try {
+            if (drive.percent_free > 1)
+                drive.percent_free = drive.disk_free / drive.disk_size;
+        } catch (ex) {
+            console.log(ex)
+            drive.perfect_free = 0
+        }
 
         driveChart.series = [{
             name: drive.name,
@@ -92,6 +100,7 @@ export class DiskSpaceWidgetReport implements WidgetComponent, OnInit {
         //http://private-f4c5b-vitalsignssandboxserver.apiary-mock.com/reports/disk-space-consumption
         this.service.get(url)
             .subscribe((response) => {
+                this.drives = []
                 //data: any[];
                 response.data.forEach(server => server.drives.forEach(drive => {
 

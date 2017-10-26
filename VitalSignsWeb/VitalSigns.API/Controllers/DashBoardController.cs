@@ -538,7 +538,7 @@ namespace VitalSigns.API.Controllers
                                     DiskSize = Math.Round(Convert.ToDouble(drive.DiskSize),1),
                                     DiskName = drive.DiskName,
                                     DiskUsed = Math.Round(Convert.ToDouble(drive.DiskSize) - Convert.ToDouble(drive.DiskFree),1),
-                                    PercentFree = Math.Round(Convert.ToDouble(drive.PercentFree*100),1),
+                                    PercentFree = Math.Round(Convert.ToDouble(drive.PercentFree),1),
                                     Threshold = drive.Threshold,
                                     AvgDailyGrowth = avgDailyGrowth
                                 });
