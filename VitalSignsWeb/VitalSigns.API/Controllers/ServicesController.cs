@@ -1234,7 +1234,7 @@ namespace VitalSigns.API.Controllers
                             var devicename = result.Where(x => x.StatName == name.ToString()).ToList();
 
                             //WS changed to just less then end date due to the end date being the next day to include all of the previous day values.
-                            for (DateTime date = dtStart; date < dtEnd; date = date.AddDays(1))
+                            for (DateTime date = dtStart; date <= dtEnd; date = date.AddDays(1))
                             {
                                 var item = result.Where(x => x.Date.Date == date.Date && x.StatName == name.ToString()).FirstOrDefault();
                                 var output = result.Where(x => x.Date.Date == date.Date && x.StatName == name.ToString()).ToList();
