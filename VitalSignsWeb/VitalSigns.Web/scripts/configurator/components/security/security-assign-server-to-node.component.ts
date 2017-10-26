@@ -10,7 +10,7 @@ import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import { ServersLocationService } from '../serverSettings/serverattributes-view.service';
 import { ServersLocation } from '../server-list-location.component';
 import * as helpers from '../../../core/services/helpers/helpers';
-
+declare var injectSVG: any;
 
 @Component({
     templateUrl: '/app/configurator/components/security/security-assign-server-to-node.component.html',
@@ -74,6 +74,10 @@ export class Nodes extends GridBase {
 
     }
 
+
+    ngAfterViewChecked() {
+        injectSVG();
+    }
 
    
     refreshGrid(event: wijmo.grid.CellRangeEventArgs) {
