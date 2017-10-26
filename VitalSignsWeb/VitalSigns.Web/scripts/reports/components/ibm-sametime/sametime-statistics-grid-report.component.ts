@@ -26,7 +26,7 @@ export class SametimeStatisticsGridReport extends WidgetController {
     currentHideStatDropdown: boolean = true;
     currentWidgetName: string = `sametimeStatisticsGrid`;
     currentWidgetURL: string = this.url;
-    currentDeviceType: string = "IBM Sametime";
+    currentDeviceType: string = "Sametime";
 
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, 

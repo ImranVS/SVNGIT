@@ -25,7 +25,7 @@ export class SametimeStatisticsChartReport extends WidgetController {
     currentHideStatDropdown: boolean = false;
     currentWidgetName: string = `report`;
     currentWidgetURL: string = this.url;
-    currentDeviceType: string = "IBM Sametime";
+    currentDeviceType: string = "Sametime";
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
         protected urlHelpers: helpers.UrlHelperService) {
@@ -53,6 +53,7 @@ export class SametimeStatisticsChartReport extends WidgetController {
                 name: 'ChartComponent',
                 settings: {
                     url: `${this.url}?statName=TotalnWayChats`,
+                    dateformat: 'date',
                     chart: {
                         chart: {
                             renderTo: 'report',
