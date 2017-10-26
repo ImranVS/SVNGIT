@@ -74,6 +74,9 @@ export class DominoStatistics implements OnInit {
         this.filterDate = today.toISOString().substr(0, 10);
 
     }
+    ngAfterViewChecked() {
+        injectSVG();
+    }
 
     filterStats() {
         //console.log(this.filterDate);

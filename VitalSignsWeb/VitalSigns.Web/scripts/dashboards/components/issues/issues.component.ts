@@ -86,7 +86,9 @@ export class Issues implements OnInit {
         this.toolTip.getTooltip(this.flex, 0, 3);
     }
     
-
+    ngAfterViewChecked() {
+        injectSVG();
+    }
 }
 
 

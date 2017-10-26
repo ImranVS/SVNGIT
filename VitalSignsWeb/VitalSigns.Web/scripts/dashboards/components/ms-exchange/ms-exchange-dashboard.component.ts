@@ -196,5 +196,8 @@ export class MSExchangeDashboard extends WidgetController implements OnInit {
         injectSVG();
 
     }
+    ngAfterViewChecked() {
+        injectSVG();
+    }
 
 }
