@@ -2,7 +2,8 @@
 import {HttpModule}    from '@angular/http';
 
 import {WidgetComponent} from '../../core/widgets';
-import {RESTService} from '../../core/services';
+import { RESTService } from '../../core/services';
+declare var injectSVG: any;
 
 @Component({
     selector: "executive-summary-widget",
@@ -35,10 +36,16 @@ export class ExecutiveSummaryWidget implements WidgetComponent, OnInit {
         );
     }
 
+    ngAfterViewChecked() {
+        injectSVG();
+    }
+
     ngOnInit() {
         this.loadData();
+      
     }
     refresh() {
         this.loadData();
+      
     }
 }
