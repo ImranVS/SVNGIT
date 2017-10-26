@@ -3,8 +3,8 @@ import {ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 
 import {RESTService} from '../../../core/services';
-
 import * as ServiceTabs from './server-settings-tab.collection';
+declare var injectSVG: any;
 
 @Component({
     templateUrl: '/app/configurator/components/serverSettings/server-settings-tabs.component.html',
@@ -29,6 +29,9 @@ export class ServerSettings implements OnInit {
         // Lazy-load selected tab component     
         let factory = this.resolver.resolveComponentFactory(ServiceTabs[tab.component]);     
         this.activeTabComponent = this.target.createComponent(factory);
+    }
+    ngAfterViewChecked() {
+        injectSVG();
     }
     ngOnInit() {   
         this.tabsData= [
