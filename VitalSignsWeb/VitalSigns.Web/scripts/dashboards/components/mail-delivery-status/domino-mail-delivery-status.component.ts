@@ -90,6 +90,9 @@ export class DominoMailDeliveryStatus implements OnInit {
             );
     }
 
+    ngAfterViewChecked() {
+        injectSVG();
+    }
 
 }
 

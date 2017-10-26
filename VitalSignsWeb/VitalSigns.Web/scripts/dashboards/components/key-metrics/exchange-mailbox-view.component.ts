@@ -10,6 +10,8 @@ import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 import * as helpers from '../../../core/services/helpers/helpers';
 
+declare var injectSVG: any;
+
 @Component({
     templateUrl: './app/dashboards/components/key-metrics/exchange-mailbox-view.component.html',
     providers: [
@@ -77,5 +79,9 @@ export class ExchangemailstatisticsviewGrid implements WidgetComponent, OnInit {
             (error) => this.errorMessage = <any>error
             );
         this.toolTip.getTooltip(this.flex, 0, 3);
+    }
+
+    ngAfterViewChecked() {
+        injectSVG();
     }
 }
