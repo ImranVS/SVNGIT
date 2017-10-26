@@ -348,7 +348,7 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("summarystats_chart")]
-        public APIResponse GetSumamryStatsChart(string statName, string deviceId = "", string startDate = "", string endDate = "", string type = "", string aggregation = "", bool getNode = false)
+        public APIResponse GetSumamryStatsChart(string statName ,string deviceId = "", string startDate = "", string endDate = "", string type = "", string aggregation = "", bool getNode = false)
         {
             FilterDefinition<SummaryStatistics> filterDef = null;
             if (startDate == "")
@@ -432,9 +432,9 @@ namespace VitalSigns.API.Controllers
                 {
                     filterDef = filterDef & summaryRepository.Filter.Eq(p => p.AggregationType, aggregation);
                 }
-                var result = summaryRepository.Find(filterDef).OrderBy(p => p.StatDate).ToList();
-
-                List<Serie> series = new List<Serie>();
+               
+                    var result = summaryRepository.Find(filterDef).OrderBy(p => p.StatDate).ToList();
+                 List<Serie> series = new List<Serie>();
 
                 UtilsController uc = new UtilsController();
 
@@ -2380,6 +2380,10 @@ namespace VitalSigns.API.Controllers
                         Label = x.DisplayName,
                         Value = x.Folders.Count,
                     }).ToList();
+                Serie parentSerie = new Serie();
+                parentSerie.Title = "Folder Count";
+                parentSerie.Segments = listsegments;
+                series1.Add(parentSerie);
             }
             else if (statname == "item_count")
             {
