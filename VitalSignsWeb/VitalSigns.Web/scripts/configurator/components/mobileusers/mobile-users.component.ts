@@ -8,6 +8,7 @@ import {GridBase} from '../../../core/gridBase';
 import { AppComponentService } from '../../../core/services';
 import { AuthenticationService } from '../../../profiles/services/authentication.service';
 import * as gridHelpers from '../../../core/services/helpers/gridutils';
+declare var injectSVG: any;
 
 @Component({
     templateUrl: '/app/configurator/components/mobileusers/mobile-users.component.html',
@@ -58,6 +59,9 @@ export class MobileUser extends GridBase implements OnInit {
                 );
 
         }
+    }
+    ngAfterViewChecked() {
+        injectSVG();
     }
     ngOnInit() {
         this.initialGridBind('/configurator/get_mobile_users');

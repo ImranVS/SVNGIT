@@ -5,6 +5,7 @@ import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
 
 import * as ServiceTabs from './alert-tab.collection';
+declare var injectSVG: any;
 
 @Component({
     templateUrl: '/app/configurator/components/alert/alert-tabs-component.html',
@@ -65,4 +66,7 @@ export class Alerts implements OnInit {
         ];
         this.selectTab(this.tabsData[0]);
     };
+    ngAfterViewChecked() {
+        injectSVG();
+    }
 }

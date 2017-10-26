@@ -6,6 +6,8 @@ import {RESTService} from '../../../core/services';
 
 import * as ServiceTabs from './log-files-tab.collection';
 
+declare var injectSVG: any;
+
 @Component({
     templateUrl: '/app/configurator/components/logFiles/log-files-tabs-component.html',
     providers: [
@@ -29,6 +31,10 @@ export class LogsTabs implements OnInit {
         let factory = this.resolver.resolveComponentFactory(ServiceTabs[tab.component]);
         this.activeTabComponent = this.target.createComponent(factory);
     }
+    ngAfterViewChecked() {
+        injectSVG();
+    }
+
     ngOnInit() {
         this.tabsData = [
             {

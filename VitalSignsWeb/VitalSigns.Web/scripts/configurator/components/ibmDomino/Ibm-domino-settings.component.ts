@@ -6,6 +6,7 @@ import {HttpModule}    from '@angular/http';
 import {AppComponentService} from '../../../core/services';
 import {RESTService} from '../../../core/services';
 
+
 @Component({
     selector: 'ibmDominoSettings-form',
     templateUrl: '/app/configurator/components/ibmDomino/Ibm-domino-settings.component.html',
@@ -65,6 +66,7 @@ export class IbmDominoSettingsForm implements OnInit, AfterViewInit {
     ngAfterViewInit() {
     }
 
+ 
     onSubmit(nameValue: any): void {
         this.errorMessage = "";
         this.successMessage = "";

@@ -5,6 +5,7 @@ import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
 
 import * as ServiceTabs from './ibmdomino-tabs.collection';
+declare var injectSVG: any;
 
 @Component({
     templateUrl: '/app/configurator/components/ibmDomino/ibmdomino-tabs-component.html',
@@ -88,4 +89,8 @@ export class IBMDomino implements OnInit {
         });
         this.selectTab(this.tabsData[tab]);    
     };
+
+    ngAfterViewChecked() {
+        injectSVG();
+    }
 }

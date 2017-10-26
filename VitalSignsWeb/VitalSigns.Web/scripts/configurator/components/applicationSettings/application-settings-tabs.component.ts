@@ -3,8 +3,9 @@ import {ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 
 import {RESTService} from '../../../core/services';
-
 import * as ServiceTabs from './application-settings-tab.collection';
+
+declare var injectSVG: any;
 
 @Component({
     templateUrl: '/app/configurator/components/applicationSettings/application-settings-tabs.component.html',
@@ -29,6 +30,11 @@ export class ApplicationSettings implements OnInit {
         let factory = this.resolver.resolveComponentFactory(ServiceTabs[tab.component]);       
         this.activeTabComponent = this.target.createComponent(factory);
     }
+
+    ngAfterViewChecked() {
+        injectSVG();
+    }
+
     ngOnInit() {   
         this.tabsData= [
             {
