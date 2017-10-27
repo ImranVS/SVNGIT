@@ -29,8 +29,15 @@
         </div>
         <div id="dtAllServer" style="display:inline-block">
             <span class="headerBlock">Server:</span>
-            <wj-combo-box name="all_server_selector" [itemsSource]="all_servers" displayMemberPath="name" selectedValuePath="id" #all_server_selector>
-            </wj-combo-box>
+                       <wj-multi-select #multisel1
+                             [placeholder]="'Select Servers'"
+                             class="multiselect"
+                             [itemsSource]="all_servers"
+                             displayMemberPath="name" selectedValuePath="id"
+                             [headerFormat]="'{count} Servers selected'"
+                             [checkedMemberPath]="'selected'"
+                             [(ngModel)]="selectedServers" style="width:250px;">
+            </wj-multi-select>
         </div>
         <div id="dtAggregation" style="display:inline-block">
             <span class="headerBlock">Aggregation:</span>
@@ -38,7 +45,7 @@
             </wj-combo-box>
         </div>
         <div id="dtFilter" style="display:inline-block">
-            <button class="btn btn-success" (click)="applyFilters(server_selector,interval_selector,mail_server_selector,all_server_selector,aggregation_selector)">Filter</button>
+            <button class="btn btn-success" (click)="applyFilters(server_selector,interval_selector,mail_server_selector,multisel1,aggregation_selector)">Filter</button>
         </div>
     </div>
 </div>

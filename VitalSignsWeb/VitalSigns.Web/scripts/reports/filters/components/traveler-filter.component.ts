@@ -88,8 +88,15 @@ export class TravelerFilter {
     }
 
     applyFilters(server_sel: wijmo.input.ComboBox, interval_sel: wijmo.input.ComboBox, mail_server_sel: wijmo.input.ComboBox,
-        all_server_sel: wijmo.input.ComboBox, aggregation_sel: wijmo.input.ComboBox) {
+        multisel1: wijmo.input.MultiSelect, aggregation_sel: wijmo.input.ComboBox) {
         var URL = "";
+        var selectedServers = "";
+        for (var item of multisel1.checkedItems) {
+            if (selectedServers == "")
+                selectedServers = item.id;
+            else
+                selectedServers += "," + item.id;
+        }
         if (this.hideDatePanel == true && this.hideSingleDatePanel == true) {
             if (this.hideIntervalControl == false) {
                 URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + server_sel.selectedValue + `&paramvalue=` + interval_sel.selectedValue;          
@@ -98,7 +105,7 @@ export class TravelerFilter {
                 URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + server_sel.selectedValue + `&paramvalue=` + mail_server_sel.selectedValue;
             }
             else if (this.hideAllServerControl == false) {
-                URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + all_server_sel.selectedValue;
+                URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + selectedServers;
             }
         }
         else {
@@ -136,11 +143,11 @@ export class TravelerFilter {
                     URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + server_sel.selectedValue + `&startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString();
                 }
                 else {
-                    URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + all_server_sel.selectedValue + `&startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString();
+                    URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + selectedServers  + `&startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString();
                 }
             }
             else {
-                URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + all_server_sel.selectedValue + `&year=` + newCurrentDate.getFullYear();
+                URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + selectedServers + `&year=` + newCurrentDate.getFullYear();
             }
             
         }
