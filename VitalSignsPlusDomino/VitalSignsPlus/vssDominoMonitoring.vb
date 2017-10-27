@@ -513,14 +513,26 @@ Partial Public Class VitalSignsPlusDomino
         Catch ex As Exception
 
         End Try
+        Try
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Statistics were last processed for " & SametimeServer.LastStatsProcessedDate.ToShortDateString, LogLevel.Verbose)
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " I think today is " & Now.ToShortDateString, LogLevel.Verbose)
+            If Now.ToShortDateString = SametimeServer.LastStatsProcessedDate.ToShortDateString Then
+                WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " These two dates are equal. ", LogLevel.Verbose)
+            Else
+                WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " These two dates are not equal. ", LogLevel.Verbose)
+
+            End If
+        Catch ex As Exception
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Strange exception comparing dates " & ex.ToString, LogLevel.Verbose)
+        End Try
 
         If SametimeServer.LastStatsProcessedDate.ToShortDateString = Now.ToShortDateString Then
-            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Statistics have already been processed for today")
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Statistics have already been processed For today")
             Exit Sub
         End If
 
         If SametimeServer.DominoServerName.Trim = "" Then
-            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " No Domino server was specified for this Sametime server, so statistics cannot be gathered.")
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " No Domino server was specified For this Sametime server, so statistics cannot be gathered.")
             Exit Sub
         End If
 
@@ -545,7 +557,7 @@ Partial Public Class VitalSignsPlusDomino
         Try
             WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Connecting to stlog.nsf using " & NotesSession.CommonUserName)
             db = NotesSession.GetDatabase(SametimeServer.DominoServerName, "stlog.nsf", False)
-            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " The database title is: " & db.Title)
+            WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " The database title Is:  " & db.Title)
         Catch ex As Exception
             WriteDeviceHistoryEntry("Sametime", SametimeServer.Name, Now.ToString & " Error getting stlog.nsf -> " & ex.ToString)
             GoTo Cleanup

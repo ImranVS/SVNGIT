@@ -388,8 +388,10 @@ ThreadSleep:
             End If
 
             While Not (db Is Nothing)
-                dbPathlist.Add(db.FilePath)
-                WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Adding " & db.FilePath)
+                If InStr(db.FilePath, Cluster.Server_C_Directory.ToUpper, CompareMethod.Text) Then
+                    WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Adding " & db.FilePath)
+                    dbPathlist.Add(db.FilePath)
+                End If
                 db = dbDir.GetNextDatabase()
             End While
 
@@ -400,7 +402,7 @@ ThreadSleep:
         End Try
 
         Try
-            WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " I have a list of database file paths with  " & dbPathlist.Count & " databases in it.")
+            WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " I have a list of database file paths with  " & dbPathlist.Count & " databases which match the file mask pattern for server #1. ")
         Catch ex As Exception
 
         End Try
@@ -457,32 +459,19 @@ ThreadSleep:
                     myFilePath = ""
                 End Try
 
-                '9/10/2015 NS commented out for VSPLUS-2126
-                'Try
-                '	If String.IsNullOrWhiteSpace(db.Title) Then
-                '		db.Title = "Untitled Database"
-                '	End If
-                'Catch ex As Exception
-                '                WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " Error checking if db name is blank.  Error: " & ex.Message)
-                'End Try
-                ' WriteAuditEntry(Now.ToString & " Examining cluster mail file " & db.Title & " | " & db.FilePath)
-
-                If InStr(myFilePath, Cluster.Server_A_Directory.ToUpper, CompareMethod.Text) Then
-                    '  WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " Examining cluster mail file " & db.Title & " | " & db.FilePath & " on " & Cluster.Server_A_Name)
-                    ' WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " Selected cluster mail file " & db.Title & " | " & db.FilePath & " on " & Cluster.Server_A_Name)
-                    Try
-                        '9/10/2015 NS modified for VSPLUS-2126
-                        myClusterDatabase = Nothing
-                        If Not db Is Nothing Then
-                            If db.IsOpen() Then
-                                myClusterDatabase = myDatabaseCollection.Search(db.ReplicaID)
-                            End If
-                        Else
-                            myClusterDatabase = Nothing
+                Try
+                    '9/10/2015 NS modified for VSPLUS-2126
+                    myClusterDatabase = Nothing
+                    If Not db Is Nothing Then
+                        If db.IsOpen() Then
+                            myClusterDatabase = myDatabaseCollection.Search(db.ReplicaID)
                         End If
-
-                    Catch ex As Exception
+                    Else
                         myClusterDatabase = Nothing
+                    End If
+
+                Catch ex As Exception
+                    myClusterDatabase = Nothing
                     End Try
 
                     If myClusterDatabase Is Nothing Then
@@ -595,7 +584,7 @@ ThreadSleep:
                         End Try
 
                     End If
-                End If
+
 
                 dtDominoLastUpdate = Now
 SkipDatabase:
@@ -665,7 +654,10 @@ SkipDatabase:
             'Remove all the prior items
             dbPathlist.Clear()
             While Not (db Is Nothing)
-                dbPathlist.Add(db.FilePath)
+                If InStr(db.FilePath, Cluster.Server_B_Directory.ToUpper, CompareMethod.Text) Then
+                    WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Adding " & db.FilePath)
+                    dbPathlist.Add(db.FilePath)
+                End If
                 db = dbDir.GetNextDatabase()
             End While
 
@@ -674,7 +666,7 @@ SkipDatabase:
             GoTo ReleaseComObjects
         End Try
 
-        WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " I have a list of database file paths with  " & dbPathlist.Count & " databases in it.")
+        WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " I have a list of database file paths with  " & dbPathlist.Count & " databases in it for server #2.")
 
         Try
             For Each filePath In dbPathlist
@@ -686,14 +678,6 @@ SkipDatabase:
                     GoTo SkipDatabase2
                 End Try
 
-                '9/10/2015 NS commented out for VSPLUS-2126
-                'Try
-                '	If String.IsNullOrWhiteSpace(db.Title) Then
-                '		db.Title = "Untitled Database"
-                '	End If
-                'Catch ex As Exception
-                '                WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " Error checking if db name is blank.  Error: " & ex.Message)
-                'End Try
                 '9/10/2015 NS added for VSPLUS-2126
                 Try
                     If Not db Is Nothing Then
@@ -717,23 +701,20 @@ SkipDatabase:
                     myFilePath = ""
                 End Try
 
-                If InStr(myFilePath, Cluster.Server_B_Directory.ToUpper, CompareMethod.Text) Then
-                    '     WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " Examining cluster mail file " & db.Title & " | " & db.FilePath)
-                    '    WriteAuditEntry(Now.ToString & " Selected cluster mail file " & db.Title & " | " & db.FilePath)
-                    Try
-                        '9/10/2015 NS modified for VSPLUS-2126
-                        myClusterDatabase = Nothing
-                        If Not db Is Nothing Then
-                            If db.IsOpen() Then
-                                WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Selected cluster mail file " & db.Title & " | " & db.FilePath & " on " & Cluster.Server_B_Name, LogUtilities.LogUtils.LogLevel.Verbose)
-                                WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Searching list of already found databases for replica ID: " & db.ReplicaID, LogUtilities.LogUtils.LogLevel.Verbose)
-                                myClusterDatabase = myDatabaseCollection.Search(db.ReplicaID)
-                            End If
-                        Else
-                            myClusterDatabase = Nothing
+                Try
+                    '9/10/2015 NS modified for VSPLUS-2126
+                    myClusterDatabase = Nothing
+                    If Not db Is Nothing Then
+                        If db.IsOpen() Then
+                            WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Selected cluster mail file " & db.Title & " | " & db.FilePath & " on " & Cluster.Server_B_Name, LogUtilities.LogUtils.LogLevel.Verbose)
+                            WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Searching list of already found databases for replica ID: " & db.ReplicaID, LogUtilities.LogUtils.LogLevel.Verbose)
+                            myClusterDatabase = myDatabaseCollection.Search(db.ReplicaID)
                         End If
-                    Catch ex As Exception
+                    Else
                         myClusterDatabase = Nothing
+                    End If
+                Catch ex As Exception
+                    myClusterDatabase = Nothing
                         WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Exception accessing information about the database: " & ex.Message)
                     End Try
 
@@ -838,21 +819,8 @@ SkipDatabase:
                         End Try
 
                     End If
-                End If
-                '9/10/2015 NS commented out for VSPLUS-2126
-                'Try
-                '	db = dbDir.GetNextDatabase
-                'Catch ex As Exception
-                '	WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " Error advancing to next database: " & ex.Message)
-                '	If InStr(ex.Message, "Remote system no longer responding") > 1 Then
-                '		WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " Server didn't respond; waiting 2 seconds and trying again.")
-                '		Thread.Sleep(2000)
 
-                '		WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " Second error when advancing to next database on Cluster B: " & ex.Message)
-                '		CollectClusterInformation = False
-                '		Exit For
-                '	End If
-                'End Try
+
 
 SkipDatabase2:
             Next
@@ -926,7 +894,10 @@ SkipDatabase2:
             'Start with fresh data only for this server
             dbPathlist.Clear()
             While Not (db Is Nothing)
-                dbPathlist.Add(db.FilePath)
+                If InStr(db.FilePath, Cluster.Server_C_Directory.ToUpper, CompareMethod.Text) Then
+                    dbPathlist.Add(db.FilePath)
+                    WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Adding " & db.FilePath)
+                End If
                 db = dbDir.GetNextDatabase()
             End While
 
@@ -935,7 +906,7 @@ SkipDatabase2:
             GoTo ReleaseComObjects
         End Try
 
-        WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " I have a list of database file paths with  " & dbPathlist.Count & " databases in it.")
+        WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " I have a list of database file paths with  " & dbPathlist.Count & " databases in it for server #3.")
 
         Try
             For Each filePath In dbPathlist
@@ -947,14 +918,6 @@ SkipDatabase2:
                     GoTo SkipDatabase3
                 End Try
 
-                '9/10/2015 NS commented out for VSPLUS-2126
-                'Try
-                '	If String.IsNullOrWhiteSpace(db.Title) Then
-                '		db.Title = "Untitled Database"
-                '	End If
-                'Catch ex As Exception
-                '                WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " Error checking if db name is blank.  Error: " & ex.Message)
-                'End Try
 
                 '9/10/2015 NS added for VSPLUS-2126
                 Try
@@ -980,11 +943,8 @@ SkipDatabase2:
                 End Try
                 '    WriteAuditEntry(Now.ToString & " Examining cluster mail file " & db.Title & " | " & db.FilePath)
 
-                If InStr(myFilePath, Cluster.Server_C_Directory.ToUpper, CompareMethod.Text) Then
-                    ' WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " Examining cluster mail file " & db.Title & " | " & db.FilePath)
-                    '   myClusterDatabase = myDatabaseCollection.Search(db.ReplicaID)
-                    '9/10/2015 NS modified for VSPLUS-2126
-                    myClusterDatabase = Nothing
+                '9/10/2015 NS modified for VSPLUS-2126
+                myClusterDatabase = Nothing
                     If Not db Is Nothing Then
                         If db.IsOpen() Then
                             WriteDeviceHistoryEntry("Domino_Cluster", Cluster.Name, Now.ToString & " Selected cluster mail file " & db.Title & " | " & db.FilePath & " on " & Cluster.Server_C_Name, LogUtilities.LogUtils.LogLevel.Verbose)
@@ -1085,28 +1045,8 @@ SkipDatabase2:
                         End Try
 
                     End If
-                End If
 
-                '9/10/2015 NS commented out for VSPLUS-2126
-                'Try
-                '	db = dbDir.GetNextDatabase
-                'Catch ex As Exception
-                '	WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " Error advancing to next database: " & ex.Message)
-                '	If InStr(ex.Message, "Remote system no longer responding") > 1 Then
-                '		WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " Server didn't respond; waiting 2 seconds and trying again.")
-                '		Thread.Sleep(2000)
-                '		Try
-                '			WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " Testing state of dbDir: " & dbDir.ToString)
-                '		Catch ex3 As Exception
-                '			WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " The exception testing dbdir is : " & ex3.ToString)
-                '		End Try
 
-                '		WriteDeviceHistoryEntry("Domino Cluster", Cluster.Name, Now.ToString & " Second error when advancing to next database on Cluster C: " & ex.Message)
-                '		CollectClusterInformation = False
-                '		Exit For
-
-                '	End If
-                'End Try
 SkipDatabase3:
             Next
 
