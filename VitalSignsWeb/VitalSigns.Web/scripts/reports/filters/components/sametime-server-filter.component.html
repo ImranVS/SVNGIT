@@ -15,9 +15,7 @@
                  </select>
             
 </div>
-        <div id="dtFilter" style="display:inline-block">
-            <button class="btn btn-success" (click)="applyFilters()">Filter</button>
-        </div>
+       
         <div id="dtServer" style="display:inline-block">
             <span class="headerBlock">Servers:</span><wj-multi-select #multisel1
                                                                       [placeholder]="'Select Servers'"
@@ -28,6 +26,9 @@
                                                                       [checkedMemberPath]="'selected'"
                                                                       [(ngModel)]="selectedServers" style="width:150px;">
             </wj-multi-select>
+        </div>
+        <div id="dtFilter" style="display:inline-block">
+            <button class="btn btn-success" (click)="applyFilters()">Filter</button>
         </div>
     </div>
 </div>
