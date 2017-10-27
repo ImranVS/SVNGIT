@@ -792,15 +792,22 @@
         "path": "/app/services/components/service-url-health.component",
         "type": "Dashboard"
       },
-      {
+        {
         "tab_id": 2,
+        "title": "Health Assessment",
+        "type": "Dashboard",
+        "component": "ServiceMainHealthTab",
+        "path": "/app/services/components/service-mainhealth-tab.component"
+      },
+      {
+        "tab_id": 3,
         "title": "Events",
         "component": "ServiceEventsTab",
         "path": "/app/services/components/service-events-tab.component",
         "type": "Dashboard"
       },
       {
-        "tab_id": 3,
+        "tab_id": 4,
         "title": "Outages",
         "component": "ServiceOutagesTab",
         "path": "/app/services/components/service-outages-tab.component",
