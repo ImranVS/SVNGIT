@@ -137,30 +137,30 @@ export class ChartComponent implements WidgetComponent, OnInit {
                     
                     chart2.series2.map(serie => {
                         let categories2: string[] = []
-                        let length = this.subseries.push({
-                            id: null,
-                            data: []
-                        });
 
                         // First loop to gather all data points labels
                         serie.segments.map(segment => {
 
                             if (this.settings.chart.xAxis) {
-                                if (categories2.indexOf(segment.label) == -1)
-                                    categories2.push(segment.label);
+                                if (categories2.indexOf(segment.drilldownname) == -1)
+                                    categories2.push(segment.drilldownname);
                             }
 
                         });
-
+                        console.log(categories2)
                         // Second loop to build data points with actual value or null if missing 
                         categories2.map(category => {
-
-                            let segment = serie.segments.find(s => s.label == category);
-                            var x = [];
-                            if (segment) {
-                                this.subseries[length - 1].name = segment.drilldownname;
-                                this.subseries[length - 1].id = segment.drilldownname;
-                                this.subseries[length - 1].data.push({ name: segment.label, y: segment.value });
+                            let segments = serie.segments.filter(s => s.drilldownname == category);
+                            if (segments) {
+                                let newSegment = {
+                                    name: chart.series[0].segments.find(x => x.drilldownname === category).label,
+                                    id: category,
+                                    data: []
+                                };
+                                segments.forEach(segment => {
+                                    newSegment.data.push({ name: segment.label, y: segment.value })
+                                });
+                                this.subseries.push(newSegment);
                             }
                         });
                     });

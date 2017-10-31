@@ -2023,31 +2023,51 @@ namespace VitalSigns.API.Controllers
             try
             {
                 connectionsObjectsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
-                var listOfObjects = connectionsObjectsRepository.Collection.Aggregate()
-                    .Match(x => (x.Type == "Community") && x.Children != null)
-                    .Unwind(x => x.Children)
-                    .Sort(new BsonDocument("children.count", -1)).ToList();
-                List<Segment> segmentList = new List<Segment>();
+                var filterDef = connectionsObjectsRepository.Filter.Eq(x => x.Type, "Community") &
+                    connectionsObjectsRepository.Filter.Ne(x => x.Children, null);
+                var listOfObjects = connectionsObjectsRepository.Find(filterDef).ToList();
 
-                foreach (var doc in listOfObjects)
+                List<Segment> segmentList = new List<Segment>();
+                List<Segment> subSegmentList = new List<Segment>();
+
+                foreach (var entity in listOfObjects)
                 {
-                    var children = doc["children"];
                     Segment segment = new Segment()
                     {
-                        Label = doc["name"].AsString,
-                        Value = children[1].AsInt32
+                        Label = entity.Name,
+                        DrillDownName = entity.GUID,
+                        Value = entity.Children.Sum(x => x.Count)
                     };
                     segmentList.Add(segment);
+                    foreach(var child in entity.Children)
+                    {
+                        Segment subSegment = new Segment()
+                        {
+                            Label = child.Type,
+                            DrillDownName = entity.GUID,
+                            Value = child.Count
+                        };
+                        subSegmentList.Add(subSegment);
+                    }
                 }
                 Serie serie = new Serie();
                 serie.Title = "total";
                 serie.Segments = segmentList;
 
+                Serie subSerie = new Serie();
+                subSerie.Title = "Item Counts";
+                subSerie.Segments = subSegmentList;
+
                 List<Serie> series = new List<Serie>();
                 series.Add(serie);
+
+                List<Serie> subSeries = new List<Serie>();
+                subSeries.Add(subSerie);
+
                 Chart chart = new Chart();
                 chart.Title = "";
                 chart.Series = series;
+                chart.Series2 = subSeries;
                 Response = Common.CreateResponse(chart);
                 return Response;
             }
@@ -2362,9 +2382,9 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("exchange_mailbox_type")]
-        public APIResponse ExcahngeMailboxes(string statname ="")
+        public APIResponse ExcahngeMailboxes(string statname = "")
         {
-            
+
             mailboxRepository = new Repository<Mailbox>(ConnectionString);
             var result = mailboxRepository.Find(x => x.DeviceName == "Exchange").ToList();
             List<Segment> listsegments = new List<Segment>();
@@ -2385,7 +2405,7 @@ namespace VitalSigns.API.Controllers
                 parentSerie.Segments = listsegments;
                 series1.Add(parentSerie);
             }
-            else if (statname == "item_count")
+            else if(statname == "item_count")
             {
                 serietitle = "Items";
                 listsegments = result.OrderByDescending(x => x.ItemCount).Take(25)
@@ -2418,8 +2438,8 @@ namespace VitalSigns.API.Controllers
                 serietitle = "Highest Folder Count";
                 var listOfMailboxes = result.Where(x => x.Folders != null).OrderByDescending(x => x.Folders.Max(y => y.ItemCount)).Take(25).ToList();
                 listsegments = listOfMailboxes.Select(x => new Segment()
-                {
-                    Label = x.DisplayName,
+                    {
+                        Label = x.DisplayName,
                     Value = x.Folders.Max(y => y.ItemCount),
                     DrillDownName = x.SAMAccountName
                 }).ToList();
@@ -2540,7 +2560,7 @@ namespace VitalSigns.API.Controllers
                     // MaxFolderSizeMb = Math.Round((double)x.MaxFolderSizeMb / 1024, 2),
                     ItemCount = x.ItemCount,
                     FolderCount = x.Folders == null ? 0: x.Folders.Count,
-                    DatabaseName =x.DatabaseName,
+                    DatabaseName=x.DatabaseName,
                     LastLogonTime =x.LastLogonTime 
                 }).ToList().OrderBy(x => x.DisplayName);
                 Response = Common.CreateResponse(results);
