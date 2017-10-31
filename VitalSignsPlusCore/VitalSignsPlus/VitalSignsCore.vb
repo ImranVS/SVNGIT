@@ -6385,6 +6385,19 @@ CleanUp:
                     End Try
 
                 End If
+            Catch ex As WebException
+                Dim exceptionResponse As HttpWebResponse = ex.Response
+                Dim ds As Stream = exceptionResponse.GetResponseStream()
+                Dim reader As StreamReader = New StreamReader(ds)
+                response = reader.ReadToEnd()
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Web Error!! Failed to create file due to " & ex.Response.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Web Error!! Failed to create file due to " & response, LogUtilities.LogUtils.LogLevel.Normal)
+                myServer.CreateFilesFailCount += 1
+                If myServer.StatusCode = "OK" Then
+                    myServer.StatusCode = "Issue"
+                    myServer.Status = "Issue"
+                    myServer.ResponseDetails = "The file was not created."
+                End If
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to create file due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
                 'Thread.Sleep(60000)
@@ -8022,7 +8035,7 @@ CleanUp:
                                         IbmConnectionsObjects2.ParentGUID = dictOfCommunityIds(parentGUID)
                                     End If
                                 Catch ex As Exception
-                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Activity Stats. Exception findign activity parent. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Activity Stats. Exception findign activity parent. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
                                 End Try
 
                                 Try
@@ -8035,7 +8048,7 @@ CleanUp:
                                     Next
                                     IbmConnectionsObjects2.tags = tags
                                 Catch ex As Exception
-                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Activity Stats. Exception getting activitry tags. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Activity Stats. Exception getting activitry tags. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
                                 End Try
 
                                 Dim users As New List(Of String)
@@ -8050,7 +8063,7 @@ CleanUp:
                                             users.Add(objIbmConnectionsUsers.Id)
                                         End If
                                     Catch ex As Exception
-                                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Activity Stats. Exception getting owner. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Activity Stats. Exception getting owner. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
                                     End Try
 
                                 Next
@@ -8364,6 +8377,12 @@ CleanUp:
 
                     Try
                         Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))
+                        Dim listOfUsers As New List(Of VSNext.Mongo.Entities.IbmConnectionsObjects)
+                        Try
+                            listOfUsers = repoIbmConnectionsUsers.Find(repoIbmConnectionsUsers.Filter.Eq(Function(x) x.Type, "Users") And repoIbmConnectionsUsers.Filter.Eq(Function(x) x.DeviceName, serverName)).ToList()
+                        Catch ex As Exception
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. Exception getting the user list. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                        End Try
                         For Each row As DataRow In ds.Tables(18).Rows()
 
                             ' first get the 
@@ -8371,11 +8390,13 @@ CleanUp:
                             Dim projectDefIbmConnectionsUsers As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Project.Include(Function(i) i.Id)
                             'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsUsers) = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).ToList()
                             Try
-                                Dim IbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).FirstOrDefault()
-                                connectionsUserId = IbmConnectionsUsers.Id
+                                If listOfUsers.Exists(Function(x) x.GUID = row("EXTID").ToString()) Then
+                                    Dim IbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsObjects = listOfUsers.Where(Function(x) x.GUID = row("EXTID").ToString()).First()
+                                    connectionsUserId = IbmConnectionsUsers.Id
+                                End If
 
                             Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. Exception getting the user id. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. Exception getting the user id. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
                                 connectionsUserId = Nothing
                             End Try
                             'For Each s As VSNext.Mongo.Entities.IbmConnectionsUsers In serverList
@@ -8420,16 +8441,16 @@ CleanUp:
                                     bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects2))
                                     'repoObjects.Insert(IbmConnectionsObjects2)
                                 Catch ex As Exception
-                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. Exception getting tags. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. Exception getting tags. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
                                 End Try
                             Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. Exception making blog object. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. Exception making blog object. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
                             End Try
 
                         Next
                         repoIbmConnectionsUsers.BulkInsert(bulkOps)
                     Catch ex As Exception
-                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. No table 18. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. No table 18. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
                     End Try
 
                     Dim myServerName As String = myServer.Name
@@ -8467,12 +8488,12 @@ CleanUp:
                                 bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects4))
                                 'repoObjects.Insert(IbmConnectionsObjects4)
                             Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. Exception makign blog entry object. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. Exception makign blog entry object. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
                             End Try
                         Next
                         repoIbmConnectionsUsers.BulkInsert(bulkOps)
                     Catch ex As Exception
-                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. Exception finding table 20. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. Exception finding table 20. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
                     End Try
                 End If
 
@@ -8712,7 +8733,7 @@ CleanUp:
 
 
                             Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Stats. Exception adding community object. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Stats. Exception adding community object. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
                             End Try
 
                         Next
@@ -8780,7 +8801,7 @@ CleanUp:
                                     bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects2))
                                     'repoIbmConnectionsObjects.Insert(IbmConnectionsObjects2)
                                 Catch ex As Exception
-                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Stats. Exception adding bookmarks. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Stats. Exception adding bookmarks. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
                                 End Try
                             Next
 
@@ -9241,7 +9262,7 @@ CleanUp:
                                             End If
                                         End If
                                     Catch ex As Exception
-                                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Bookmark Stats. Exception at adding tags. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Bookmark Stats. Exception at adding tags. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
                                     End Try
                                 Next
                                 IbmConnectionsObjects.tags = tags
@@ -9249,7 +9270,7 @@ CleanUp:
                                 bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects))
                                 'repo.Insert(IbmConnectionsObjects)
                             Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Bookmark Stats. Exception at making bookmark. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Bookmark Stats. Exception at making bookmark. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
                             End Try
                         Next
                         repo.BulkInsert(bulkOps)
@@ -9482,7 +9503,7 @@ CleanUp:
                                         tagList.Add(tagRow("NAME").ToString)
                                     Next
                                 Catch ex As Exception
-                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Forum Stats. Exception at table 8. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Forum Stats. Exception at table 8. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
                                 End Try
 
                                 If {"Forum Topic", "Forum"}.Contains(type) Then
@@ -9505,7 +9526,7 @@ CleanUp:
                                 'repo.Insert(entity)
                                 bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(entity))
                             Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Forum Stats. Exception at inserting fourm first. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Forum Stats. Exception at inserting fourm first. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
                             End Try
                             'repo.BulkInsert(bulkOps)
                         Next
@@ -9584,7 +9605,7 @@ CleanUp:
                                     Next
 
                                 Catch ex As Exception
-                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Forum Stats. Exception at table 8 2. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Forum Stats. Exception at table 8 2. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
                                 End Try
 
                                 If {"Forum Topic", "Forum"}.Contains(type) Then
@@ -9608,7 +9629,7 @@ CleanUp:
                                 'repo.Insert(entity)
 
                             Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Forum Stats. Exception at inserting fourms objects 2. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Forum Stats. Exception at inserting fourms objects 2. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
                             End Try
 
                         Next
@@ -9798,13 +9819,13 @@ CleanUp:
                                 bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects))
                                 'repo.Insert(IbmConnectionsObjects)
                             Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Stats. Exception at making wiki. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Stats. Exception at making wiki. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
                             End Try
 
                         Next
                         repo.BulkInsert(bulkOps)
                     Catch ex As Exception
-                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Stats. Exception at table 6. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Stats. Exception at table 6. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
                     End Try
 
                     Dim myServerName As String = myServer.Name
@@ -9812,20 +9833,6 @@ CleanUp:
                         Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))()
                         For Each tagRow As DataRow In ds.Tables(7).Rows()
                             Try
-                                'Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Where(Function(i) i.GUID.Equals(HexToGUID(tagRow("LIBRARY_ID").ToString())) And i.DeviceName.Equals(myServerName) And i.Type.Equals("Wiki"))
-                                'Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects)
-                                'Dim projectDef As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Project.Include(Function(i) i.tags)
-                                'Dim IbmConnectionsObjects As VSNext.Mongo.Entities.IbmConnectionsObjects = repo.Find(filterdef, projectDef).DefaultIfEmpty(New VSNext.Mongo.Entities.IbmConnectionsObjects() With {.Id = Nothing}).First()
-                                'Dim tags As List(Of String) = IbmConnectionsObjects.tags
-                                'tags = IbmConnectionsObjects.tags
-                                'If tags Is Nothing Then
-                                '    tags = New List(Of String)
-                                'End If
-
-                                'If Not tags.Contains(tagRow("TAG").ToString()) Then
-                                '    tags.Add(tagRow("TAG").ToString())
-                                'End If
-
                                 Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Where(Function(i) i.GUID.Equals(HexToGUID(tagRow("LIBRARY_ID").ToString())) And i.DeviceName.Equals(myServerName) And i.Type.Equals("Wiki"))
                                 Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Updater _
                                             .AddToSet(Function(i) i.tags, tagRow("TAG").ToString())
@@ -9833,7 +9840,7 @@ CleanUp:
                                 bulkOps.Add(New MongoDB.Driver.UpdateOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(filterdef, updatedef))
                                 'repo.Update(filterdef, updatedef)
                             Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Stats. Exception at insering tags. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Stats. Exception at insering tags. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
                             End Try
                         Next
                         repo.BulkUpsert(bulkOps)
@@ -9857,20 +9864,16 @@ CleanUp:
                             Try
                                 Dim parentId As String = Nothing
                                 Try
-                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Topic Lib Id: " & HexToGUID(row("LIBRARY_ID").ToString()), LogUtilities.LogUtils.LogLevel.Normal)
                                     parentId = allWikis.Where(Function(x) x.GUID = HexToGUID(row("LIBRARY_ID").ToString())).First().Id
-                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Topic parent: " & parentId, LogUtilities.LogUtils.LogLevel.Normal)
                                 Catch ex As Exception
-                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Topic parent Exception: " & ex.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Topic parent Exception: " & ex.ToString(), LogUtilities.LogUtils.LogLevel.Verbose)
                                 End Try
 
                                 Dim ownerId As String = Nothing
                                 Try
-                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Topic DIRECTORY_ID Id: " & HexToGUID(row("DIRECTORY_ID").ToString()), LogUtilities.LogUtils.LogLevel.Normal)
                                     ownerId = allUsers.Where(Function(x) x.GUID = row("DIRECTORY_ID").ToString()).First().Id
-                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Topic ownerId: " & parentId, LogUtilities.LogUtils.LogLevel.Normal)
                                 Catch ex As Exception
-                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Topic ownerId Exception: " & ex.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Topic ownerId Exception: " & ex.ToString(), LogUtilities.LogUtils.LogLevel.Verbose)
                                 End Try
 
                                 Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
@@ -9893,7 +9896,7 @@ CleanUp:
                                 bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects))
                                 'repo.Insert(IbmConnectionsObjects)
                             Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Stats. Exception at inserting wiki entries. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Stats. Exception at inserting wiki entries. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
                             End Try
                         Next
                         repo.BulkInsert(bulkOps)
@@ -10092,6 +10095,7 @@ CleanUp:
                     Try
                         Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))
                         Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+                        Dim loginCountForDay As Int32 = 0
 
                         For Each row As DataRow In ds.Tables(12).Rows()
                             Try
@@ -10119,6 +10123,12 @@ CleanUp:
                                 }
                                 bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(entry))
 
+                                If lastLoginTime.HasValue Then
+                                    If lastLoginTime.Value.AddDays(-1).Date.CompareTo(DateTime.Now.AddDays(-1).Date) >= 0 Then
+                                        loginCountForDay += 1
+                                    End If
+                                End If
+
 
                                 'Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Where(Function(i) i.GUID.Equals(row("PROF_GUID").ToString()) And i.DeviceName.Equals(myServerName) And i.Type.Equals("Users"))
                                 'Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects)
@@ -10141,6 +10151,7 @@ CleanUp:
                             End Try
                         Next
                         repo.BulkInsert(bulkOps.AsEnumerable())
+                        InsertIntoIBMConnectionsDailyStats(myServer.Name, "UniqueLoginsPerDay", loginCountForDay.ToString(), myServer.ServerObjectID)
                     Catch ex As Exception
                         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Profile Stats. Exception at table 12. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                     End Try
@@ -10384,7 +10395,7 @@ CleanUp:
                 Try
 
                     Dim currEntity As VSNext.Mongo.Entities.IbmConnectionsObjects = entity
-                    While currEntity.ParentGUID IsNot Nothing
+                    While currEntity.ParentGUID IsNot Nothing AndAlso entities.Exists(Function(x) x.Id = currEntity.ParentGUID)
                         Try
                             parentEntity = entities.Where(Function(x) x.Id = currEntity.ParentGUID).First()
                             childrenList = parentEntity.Children
