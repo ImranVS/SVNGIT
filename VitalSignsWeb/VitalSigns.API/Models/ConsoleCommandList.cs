@@ -23,7 +23,8 @@ namespace VitalSigns.API.Models
         [JsonProperty("comment")]
         public string Comment { get; set; }
 
-
+        [JsonProperty("date_time_processed", NullValueHandling = NullValueHandling.Ignore)]
+        public DateTime? SubmittedDate { get; set; }
     }
 
     public class DatabaseInventoryList
