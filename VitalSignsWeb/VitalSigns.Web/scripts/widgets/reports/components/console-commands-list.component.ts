@@ -4,10 +4,10 @@ import {HttpModule}    from '@angular/http';
 import {WidgetComponent} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
 
-import {ConsoleCommand} from '../models/console-command';
+//import {ConsoleCommand} from '../models/console-command';
 
 @Component({
-    templateUrl: './app/widgets/mobile-users/components/console-commands-list.component.html',
+    templateUrl: './app/widgets/reports/components/console-commands-list.component.html',
     providers: [
         HttpModule,
         RESTService

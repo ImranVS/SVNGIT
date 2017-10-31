@@ -6,6 +6,7 @@
             <th>Submitter</th>
             <th>Result</th>
             <th>Comment</th>
+            <th>Submitted</th>
         </tr>
     </thead>
     <tbody *ngIf="consoleCommands">
@@ -15,6 +16,7 @@
             <td>{{consoleCommand.submitter}}</td>
             <td>{{consoleCommand.result}}</td>
             <td>{{consoleCommand.comment}}</td>
+            <td>{{consoleCommand.date_time_processed |date: 'short'}}</td>
         </tr>
     </tbody>
 </table>
