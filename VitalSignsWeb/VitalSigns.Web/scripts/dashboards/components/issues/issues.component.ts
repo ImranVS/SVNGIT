@@ -25,6 +25,8 @@ declare var injectSVG: any;
         helpers.GridTooltip,
         helpers.DateTimeHelper,
         gridHelpers.CommonUtils
+      
+
     ]
 })
 export class Issues implements OnInit {
@@ -34,6 +36,7 @@ export class Issues implements OnInit {
     data: wijmo.collections.CollectionView;
     errorMessage: string;
     currentPageSize: any = 20;
+    private isResized = false;
 
     
 
@@ -83,10 +86,32 @@ export class Issues implements OnInit {
             },
             (error) => this.errorMessage = <any>error
             );
+        window.addEventListener('resize', () => {
+        this.isResized = true;
+        });
         this.toolTip.getTooltip(this.flex, 0, 3);
     }
-    
-    ngAfterViewChecked() {
+    initialized(grid) {
+        setTimeout(() => {
+            grid.autoSizeRows();
+        }, 100);
+    }
+
+    loadedRows(grid) {
+        if (grid.isInitialized) {
+            grid.autoSizeRows();
+        }
+    }
+    resizedColumn(grid, e) {
+     grid.autoSizeRows();
+    }
+    updatedLayout(grid) {
+            if (this.isResized) {
+            this.isResized = false;
+            grid.autoSizeRows();
+        }
+    }
+     ngAfterViewChecked() {
         injectSVG();
     }
 }
