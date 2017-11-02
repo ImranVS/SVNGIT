@@ -574,13 +574,13 @@ Partial Public Class VitalSignsPlusCore
 
 					Try
 						If dr.Item("LastUpdate") Is Nothing Then
-							.LastScan = Now
-						Else
+                            .LastScan = Now.AddMinutes(-30)
+                        Else
 							.LastScan = dr.Item("LastUpdate")
 						End If
 					Catch ex As Exception
-						.LastScan = Now
-					End Try
+                        .LastScan = Now.AddMinutes(-30)
+                    End Try
 
 					Try
 						If dr.Item("CurrentNodeID") Is Nothing Then
@@ -633,7 +633,7 @@ Partial Public Class VitalSignsPlusCore
         Try
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Mail.ToDescription()) And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Mail.ToDescription())
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -695,7 +695,7 @@ Partial Public Class VitalSignsPlusCore
                 MyMailService.OffHours = False
                 MyMailService.AlertCondition = False  'calling this sets status to OK
                 MyMailService.Status = "Not Scanned"
-                MyMailService.LastScan = Now
+                MyMailService.LastScan = Now.AddMinutes(-30)
                 MyMailService.NextScan = Now
                 MyMailService.StatusCode = "Maintenance"
                 MyMailServices.Add(MyMailService)
@@ -868,12 +868,12 @@ Partial Public Class VitalSignsPlusCore
 
                     Try
                         If entityStatus.LastUpdated Is Nothing Then
-                            .LastScan = Now
+                            .LastScan = Now.AddMinutes(-30)
                         Else
                             .LastScan = entityStatus.LastUpdated
                         End If
                     Catch ex As Exception
-                        .LastScan = Now
+                        .LastScan = Now.AddMinutes(-30)
                     End Try
 
                 Catch ex As Exception
@@ -885,12 +885,13 @@ Partial Public Class VitalSignsPlusCore
                     If entity.CurrentNode Is Nothing Then
                         .InsufficentLicenses = True
                     Else
-                        If entity.CurrentNode.ToString() = "-1" Then
+                        If entity.CurrentNode.ToString() <> getCurrentNode() Then
                             .InsufficentLicenses = True
                         Else
                             .InsufficentLicenses = False
                         End If
                     End If
+                    '.CurrentNode = entity.CurrentNode
                 Catch ex As Exception
                     WriteAuditEntry(Now.ToString & " " & .Name & " Mail Servers insufficient licenses not set.")
                 End Try
@@ -918,7 +919,7 @@ Partial Public Class VitalSignsPlusCore
             'removed UserThreshold, ChatThreshold, NChatThreshold, PlacesThreshold
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Sametime.ToDescription()) And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Sametime.ToDescription())
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -1041,7 +1042,7 @@ Partial Public Class VitalSignsPlusCore
                     Try
                         MySametimeServer = New MonitoredItems.SametimeServer
                         MySametimeServer.Name = MyName
-                        MySametimeServer.LastScan = Now
+                        MySametimeServer.LastScan = Now.AddMinutes(-30)
                         MySametimeServer.NextScan = Now
                         MySametimeServer.AlertCondition = False
                         MySametimeServer.Status = "Not Scanned"
@@ -1518,12 +1519,12 @@ Partial Public Class VitalSignsPlusCore
 
                         Try
                             If entityStatus.LastUpdated Is Nothing Then
-                                .LastScan = Now
+                                .LastScan = Now.AddMinutes(-30)
                             Else
                                 .LastScan = entityStatus.LastUpdated
                             End If
                         Catch ex As Exception
-                            .LastScan = Now
+                            .LastScan = Now.AddMinutes(-30)
                         End Try
 
                     Catch ex As Exception
@@ -1769,12 +1770,13 @@ Partial Public Class VitalSignsPlusCore
                         If entity.CurrentNode Is Nothing Then
                             .InsufficentLicenses = True
                         Else
-                            If entity.CurrentNode.ToString() = "-1" Then
+                            If entity.CurrentNode.ToString() <> getCurrentNode() Then
                                 .InsufficentLicenses = True
                             Else
                                 .InsufficentLicenses = False
                             End If
                         End If
+                        '.CurrentNode = entity.CurrentNode
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " " & .Name & " Sametime Servers insufficient licenses not set.")
                     End Try
@@ -1805,7 +1807,7 @@ Partial Public Class VitalSignsPlusCore
             'removed LastChecked, LastStatus, NextScan
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.URL.ToDescription()) And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.URL.ToDescription())
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -1869,7 +1871,7 @@ Partial Public Class VitalSignsPlusCore
                     MyURL.AlertCondition = False  'calling this sets status to OK
                     MyURL.Status = "Not Scanned"
                     MyURL.IncrementUpCount()
-                    MyURL.LastScan = Now
+                    MyURL.LastScan = Now.AddMinutes(-30)
                     MyURL.NextScan = Now
                     MyURL.SearchString = ""
                     '5/2/2016 NS modified for VSPLUS-2887
@@ -2066,17 +2068,17 @@ Partial Public Class VitalSignsPlusCore
 
                         Try
                             If entityStatus.LastUpdated Is Nothing Then
-                                .LastScan = Now
+                                .LastScan = Now.AddMinutes(-30)
                             Else
                                 .LastScan = entityStatus.LastUpdated
                             End If
                         Catch ex As Exception
-                            .LastScan = Now
+                            .LastScan = Now.AddMinutes(-30)
                         End Try
 
                     Catch ex As Exception
                         .Status = "Not Scanned"
-                        .LastScan = Now
+                        .LastScan = Now.AddMinutes(-30)
                     End Try
 
                     'Try
@@ -2124,12 +2126,13 @@ Partial Public Class VitalSignsPlusCore
                         If entity.CurrentNode Is Nothing Then
                             .InsufficentLicenses = True
                         Else
-                            If entity.CurrentNode.ToString() = "-1" Then
+                            If entity.CurrentNode.ToString() <> getCurrentNode() Then
                                 .InsufficentLicenses = True
                             Else
                                 .InsufficentLicenses = False
                             End If
                         End If
+                        '.CurrentNode = entity.CurrentNode
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " " & .Name & " URL Servers insufficient licenses not set.")
                     End Try
@@ -2161,7 +2164,7 @@ Partial Public Class VitalSignsPlusCore
         Try
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Cloud.ToDescription()) And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Cloud.ToDescription())
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -2221,7 +2224,7 @@ Partial Public Class VitalSignsPlusCore
                     MyCloud.AlertCondition = False  'calling this sets status to OK
                     MyCloud.Status = "Not Scanned"
                     MyCloud.IncrementUpCount()
-                    MyCloud.LastScan = Now
+                    MyCloud.LastScan = Now.AddMinutes(-30)
                     MyCloud.NextScan = Now
                     MyCloud.SearchString = ""
                     MyCloud.Location = "Cloud"
@@ -2413,12 +2416,12 @@ Partial Public Class VitalSignsPlusCore
 
                         Try
                             If entityStatus.LastUpdated Is Nothing Then
-                                .LastScan = Now
+                                .LastScan = Now.AddMinutes(-30)
                             Else
                                 .LastScan = entityStatus.LastUpdated
                             End If
                         Catch ex As Exception
-                            .LastScan = Now
+                            .LastScan = Now.AddMinutes(-30)
                         End Try
 
                     End If
@@ -2427,12 +2430,13 @@ Partial Public Class VitalSignsPlusCore
                         If entity.CurrentNode Is Nothing Then
                             .InsufficentLicenses = True
                         Else
-                            If entity.CurrentNode.ToString() = "-1" Then
+                            If entity.CurrentNode.ToString() <> getCurrentNode() Then
                                 .InsufficentLicenses = True
                             Else
                                 .InsufficentLicenses = False
                             End If
                         End If
+                        '.CurrentNode = entity.CurrentNode
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " " & .Name & " Cloud Servers insufficient licenses not set.")
                     End Try
@@ -2467,7 +2471,7 @@ Partial Public Class VitalSignsPlusCore
         Try
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphere.ToDescription()) And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphere.ToDescription())
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -2498,37 +2502,37 @@ Partial Public Class VitalSignsPlusCore
             listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
 
-                             filterDef = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphereNode.ToDescription()) ' And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
-                             projectionDef = repository.Project _
-                .Include(Function(x) x.Id) _
-                .Include(Function(x) x.DeviceName) _
-                .Include(Function(x) x.IPAddress)
+            filterDef = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphereNode.ToDescription()) ' And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
+            projectionDef = repository.Project _
+.Include(Function(x) x.Id) _
+.Include(Function(x) x.DeviceName) _
+.Include(Function(x) x.IPAddress)
 
-                             listOfNodes = repository.Find(filterDef, projectionDef).ToList()
+            listOfNodes = repository.Find(filterDef, projectionDef).ToList()
 
 
-                             filterDef = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphereCell.ToDescription()) ' And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
-                             projectionDef = repository.Project _
-                .Include(Function(x) x.Id) _
-                .Include(Function(x) x.DeviceName) _
-                .Include(Function(x) x.CellHostName) _
-                .Include(Function(x) x.ConnectionType) _
-                .Include(Function(x) x.PortNumber) _
-                .Include(Function(x) x.Realm) _
-                .Include(Function(x) x.CredentialsId)
+            filterDef = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphereCell.ToDescription()) ' And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
+            projectionDef = repository.Project _
+.Include(Function(x) x.Id) _
+.Include(Function(x) x.DeviceName) _
+.Include(Function(x) x.CellHostName) _
+.Include(Function(x) x.ConnectionType) _
+.Include(Function(x) x.PortNumber) _
+.Include(Function(x) x.Realm) _
+.Include(Function(x) x.CredentialsId)
 
-                             listOfCells = repository.Find(filterDef, projectionDef).ToList()
+            listOfCells = repository.Find(filterDef, projectionDef).ToList()
 
-                             Dim repositoryStatus As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                             Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphere.ToDescription())
-                             Dim projectionDefStatus As ProjectionDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Project _
-                .Include(Function(x) x.StatusCode) _
-                .Include(Function(x) x.CurrentStatus) _
-                .Include(Function(x) x.LastUpdated) _
-                .Include(Function(x) x.DeviceType) _
-                .Include(Function(x) x.DeviceName)
+            Dim repositoryStatus As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+            Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.WebSphere.ToDescription())
+            Dim projectionDefStatus As ProjectionDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Project _
+.Include(Function(x) x.StatusCode) _
+.Include(Function(x) x.CurrentStatus) _
+.Include(Function(x) x.LastUpdated) _
+.Include(Function(x) x.DeviceType) _
+.Include(Function(x) x.DeviceName)
 
-                             listOfStatus = repositoryStatus.Find(filterDefStatus, projectionDefStatus).ToList()
+            listOfStatus = repositoryStatus.Find(filterDefStatus, projectionDefStatus).ToList()
 
             'WSC: IPAddress, CellName, ConnectionType, PortNumber, Realm, CredentialID
             'WSN: DeviceName
@@ -2609,7 +2613,7 @@ Partial Public Class VitalSignsPlusCore
                     Try
                         MyWebSphereServer = New MonitoredItems.WebSphere
                         MyWebSphereServer.Name = MyName
-                        MyWebSphereServer.LastScan = Now
+                        MyWebSphereServer.LastScan = Now.AddMinutes(-30)
                         MyWebSphereServer.NextScan = Now
                         MyWebSphereServer.AlertCondition = False
                         MyWebSphereServer.Status = "Not Scanned"
@@ -2776,12 +2780,12 @@ Partial Public Class VitalSignsPlusCore
 
                         Try
                             If entityStatus.LastUpdated Is Nothing Then
-                                .LastScan = Now
+                                .LastScan = Now.AddMinutes(-30)
                             Else
                                 .LastScan = entityStatus.LastUpdated
                             End If
                         Catch ex As Exception
-                            .LastScan = Now
+                            .LastScan = Now.AddMinutes(-30)
                         End Try
 
                     End If
@@ -2971,12 +2975,13 @@ Partial Public Class VitalSignsPlusCore
                         If entity.CurrentNode Is Nothing Then
                             .InsufficentLicenses = True
                         Else
-                            If entity.CurrentNode.ToString() = "-1" Then
+                            If entity.CurrentNode.ToString() <> getCurrentNode() Then
                                 .InsufficentLicenses = True
                             Else
                                 .InsufficentLicenses = False
                             End If
                         End If
+                        '.CurrentNode = entity.CurrentNode
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " " & .Name & " Connections Servers insufficient licenses not set.")
                     End Try
@@ -3078,7 +3083,7 @@ Partial Public Class VitalSignsPlusCore
         Try
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.IBMConnections.ToDescription()) And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.IBMConnections.ToDescription())
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -3190,7 +3195,7 @@ Partial Public Class VitalSignsPlusCore
                     Try
                         MyIBMConnectServer = New MonitoredItems.IBMConnect
                         MyIBMConnectServer.Name = MyName
-                        MyIBMConnectServer.LastScan = Now
+                        MyIBMConnectServer.LastScan = Now.AddMinutes(-30)
                         MyIBMConnectServer.NextScan = Now
                         MyIBMConnectServer.AlertCondition = False
                         MyIBMConnectServer.Status = "Not Scanned"
@@ -3341,12 +3346,12 @@ Partial Public Class VitalSignsPlusCore
 
                         Try
                             If entityStatus.LastUpdated Is Nothing Then
-                                .LastScan = Now
+                                .LastScan = Now.AddMinutes(-30)
                             Else
                                 .LastScan = entityStatus.LastUpdated
                             End If
                         Catch ex As Exception
-                            .LastScan = Now
+                            .LastScan = Now.AddMinutes(-30)
                         End Try
 
                     End If
@@ -3726,13 +3731,14 @@ Partial Public Class VitalSignsPlusCore
                             WriteAuditEntry(Now.ToString & " " & .Name & " Connections Server marked to insufficent licenses due to it not being set.", LogLevel.Verbose)
                             .InsufficentLicenses = True
                         Else
-                            If entity.CurrentNode.ToString() = "-1" Then
+                            If entity.CurrentNode.ToString() <> getCurrentNode() Then
                                 WriteAuditEntry(Now.ToString & " " & .Name & " Connections Server marked to insufficent licenses due to it being -1.", LogLevel.Verbose)
                                 .InsufficentLicenses = True
                             Else
                                 .InsufficentLicenses = False
                             End If
                         End If
+                        '.CurrentNode = entity.CurrentNode
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " " & .Name & " Connections Servers insufficient licenses not set.")
                     End Try

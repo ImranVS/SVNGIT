@@ -156,6 +156,17 @@ namespace VSNext.Mongo.Entities
             DominoCustomStatistic
         }
 
+
+        public enum NodeStatus
+        {
+            [Description("Master Service Stopped")]
+            MasterServiceStopped,
+            [Description("Insufficient Licenses")]
+            InsufficientLicenses,
+            [Description("Unassigned")]
+            Unassigned
+        }
+
     }
     /// <summary>
     /// To implement the extension methods from Enum class

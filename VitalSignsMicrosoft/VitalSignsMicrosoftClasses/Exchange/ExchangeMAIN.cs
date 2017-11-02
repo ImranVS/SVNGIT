@@ -227,15 +227,13 @@ namespace VitalSignsMicrosoftClasses
             List<VSNext.Mongo.Entities.Status> listOfStatus = new List<Status>();
             List<VSNext.Mongo.Entities.Credentials> listOfCredentials = new List<Credentials>();
             List<VSNext.Mongo.Entities.Location> listOfLocations = new List<Location>();
-
+            string NodeName = null;
             try
             {
-
-                string NodeName = ConfigurationManager.AppSettings["VSNodeName"].ToString();
+                NodeName = ConfigurationManager.AppSettings["VSNodeName"].ToString();
 
                 VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(DB.GetMongoConnectionString());
-                FilterDefinition<VSNext.Mongo.Entities.Server> filterDef = repository.Filter.Eq(x => x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Exchange.ToDescription()) &
-                     repository.Filter.In(x => x.CurrentNode, new string[] { NodeName, "-1" });
+                FilterDefinition<VSNext.Mongo.Entities.Server> filterDef = repository.Filter.Eq(x => x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Exchange.ToDescription());
 
                 ProjectionDefinition<VSNext.Mongo.Entities.Server> projectionDef = repository.Project
                     .Include(x => x.Id)
@@ -270,7 +268,7 @@ namespace VitalSignsMicrosoftClasses
                 listOfServers = repository.Find(filterDef, projectionDef).ToList();
 
                 VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status> repositoryStatus = new VSNext.Mongo.Repository.Repository<Status>(DB.GetMongoConnectionString());
-                FilterDefinition<VSNext.Mongo.Entities.Status> filterDefStatus = repositoryStatus.Filter.Eq(x => x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Office365.ToDescription());
+                FilterDefinition<VSNext.Mongo.Entities.Status> filterDefStatus = repositoryStatus.Filter.Eq(x => x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Exchange.ToDescription());
                 ProjectionDefinition<VSNext.Mongo.Entities.Status> projectionDefStatus = repositoryStatus.Project
                     .Include(x => x.DeviceId)
                     .Include(x => x.StatusCode)
@@ -292,27 +290,6 @@ namespace VitalSignsMicrosoftClasses
                 Common.WriteDeviceHistoryEntry("All", "Exchange", "Exception in CreateExchangeServersCollection when getting the data from the db. Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
             }
             
-			StringBuilder SQL = new StringBuilder();
-			SQL.Append(" select distinct Sr.ID,Sr.ServerName,S.ServerType,S.ID as ServerTypeId,L.Location,sa.ScanInterval,sa.RetryInterval,sa.OffHourInterval,sa.Enabled,sr.ipaddress,sa.category,cr.UserID,cr.Password, ");
-			SQL.Append(" CASSmtp,CASPop3,CASImap,CASOARPC,CASOWA,CASActiveSync,CASEWS,CASECP,CASAutoDiscovery,CASOAB,SubQThreshold,PoisonQThreshold,UnReachableQThreshold,TotalQThreshold,");
-            SQL.Append(" ES.VersionNo, sa.ResponseTime,ScanDAGHealth,cr2.UserID ASUserId,cr2.Password ASPassword, sa.ConsOvrThresholdBefAlert,sa.ConsFailuresBefAlert,ES.EnableLatencyTest,ES.LatencyRedThreshold,ES.LatencyYellowThreshold, ");
-			SQL.Append(" ShadowQThreshold, st.LastUpdate, st.Status, st.StatusCode, di.CurrentNodeID, sa.CPU_Threshold, sa.MemThreshold, ES.AuthenticationType ");
-			SQL.Append("  from Servers Sr ");
-            SQL.Append(" inner join ServerTypes S on Sr.ServerTypeID=S.ID  inner join Locations L on Sr.LocationID =L.ID  left outer join ServerAttributes sa on sr.ID=sa.serverid ");
-			SQL.Append(" inner join credentials cr on sa.CredentialsId=cr.ID ");
-			SQL.Append(" left outer join ExchangeSettings ES on sr.ID=ES.ServerId ");
-            SQL.Append(" left outer join credentials cr2 on ES.ActiveSyncCredentialsId=cr2.ID ");
-			if (ConfigurationManager.AppSettings["VSNodeName"] != null)
-			{
-				string NodeName = ConfigurationManager.AppSettings["VSNodeName"].ToString();
-				SQL.Append(" inner join DeviceInventory di on Sr.ID=di.DeviceID and Sr.ServerTypeId=di.DeviceTypeId ");
-				SQL.Append(" inner join Nodes on (Nodes.ID=di.CurrentNodeId or di.CurrentNodeId=-1) and Nodes.Name='" + NodeName + "' ");
-			}
-			SQL.Append(" left outer join Status st on st.Type=S.ServerType and st.Name=Sr.ServerName ");
-			SQL.Append(" where S.ServerType='Exchange' and sa.Enabled = 1 order by sr.id");
-            //DataTable dtServers = DB.GetData(SQL.ToString());
-
-            //listOfIdsForExchange = String.Join(",", dtServers.AsEnumerable().Select(r => r.Field<Int32>("ID").ToString()).ToList());
             listOfIdsForExchange = String.Join(",", listOfServers.Select(x => x.Id).ToList());
 			//Loop through servers
 			MonitoredItems.ExchangeThresholdSettings ExchgThreshold = new MonitoredItems.ExchangeThresholdSettings();
@@ -451,7 +428,9 @@ namespace VitalSignsMicrosoftClasses
                     MyExchangeServer.EnableLatencyTest = (DR["EnableLatencyTest"] == null || DR["EnableLatencyTest"].ToString() == "") ? false : Convert.ToBoolean(DR["EnableLatencyTest"]);
                     */
                     myExchangeServer.Enabled = true;
-                    myExchangeServer.InsufficentLicenses = entity.CurrentNode != null && entity.CurrentNode == "-1" ? true : false;
+                    //myExchangeServer.InsufficentLicenses = entity.CurrentNode != null && entity.CurrentNode == "-1" ? true : false;
+                    myExchangeServer.InsufficentLicenses = entity.CurrentNode == null || entity.CurrentNode != NodeName;
+                    myExchangeServer.CurrentNode = entity.CurrentNode;
                     myExchangeServer.AuthenticationType = entity.AuthenticationType != null && entity.AuthenticationType != "" ? entity.AuthenticationType : "Default";
                     myExchangeServer.IsPrereqsDone = entity.ArePrerequisitesDone.HasValue ? entity.ArePrerequisitesDone.Value : false;
                     // MyExchangeServer.TestId = int.Parse(DR["TestId"].ToString());
@@ -990,7 +969,7 @@ namespace VitalSignsMicrosoftClasses
 		{
 
 			MyLyncServer.ServerType = "Skype for Business";
-			MyLyncServer.LastScan = DR["LastUpdate"] == null || DR["LastUpdate"].ToString() == "" ? DateTime.Now : DateTime.Parse(DR["LastUpdate"].ToString());
+			MyLyncServer.LastScan = DR["LastUpdate"] == null || DR["LastUpdate"].ToString() == "" ? DateTime.Now.AddMinutes(-30) : DateTime.Parse(DR["LastUpdate"].ToString());
 			MyLyncServer.Status = DR["Status"] == null || DR["Status"].ToString() == "" ? "Not Scanned" : DR["Status"].ToString();
 			MyLyncServer.StatusCode = DR["StatusCode"] == null || DR["StatusCode"].ToString() == "" ? "Maintenance" : DR["StatusCode"].ToString();
 			MyLyncServer.Enabled = true;
@@ -1456,49 +1435,6 @@ namespace VitalSignsMicrosoftClasses
 			
 		}
 
-		public MonitoredItems.ExchangeServer findServerToScanBasedOnlyOnTime()
-		{
-			if (myExchangeServers.Count == 0)
-				return null;
-			if (myExchangeServers.Count == 1)
-				return myExchangeServers.get_Item(0);
-
-			MonitoredItems.ExchangeServer s1 = myExchangeServers.get_Item(0);
-			MonitoredItems.ExchangeServer s2 = myExchangeServers.get_Item(1);
-
-			for (int n = 2; n < myExchangeServers.Count; n++)
-			{
-				if (s1.IsBeingScanned)
-				{
-					s1 = myExchangeServers.get_Item(n);
-					continue;
-				}
-				if (s2.IsBeingScanned)
-				{
-					s2 = myExchangeServers.get_Item(n);
-					continue;
-				}
-				if (DateTime.Compare(s1.LastScan, s2.LastScan) < 0)
-				{
-					if (!myExchangeServers.get_Item(n).IsBeingScanned)
-						s2 = myExchangeServers.get_Item(n);
-				}
-				else
-				{
-					if (!myExchangeServers.get_Item(n).IsBeingScanned)
-						s1 = myExchangeServers.get_Item(n);
-				}
-			}
-
-			if (DateTime.Compare(s1.LastScan, s2.LastScan) < 0)
-				if (!s1.IsBeingScanned)
-					return s1;
-			if (!s2.IsBeingScanned)
-				return s2;
-			return null;
-
-		}
-
 		private void getServerRolesAndVersion(MonitoredItems.ExchangeServer myServer, TestResults AllTestResults)
 		{
 
@@ -1706,48 +1642,6 @@ namespace VitalSignsMicrosoftClasses
 				Thread.Sleep(2000);
 			}
 
-
-		}
-		public MonitoredItems.ExchangeServer findLyncServerToScanBasedOnlyOnTime()
-		{
-			if (myLyncServers.Count == 0)
-				return null;
-			if (myLyncServers.Count == 1)
-				return myLyncServers.get_Item(0);
-
-			MonitoredItems.ExchangeServer s1 = myLyncServers.get_Item(0);
-			MonitoredItems.ExchangeServer s2 = myLyncServers.get_Item(1);
-
-			for (int n = 2; n < myLyncServers.Count; n++)
-			{
-				if (s1.IsBeingScanned)
-				{
-					s1 = myLyncServers.get_Item(n);
-					continue;
-				}
-				if (s2.IsBeingScanned)
-				{
-					s2 = myLyncServers.get_Item(n);
-					continue;
-				}
-				if (DateTime.Compare(s1.LastScan, s2.LastScan) < 0)
-				{
-					if (!myLyncServers.get_Item(n).IsBeingScanned)
-						s2 = myLyncServers.get_Item(n);
-				}
-				else
-				{
-					if (!myLyncServers.get_Item(n).IsBeingScanned)
-						s1 = myLyncServers.get_Item(n);
-				}
-			}
-
-			if (DateTime.Compare(s1.LastScan, s2.LastScan) < 0)
-				if (!s1.IsBeingScanned)
-					return s1;
-			if (!s2.IsBeingScanned)
-				return s2;
-			return null;
 
 		}
 
@@ -3069,7 +2963,7 @@ namespace VitalSignsMicrosoftClasses
 			MyExchangeServer.MailProbeAddress = DR["EXCHANGEMAILADDRESS"].ToString();
 			MyExchangeServer.MailProbeName = DR["NAME"].ToString();
 			MyExchangeServer.MailProbeSourceServer = DR["SERVERNAME"].ToString();
-			MyExchangeServer.LastScan = DateTime.Now;
+			MyExchangeServer.LastScan = DateTime.Now.AddMinutes(-30);
 			MyExchangeServer.Status = "Not Scanned";
 			MyExchangeServer.StatusCode = "Maintenance";
 
@@ -3457,15 +3351,14 @@ namespace VitalSignsMicrosoftClasses
             List<VSNext.Mongo.Entities.Status> listOfStatus = new List<Status>();
             List<VSNext.Mongo.Entities.Credentials> listOfCredentials = new List<Credentials>();
             List<VSNext.Mongo.Entities.Location> listOfLocations = new List<Location>();
-
+            string NodeName = null;
             try
             {
 
-                string NodeName = ConfigurationManager.AppSettings["VSNodeName"].ToString();
+                NodeName = ConfigurationManager.AppSettings["VSNodeName"].ToString();
 
                 VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(DB.GetMongoConnectionString());
-                FilterDefinition<VSNext.Mongo.Entities.Server> filterDef = repository.Filter.Eq(x => x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.DatabaseAvailabilityGroup.ToDescription()) &
-                     repository.Filter.In(x => x.CurrentNode, new string[] { NodeName, "-1" });
+                FilterDefinition<VSNext.Mongo.Entities.Server> filterDef = repository.Filter.Eq(x => x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.DatabaseAvailabilityGroup.ToDescription());
 
                 ProjectionDefinition<VSNext.Mongo.Entities.Server> projectionDef = repository.Project
                     .Include(x => x.Id)
@@ -3511,32 +3404,7 @@ namespace VitalSignsMicrosoftClasses
 
 
             MonitoredItems.ExchangeServersCollection newCollection = new MonitoredItems.ExchangeServersCollection();
-			//CommonDB DB = new CommonDB();
-			StringBuilder SQL = new StringBuilder();
-			SQL.Append(" select distinct sr.ID, Sr.ServerName, S.ServerType, L.Location, sa.ScanInterval, sa.RetryInterval, sa.OffHourInterval, ");
-			SQL.Append(" sa.Enabled, sa.category, ds.ReplyQThreshold, ds.CopyQThreshold, (select IPAddress from Servers where Servers.ID=ds.PrimaryConnection) as PrimaryIPAddress, ");
-			SQL.Append(" (select IPAddress from Servers where Servers.ID=ds.BackupConnection) as BackupIPAddress, ");
-			SQL.Append(" crp.UserID as PrimaryUserID, crp.Password as PrimaryPassword, crb.UserID as BackupUserID, crb.Password as BackupPassword, st.LastUpdate, st.Status, st.StatusCode, di.CurrentNodeID, ");
-			SQL.Append(" esp.AuthenticationType as PrimaryAuthenticationType, esb.AuthenticationType as BackupAuthenticationType ");
-			SQL.Append(" from Servers Sr inner join ServerTypes S on Sr.ServerTypeID=S.ID inner join Locations L on Sr.LocationID = L.ID ");
-			SQL.Append(" inner join DagSettings ds on ds.ServerID=sr.ID inner join ServerAttributes sa on sr.ID=sa.ServerID ");
-			SQL.Append(" inner join ServerAttributes sap on ds.PrimaryConnection=sap.ServerID inner join credentials crp on sap.CredentialsId=crp.ID ");
-			SQL.Append(" inner join ServerAttributes sab on ds.BackupConnection=sab.ServerID inner join credentials crb on sab.CredentialsId=crb.ID ");
-			SQL.Append(" inner join ExchangeSettings esp on esp.ServerID=sap.ServerID ");
-			SQL.Append(" inner join ExchangeSettings esb on esb.ServerID=sab.ServerID  ");
-			if (ConfigurationManager.AppSettings["VSNodeName"] != null)
-			{
-				string NodeName = ConfigurationManager.AppSettings["VSNodeName"].ToString();
-				SQL.Append(" inner join DeviceInventory di on Sr.ID=di.DeviceID and Sr.ServerTypeId=di.DeviceTypeId ");
-				SQL.Append(" inner join Nodes on (Nodes.ID=di.CurrentNodeId or di.CurrentNodeId=-1) and Nodes.Name='" + NodeName + "' ");
-			}
-			SQL.Append(" left outer join Status st on st.Type=S.ServerType and st.Name=Sr.ServerName ");
-			SQL.Append(" where sa.Enabled=1 ");
-
-			//DataTable dtServers = DB.GetData(SQL.ToString());
-
-			//listOfIdsForDag = String.Join(",", dtServers.AsEnumerable().Select(r => r.Field<Int32>("ID").ToString()).ToList());
-
+			
             if (listOfServers.Count > 0)
             {
                 List<string> ServerNameList = new List<string>();
@@ -3596,7 +3464,7 @@ namespace VitalSignsMicrosoftClasses
                     myDagServer.OffHoursScanInterval = entity.OffHoursScanInterval.HasValue ? entity.OffHoursScanInterval.Value : 10;
                     myDagServer.RetryInterval = entity.RetryInterval.HasValue ? entity.RetryInterval.Value : 3;
                     myDagServer.Enabled = true;
-                    myDagServer.InsufficentLicenses = entity.CurrentNode != null && entity.CurrentNode == "-1" ? true : false;
+                    myDagServer.AuthenticationType = entity.AuthenticationType != null && entity.AuthenticationType != "" ? entity.AuthenticationType : "Default";
 
                     try
                     {
@@ -3727,7 +3595,7 @@ namespace VitalSignsMicrosoftClasses
 			MyExchangeServer.ScanInterval = int.Parse(DR["ScanInterval"].ToString());
 			MyExchangeServer.OffHoursScanInterval = int.Parse(DR["OffHourInterval"].ToString());
 			MyExchangeServer.RetryInterval = int.Parse(DR["RetryInterval"].ToString());
-			MyExchangeServer.LastScan = DR["LastUpdate"] == null || DR["LastUpdate"].ToString() == "" ? DateTime.Now : DateTime.Parse(DR["LastUpdate"].ToString());
+			MyExchangeServer.LastScan = DR["LastUpdate"] == null || DR["LastUpdate"].ToString() == "" ? DateTime.Now.AddMinutes(-30) : DateTime.Parse(DR["LastUpdate"].ToString());
 			MyExchangeServer.Status = DR["Status"] == null || DR["Status"].ToString() == "" ? "Not Scanned" : DR["Status"].ToString();
 			MyExchangeServer.StatusCode = DR["StatusCode"] == null || DR["StatusCode"].ToString() == "" ? "Maintenance" : DR["StatusCode"].ToString();
 			MyExchangeServer.ServerType = "Database Availability Group";

@@ -625,7 +625,7 @@ namespace VitalSignsMicrosoftClasses
 			MyADServer.Enabled = true;
 			MyADServer.ServerTypeId = int.Parse(DR["ServerTypeId"].ToString());
 			MyADServer.ServerType = DR["ServerType"].ToString();
-			MyADServer.LastScan = DR["LastUpdate"] == null || DR["LastUpdate"].ToString() == "" ? DateTime.Now : DateTime.Parse(DR["LastUpdate"].ToString());
+			MyADServer.LastScan = DR["LastUpdate"] == null || DR["LastUpdate"].ToString() == "" ? DateTime.Now.AddMinutes(-30) : DateTime.Parse(DR["LastUpdate"].ToString());
 			MyADServer.Status = DR["Status"] == null || DR["Status"].ToString() == "" ? "Not Scanned" : DR["Status"].ToString();
 			MyADServer.StatusCode = DR["StatusCode"] == null || DR["StatusCode"].ToString() == "" ? "Maintenance" : DR["StatusCode"].ToString();
 

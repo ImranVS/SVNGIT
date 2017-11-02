@@ -21,6 +21,7 @@ using VSFramework;
 using System;
 
 using MongoDB.Driver;
+using VSNext.Mongo.Entities;
 
 namespace VitalSignsMicrosoftClasses
 {
@@ -75,9 +76,10 @@ namespace VitalSignsMicrosoftClasses
 				//creates colelction and starts thread to monitor changes for the colelction
 				CommonDB db = new CommonDB();
 
-				if (db.RecordExists("SELECT * FROM SelectedFeatures sf WHERE sf.FeatureID in (SELECT ID FROM Features WHERE Name='" + serverType + "')"))
+				//if (db.RecordExists("SELECT * FROM SelectedFeatures sf WHERE sf.FeatureID in (SELECT ID FROM Features WHERE Name='" + serverType + "')"))
+                if(true)
 				{
-					Common.WriteDeviceHistoryEntry("All", serverType, "Server is marked for scanning so will start Server Related Tasks", Common.LogLevel.Normal);
+					Common.WriteDeviceHistoryEntry("All", serverType, "Server type is marked for scanning so will start Server Related Tasks", Common.LogLevel.Normal);
 					CreateSharepointServersCollection();
 					Common.InitStatusTable(mySharepointServers);
 					StartSPThreads();
@@ -409,7 +411,7 @@ namespace VitalSignsMicrosoftClasses
 				MonitoredItems.SharepointServer thisServer;
 				try
 				{
-					thisServer = SelectServerToMonitor();
+					thisServer = (MonitoredItems.SharepointServer)Common.SelectServerToMonitor(mySharepointServers);
 				
 					if (thisServer != null && !thisServer.IsBeingScanned)
 					{
@@ -522,33 +524,98 @@ namespace VitalSignsMicrosoftClasses
 
 		private void CreateSharepointServersCollection()
 		{
-			//Fetch all servers
-			if (mySharepointServers == null)
-				mySharepointServers = new MonitoredItems.SharepointServersCollection();
-			MonitoredItems.SharepointServersCollection newCollection = new MonitoredItems.SharepointServersCollection();
-			CommonDB DB = new CommonDB();
-			StringBuilder SQL = new StringBuilder();
-			SQL.Append(" select distinct Sr.ID,Sr.ServerName,S.ServerType, S.ID as ServerTypeId,L.Location,sa.ScanInterval,sa.RetryInterval,sa.OffHourInterval,sa.Enabled,sr.ipaddress,sa.category,cr.UserID,cr.Password,sa.ResponseTime,spf.Farm, ");
-			SQL.Append(" (select RoleName from RolesMaster where id=(select RoleID from ServerRoles where ServerID=sr.ID)) as RoleName, st.LastUpdate, st.Status, st.StatusCode, di.CurrentNodeID, sa.CPU_Threshold, sa.MemThreshold,  ");
-            SQL.Append("  spss.ConflictingContentType ,spss.CustomizedFiles, spss.MissingGalleries, spss.MissingParentContentTypes, spss.MissingSiteTemplates, spss.UnsupportedLanguagePack, spss.UnsupportedMUI ");
-			SQL.Append("  from Servers Sr ");
-			SQL.Append(" inner join ServerTypes S on Sr.ServerTypeID=S.ID  inner join Locations L on Sr.LocationID =L.ID  left outer join ServerAttributes sa on sr.ID=sa.serverid ");
-			SQL.Append(" inner join credentials cr on sa.CredentialsId=cr.ID ");
-			SQL.Append(" left join SharePointFarms spf on spf.ServerId=sr.ID ");
-            SQL.Append(" left join SharePointServerSettings spss on spss.ServerId=sr.ID ");
-			if (ConfigurationManager.AppSettings["VSNodeName"] != null)
-			{
-				string NodeName = ConfigurationManager.AppSettings["VSNodeName"].ToString();
-				SQL.Append(" inner join DeviceInventory di on Sr.ID=di.DeviceID and Sr.ServerTypeId=di.DeviceTypeId ");
-				SQL.Append(" inner join Nodes on (Nodes.ID=di.CurrentNodeId or di.CurrentNodeId=-1) and Nodes.Name='" + NodeName + "' ");
-			}
-			SQL.Append(" left outer join Status st on st.Type=S.ServerType and st.Name=Sr.ServerName ");
-			SQL.Append(" where S.ServerType='" + serverType + "' and sa.Enabled = 1 order by sr.id");
-			DataTable dtServers = DB.GetData(SQL.ToString());
-			listOfIds = String.Join(",", dtServers.AsEnumerable().Select(r => r.Field<Int32>("ID").ToString()).ToList());
+            if (mySharepointServers == null)
+                mySharepointServers = new MonitoredItems.SharepointServersCollection();
+
+            CommonDB DB = new CommonDB();
+            List<VSNext.Mongo.Entities.Server> listOfServers = new List<Server>();
+            List<VSNext.Mongo.Entities.Status> listOfStatus = new List<Status>();
+            List<VSNext.Mongo.Entities.Credentials> listOfCredentials = new List<Credentials>();
+            List<VSNext.Mongo.Entities.Location> listOfLocations = new List<Location>();
+            string NodeName = null;
+            try
+            {
+                NodeName = ConfigurationManager.AppSettings["VSNodeName"].ToString();
+
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(DB.GetMongoConnectionString());
+                FilterDefinition<VSNext.Mongo.Entities.Server> filterDef = repository.Filter.Eq(x => x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.SharePoint.ToDescription());
+
+                ProjectionDefinition<VSNext.Mongo.Entities.Server> projectionDef = repository.Project
+                    .Include(x => x.Id)
+                    .Include(x => x.DeviceName)
+                    .Include(x => x.LocationId)
+                    .Include(x => x.OffHoursScanInterval)
+                    .Include(x => x.RetryInterval)
+                    .Include(x => x.ScanInterval)
+                    .Include(x => x.IPAddress)
+                    .Include(x => x.Category)
+                    .Include(x => x.CredentialsId)
+                    .Include(x => x.ResponseTime)
+                    .Include(x => x.CpuThreshold)
+                    .Include(x => x.MemoryThreshold)
+                    .Include(x => x.CurrentNode)
+                    .Include(x => x.SimulationTests);
+                //farm??
+                //Roles??
+
+                listOfServers = repository.Find(filterDef, projectionDef).ToList();
+
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status> repositoryStatus = new VSNext.Mongo.Repository.Repository<Status>(DB.GetMongoConnectionString());
+                FilterDefinition<VSNext.Mongo.Entities.Status> filterDefStatus = repositoryStatus.Filter.Eq(x => x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.SharePoint.ToDescription());
+                ProjectionDefinition<VSNext.Mongo.Entities.Status> projectionDefStatus = repositoryStatus.Project
+                    .Include(x => x.DeviceId)
+                    .Include(x => x.StatusCode)
+                    .Include(x => x.CurrentStatus)
+                    .Include(x => x.LastUpdated)
+                    .Include(x => x.DeviceType)
+                    .Include(x => x.DeviceName)
+                    .Include(x => x.Details);
+
+                listOfStatus = repositoryStatus.Find(filterDefStatus, projectionDefStatus).ToList();
+
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Credentials> repositoryCredentials = new VSNext.Mongo.Repository.Repository<Credentials>(DB.GetMongoConnectionString());
+                listOfCredentials = repositoryCredentials.Find(x => true).ToList();
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Location> repositoryLocation = new VSNext.Mongo.Repository.Repository<Location>(DB.GetMongoConnectionString());
+                listOfLocations = repositoryLocation.Find(x => true).ToList();
+            }
+            catch (Exception ex)
+            {
+                Common.WriteDeviceHistoryEntry("All", "Exchange", "Exception in CreateExchangeServersCollection when getting the data from the db. Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
+            }
+
+
+
+
+            /*
+
+   //         //Fetch all servers
+   //         if (mySharepointServers == null)
+			//	mySharepointServers = new MonitoredItems.SharepointServersCollection();
+			//MonitoredItems.SharepointServersCollection newCollection = new MonitoredItems.SharepointServersCollection();
+			//CommonDB DB = new CommonDB();
+			//StringBuilder SQL = new StringBuilder();
+			//SQL.Append(" select distinct Sr.ID,Sr.ServerName,S.ServerType, S.ID as ServerTypeId,L.Location,sa.ScanInterval,sa.RetryInterval,sa.OffHourInterval,sa.Enabled,sr.ipaddress,sa.category,cr.UserID,cr.Password,sa.ResponseTime,spf.Farm, ");
+			//SQL.Append(" (select RoleName from RolesMaster where id=(select RoleID from ServerRoles where ServerID=sr.ID)) as RoleName, st.LastUpdate, st.Status, st.StatusCode, di.CurrentNodeID, sa.CPU_Threshold, sa.MemThreshold,  ");
+   //         SQL.Append("  spss.ConflictingContentType ,spss.CustomizedFiles, spss.MissingGalleries, spss.MissingParentContentTypes, spss.MissingSiteTemplates, spss.UnsupportedLanguagePack, spss.UnsupportedMUI ");
+			//SQL.Append("  from Servers Sr ");
+			//SQL.Append(" inner join ServerTypes S on Sr.ServerTypeID=S.ID  inner join Locations L on Sr.LocationID =L.ID  left outer join ServerAttributes sa on sr.ID=sa.serverid ");
+			//SQL.Append(" inner join credentials cr on sa.CredentialsId=cr.ID ");
+			//SQL.Append(" left join SharePointFarms spf on spf.ServerId=sr.ID ");
+   //         SQL.Append(" left join SharePointServerSettings spss on spss.ServerId=sr.ID ");
+			//if (ConfigurationManager.AppSettings["VSNodeName"] != null)
+			//{
+			//	string NodeName = ConfigurationManager.AppSettings["VSNodeName"].ToString();
+			//	SQL.Append(" inner join DeviceInventory di on Sr.ID=di.DeviceID and Sr.ServerTypeId=di.DeviceTypeId ");
+			//	SQL.Append(" inner join Nodes on (Nodes.ID=di.CurrentNodeId or di.CurrentNodeId=-1) and Nodes.Name='" + NodeName + "' ");
+			//}
+			//SQL.Append(" left outer join Status st on st.Type=S.ServerType and st.Name=Sr.ServerName ");
+			//SQL.Append(" where S.ServerType='" + serverType + "' and sa.Enabled = 1 order by sr.id");
+			//DataTable dtServers = DB.GetData(SQL.ToString());
+			//listOfIds = String.Join(",", dtServers.AsEnumerable().Select(r => r.Field<Int32>("ID").ToString()).ToList());
 			//Loop through servers
 			//MonitoredItems.ExchangeThresholdSettings ExchgThreshold = new MonitoredItems.ExchangeThresholdSettings();
-			if (dtServers.Rows.Count > 0)
+            */
+			if (listOfServers.Count > 0)
 			{
 				List<string> ServerNameList = new List<string>();
 
@@ -556,23 +623,32 @@ namespace VitalSignsMicrosoftClasses
 				int newServers = 0;
 				int removedServers = 0;
 
-				for (int i = 0; i < dtServers.Rows.Count; i++)
+				for (int i = 0; i < listOfServers.Count; i++)
 				{
-					DataRow DR = dtServers.Rows[i];
-					ServerNameList.Add(DR["ServerName"].ToString());
+					Server entity = listOfServers[i];
+					ServerNameList.Add(entity.DeviceName.ToString());
 
 					MonitoredItems.SharepointServer mySPServer = null;
-
-					//Checks to see if the server is newly added or exists.  Adds if it is new
-					try
+                    VSNext.Mongo.Entities.Status statusEntry = listOfStatus.Find(x => x.DeviceId == entity.Id);
+                    //Checks to see if the server is newly added or exists.  Adds if it is new
+                    try
 					{
-						mySPServer = mySharepointServers.SearchByName(DR["ServerName"].ToString());
+						mySPServer = mySharepointServers.SearchByName(entity.DeviceName.ToString());
 						if (mySPServer == null)
 						{
 							//New server.  Set inits and add to collection
 
-							mySPServer = InitForSPServers(mySPServer, DR);
-							mySharepointServers.Add(mySPServer);
+							//mySPServer = InitForSPServers(mySPServer, DR);
+
+                            mySPServer = new MonitoredItems.SharepointServer();
+
+                            mySPServer.LastScan = statusEntry != null && statusEntry.LastUpdated.HasValue ? statusEntry.LastUpdated.Value : DateTime.Now.AddMinutes(-30);
+                            mySPServer.Status = statusEntry != null && statusEntry.CurrentStatus == null ? statusEntry.CurrentStatus : "Not Scanned";
+                            mySPServer.StatusCode = statusEntry != null && statusEntry.StatusCode == null ? statusEntry.StatusCode : "Maintenance";
+                            mySPServer.ServerType = Enums.ServerType.SharePoint.ToDescription();
+                            mySPServer.Enabled = true;
+
+                            mySharepointServers.Add(mySPServer);
 							newServers++;
 
 						}
@@ -583,16 +659,106 @@ namespace VitalSignsMicrosoftClasses
 					}
 					catch (Exception ex)
 					{
-						//New server.  Set inits and add to collection
-						mySPServer = InitForSPServers(mySPServer, DR);
-						mySharepointServers.Add(mySPServer);
+                        //New server.  Set inits and add to collection
+                        mySPServer = new MonitoredItems.SharepointServer();
+
+                        mySPServer.LastScan = DateTime.Now.AddMinutes(-30);
+                        mySPServer.Status = "Not Scanned";
+                        mySPServer.StatusCode = "Maintenance";
+                        mySPServer.ServerType = Enums.ServerType.SharePoint.ToDescription();
+                        mySPServer.Enabled = true;
+
+                        mySharepointServers.Add(mySPServer);
+                        //mySPServer = InitForSPServers(mySPServer, DR);
+						//mySharepointServers.Add(mySPServer);
 						newServers++;
 					}
 
-					mySPServer = SetSPServerSettings(mySPServer, DR);
+                    //mySPServer = SetSPServerSettings(mySPServer, DR);
+                    mySPServer.IPAddress = entity.IPAddress;
+                    mySPServer.Name = entity.DeviceName;
+
+                    try
+                    {
+                        var creds = listOfCredentials.Where(x => x.Id == entity.CredentialsId).First();
+                        TripleDES tripleDes = new TripleDES();
+                        mySPServer.UserName = creds.UserId;
+                        mySPServer.Password = tripleDes.Decrypt(creds.Password);
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+
+                    try
+                    {
+                        var location = listOfLocations.Where(x => x.Id == entity.LocationId).First();
+                        mySPServer.Location = location.LocationName;
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+
+                    try
+                    {
+                        var status = listOfStatus.Where(x => x.DeviceId == entity.Id).First();
+                        mySPServer.Status = status.CurrentStatus;
+                        mySPServer.StatusCode = status.StatusCode;
+                        mySPServer.LastScan = status.LastUpdated.HasValue ? status.LastUpdated.Value : DateTime.Now.AddHours(-1);
+                        mySPServer.ResponseDetails = status.Details;
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+
+                    mySPServer.ResponseThreshold = entity.ResponseTime.GetValueOrDefault();
+                    mySPServer.ScanInterval = entity.ScanInterval.GetValueOrDefault();
+                    mySPServer.OffHoursScanInterval = entity.OffHoursScanInterval.GetValueOrDefault();
+                    mySPServer.RetryInterval = entity.RetryInterval.GetValueOrDefault();
+                    mySPServer.CPU_Threshold = entity.CpuThreshold.GetValueOrDefault();
+                    mySPServer.Memory_Threshold = entity.MemoryThreshold.GetValueOrDefault();
+
+                    mySPServer.Category = entity.Category;
+                    mySPServer.ServerObjectID = entity.Id;
+                    //mySPServer.Farm = DR["Farm"] == null ? "" : DR["Farm"].ToString();
+                    if (entity.SimulationTests != null)
+                    {
+                        foreach(NameValuePair nameValue in entity.SimulationTests)
+                        {
+                            switch(nameValue.Name)
+                            {
+                                case "Conflicting Content Types":
+                                    mySPServer.ConflictingContentType = true;
+                                    break;
+                                case "Customized Files":
+                                    mySPServer.CustomizedFiles = true;
+                                    break;
+                                case "Missing Galleries":
+                                    mySPServer.MissingGalleries = true;
+                                    break;
+                                case "Missing Parent Content Types":
+                                    mySPServer.MissingParentContentTypes = true;
+                                    break;
+                                case "Missing Site Templates":
+                                    mySPServer.MissingSiteTemplates = true;
+                                    break;
+                                case "Unsupported MUI References":
+                                    mySPServer.UnsupportedMUI = true;
+                                    break;
+                                case "Unsupported Language Pack References":
+                                    mySPServer.UnsupportedLanguagePack = true;
+                                    break;
+                            }
+                                                             
+                        }
+                    }
+
+                    mySPServer.InsufficentLicenses = entity.CurrentNode == null || entity.CurrentNode != NodeName;
 
 
-				}
+                }
 
 
 

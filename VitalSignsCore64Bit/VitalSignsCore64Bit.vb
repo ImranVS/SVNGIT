@@ -254,8 +254,7 @@ Partial Class VitalSignsCore
         Try
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.NetworkDevice.ToDescription()) _
-                 And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.NetworkDevice.ToDescription())
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -556,12 +555,12 @@ Partial Class VitalSignsCore
 
                         Try
                             If entityStatus.LastUpdated Is Nothing Then
-                                .LastScan = Now
+                                .LastScan = Now.AddMinutes(-30)
                             Else
                                 .LastScan = entityStatus.LastUpdated
                             End If
                         Catch ex As Exception
-                            .LastScan = Now
+                            .LastScan = Now.AddMinutes(-30)
                         End Try
 
                     Catch ex As Exception
@@ -572,13 +571,13 @@ Partial Class VitalSignsCore
                         If entity.CurrentNode Is Nothing Then
                             .InsufficentLicenses = True
                         Else
-                            If entity.CurrentNode.ToString() = "-1" Then
+                            If entity.CurrentNode.ToString() = getCurrentNode() Then
                                 .InsufficentLicenses = True
                             Else
                                 .InsufficentLicenses = False
                             End If
-
                         End If
+                        .CurrentNode = entity.CurrentNode
                     Catch ex As Exception
 
                         '7/8/2015 NS modified for VSPLUS-1959

@@ -620,7 +620,7 @@ namespace VitalSignsMicrosoftClasses
 			myServer = new MonitoredItems.MicrosoftServer();
 
 
-			myServer.LastScan = DR["LastUpdate"] == null || DR["LastUpdate"].ToString() == "" ? DateTime.Now : DateTime.Parse(DR["LastUpdate"].ToString());
+			myServer.LastScan = DR["LastUpdate"] == null || DR["LastUpdate"].ToString() == "" ? DateTime.Now.AddMinutes(-30) : DateTime.Parse(DR["LastUpdate"].ToString());
 			myServer.Status = DR["Status"] == null || DR["Status"].ToString() == "" ? "Not Scanned" : DR["Status"].ToString();
 			myServer.StatusCode = DR["StatusCode"] == null || DR["StatusCode"].ToString() == "" ? "Maintenance" : DR["StatusCode"].ToString();
 			myServer.ServerType = DR["ServerType"].ToString();

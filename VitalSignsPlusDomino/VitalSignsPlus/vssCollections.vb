@@ -74,7 +74,7 @@ Partial Public Class VitalSignsPlusDomino
             'removed UserThreshold, ChatThreshold, NChatThreshold, PlacesThreshold
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Sametime.ToDescription()) And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Sametime.ToDescription())
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -197,7 +197,7 @@ Partial Public Class VitalSignsPlusDomino
                     Try
                         MySametimeServer = New MonitoredItems.SametimeServer
                         MySametimeServer.Name = MyName
-                        MySametimeServer.LastScan = Now
+                        MySametimeServer.LastScan = Now.AddMinutes(-30)
                         MySametimeServer.NextScan = Now
                         MySametimeServer.AlertCondition = False
                         MySametimeServer.Status = "Not Scanned"
@@ -672,12 +672,12 @@ Partial Public Class VitalSignsPlusDomino
 
                         Try
                             If entityStatus.LastUpdated Is Nothing Then
-                                .LastScan = Now
+                                .LastScan = Now.AddMinutes(-30)
                             Else
                                 .LastScan = entityStatus.LastUpdated
                             End If
                         Catch ex As Exception
-                            .LastScan = Now
+                            .LastScan = Now.AddMinutes(-30)
                         End Try
 
                     Catch ex As Exception
@@ -923,12 +923,13 @@ Partial Public Class VitalSignsPlusDomino
                         If entity.CurrentNode Is Nothing Then
                             .InsufficentLicenses = True
                         Else
-                            If entity.CurrentNode.ToString() = "-1" Then
+                            If entity.CurrentNode.ToString() = getCurrentNode() Then
                                 .InsufficentLicenses = True
                             Else
                                 .InsufficentLicenses = False
                             End If
                         End If
+                        .CurrentNode = entity.CurrentNode
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " " & .Name & " Sametime Servers insufficient licenses not set.")
                     End Try
@@ -1075,7 +1076,7 @@ Partial Public Class VitalSignsPlusDomino
                 If MyNotesDatabase Is Nothing Then
                     MyNotesDatabase = New MonitoredItems.NotesDatabase
                     MyNotesDatabase.Name = MyName
-                    MyNotesDatabase.LastScan = Now
+                    MyNotesDatabase.LastScan = Now.AddMinutes(-30)
                     MyNotesDatabase.NextScan = Now
                     MyNotesDatabase.IncrementUpCount()
                     MyNotesDatabase.AlertCondition = False
@@ -1333,12 +1334,12 @@ Partial Public Class VitalSignsPlusDomino
 
                         Try
                             If entityStatus.LastUpdated Is Nothing Then
-                                .LastScan = Now
+                                .LastScan = Now.AddMinutes(-30)
                             Else
                                 .LastScan = entityStatus.LastUpdated
                             End If
                         Catch ex As Exception
-                            .LastScan = Now
+                            .LastScan = Now.AddMinutes(-30)
                         End Try
 
                     End If
@@ -1385,8 +1386,7 @@ Partial Public Class VitalSignsPlusDomino
         Try
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.TravelerHaDatastore.ToDescription()) _
-                 And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.TravelerHaDatastore.ToDescription())
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -1449,8 +1449,7 @@ Partial Public Class VitalSignsPlusDomino
         Try
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription()) _
-                 And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -2115,12 +2114,12 @@ Partial Public Class VitalSignsPlusDomino
 
                         Try
                             If entityStatus.LastUpdated Is Nothing Then
-                                .LastScan = Now
+                                .LastScan = Now.AddMinutes(30)
                             Else
                                 .LastScan = entityStatus.LastUpdated
                             End If
                         Catch ex As Exception
-                            .LastScan = Now
+                            .LastScan = Now.AddMinutes(30)
                         End Try
 
                         Try
@@ -2404,13 +2403,14 @@ Partial Public Class VitalSignsPlusDomino
                         If entity.CurrentNode Is Nothing Then
                             .InsufficentLicenses = True
                         Else
-                            If entity.CurrentNode.ToString() = "-1" Then
+                            If entity.CurrentNode.ToString() = getCurrentNode() Then
                                 .InsufficentLicenses = True
                             Else
                                 .InsufficentLicenses = False
                             End If
 
                         End If
+                        .CurrentNode = entity.CurrentNode
                     Catch ex As Exception
 
                         '7/8/2015 NS modified for VSPLUS-1959
@@ -2450,8 +2450,7 @@ Partial Public Class VitalSignsPlusDomino
             'Removed DominoServers.DiskSpaceThreshold, DominoServers.NotificationGroup, DominoServer.ScanServlet
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.NotesMailProbe.ToDescription()) _
-                 And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.NotesMailProbe.ToDescription())
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.Category) _
@@ -2796,13 +2795,13 @@ Partial Public Class VitalSignsPlusDomino
 
                         Try
                             If entityStatus.LastUpdated Is Nothing Then
-                                .LastScan = Now
+                                .LastScan = Now.AddMinutes(-30)
                                 WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe  scan interval not set, using default of Now.")
                             Else
                                 .LastScan = entityStatus.LastUpdated
                             End If
                         Catch ex As Exception
-                            .LastScan = Now
+                            .LastScan = Now.AddMinutes(-30)
                             WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probe scan interval not set, using default of Now.")
                         End Try
 
@@ -2815,13 +2814,14 @@ Partial Public Class VitalSignsPlusDomino
                         If entity.CurrentNode Is Nothing Then
                             .InsufficentLicenses = True
                         Else
-                            If entity.CurrentNode.ToString() = "-1" Then
+                            If entity.CurrentNode.ToString() = getCurrentNode() Then
                                 .InsufficentLicenses = True
                             Else
                                 .InsufficentLicenses = False
                             End If
 
                         End If
+                        .CurrentNode = entity.CurrentNode
                     Catch ex As Exception
                         '7/8/2015 NS modified for VSPLUS-1959
                         WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probes insufficient licenses not set.")
@@ -3343,12 +3343,12 @@ Partial Public Class VitalSignsPlusDomino
 
                         Try
                             If entityStatus.LastUpdated Is Nothing Then
-                                .LastScan = Now
+                                .LastScan = Now.AddMinutes(-30)
                             Else
                                 .LastScan = entityStatus.LastUpdated
                             End If
                         Catch ex As Exception
-                            .LastScan = Now
+                            .LastScan = Now.AddMinutes(-30)
                         End Try
                     Catch ex As Exception
 

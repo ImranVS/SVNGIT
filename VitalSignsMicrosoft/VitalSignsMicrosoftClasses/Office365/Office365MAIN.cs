@@ -811,14 +811,14 @@ repo.Upsert(filterdef, updatedef);
                             VSNext.Mongo.Entities.Status currStatus = listOfStatus.First(x => x.DeviceId == currServer.Id);
                             if (currStatus != null)
                             {
-                                oldServer.LastScan = currStatus.LastUpdated.HasValue ? currStatus.LastUpdated.Value : DateTime.Now;
+                                oldServer.LastScan = currStatus.LastUpdated.HasValue ? currStatus.LastUpdated.Value : DateTime.Now.AddMinutes(-30);
                                 oldServer.Status = String.IsNullOrWhiteSpace(currStatus.CurrentStatus) ? "Not Scanned" : currStatus.CurrentStatus;
                                 oldServer.StatusCode = String.IsNullOrWhiteSpace(currStatus.StatusCode) ? "Maintenance" : currStatus.StatusCode;
                                 oldServer.ResponseDetails = String.IsNullOrWhiteSpace(currStatus.Details) ? "This server has not yet been scanned." : currStatus.Details;
                             }
                             else
                             {
-                                oldServer.LastScan = DateTime.Now;
+                                oldServer.LastScan = DateTime.Now.AddMinutes(-30);
                                 oldServer.Status = "Not Scanned";
                                 oldServer.StatusCode = "Maintenance";
                                 oldServer.ResponseDetails = "This server has not yet been scanned.";
@@ -826,7 +826,7 @@ repo.Upsert(filterdef, updatedef);
                         }
                         catch (Exception ex)
                         {
-                            oldServer.LastScan = DateTime.Now;
+                            oldServer.LastScan = DateTime.Now.AddMinutes(-30);
                             oldServer.Status = "Not Scanned";
                             oldServer.StatusCode = "Maintenance";
                             oldServer.ResponseDetails = "This server has not yet been scanned.";

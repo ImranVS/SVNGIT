@@ -1211,7 +1211,7 @@ Public Class VitalSignsPlusCore
 
             Try
 
-                If Now.Day <> Day And Now.Hour >= 2 Then
+                If Now.Day <> Day And Now.Minute >= 30 Then
                     Try
                         WriteAuditEntry(Now.ToString & " Now starting the Daily Task...")
                         Dim ThreadDaily As New Thread(AddressOf DailyTasks)

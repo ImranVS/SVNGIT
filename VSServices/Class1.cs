@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Reflection;
 
 using MongoDB.Driver;
+using VSNext.Mongo.Entities;
 
 namespace RPRWyatt.VitalSigns.Services
 {
@@ -197,44 +198,53 @@ namespace RPRWyatt.VitalSigns.Services
             {
                 if (servers.Count > 0)
                 {
+                    string nodeName = null;
+                    if (System.Configuration.ConfigurationManager.AppSettings["VSNodeName"] != null)
+                        nodeName = System.Configuration.ConfigurationManager.AppSettings["VSNodeName"].ToString();
+                    
                     for (int i = 0; i < servers.Count; i++)
                     {
                         MonitoredItems.MonitoredDevice server = servers.get_Item(i);
-                        
-                        if (server.InsufficentLicenses)
+
+                        if (server.CurrentNode != nodeName)
                         {
-                            
+                            string status = "";
+                            string details = "";
+                            if (server.CurrentNode == VSNext.Mongo.Entities.Enums.NodeStatus.InsufficientLicenses.ToDescription())
+                            {
+                                status = "Insufficient Licenses";
+                                details = "There are not enough licenses to scan this server.";
+                            }
+                            else if (server.CurrentNode == VSNext.Mongo.Entities.Enums.NodeStatus.MasterServiceStopped.ToDescription())
+                            {
+                                status = "Master Service is stopped";
+                                details = "Master Service stopped running. Could not assign the server to a Node.";
+                            }
+                            else if (server.CurrentNode == VSNext.Mongo.Entities.Enums.NodeStatus.Unassigned.ToDescription())
+                            {
+                                status = "Unassigned";
+                                details = "Current server could not be assigned to a node.";
+                            }
+                            else
+                            {
+                                status = "Unassigned";
+                                details = "Current server was not assigned a node.";
+                            }
+
                             VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status>(connectionString);
                             FilterDefinition<VSNext.Mongo.Entities.Status> filterDef = repository.Filter.Where(p => p.DeviceType.Equals(server.ServerType) && p.DeviceName.Equals(server.Name) && p.DeviceId.Equals(server.ServerObjectID));
                             UpdateDefinition<VSNext.Mongo.Entities.Status> updateDef = repository.Updater
-                                .Set(p => p.CurrentStatus, "Insufficient Licenses")
-                                .Set(p => p.Details, "There are not enough licenses to scan this server.")
+                                .Set(p => p.CurrentStatus, status)
+                                .Set(p => p.Details, details)
                                 .Set(p => p.LastUpdated, DateTime.Now)
-                                .Set(p => p.Description, "There are not enough licenses to scan this server.")
+                                .Set(p => p.Description, details)
                                 .Set(p => p.NextScan, DateTime.Now.AddDays(1))
                                 .Set(p => p.StatusCode, "Maintenance")
                                 .Set(p => p.TypeAndName, server.Name + "-" + server.ServerType);
                             repository.Upsert(filterDef, updateDef);
-                            LogUtilities.LogUtils.WriteDeviceHistoryEntry("All", "InsufficentLicensesCheck", DateTime.Now.ToString() + " " + server.Name + " is being removed from the collection due to insufficent licenses.", LogUtils.LogLevel.Verbose);
+                            LogUtilities.LogUtils.WriteDeviceHistoryEntry("All", "InsufficentLicensesCheck", DateTime.Now.ToString() + " " + server.Name + " is being removed from the collection due to " + status + "..." + details + ".", LogUtils.LogLevel.Verbose);
                             servers.Delete(server.Name);
-                            i--;
-                        }
-                        else if (!server.isMasterRunning)
-                        {
-                            VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Status>(connectionString);
-                            FilterDefinition<VSNext.Mongo.Entities.Status> filterDef = repository.Filter.Where(p => p.DeviceType.Equals(server.ServerType) && p.DeviceName.Equals(server.Name) && p.DeviceId.Equals(server.ServerObjectID));
-                            UpdateDefinition<VSNext.Mongo.Entities.Status> updateDef = repository.Updater
-                                .Set(p => p.CurrentStatus, "Insufficient Licenses")
-                                .Set(p => p.Details, "Master Service stopped running. Could not assign the server to a Node.")
-                                .Set(p => p.LastUpdated, DateTime.Now)
-                                .Set(p => p.Description, "Master Service stopped running. Could not assign the server to a Node.")
-                                .Set(p => p.NextScan, DateTime.Now.AddDays(1))
-                                .Set(p => p.StatusCode, "Maintenance")
-                                .Set(p => p.TypeAndName, server.Name + "-" + server.ServerType);
-                            repository.Upsert(filterDef, updateDef);
-                            LogUtilities.LogUtils.WriteDeviceHistoryEntry("All", "InsufficentLicensesCheck", DateTime.Now.ToString() + " " + server.Name + " is being removed from the collection due to Master Service not running.", LogUtils.LogLevel.Verbose);
-                            servers.Delete(server.Name);
-                            i--;
+
                         }
                         else
                             LogUtilities.LogUtils.WriteDeviceHistoryEntry("All", "InsufficentLicensesCheck", DateTime.Now.ToString() + " " + server.Name + " is being NOT removed from the collection.", LogUtils.LogLevel.Verbose);

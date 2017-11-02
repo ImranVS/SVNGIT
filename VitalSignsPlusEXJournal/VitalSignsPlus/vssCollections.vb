@@ -31,8 +31,7 @@ Partial Public Class VitalSignsPlusExJournal
         Try
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription()) _
-                 And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.DeviceName) _
@@ -188,7 +187,7 @@ Partial Public Class VitalSignsPlusExJournal
                     MyDominoServer.OffHours = False
                     MyDominoServer.AlertCondition = False
                     MyDominoServer.Status = "Not Scanned"
-                    MyDominoServer.LastScan = Date.Now
+                    MyDominoServer.LastScan = Date.Now.AddMinutes(-30)
                     MyDominoServer.IncrementUpCount()
                     MyDominoServer.MailboxCount = 999  'this flag tells app to check for mailbox count
                     MyDominoServer.UserCount = 0
