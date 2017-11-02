@@ -75,6 +75,7 @@ Public Class MonitoredDevice
     Dim mInsufficientLicenses As Boolean
 
     Public Property ServerObjectID As String
+    Public Property CurrentNode As String
 
     Enum Alert As Integer
         'This never got used.
