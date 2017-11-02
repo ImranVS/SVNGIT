@@ -164,7 +164,9 @@ namespace VSNext.Mongo.Entities
             [Description("Insufficient Licenses")]
             InsufficientLicenses,
             [Description("Unassigned")]
-            Unassigned
+            Unassigned,
+            [Description("Disabled")]
+            Disabled
         }
 
     }

@@ -152,15 +152,19 @@ namespace VitalSignsLicensing
                                 licenseCost = getLicenseCost(s.DeviceType);
                                 if (n == "")
                                 {
-                                    n = "-1";
+                                    n = Enums.NodeStatus.Unassigned.ToDescription();
                                     licenseCost = 0;
                                 }
                             }
                             else
                             {
-                                n = "-1";
+                                n = Enums.NodeStatus.InsufficientLicenses.ToDescription();
                                 licenseCost = 0;
                             }
+                        }
+                        else
+                        {
+                            n = Enums.NodeStatus.Disabled.ToDescription();
                         }
 
                         //based on CollectionName, updates the particular documents
@@ -194,7 +198,7 @@ namespace VitalSignsLicensing
 
 
                 List<VSNext.Mongo.Entities.CollectionReset> listOfResets = Enum.GetValues(typeof(Enums.ServerType)).Cast<Enums.ServerType>().Select(x => new VSNext.Mongo.Entities.CollectionReset() { DateQueued = DateTime.Now, DeviceType = x.ToString(), Reset = true }).ToList();
-                repoLiveNodes.Update(repoLiveNodes.Filter.Eq(x => x.IsAlive, true), repoLiveNodes.Updater.Set(x => x.CollectionResets, listOfResets), new UpdateOptions() { IsUpsert = true });
+                repoLiveNodes.Update(repoLiveNodes.Filter.Eq(x => x.IsAlive, true), repoLiveNodes.Updater.Set(x => x.CollectionResets, listOfResets));
 
             }
             catch(Exception ex )
@@ -211,7 +215,7 @@ namespace VitalSignsLicensing
                 FilterDefinition<VSNext.Mongo.Entities.Server> filterdef = repo.Filter.Where(i => i.IsEnabled == true);
                 UpdateDefinition<VSNext.Mongo.Entities.Server> updatedef = default(UpdateDefinition<VSNext.Mongo.Entities.Server>);
                 updatedef = repo.Updater
-                    .Set(i => i.CurrentNode, "-1")
+                    .Set(i => i.CurrentNode, Enums.NodeStatus.Unassigned.ToDescription())
                     .Set(i => i.LicenseCost, 0);
                 repo.Update(filterdef, updatedef);
 
@@ -219,7 +223,7 @@ namespace VitalSignsLicensing
                 FilterDefinition<VSNext.Mongo.Entities.ServerOther> filterdefOther = repoOther.Filter.Where(i => i.IsEnabled == true);
                 UpdateDefinition<VSNext.Mongo.Entities.ServerOther> updatedefOther = default(UpdateDefinition<VSNext.Mongo.Entities.ServerOther>);
                 updatedefOther = repoOther.Updater
-                    .Set(i => i.CurrentNode, "-1")
+                    .Set(i => i.CurrentNode, Enums.NodeStatus.Unassigned.ToDescription())
                     .Set(i => i.LicenseCost, 0);
                 repoOther.Update(filterdefOther, updatedefOther);
             }
@@ -269,7 +273,7 @@ namespace VitalSignsLicensing
                 double loadFactor = 0;
                 bool isLoadBalanced = true;
                 if (nodesListAlive.Count == 0)
-                    return "-1";
+                    return Enums.NodeStatus.MasterServiceStopped.ToDescription();
                 //VSNext.Mongo.Repository.Repository<Nodes> repo = new VSNext.Mongo.Repository.Repository<Nodes>(cs);
                 //List<Nodes> nodesList = repo.Find(i => i.IsAlive == true).ToList();
                 //loop thru each server and assign node
