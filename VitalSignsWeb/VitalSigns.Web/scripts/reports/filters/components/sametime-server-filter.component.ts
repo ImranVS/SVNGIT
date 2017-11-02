@@ -62,9 +62,15 @@ export class SametimeServerFilter {
     onChange(value) {
         this.statisticDropdown = value;
     }
-    applyFilters() {  
+    applyFilters(multisel1: wijmo.input.MultiSelect) {  
         //var v = multisel1.checkedItems;
-       
+        var selectedServers = "";
+        for (var item of multisel1.checkedItems) {
+            if (selectedServers == "")
+                selectedServers = item.id;
+            else
+                selectedServers += "," + item.id;
+        }
         var selStartDate = (this.startDate.getDate()).toString();
         var selStartMonth = (this.startDate.getMonth()+1).toString();
         if (selStartDate.length == 1)
@@ -99,7 +105,7 @@ export class SametimeServerFilter {
         //    URL += "&date=" + newCurrentDate.toISOString();
         //if (this.statName != "")
         //    URL += "&statName=" + this.statName;
-        var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString();
+        var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + selectedServers + `&startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString();
         if (this.hideStatDropdown == false)
             URL += "&statName=" + this.statisticDropdown;
          //});
