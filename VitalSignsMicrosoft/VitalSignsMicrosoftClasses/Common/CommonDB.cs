@@ -609,7 +609,7 @@ namespace VitalSignsMicrosoftClasses
                 
 
                 MongoStatementsUpsert<VSNext.Mongo.Entities.Status> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Status>();
-                mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.TypeAndName == Server.TypeANDName);
+                mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DeviceId == Server.ServerObjectID);
                 mongoStatement.updateDef = mongoStatement.repo.Updater
                     .Set(i => i.DeviceName, Name)
                     .Set(i => i.CurrentStatus, NotResponding)
