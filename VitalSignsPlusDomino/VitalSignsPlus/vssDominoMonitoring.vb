@@ -739,7 +739,7 @@ Partial Public Class VitalSignsPlusDomino
             GoTo Cleanup
         End Try
 
-        SametimeServer.LastStatsProcessedDate = lastProcessedDate
+        SametimeServer.LastStatsProcessedDate = Now
         'Store the last processed date
         Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
         Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repo.Filter.Eq(Function(x) x.Id, SametimeServer.ServerObjectID)
