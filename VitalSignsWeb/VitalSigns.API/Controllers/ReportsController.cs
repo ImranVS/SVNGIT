@@ -936,7 +936,8 @@ namespace VitalSigns.API.Controllers
                                  Command = x.Command,
                                  Submitter = x.Submitter,
                                  Result = x.Result,
-                                 Comment = x.Comments
+                                 Comment = x.Comments,
+                                 SubmittedDate=x.DateTimeProcessed
                              }).ToList();
 
             Response = Common.CreateResponse(result.OrderBy(x => x.ServerName));
@@ -1120,12 +1121,8 @@ namespace VitalSigns.API.Controllers
 
 
         [HttpGet("sametime_stats_grid")]
-        public APIResponse GetSametimeStatisticsGrid(string startDate = "", string endDate = "")
+        public APIResponse GetSametimeStatisticsGrid(string startDate = "", string endDate = "", string deviceId = "", string type = "")
         {
-
-            try
-            {
-
                 List<String> StatNames = new List<string>() { "TotalnWayChats", "Total2WayChats", "PeakLogins" };
                 //StatNames = new List<string>() { "Platform.System.PctCombinedCpuUtil", "ResponseTime", "Mem.PercentUsed" };
                 if (startDate == "")
@@ -1142,25 +1139,47 @@ namespace VitalSigns.API.Controllers
                 dtEnd = DateTime.SpecifyKind(dtEnd, DateTimeKind.Utc);
 
                 summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
-
+                List<String> listOfDevices;
+                List<String> listOfTypes;
+                if (string.IsNullOrWhiteSpace(deviceId))
+                {
+                    listOfDevices = new List<string>();
+                }
+                else
+                {
+                    listOfDevices = deviceId.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
+                }
+                if (string.IsNullOrWhiteSpace(type))
+                {
+                    listOfTypes = new List<string>();
+                }
+                else
+                {
+                    listOfTypes = type.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
+                }
+            try
+            {
                 var filterDef = summaryRepository.Filter.In(x => x.StatName, StatNames) &
                     summaryRepository.Filter.Gte(p => p.StatDate, dtStart) &
-                    summaryRepository.Filter.Lte(p => p.StatDate, dtEnd);
-
+                    summaryRepository.Filter.Lte(p => p.StatDate, dtEnd); 
+                if(listOfDevices.Count > 0)
+                {
+                    filterDef = filterDef & summaryRepository.Filter.In(p => p.DeviceId, listOfDevices);
+                }
                 var results = summaryRepository.Find(filterDef).ToList();
 
                 var listOfObjs = new List<IDictionary<string, object>>();
 
-                foreach (var deviceName in results.Select(x => x.DeviceName).Distinct().ToList())
+                foreach (var DeviceId in results.Select(x => x.DeviceId).Distinct().ToList())
                 {
-                    var currList = results.Where(x => x.DeviceName == deviceName).ToList();
+                    var currList = results.Where(x => x.DeviceId == DeviceId).ToList();
                     foreach (var statName in currList.Select(x => x.StatName).Distinct())
                     {
                         var workingList = currList.Where(x => x.StatName == statName).ToList();
                         var expandoObj = new ExpandoObject() as IDictionary<string, Object>;
 
-                        expandoObj.Add("stat_name", workingList[0].StatName);
-                        expandoObj.Add("device_name", workingList[0].DeviceName);
+                        expandoObj.Add("Stat Name", workingList[0].StatName);
+                        expandoObj.Add("Device Name", workingList[0].DeviceName);
 
                         foreach (var entity in workingList)
                         {
