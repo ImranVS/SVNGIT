@@ -891,7 +891,7 @@ Partial Public Class VitalSignsPlusCore
                             .InsufficentLicenses = False
                         End If
                     End If
-                    '.CurrentNode = entity.CurrentNode
+                    .CurrentNode = entity.CurrentNode
                 Catch ex As Exception
                     WriteAuditEntry(Now.ToString & " " & .Name & " Mail Servers insufficient licenses not set.")
                 End Try
@@ -1776,7 +1776,7 @@ Partial Public Class VitalSignsPlusCore
                                 .InsufficentLicenses = False
                             End If
                         End If
-                        '.CurrentNode = entity.CurrentNode
+                        .CurrentNode = entity.CurrentNode
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " " & .Name & " Sametime Servers insufficient licenses not set.")
                     End Try
@@ -2132,7 +2132,7 @@ Partial Public Class VitalSignsPlusCore
                                 .InsufficentLicenses = False
                             End If
                         End If
-                        '.CurrentNode = entity.CurrentNode
+                        .CurrentNode = entity.CurrentNode
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " " & .Name & " URL Servers insufficient licenses not set.")
                     End Try
@@ -2436,7 +2436,7 @@ Partial Public Class VitalSignsPlusCore
                                 .InsufficentLicenses = False
                             End If
                         End If
-                        '.CurrentNode = entity.CurrentNode
+                        .CurrentNode = entity.CurrentNode
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " " & .Name & " Cloud Servers insufficient licenses not set.")
                     End Try
@@ -2981,7 +2981,7 @@ Partial Public Class VitalSignsPlusCore
                                 .InsufficentLicenses = False
                             End If
                         End If
-                        '.CurrentNode = entity.CurrentNode
+                        .CurrentNode = entity.CurrentNode
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " " & .Name & " Connections Servers insufficient licenses not set.")
                     End Try
@@ -3738,7 +3738,7 @@ Partial Public Class VitalSignsPlusCore
                                 .InsufficentLicenses = False
                             End If
                         End If
-                        '.CurrentNode = entity.CurrentNode
+                        .CurrentNode = entity.CurrentNode
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " " & .Name & " Connections Servers insufficient licenses not set.")
                     End Try

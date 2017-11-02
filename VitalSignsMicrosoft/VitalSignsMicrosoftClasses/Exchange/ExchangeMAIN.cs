@@ -3465,7 +3465,7 @@ namespace VitalSignsMicrosoftClasses
                     myDagServer.RetryInterval = entity.RetryInterval.HasValue ? entity.RetryInterval.Value : 3;
                     myDagServer.Enabled = true;
                     myDagServer.AuthenticationType = entity.AuthenticationType != null && entity.AuthenticationType != "" ? entity.AuthenticationType : "Default";
-
+                    myDagServer.CurrentNode = entity.CurrentNode;
                     try
                     {
                         if(entity.PrimaryServerId != null)

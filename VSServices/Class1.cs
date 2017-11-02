@@ -249,7 +249,7 @@ namespace RPRWyatt.VitalSigns.Services
                                     .Set(p => p.TypeAndName, server.Name + "-" + server.ServerType);
                                 repository.Upsert(filterDef, updateDef);
                             }
-                            LogUtilities.LogUtils.WriteDeviceHistoryEntry("All", "InsufficentLicensesCheck", DateTime.Now.ToString() + " " + server.Name + " is being removed from the collection due to " + status + "..." + details + ".", LogUtils.LogLevel.Verbose);
+                            LogUtilities.LogUtils.WriteDeviceHistoryEntry("All", "InsufficentLicensesCheck", DateTime.Now.ToString() + " " + server.Name + " is being removed from the collection due to " + status + "..." + details + ". Server Current Node is " + server.CurrentNode, LogUtils.LogLevel.Verbose);
                             servers.Delete(server.Name);
 
                         }
