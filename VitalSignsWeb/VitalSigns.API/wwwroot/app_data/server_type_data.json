@@ -23,7 +23,7 @@
         "component": "OverallDatabaseByTemplateTab",
         "path": "/app/dashboards/components/overall-database-by-template-tab.component",
         "type": "Dashboard"
-      }
+      }   
     ]
 
   },
@@ -683,7 +683,7 @@
    {
 
     "server_type": "SharePoint",
-    "icon": "/img/servers/MSExchange.svg",
+    "icon": "/img/servers/SharePoint.svg",
     "tabs": [
       {
         "tab_id": 1,
