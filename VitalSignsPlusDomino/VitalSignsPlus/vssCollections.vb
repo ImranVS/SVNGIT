@@ -961,8 +961,7 @@ Partial Public Class VitalSignsPlusDomino
         Try
 
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.ServerOther)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.ServerOther) = repository.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.NotesDatabase.ToDescription()) _
-                 And repository.Filter.In(Function(x) x.CurrentNode, {getCurrentNode(), "-1"})
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.ServerOther) = repository.Filter.Eq(Function(x) x.Type, VSNext.Mongo.Entities.Enums.ServerType.NotesDatabase.ToDescription())
             Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.ServerOther) = repository.Project _
                 .Include(Function(x) x.Id) _
                 .Include(Function(x) x.Name) _
@@ -1356,6 +1355,7 @@ Partial Public Class VitalSignsPlusDomino
                             End If
 
                         End If
+                        .CurrentNode = entity.CurrentNode
                     Catch ex As Exception
                         '7/8/2015 NS modified for VSPLUS-1959
                         WriteAuditEntry(Now.ToString & " " & .Name & " Notes Databases insufficient licenses not set.")
