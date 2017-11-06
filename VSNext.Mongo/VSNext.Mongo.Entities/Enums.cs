@@ -153,8 +153,11 @@ namespace VSNext.Mongo.Entities
             [LicenseCost(0)]
             [BaseServerType("Domino")]
             [Description("Domino Custom Statistic")]
-            DominoCustomStatistic
-        }
+            DominoCustomStatistic,
+            [LicenseCost(0)]
+            [Description("IBM FileNet")]
+            IBMFileNet
+          }
 
 
         public enum NodeStatus
