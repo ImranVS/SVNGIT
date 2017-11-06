@@ -18,7 +18,7 @@
 
             <div *ngIf="serverAttributes.device_type=='Domino' || serverAttributes.device_type=='WebSphere' || serverAttributes.device_type=='Sametime' || 
                  serverAttributes.device_type=='URL' || serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' ||
-                 serverAttributes.device_type=='Exchange'||  serverAttributes.device_type=='Database Availability Group'|| serverAttributes.device_type=='SharePoint'">
+                 serverAttributes.device_type=='Exchange'||  serverAttributes.device_type=='Database Availability Group'|| serverAttributes.device_type=='SharePoint' || serverAttributes.device_type=='IBM FileNet'">
                 <div class="form-group">
                     <label class="control-label col-sm-2">Server Name</label>
                     <div class="col-sm-3">
@@ -164,7 +164,7 @@
         <div class="panel-body">
             <div *ngIf="serverAttributes.device_type=='Domino' || serverAttributes.device_type=='WebSphere' || serverAttributes.device_type=='Sametime' ||
     serverAttributes.device_type=='URL' || serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' ||
-    serverAttributes.device_type=='Exchange'|| serverAttributes.device_type=='SharePoint'">
+    serverAttributes.device_type=='Exchange'|| serverAttributes.device_type=='SharePoint' || serverAttributes.device_type=='IBM FileNet'">
                 <div class="form-group">
                     <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:costAttr">
                         <label class="control-label col-sm-3">{{attribute.attribute_name}}</label>
@@ -187,7 +187,7 @@
 
             <div *ngIf="serverAttributes.device_type=='Domino' || serverAttributes.device_type=='WebSphere' || serverAttributes.device_type=='Sametime' ||
             serverAttributes.device_type=='URL' || serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' ||
-            serverAttributes.device_type=='Exchange'||  serverAttributes.device_type=='Database Availability Group'|| serverAttributes.device_type=='SharePoint'">
+            serverAttributes.device_type=='Exchange'||  serverAttributes.device_type=='Database Availability Group'|| serverAttributes.device_type=='SharePoint'|| serverAttributes.device_type=='IBM FileNet'">
                  
                 <div class="row">
                     <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:scanSettings">

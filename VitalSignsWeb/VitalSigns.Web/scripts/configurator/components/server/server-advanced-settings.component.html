@@ -1,5 +1,5 @@
 ﻿<form [formGroup]="advancedSettingsForm">
-    <div class="form-group" *ngIf="deviceType=='Domino'  || deviceType == 'SharePoint' || deviceType == 'Exchange'">
+    <div class="form-group" *ngIf="deviceType=='Domino'  || deviceType == 'SharePoint' || deviceType == 'Exchange'|| deviceType == 'IBM FileNet'">
         <div class="panel panel-default">
             <div class="panel-heading">Memory Usage Alert</div>
             <div class="panel-body">
@@ -513,3 +513,4 @@ webSphereServerNodeData.pageIndex + 1 | number
         </form>
     </div>
 </wj-popup>
+    </form>
