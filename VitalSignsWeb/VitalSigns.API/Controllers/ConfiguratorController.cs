@@ -2998,6 +2998,16 @@ namespace VitalSigns.API.Controllers
                         licensing.refreshServerCollectionWrapper();
                         Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Advanced settings updated successfully");
                     }
+                    else if (advancedSettings.DeviceType == "IBM FileNet")
+                    {
+                        var updateDefination = serversRepository.Updater.Set(p => p.MemoryThreshold, advancedSettings.MemoryThreshold / 100)
+                            .Set(p => p.CpuThreshold, advancedSettings.CpuThreshold / 100)
+                            .Set(p => p.ServerDaysAlert, advancedSettings.ServerDaysAlert);
+                        var result = serversRepository.Update(filterDefinition, updateDefination);
+                        Licensing licensing = new Licensing();
+                        licensing.refreshServerCollectionWrapper();
+                        Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Advanced settings updated successfully");
+                    }
                 }
                 catch (Exception exception)
                 {
