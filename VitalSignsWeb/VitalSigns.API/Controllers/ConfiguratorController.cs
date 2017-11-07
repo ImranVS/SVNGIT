@@ -8313,7 +8313,7 @@ namespace VitalSigns.API.Controllers
 
 
                 maintenance.Id = maintenanceRepository.Insert(maintenancedata);
-                Response = Common.CreateResponse(maintenance.Id, Common.ResponseStatus.Success.ToDescription(), "Server suspend temporarly.");
+                Response = Common.CreateResponse(maintenance.Id, Common.ResponseStatus.Success.ToDescription(), "Server scanning suspended for " + maintenance.Duration + " minutes.");
 
                 serversRepository = new Repository<Server>(ConnectionString);
                 UpdateDefinition<Server> updateDefinition = null;
