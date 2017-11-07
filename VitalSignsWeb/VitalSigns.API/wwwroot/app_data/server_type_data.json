@@ -490,7 +490,7 @@
   },
     {
     "server_type": "IBM FileNet",
-    "icon": "/img/servers/IBMDomino.svg",
+    "icon": "/img/servers/IBMFileNet.svg",
     "tabs": [
       {
         "tab_id": 1,
