@@ -57,13 +57,15 @@ namespace VitalSignsExchange
                 //MasterActiveDirectoryThread.Start();
                 //Thread.Sleep(2000);
 
-                //spMain = new SharepointMAIN();
-                //Thread MasterSharePointThread = new Thread(() => spMain.StartProcess(MSObj));
-                //MasterSharePointThread.IsBackground = true;
-                //MasterSharePointThread.Priority = ThreadPriority.Normal;
-                //MasterSharePointThread.Name = "Master SP Thread";
-                //MasterSharePointThread.Start();
-                //Thread.Sleep(2000);
+                VitalSignsMicrosoftClasses.Common.WriteDeviceHistoryEntry("All", "Microsoft", " starting sp", commonEnums.ServerRoles.Empty, VitalSignsMicrosoftClasses.Common.LogLevel.Verbose);
+                spMain = new SharepointMAIN();
+                Thread MasterSharePointThread = new Thread(() => spMain.StartProcess(MSObj));
+                MasterSharePointThread.IsBackground = true;
+                MasterSharePointThread.Priority = ThreadPriority.Normal;
+                MasterSharePointThread.Name = "Master SP Thread";
+                MasterSharePointThread.Start();
+                Thread.Sleep(2000);
+                VitalSignsMicrosoftClasses.Common.WriteDeviceHistoryEntry("All", "Microsoft", " started sp", commonEnums.ServerRoles.Empty, VitalSignsMicrosoftClasses.Common.LogLevel.Verbose);
 
                 o365Main = new Office365MAIN();
 				Thread MasterO365Thread = new Thread(() => o365Main.StartProcess(MSObj));

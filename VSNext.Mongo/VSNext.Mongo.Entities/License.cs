@@ -9,7 +9,7 @@ namespace VSNext.Mongo.Entities
 {
     [DataContract]
     [Serializable]
-    [CollectionName("License")]
+    [CollectionName("license")]
     public class License : Entity
     {
         [DataMember]
@@ -41,6 +41,11 @@ namespace VSNext.Mongo.Entities
         [BsonElement("expiration_date")]
         [BsonIgnoreIfNull]
         public DateTime  ExpirationDate { get; set; }
+
+        [DataMember]
+        [BsonElement("licenses_used")]
+        [BsonIgnoreIfNull]
+        public double? LicensesUsed { get; set; }
 
         [DataMember]
         [BsonElement("enc_units")]

@@ -90,8 +90,15 @@ export class DeviceAttributes implements OnInit {
         this.service.get('/configurator/get_device_attributes?type='+ this.selectedDeviceType)
             .subscribe(
             (response) => {
+                for (var x = 0; x < response.data.length; x++) {
+                    var curr = response.data[x];
+                    if (curr.is_percentage && !isNaN(curr.default_value)) {
+                        curr.default_value = parseFloat(curr.default_value) * 100
+                    }
+                }
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));               
                 this.data.pageSize = this.currentPageSize;
+                
             },
             (error) => this.errorMessage = <any>error
         );
@@ -160,6 +167,9 @@ export class DeviceAttributes implements OnInit {
           //  var value = this.attributes.filter((record) => record == item.id);
            // if (value.length > 0){
             if (item.is_selected) {
+                if (item.is_percentage && !isNaN(item.default_value)) {
+                    item.default_value = parseFloat(item.default_value) / 100
+                } 
                 var deviceAttrObject=new DeviceAttributeValue();
                 deviceAttrObject.value = item.default_value;
                 deviceAttrObject.field_name = item.field_name;

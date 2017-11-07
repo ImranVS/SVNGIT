@@ -1320,7 +1320,7 @@ namespace VitalSigns.API.Controllers
             try
             {
                 deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
-                var result = deviceAttributesRepository.All().Where(x => x.DeviceType == type).Select(x => new DeviceAttributesModel
+                var result = deviceAttributesRepository.Find(x => x.DeviceType == type).Select(x => new DeviceAttributesModel
                 {
                     Id = x.Id,
                     AttributeName = x.AttributeName,
@@ -1589,29 +1589,29 @@ namespace VitalSigns.API.Controllers
                 else
                 { 
                     var result = serverName
-                               .WindowServices
-                               .Select(x => new WindowsServiceModel
-                               {
-                                   ServiceName = x.ServiceName,
-                                   ServerRequired = x.ServerRequired,
-                                   Monitored = x.Monitored,
-                                   Status = x.Status,
-                                   StartupMode = x.StartupMode,
-                                   DisplayName = x.DisplayName
-                                   }).OrderByDescending(x => x.ServerRequired)
-                               .ThenByDescending(x => x.Monitored)
-                               .ThenBy(x => x.DisplayName)
-                               .ToList();
-                               Response = Common.CreateResponse(result);
-                }
+                    .WindowServices
+                    .Select(x => new WindowsServiceModel
+                    {
+                        ServiceName = x.ServiceName,
+                        ServerRequired = x.ServerRequired,
+                        Monitored = x.Monitored,
+                        Status = x.Status,
+                        StartupMode = x.StartupMode,
+                        DisplayName = x.DisplayName
+                    }).OrderByDescending(x => x.ServerRequired)
+                    .ThenByDescending(x => x.Monitored)
+                    .ThenBy(x => x.DisplayName)
+                    .ToList();
+                Response = Common.CreateResponse(result);
+            }
                }
-             catch (Exception exception)
+            catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, "Error", exception.Message);
             }
             return Response;
         }
-       
+
         #endregion
 
         #region Disk Settings
@@ -7132,7 +7132,7 @@ namespace VitalSigns.API.Controllers
                 //5/13/2014 NS added for VSPLUS-183
                 else
                 {
-                    errorMessage = "All imported servers must be assigned to a location. There were no locations found. Please create at least one location entry using the 'Setup & Security - Maintain Server Locations' menu option.";
+                    errorMessage = "All imported servers must be assigned to a location. There were no locations found. Please create at least one location entry using the Configurator -> Application Settings -> Locations menu option.";
                     throw new Exception(errorMessage);
                 }
             }
@@ -7253,8 +7253,9 @@ namespace VitalSigns.API.Controllers
                         serversRepository.Insert(server);
 
                         Repository repository = new Repository(Startup.ConnectionString, Startup.DataBaseName, "server");
-
+                        var updateBuilder = Builders<BsonDocument>.Update;
                         var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(server.Id));
+                        UpdateDefinition<BsonDocument> updateDefinition = updateBuilder.Set("is_enabled", true);
                         foreach (var attribute in serverImport.DeviceAttributes)
                         {
                             if (!string.IsNullOrEmpty(attribute.FieldName))
@@ -7265,16 +7266,12 @@ namespace VitalSigns.API.Controllers
                                 if (datatype == "int")
                                 {
                                     int outputvalue = Convert.ToInt32(value);
-                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
-                                         .Set(field, outputvalue);
-                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                    updateDefinition = updateDefinition == null ? updateBuilder.Set(field, outputvalue) : updateDefinition.Set(field, outputvalue);
                                 }
                                 if (datatype == "double")
                                 {
                                     double outputvalue = Convert.ToDouble(value);
-                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
-                                         .Set(field, outputvalue);
-                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                    updateDefinition = updateDefinition == null ? updateBuilder.Set(field, outputvalue) : updateDefinition.Set(field, outputvalue);
                                 }
                                 if (datatype == "bool")
                                 {
@@ -7287,20 +7284,16 @@ namespace VitalSigns.API.Controllers
                                     {
                                         booloutput = true;
                                     }
-                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
-                                        .Set(field, booloutput);
-                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                    updateDefinition = updateDefinition == null ? updateBuilder.Set(field, booloutput) : updateDefinition.Set(field, booloutput);
                                 }
                                 if (datatype == "string")
                                 {
-                                    UpdateDefinition<BsonDocument> updateDefinition = Builders<BsonDocument>.Update
-                                        .Set(field, value);
-                                    var result = repository.Collection.UpdateMany(filter, updateDefinition);
+                                    updateDefinition = updateDefinition == null ? updateBuilder.Set(field, value) : updateDefinition.Set(field, value);
                                 }
                             }
                         }
 
-                        // serversRepository.Insert(server);
+                        repository.Collection.UpdateMany(filter, updateDefinition);
                     }
                 }
                 //2/24/2017 NS added for VSPLUS-3506

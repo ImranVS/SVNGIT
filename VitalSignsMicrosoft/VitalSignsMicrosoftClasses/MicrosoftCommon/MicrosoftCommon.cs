@@ -278,8 +278,8 @@ namespace VitalSignsMicrosoftClasses
 
 					//AllTestsList.StatusDetails.Add(new TestList() { Details = ps.Properties["PercentMemoryFree"].Value.ToString() + "% free at " + System.DateTime.Now.ToShortTimeString(), TestName = "Memory", Category = commonEnums.ServerRoles.Windows, Result = commonEnums.ServerResult.Pass });
 
-					string alertMessage = "The Memory is at " + (ActualVal*100).ToString() + "% and the threshold is set at " + myServer.Memory_Threshold.ToString() + "%";
-					Common.makeAlert((ActualVal * 100), myServer.Memory_Threshold, myServer, commonEnums.AlertType.Memory, ref AllTestsList, alertMessage, "Windows");
+					string alertMessage = "The Memory is at " + (ActualVal*100).ToString() + "% and the threshold is set at " + (myServer.Memory_Threshold * 100).ToString() + "%";
+					Common.makeAlert((ActualVal * 100), myServer.Memory_Threshold * 100, myServer, commonEnums.AlertType.Memory, ref AllTestsList, alertMessage, "Windows");
 				}
 
 			}
@@ -331,8 +331,8 @@ namespace VitalSignsMicrosoftClasses
                     //AllTestsList.StatusDetails.Add(new TestList() { Details = cpuLevel + "% at " + System.DateTime.Now.ToShortTimeString(), TestName = "CPU", Category = commonEnums.ServerRoles.Windows, Result = commonEnums.ServerResult.Pass });
 
                     //Alert call, Mukund 03Apr14
-                    string alertMessage = "The CPU is at " + (ActualVal * 100).ToString() + "% and the threshold is set at " + myServer.CPU_Threshold.ToString() + "%";
-					Common.makeAlert(ActualVal * 100, myServer.CPU_Threshold, myServer, commonEnums.AlertType.CPU, ref AllTestsList, alertMessage, "Windows");
+                    string alertMessage = "The CPU is at " + (ActualVal * 100).ToString() + "% and the threshold is set at " + (myServer.CPU_Threshold * 100).ToString() + "%";
+					Common.makeAlert(ActualVal * 100, myServer.CPU_Threshold * 100, myServer, commonEnums.AlertType.CPU, ref AllTestsList, alertMessage, "Windows");
 				}
 
 			}

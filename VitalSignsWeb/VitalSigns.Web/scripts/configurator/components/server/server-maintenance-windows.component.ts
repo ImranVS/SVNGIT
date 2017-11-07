@@ -58,6 +58,8 @@ export class MaintenanceWindows implements OnInit {
         this.dataProvider.get('/Configurator/get_server_maintenancedata?id=' + this.deviceId)
             .subscribe(
             response => {
+                this.datetimeHelpers.nameToFormat['StartDate'] = "date";
+                this.datetimeHelpers.nameToFormat['EndDate'] = "date";
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
                 this.data.pageSize = 10;
 

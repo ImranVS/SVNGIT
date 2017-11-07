@@ -200,6 +200,11 @@ namespace VitalSignsLicensing
                 List<VSNext.Mongo.Entities.CollectionReset> listOfResets = Enum.GetValues(typeof(Enums.ServerType)).Cast<Enums.ServerType>().Select(x => new VSNext.Mongo.Entities.CollectionReset() { DateQueued = DateTime.Now, DeviceType = x.ToString(), Reset = true }).ToList();
                 repoLiveNodes.Update(repoLiveNodes.Filter.Eq(x => x.IsAlive, true), repoLiveNodes.Updater.Set(x => x.CollectionResets, listOfResets));
 
+                repoLic.Update(
+                    repoLic.Filter.Where(x => true ),
+                    repoLic.Updater.Set(x => x.LicensesUsed, listOfAllServers.Sum(y => y.LicenseCost))
+                    );
+
             }
             catch(Exception ex )
             {

@@ -25,6 +25,7 @@ export class PreferencesForm implements OnInit {
     licenceKey: string;   
     expirationDate: any;
     units: any;
+    availableUnits: any;
     purge_intreval: any;
     companyName: any;
     installType: any;
@@ -61,6 +62,7 @@ export class PreferencesForm implements OnInit {
                     this.companyName = response.data.licenseitem.CompanyName;
                     this.licenseType = response.data.licenseitem.LicenseType;
                     this.installType = response.data.licenseitem.InstallType;
+                    this.availableUnits = this.units - response.data.licenseitem.LicensesUsed;
                     //this.purge_intreval = response.data.licenseitem.purge_intreval;
                 }
                 this.preferencesForm.setValue(response.data.userpreference);
