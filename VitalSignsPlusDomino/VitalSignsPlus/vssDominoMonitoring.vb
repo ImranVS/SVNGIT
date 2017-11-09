@@ -5460,7 +5460,7 @@ skipdrive2:
                     Try
                         WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Now examining the messages.... ", LogUtilities.LogUtils.LogLevel.Verbose)
                         'If you made it this far, then the mailbox is obviously not corrupt so clear that condition
-                        myAlert.ResetAlert("Domino", MyDominoServer.Name, "Mailbox: " & MailboxName, MyDominoServer.Location)
+                        myAlert.ResetAlert("Domino", MyDominoServer.Name, "Mailbox: " & MailboxName, MyDominoServer.Location, "No issues with dead, pending, or held mail.")
                     Catch ex As Exception
                         'WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Has No document in " & MailboxName & ":  " & ex2.ToString)
                         WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " Exception resetting mailbox access alert.")

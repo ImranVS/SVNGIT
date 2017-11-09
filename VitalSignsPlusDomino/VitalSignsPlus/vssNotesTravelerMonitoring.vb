@@ -3575,7 +3575,7 @@ Alerts:
 
             If InStr(myServletURL.HTML, "Traveler server is available") Or InStr(myServletURL.HTML, "Traveler está disponível") Or InStr(myServletURL.HTML, "ist verfügbar") Or InStr(myServletURL.HTML, "är tillgänglig") Then
                 'DRS 10/19/2014 check if JSON is returned
-                myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Traveler Servlet", MyDominoServer.Location)
+                myAlert.ResetAlert(MyDominoServer.ServerType, MyDominoServer.Name, "Traveler Servlet", MyDominoServer.Location, "The Traveler servlet is responding.")
                 WriteDeviceHistoryEntry("Domino", MyDominoServer.Name, Now.ToString & " The Traveler Servlet is functioning. ")  ', LogLevel.Verbose)
 
                 updateDef = repository.Updater _
