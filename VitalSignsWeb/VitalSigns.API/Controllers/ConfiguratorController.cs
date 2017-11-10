@@ -322,6 +322,8 @@ namespace VitalSigns.API.Controllers
                             var result = credentialsRepository.Update(filterDefination, updateDefination);
                             Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Server credentials updated successfully");
                         }
+                        Licensing licensing = new Licensing();
+                        licensing.refreshServerCollectionWrapper();
                     }
                     else
                     {
