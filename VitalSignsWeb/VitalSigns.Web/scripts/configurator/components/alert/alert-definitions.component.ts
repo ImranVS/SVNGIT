@@ -62,31 +62,10 @@ export class AlertDefinitions extends GridBase implements OnInit  {
     refreshCheckedEvents() {
         if (this.flex3.collectionView) {
             if (this.flex3.collectionView.items.length > 0) {
-                //(<wijmo.collections.CollectionView>this.flex3.collectionView.sourceCollection).moveToFirstPage();
                 for (var _i = 0; _i < this.flex3.collectionView.sourceCollection.length; _i++) {
                     var item = (<wijmo.collections.CollectionView>this.flex3.collectionView.sourceCollection)[_i];
-                    var val = this.selected_events.filter((record) => record == item.id);
-                    if (item.is_selected_event && val.length == 0) {
-                        this.selected_events.push(item.id);
-                    }
-                    if (this.flex.collectionView.items.length > 0) {
-                        var val2 = this.flex.collectionView.currentItem.event_ids.filter((record) => record == item.id);
-                        if (val2.length != 0) {
-                            var ind2 = this.flex.collectionView.currentItem.event_ids.indexOf(val2[0]);
-                            if (ind2 != -1) {
-                                this.flex.collectionView.currentItem.is_selected_event[ind2] = item.is_selected_event;
-                            }
-                        }
-                    }
-                    else {
-                        var val2 = this.formObject.event_ids.filter((record) => record == item.id);
-                        if (val2.length != 0) {
-                            var ind2 = this.formObject.event_ids.indexOf(val2[0]);
-                            if (ind2 != -1) {
-                                this.formObject.is_selected_event[ind2] = item.is_selected_event;
-                            }
-                        }
-                    } 
+                    if (item.is_selected_event)
+                        this.formObject.event_ids.push(item.id);
                 }
             }
         }
@@ -105,31 +84,12 @@ export class AlertDefinitions extends GridBase implements OnInit  {
     refreshCheckedHours() {
         if (this.flex4.collectionView) {
             if (this.flex4.collectionView.items.length > 0) {
-                //(<wijmo.collections.CollectionView>this.flex4.collectionView.sourceCollection).moveToFirstPage();
                 for (var _i = 0; _i < this.flex4.collectionView.sourceCollection.length; _i++) {
                     var item = (<wijmo.collections.CollectionView>this.flex4.collectionView.sourceCollection)[_i];
-                    var val = this.selected_hours.filter((record) => record == item.id);
-                    if (item.is_selected_hour && val.length == 0) {
-                        this.selected_hours.push(item.id);
+                    console.log(item);
+                    if (item.is_selected_hour) {
+                        this.formObject.selected_hours.push(item.id);
                     }
-                    if (this.flex.collectionView.items.length > 0) {
-                        var val2 = this.flex.collectionView.currentItem.business_hours_ids.filter((record) => record == item.id);
-                        if (val2.length != 0) {
-                            var ind2 = this.flex.collectionView.currentItem.business_hours_ids.indexOf(val2[0]);
-                            if (ind2 != -1) {
-                                this.flex.collectionView.currentItem.is_selected_hour[ind2] = item.is_selected_hour;
-                            }
-                        }
-                    } 
-                    else {
-                        var val2 = this.formObject.business_hours_ids.filter((record) => record == item.id);
-                        if (val2.length != 0) {
-                            var ind2 = this.formObject.business_hours_ids.indexOf(val2[0]);
-                            if (ind2 != -1) {
-                                this.formObject.is_selected_hour[ind2] = item.is_selected_hour;
-                            }
-                        }      
-                    } 
                 }
             }
         }
@@ -138,45 +98,25 @@ export class AlertDefinitions extends GridBase implements OnInit  {
     refreshCheckedEscalation() {
         if (this.flex5.collectionView) {
             if (this.flex5.collectionView.items.length > 0) {
-                //(<wijmo.collections.CollectionView>this.flex5.collectionView.sourceCollection).moveToFirstPage();
                 for (var _i = 0; _i < this.flex5.collectionView.sourceCollection.length; _i++) {
                     var item = (<wijmo.collections.CollectionView>this.flex5.collectionView.sourceCollection)[_i];
-                    var ind = this.selected_escalation.filter((record) => record == item.id);
-                    if (item.is_selected_hour && ind.length == 0) {
-                        this.selected_escalation.push(item.id)
-                    }
-                    if (this.flex.collectionView.items.length > 0) {
-                        var val2 = this.flex.collectionView.currentItem.business_hours_ids.filter((record) => record == item.id);
-                        if (val2.length != 0) {
-                            var ind2 = this.flex.collectionView.currentItem.business_hours_ids.indexOf(val2[0]);
-                            if (ind2 != -1) {
-                                this.flex.collectionView.currentItem.is_selected_hour[ind2] = item.is_selected_hour;
-                            }
-                        }
-                    }
-                    else {
-                        var val2 = this.formObject.business_hours_ids.filter((record) => record == item.id);
-                        if (val2.length != 0) {
-                            var ind2 = this.formObject.business_hours_ids.indexOf(val2[0]);
-                            if (ind2 != -1) {
-                                this.formObject.is_selected_hour[ind2] = item.is_selected_hour;
-                            }
-                        }
-                    } 
+                    if (item.is_selected_hour)
+                        this.formObject.selected_hours.push(item.id);
                 }
             }
         }
     }
 
     refreshCheckedDevices() {
-        for (var _i = 0; _i < this.formObject.server_ids.length; _i++) {
-            this.formObject.is_selected_server[_i] = false;
-        }
-        for (var _j = 0; _j < this.devices.length; _j++) {
-            var item = this.devices[_j];
-            var ind2 = this.formObject.server_ids.indexOf(item);
-            if (ind2 != -1) {
-                this.formObject.is_selected_server[ind2] = true;
+
+        if (this.serverFlex.collectionView) {
+            if (this.serverFlex.collectionView.items.length > 0) {
+                for (var _i = 0; _i < this.serverFlex.collectionView.sourceCollection.length; _i++) {
+                    var item = (<wijmo.collections.CollectionView>this.serverFlex.collectionView.sourceCollection)[_i];
+                    console.log(item);
+                    if (item.is_selected)
+                        this.formObject.server_objects.push({ device_id: item.device_id, collection_name: item.collection_name });
+                }
             }
         }
     }
@@ -213,15 +153,13 @@ export class AlertDefinitions extends GridBase implements OnInit  {
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data[0]));
-                //var groupDesc = new wijmo.collections.PropertyGroupDescription('notification_name');
-                //this.data.groupDescriptions.push(groupDesc);
                 this.hoursdata = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data[1]));
                 this.escalationdata = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data[2]));
                 this.eventsdata = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data[3]));
-                this.serversdata = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data[4]));
+                this.serverGridData = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data[4]));
+                this.serverGridData.groupDescriptions.push(new wijmo.collections.PropertyGroupDescription('location_name'));
                 var groupDesc = new wijmo.collections.PropertyGroupDescription('device_type');
                 this.eventsdata.groupDescriptions.push(groupDesc);
-                //this.eventsdata.pageSize = 10;
             },
             (error) => this.errorMessage = <any>error
         );
@@ -237,103 +175,44 @@ export class AlertDefinitions extends GridBase implements OnInit  {
         this.formTitle = "Edit " + this.formName;
         this.formObject.id = this.flex.collectionView.currentItem.id;
         this.formObject.notification_name = this.flex.collectionView.currentItem.notification_name;
-        this.formObject.send_to = this.flex.collectionView.currentItem.send_to;
-        this.formObject.business_hours_ids = this.flex.collectionView.currentItem.business_hours_ids;
+        this.formObject.server_objects = this.flex.collectionView.currentItem.server_objects;
+        this.formObject.selected_hours = this.flex.collectionView.currentItem.selected_hours;
         this.formObject.event_ids = this.flex.collectionView.currentItem.event_ids;
-        this.devices = [];
         if (this.flex3.collectionView) {
             if (this.flex3.collectionView.items.length > 0) {
-                //(<wijmo.collections.CollectionView>this.flex3.collectionView.sourceCollection).moveToFirstPage();
                 for (var _i = 0; _i < this.flex3.collectionView.sourceCollection.length; _i++) {
                     var item = (<wijmo.collections.CollectionView>this.flex3.collectionView.sourceCollection)[_i];
-                    if (this.formObject.event_ids) {
-                        var value = this.formObject.event_ids.filter((record) => record == item.id);
-                        if (value.length > 0) {
-                            var ind = this.formObject.event_ids.indexOf(value[0]);
-                            if (ind != -1) {
-                                item.is_selected_event = this.flex.collectionView.currentItem.is_selected_event[ind];
-                            }
-                        }
-                        else {
-                            item.is_selected_event = false;
-                        }
-                    }
-                    else {
-                        item.is_selected_event = false;
-                    }
-
+                    item.is_selected_event = this.formObject.event_ids.indexOf(item.id) != -1;
                 }
             }
         }
         this.formObject.is_selected_event = this.flex.collectionView.currentItem.is_selected_event;
         if (this.flex4.collectionView) {
             if (this.flex4.collectionView.items.length > 0) {
-                //(<wijmo.collections.CollectionView>this.flex4.collectionView.sourceCollection).moveToFirstPage();
                 for (var _i = 0; _i < this.flex4.collectionView.sourceCollection.length; _i++) {
                     var item = (<wijmo.collections.CollectionView>this.flex4.collectionView.sourceCollection)[_i];
-                    if (this.formObject.business_hours_ids) {
-                        var value = this.formObject.business_hours_ids.filter((record) => record == item.id);
-                        if (value.length > 0) {
-                            var ind = this.formObject.business_hours_ids.indexOf(value[0]);
-                            if (ind != -1) {
-                                item.is_selected_hour = this.flex.collectionView.currentItem.is_selected_hour[ind];
-                            }
-                        }
-                        else {
-                            item.is_selected_hour = false;
-                        }
-                    }
-                    else {
-                        item.is_selected_hour = false;
-                    }
-
+                    item.is_selected_hour = this.formObject.selected_hours.indexOf(item.id) != -1;
                 }
             }
         }
         if (this.flex5.collectionView) {
             if (this.flex5.collectionView.items.length > 0) {
-                //(<wijmo.collections.CollectionView>this.flex5.collectionView.sourceCollection).moveToFirstPage();
                 for (var _i = 0; _i < this.flex5.collectionView.sourceCollection.length; _i++) {
                     var item = (<wijmo.collections.CollectionView>this.flex5.collectionView.sourceCollection)[_i];
-                    if (this.formObject.business_hours_ids) {
-                        var value = this.formObject.business_hours_ids.filter((record) => record == item.id);
-                        if (value.length > 0) {
-                            var ind = this.formObject.business_hours_ids.indexOf(value[0]);
-                            if (ind != -1) {
-                                item.is_selected_hour = this.flex.collectionView.currentItem.is_selected_hour[ind];
-                            }
-                        }
-                        else {
-                            item.is_selected_hour = false;
-                        }
-                    }
-                    else {
-                        item.is_selected_hour = false;
-                    }
-
+                    item.is_selected_hour = this.formObject.selected_hours.indexOf(item.id) != -1;
                 }
             }
         }
-        this.formObject.is_selected_hour = this.flex.collectionView.currentItem.is_selected_hour;
-        this.formObject.server_ids = this.flex.collectionView.currentItem.server_ids;
-        this.formObject.is_selected_server = this.flex.collectionView.currentItem.is_selected_server;
-        console.log("0" + this.flex.collectionView.currentItem.server_objects)
-        this.serverGridData = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.flex.collectionView.currentItem.server_objects));
-        this.serverGridData.groupDescriptions.push(new wijmo.collections.PropertyGroupDescription('location_name'));
-        this.formObject.server_objects = this.serverGridData;
-        console.log("1" + this.flex.collectionView.currentItem.server_objects)
-        for (var _i = 0; _i < this.flex.collectionView.currentItem.is_selected_server.length; _i++) {
-            var item = this.formObject.is_selected_server[_i];
-            if (item) {
-                var item2 = this.formObject.server_ids[_i];
-                this.devices.push(item2);
-            }
-            else {
+
+        if (this.serverFlex.collectionView) {
+            if (this.serverFlex.collectionView.items.length > 0) {
+                for (var _i = 0; _i < this.serverFlex.collectionView.sourceCollection.length; _i++) {
+                    var item = (<wijmo.collections.CollectionView>this.serverFlex.collectionView.sourceCollection)[_i];
+                    item.is_selected = this.formObject.server_objects.filter(x => x.device_id == item.device_id && x.collection_name == item.collection_name).length >= 1;
+                }
             }
         }
-        this._deviceList = this.devices;
-        this.checkedDevices = this._deviceList;
-        //this.myModal.nativeElement.className = 'modal show';
+        
         this.showDialog(dlg);
 
     }
@@ -344,60 +223,94 @@ export class AlertDefinitions extends GridBase implements OnInit  {
         this.formObject.id = "";
         //this.flex.collectionView.currentItem.notification_name = "";
         this.formObject.notification_name = "";
-        if (this.flex.collectionView.items.length != 0) {
-            this.formObject.send_to = this.flex.collectionView.currentItem.send_to;
-            this.formObject.business_hours_ids = this.flex.collectionView.currentItem.business_hours_ids;
-            this.formObject.is_selected_hour = this.flex.collectionView.currentItem.is_selected_hour;
-            this.formObject.event_ids = this.flex.collectionView.currentItem.event_ids;
-            this.formObject.is_selected_event = this.flex.collectionView.currentItem.is_selected_event;
-            this.formObject.server_ids = this.flex.collectionView.currentItem.server_ids;
-            this.formObject.is_selected_server = this.flex.collectionView.currentItem.is_selected_server;
-        }
-        else {
-            if (this.flex6.collectionView) {
-                if (this.flex6.collectionView.items.length > 0) {
-                    this.formObject.business_hours_ids = this.flex6.collectionView.currentItem.business_hours_ids;
-                    this.formObject.is_selected_hour = this.flex6.collectionView.currentItem.is_selected_hour;
-                    this.formObject.event_ids = this.flex6.collectionView.currentItem.event_ids;
-                    this.formObject.is_selected_event = this.flex6.collectionView.currentItem.is_selected_event;
-                    this.formObject.server_ids = this.flex6.collectionView.currentItem.server_ids;
-                    this.formObject.is_selected_server = this.flex6.collectionView.currentItem.is_selected_server;
-                }
-            }
-        }
+        //if (this.flex.collectionView.items.length != 0) {
+        //    console.log("Wes 1")
+        //    this.formObject.send_to = this.flex.collectionView.currentItem.send_to;
+        //    this.formObject.business_hours_ids = this.flex.collectionView.currentItem.business_hours_ids;
+        //    this.formObject.is_selected_hour = this.flex.collectionView.currentItem.is_selected_hour;
+        //    this.formObject.event_ids = this.flex.collectionView.currentItem.event_ids;
+        //    this.formObject.is_selected_event = this.flex.collectionView.currentItem.is_selected_event;
+        //    this.formObject.server_ids = this.flex.collectionView.currentItem.server_ids;
+        //    this.formObject.is_selected_server = this.flex.collectionView.currentItem.is_selected_server;
+        //}
+        //else {
+        console.log("Wes 2")
+        this.formObject.business_hours_ids = [];
+        this.formObject.is_selected_hour = [];
+        this.formObject.event_ids = [];
+        this.formObject.is_selected_event = [];
+        this.formObject.server_ids = [];
+        this.formObject.is_selected_server = [];
+        //if (this.flex6.collectionView) {
+        //    console.log("Wes 3")
+        //    if (this.flex6.collectionView.items.length > 0) {
+        //        console.log("Wes 4")
+        //        this.formObject.business_hours_ids = this.flex6.collectionView.currentItem.business_hours_ids;
+        //        this.formObject.is_selected_hour = this.flex6.collectionView.currentItem.is_selected_hour;
+        //        this.formObject.event_ids = this.flex6.collectionView.currentItem.event_ids;
+        //        this.formObject.is_selected_event = this.flex6.collectionView.currentItem.is_selected_event;
+        //        this.formObject.server_ids = this.flex6.collectionView.currentItem.server_ids;
+        //        this.formObject.is_selected_server = this.flex6.collectionView.currentItem.is_selected_server;
+        //    }
+        //}
+        //}
         this.devices = [];
         if (this.flex3.collectionView) {
+            console.log("Wes 5")
             if (this.flex3.collectionView.items.length > 0) {
+                console.log("Wes 6")
                 //(<wijmo.collections.CollectionView>this.flex3.collectionView.sourceCollection).moveToFirstPage();
                 for (var _i = 0; _i < this.flex3.collectionView.sourceCollection.length; _i++) {
+                    console.log("Wes 7")
                     var item = (<wijmo.collections.CollectionView>this.flex3.collectionView.sourceCollection)[_i];
                     item.is_selected_event = false;
                 }
             }
         }
         if (this.flex4.collectionView) {
+            console.log("Wes 8")
             if (this.flex4.collectionView.items.length > 0) {
+                console.log("Wes 9")
                 //(<wijmo.collections.CollectionView>this.flex4.collectionView.sourceCollection).moveToFirstPage();
                 for (var _i = 0; _i < this.flex4.collectionView.sourceCollection.length; _i++) {
+                    console.log("Wes 10")
                     var item = (<wijmo.collections.CollectionView>this.flex4.collectionView.sourceCollection)[_i];
                     item.is_selected_hour = false;
                 }
             }
         }
         if (this.flex5.collectionView) {
+            console.log("Wes 11")
             if (this.flex5.collectionView.items.length > 0) {
+                console.log("Wes 12")
                 //(<wijmo.collections.CollectionView>this.flex5.collectionView.sourceCollection).moveToFirstPage();
                 for (var _i = 0; _i < this.flex5.collectionView.sourceCollection.length; _i++) {
+                    console.log("Wes 13")
                     var item = (<wijmo.collections.CollectionView>this.flex5.collectionView.sourceCollection)[_i];
                     item.is_selected_hour = false;
                 }
             }
         }
 
-        this.serverGridData = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.flex.collectionView.currentItem.server_objects));
-        this.serverGridData.groupDescriptions.push(new wijmo.collections.PropertyGroupDescription('location_name'));
-        this.formObject.server_objects = this.serverGridData;
+        if (this.serverFlex.collectionView) {
+            console.log("Wes 14")
+            if (this.serverFlex.collectionView.items.length > 0) {
+                console.log("Wes 15")
+                //(<wijmo.collections.CollectionView>this.flex5.collectionView.sourceCollection).moveToFirstPage();
+                for (var _i = 0; _i < this.serverFlex.collectionView.sourceCollection.length; _i++) {
+                    console.log("Wes 16")
+                    var item = (<wijmo.collections.CollectionView>this.serverFlex.collectionView.sourceCollection)[_i];
+                    item.is_selected = false;
+                }
+            }
+        }
 
+        //if (this.flex.collectionView.items.length != 0) {
+        //    this.serverGridData = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.flex.collectionView.currentItem.server_objects));
+        //    this.serverGridData.groupDescriptions.push(new wijmo.collections.PropertyGroupDescription('location_name'));
+
+        //    this.formObject.server_objects = this.serverGridData;
+        //}
         this.devices = [];
         this._deviceList = this.devices;
         this.checkedDevices = this._deviceList;
@@ -412,68 +325,39 @@ export class AlertDefinitions extends GridBase implements OnInit  {
 
     saveDefinition(dlg: wijmo.input.Popup) {
         this.errorMessage = "";
+        this.formObject.server_objects = [];
+        this.formObject.selected_hours = [];
+        this.formObject.event_ids = [];
         this.refreshCheckedHours();
         this.refreshCheckedEscalation();
         this.refreshCheckedEvents();
         this.refreshCheckedDevices();
-        console.log("2" + this.flex.collectionView.currentItem.server_objects)
-        var listOfServers = [];
-        if (this.serverFlex.collectionView) {
-            if (this.serverFlex.collectionView.items.length > 0) {
-                for (var _i = 0; _i < this.serverFlex.collectionView.sourceCollection.length; _i++) {
-                    var item = (<wijmo.collections.CollectionView>this.serverFlex.collectionView.sourceCollection)[_i];
-                    if (item.is_selected)
-                        listOfServers.push({
-                            device_id: item.device_id,
-                            is_selected: item.is_selected,
-                            device_name: item.device_name,
-                            device_type: item.device_type,
-                            collection_name: item.collection_name,
-                            location_name: item.location_name
-                        });
-                }
-            }
-        }
-
-        //var selected_servers = this.checkedDevices;
-        this.formObject.server_objects = listOfServers;
-        if (this.selected_events.length == 0 || this.selected_hours.length == 0 || listOfServers.length == 0) {
+        
+        console.log(this.formObject.server_objects.length);
+        console.log(this.formObject.selected_hours.length);
+        console.log(this.formObject.event_ids.length);
+        if (this.formObject.server_objects.length == 0 || this.formObject.selected_hours.length == 0 || this.formObject.event_ids.length == 0) {
             this.errorMessage = "No selection made. Please select at least one Hours and Destinations entry, one Events entry, and one Devices entry.";
         }
         if (!this.errorMessage) {
+            this.service.put('/configurator/save_notification_definition', this.formObject)
+                .subscribe(
+                response => {
+                    if (response.status == "Success") {
+                        this.data = response.data[0];
+                        this.appComponentService.showSuccessMessage(response.message);
+                    }
+                    else {
+                        this.appComponentService.showErrorMessage(response.message);
+                    }
+            });
             if (this.formObject.id == "") {
-                this.service.put('/configurator/save_notification_definition', this.formObject)
-                    .subscribe(
-                    response => {
-                        if (response.status == "Success") {
-                            this.data = response.data[0];
-                            this.appComponentService.showSuccessMessage(response.message);
-                        }
-                        else {
-                            this.appComponentService.showErrorMessage(response.message);
-                        }
-                    });
                 (<wijmo.collections.CollectionView>this.flex.collectionView).commitNew();
-            }
-            else {
-                this.service.put('/configurator/save_notification_definition', this.formObject)
-                    .subscribe(
-                    response => {
-                        if (response.status == "Success") {
-                            this.data = response.data[0];
-                            this.appComponentService.showSuccessMessage(response.message);
-                        }
-                        else {
-                            this.appComponentService.showErrorMessage(response.message);
-                        }
-                    });
+            } else {
                 (<wijmo.collections.CollectionView>this.flex.collectionView).commitEdit();
-            }
-            //(<wijmo.collections.CollectionView>this.flex3.collectionView.sourceCollection).moveToFirstPage();           
+            }        
             this.flex.refresh();
-            this._deviceList = [];
             dlg.hide();
-            console.log("3" + this.flex.collectionView.currentItem.server_objects)
         }
     }
 

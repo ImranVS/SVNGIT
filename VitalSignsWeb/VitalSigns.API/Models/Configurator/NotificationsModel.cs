@@ -89,6 +89,9 @@ namespace VitalSigns.API.Models
         [JsonProperty("server_objects")]
         public List<ServerObjects> ServerObjects { get; set; }
 
+        [JsonProperty("selected_hours")]
+        public List<string> SelectedHours { get; set; }
+
     }
 
     public class ServerObjects
