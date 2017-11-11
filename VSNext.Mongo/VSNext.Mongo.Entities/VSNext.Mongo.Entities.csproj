@@ -56,6 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AlertUrls.cs" />
     <Compile Include="ClusterDatabaseDetails.cs" />
     <Compile Include="BusinessHours.cs" />
     <Compile Include="ConsoleCommands.cs" />
