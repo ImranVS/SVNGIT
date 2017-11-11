@@ -86,7 +86,7 @@ export class CustomStatistics extends GridBase implements OnInit {
         this.saveGridRow('/configurator/save_custom_statistics', dlg);
     }
     delteCustomStatistics() {
-        this.delteGridRow('/configurator/delete_custom_statistics/');
+        this.deleteGridRow('/configurator/delete_custom_statistics/');
     }
 
     addCustomStat(dlg: wijmo.input.Popup) {

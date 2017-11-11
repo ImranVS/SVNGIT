@@ -57,6 +57,12 @@ export class Alerts implements OnInit {
                 "active": false
             },
             {
+                "title": "URLs",
+                "component": "AlertURLs",
+                "path": "/app/configurator/components/alert/alert-url.component",
+                "active": false
+            },
+            {
                 "title": "History",
                 "component": "AlertHistory",
                 "path": "/app/configurator/components/alert/alerts-allalert-history.component",

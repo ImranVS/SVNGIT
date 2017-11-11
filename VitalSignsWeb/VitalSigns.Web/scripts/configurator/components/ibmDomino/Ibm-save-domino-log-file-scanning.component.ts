@@ -138,7 +138,7 @@ export class AddLogFile extends GridBase implements OnInit {
     }
     deleteEventLog() {
         
-        this.delteGridRow('/configurator/delete_event_log_file_scanning/' + this.id + '/');
+        this.deleteGridRow('/configurator/delete_event_log_file_scanning/' + this.id + '/');
 
     }
     addlogScan(dlg: wijmo.input.Popup) {

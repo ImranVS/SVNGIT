@@ -495,7 +495,7 @@ export class Maintenance extends GridBase implements OnInit  {
     }
 
     deleteMaintenance() {
-        this.delteGridRow('/Configurator/delete_maintenancedata/');
+        this.deleteGridRow('/Configurator/delete_maintenancedata/');
     }
 
     changeInDevices(devices: string) {

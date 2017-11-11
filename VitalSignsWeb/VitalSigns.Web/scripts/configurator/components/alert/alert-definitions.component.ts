@@ -167,7 +167,7 @@ export class AlertDefinitions extends GridBase implements OnInit  {
  
 
     deleteDefinition() {
-        this.delteGridRow('/configurator/delete_notification_definition/');
+        this.deleteGridRow('/configurator/delete_notification_definition/');
     }
 
     showEditForm(dlg: wijmo.input.Popup) {

@@ -100,7 +100,7 @@ export class NotesDatabases extends GridBase implements OnInit {
         this.saveGridRow('/configurator/save_notes_databases', dlg);
     }
     deleteNotesDatabase() {
-        this.delteGridRow('/configurator/delete_notes_database/');
+        this.deleteGridRow('/configurator/delete_notes_database/');
     }
 
     serversChecked() {

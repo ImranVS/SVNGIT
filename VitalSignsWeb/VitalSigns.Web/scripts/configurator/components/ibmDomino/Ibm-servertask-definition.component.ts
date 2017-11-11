@@ -63,7 +63,7 @@ export class ServerTaskDefinition extends GridBase {
         this.saveGridRow('/configurator/save_server_task_definition', dlg);
     }
     delteServerTaskDefinition() {
-        this.delteGridRow('/configurator/delete_server_task_definition/');
+        this.deleteGridRow('/configurator/delete_server_task_definition/');
     }
     addServerTask(dlg: wijmo.input.Popup) {
         this.addGridRow(dlg);

@@ -122,7 +122,7 @@ export abstract class GridBase {
         this.showDialog(dlg);
     }
 
-    delteGridRow(deleteUrl,confirmationMessage="Are you sure you want to Delete this record?") {
+    deleteGridRow(deleteUrl,confirmationMessage="Are you sure you want to delete this item?") {
         this.key = this.flex.collectionView.currentItem.id;
         if (confirm(confirmationMessage)) {
             this.service.delete(deleteUrl + this.key)

@@ -114,6 +114,7 @@ export * from './configurator/components/alert/alert-definitions.component'
 export * from './configurator/components/alert/hours-destinations.component'
 export * from './configurator/components/alert/escalation.component'
 export * from './configurator/components/alert/scripts.component'
+export * from './configurator/components/alert/alert-url.component'
 
 //log Files
 export * from './configurator/components/logFiles/log-settings-list.component'

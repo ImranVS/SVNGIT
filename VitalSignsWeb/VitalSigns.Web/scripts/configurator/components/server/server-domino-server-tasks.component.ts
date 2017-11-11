@@ -107,7 +107,7 @@ export class ServerTasks extends GridBase implements OnInit {
 
    
     delteServerTasks() {
-        this.delteGridRow('/Configurator/delete_server_tasks/'+ this.deviceId +'/');
+        this.deleteGridRow('/Configurator/delete_server_tasks/'+ this.deviceId +'/');
     }
 }
 

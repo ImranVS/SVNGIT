@@ -73,7 +73,7 @@ export class NotesDatabaseReplica extends GridBase implements OnInit {
         
     }
     delteNotesDatabaseReplica() {
-        this.delteGridRow('/configurator/notes_database_replica/');
+        this.deleteGridRow('/configurator/notes_database_replica/');
     }    
     addNotesDatabaseReplica(dlg: wijmo.input.Popup) {
         this.addGridRow(dlg);

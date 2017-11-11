@@ -59,6 +59,12 @@
                                               [(text)]="formObject.send_to" placeholder="Select Script" [(ngModel)]="formObject.send_to">
                                 </wj-combo-box>
                             </div>
+                            <div class="form-group col-sm-6" *ngIf="isUrl">
+                                <label for="url_name" class="control-label col-sm-4">URL</label>
+                                <wj-combo-box name="url_name" [itemsSource]="urls" displayMemberPath="text" selectedValuePath="text"
+                                              [(text)]="formObject.send_to" placeholder="Select URL" [(ngModel)]="formObject.send_to">
+                                </wj-combo-box>
+                            </div>
                         </div>
                         <div class="row">
                             <div class="form-group col-sm-6">

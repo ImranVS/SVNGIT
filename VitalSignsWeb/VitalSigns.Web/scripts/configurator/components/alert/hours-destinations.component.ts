@@ -31,10 +31,12 @@ export class HoursDestinations extends GridBase implements OnInit {
     businesshours: any;
     sendvia: any;
     scripts: any;
+    urls: any;
     isSMS: boolean;
     isSNMP: boolean;
     isEmail: boolean;
     isScript: boolean;
+    isUrl: boolean;
     isWinLog: boolean;
     currentRow: any;
     key: string;
@@ -47,7 +49,8 @@ export class HoursDestinations extends GridBase implements OnInit {
         copy_to: null,
         persistent_notification: null,
         blind_copy_to: null,
-        scripts: null
+        scripts: null,
+        urls: null
     };
 
     get pageSize(): number {
@@ -57,7 +60,7 @@ export class HoursDestinations extends GridBase implements OnInit {
     constructor(service: RESTService, appComponentService: AppComponentService) {
         super(service, appComponentService);
         this.formName = "Hours and Destinations";
-        this.sendvia = ["E-mail", "Script", "SMS", "SNMP Trap", "Windows Log"];
+        this.sendvia = ["E-mail", "Script", "SMS", "SNMP Trap", "URL", "Windows Log"];
         this.isEmail = true;
     }
 
@@ -80,6 +83,13 @@ export class HoursDestinations extends GridBase implements OnInit {
             .subscribe(
             (response) => {
                 this.scripts = response.data;
+            },
+            (error) => this.errorMessage = <any>error
+            );
+        this.service.get('/configurator/get_alert_urls?isCombo=true')
+            .subscribe(
+            (response) => {
+                this.urls = response.data;
             },
             (error) => this.errorMessage = <any>error
             );
@@ -116,6 +126,11 @@ export class HoursDestinations extends GridBase implements OnInit {
                     this.flex.collectionView.currentItem.send_via = this.formObject.send_via;
                 }
                 else if (this.formObject.send_via == "Script") {
+                    this.flex.collectionView.currentItem.business_hours_type = this.formObject.business_hours_type;
+                    this.flex.collectionView.currentItem.send_via = this.formObject.send_via;
+                    this.flex.collectionView.currentItem.send_to = this.formObject.send_to;
+                }
+                else if (this.formObject.send_via == "URL") {
                     this.flex.collectionView.currentItem.business_hours_type = this.formObject.business_hours_type;
                     this.flex.collectionView.currentItem.send_via = this.formObject.send_via;
                     this.flex.collectionView.currentItem.send_to = this.formObject.send_to;
@@ -169,6 +184,7 @@ export class HoursDestinations extends GridBase implements OnInit {
 
         this.formObject.id = this.flex.collectionView.currentItem.id;
         this.formObject.scripts = this.scripts;
+        this.formObject.urls = this.urls;
         this.formObject.business_hours_type = this.flex.collectionView.currentItem.business_hours_type;
         this.formObject.send_to = this.flex.collectionView.currentItem.send_to;
         this.formObject.script_name = this.flex.collectionView.currentItem.script_name;
@@ -208,6 +224,7 @@ export class HoursDestinations extends GridBase implements OnInit {
 
     getSendVia(combotxt: string) {
         if (combotxt == "E-mail") {
+            this.isUrl = false;
             this.isEmail = true;
             this.isScript = false;
             this.isSMS = false;
@@ -215,6 +232,7 @@ export class HoursDestinations extends GridBase implements OnInit {
             this.isWinLog = false;
         }
         else if (combotxt == "Script") {
+            this.isUrl = false;
             this.isEmail = false;
             this.isScript = true;
             this.isSMS = false;
@@ -223,6 +241,7 @@ export class HoursDestinations extends GridBase implements OnInit {
             
         }
         else if (combotxt == "SMS") {
+            this.isUrl = false;
             this.isEmail = false;
             this.isScript = false;
             this.isSMS = true;
@@ -230,6 +249,7 @@ export class HoursDestinations extends GridBase implements OnInit {
             this.isWinLog = false;
         }
         else if (combotxt == "SNMP Trap") {
+            this.isUrl = false;
             this.isEmail = false;
             this.isScript = false;
             this.isSMS = false;
@@ -237,6 +257,15 @@ export class HoursDestinations extends GridBase implements OnInit {
             this.isWinLog = false;
         }
         else if (combotxt == "Windows Log") {
+            this.isUrl = false;
+            this.isEmail = false;
+            this.isScript = false;
+            this.isSMS = false;
+            this.isSNMP = false;
+            this.isWinLog = false;
+        }
+        else if (combotxt == "URL") {
+            this.isUrl = true;
             this.isEmail = false;
             this.isScript = false;
             this.isSMS = false;

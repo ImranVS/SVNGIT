@@ -150,7 +150,7 @@ export class BusinessHours extends GridBase implements OnInit {
     }
     
     delteBusinessHour() {      
-        this.delteGridRow('/Configurator/delete_business_hours/');  
+        this.deleteGridRow('/Configurator/delete_business_hours/');  
     }
 
     editBusinessHours(dlg: wijmo.input.Popup) {

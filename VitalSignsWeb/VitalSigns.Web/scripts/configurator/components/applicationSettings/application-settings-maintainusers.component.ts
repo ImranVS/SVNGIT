@@ -154,7 +154,7 @@ export class MaintainUser extends GridBase implements OnInit {
         }
     }
     delteMaintainUsers() {
-        this.delteGridRow('/configurator/delete_maintain_users/');
+        this.deleteGridRow('/configurator/delete_maintain_users/');
     }
     editUserGridRow(dlg: wijmo.input.Popup) {
         this.editGridRow(dlg);

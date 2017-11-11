@@ -108,7 +108,7 @@ export class Nodes extends GridBase {
             });
     }
     deleteNodesHealth() {
-        this.delteGridRow('/configurator/delete_nodes_health/');
+        this.deleteGridRow('/configurator/delete_nodes_health/');
     }
   
     applySetting() {

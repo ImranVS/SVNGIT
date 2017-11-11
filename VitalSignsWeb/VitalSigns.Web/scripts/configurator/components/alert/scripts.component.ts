@@ -56,7 +56,7 @@ export class Scripts extends GridBase implements OnInit {
     }
 
     deleteScript() {
-        this.delteGridRow('/configurator/delete_script/');
+        this.deleteGridRow('/configurator/delete_script/');
     }
 
     showAddForm(dlg: wijmo.input.Popup) {

@@ -76,7 +76,7 @@ export class ServerCredentials extends GridBase implements OnInit {
     
     delteServerCredential() {
        
-        this.delteGridRow('/Configurator/delete_credential/');  
+        this.deleteGridRow('/Configurator/delete_credential/');  
 
     }
     addServerCredential(dlg: wijmo.input.Popup) {

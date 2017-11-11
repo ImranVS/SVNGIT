@@ -135,7 +135,7 @@ export class WebSphereServerSettings extends GridBase implements OnInit {
     }
    
     delteCellInfo() {
-        this.delteGridRow('/configurator/delete_cellInfo/');
+        this.deleteGridRow('/configurator/delete_cellInfo/');
     }
     addCellInfo(dlg: wijmo.input.Popup) {
         this.addGridRow(dlg);
