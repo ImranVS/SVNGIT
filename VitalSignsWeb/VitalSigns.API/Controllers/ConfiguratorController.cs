@@ -64,6 +64,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<Notifications> notificationsRepository;
         private IRepository<NotificationDestinations> notificationDestRepository;
         private IRepository<Scripts> scriptsRepository;
+        private IRepository<Alert_URLs> alertURLsRepository;
         private IRepository<DailyStatistics> dailyStatisticsRepository;
         private IRepository<Database> databaseRepository;
         private IRepository<IbmConnectionsObjects> ibmConnectionsObjectsRepository;
@@ -4508,9 +4509,6 @@ namespace VitalSigns.API.Controllers
         [HttpGet("get_alert_settings")]
         public APIResponse GetAlertSettings()
         {
-
-
-
             nameValueRepository = new Repository<NameValue>(ConnectionString);
             var result = nameValueRepository.All()
                                           .Select(x => new
@@ -4907,6 +4905,40 @@ namespace VitalSigns.API.Controllers
         /// <author></author>
         /// <param name="isCombo"></param>
         /// <returns></returns>
+        [HttpGet("get_alert_urls")]
+        public APIResponse GetAlertURLs(bool isCombo = false)
+        {
+            try
+            {
+                if (!isCombo)
+                {
+                    alertURLsRepository = new Repository<Alert_URLs>(ConnectionString);
+                    var result = alertURLsRepository.Collection.AsQueryable()
+                        .Select(x => new AlertUrlDefinition
+                        {
+                            Id = x.Id,
+                            Name = x.Name,
+                            URL = x.Url
+                        }
+                        ).OrderBy(x => x.Name).ToList();
+                    Response = Common.CreateResponse(result);
+                }
+                else
+                {
+                    alertURLsRepository = new Repository<Alert_URLs>(ConnectionString);
+                    var result = alertURLsRepository.Collection.AsQueryable()
+                        .Select(x => new ComboBoxListItem { DisplayText = x.Name, Value = x.Id }).OrderBy(x => x.DisplayText).ToList();
+                    Response = Common.CreateResponse(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                Response = Common.CreateResponse(null, "Error", ex.Message);
+            }
+            return Response;
+        }
+
+
         [HttpGet("get_scripts")]
         public APIResponse GetScripts(bool isCombo = false)
         {
@@ -4926,6 +4958,7 @@ namespace VitalSigns.API.Controllers
                         ).OrderBy(x => x.ScriptName).ToList();
                     Response = Common.CreateResponse(result);
                 }
+
                 else
                 {
                     scriptsRepository = new Repository<Scripts>(ConnectionString);
@@ -4992,7 +5025,16 @@ namespace VitalSigns.API.Controllers
                             SendTo = notificationDefinition.SendTo
                         };
                     }
-                    else if (notificationDef.SendVia == "Script")
+                    else if (notificationDef.SendVia == "Script") 
+                    {
+                        hoursdata = new NotificationDestinations
+                        {
+                            BusinessHoursId = bushrsid,
+                            SendVia = notificationDefinition.SendVia,
+                            SendTo = notificationDefinition.SendTo
+                        };
+                    }
+                    else if (notificationDef.SendVia == "URL")
                     {
                         hoursdata = new NotificationDestinations
                         {
@@ -5194,6 +5236,55 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        [HttpPut("save_alert_url")]
+        public APIResponse UpdateAlertUrl([FromBody]AlertUrlDefinition alert_url_definition)
+        {
+            FilterDefinition<Alert_URLs> filterDef;
+            List<dynamic> result_urls = new List<dynamic>();
+            UpdateDefinition<Alert_URLs> updateAlertUrls;
+            bool result = false;
+            try
+            {
+                alertURLsRepository = new Repository<Alert_URLs>(ConnectionString);
+                if (string.IsNullOrEmpty(alert_url_definition.Id))
+                {
+                    Alert_URLs alertUrlsData = new Alert_URLs()
+                    {
+                        Name = alert_url_definition.Name,
+                        Url  = alert_url_definition.URL
+                    };
+                    alertUrlsData.Id = alertURLsRepository.Insert(alertUrlsData);
+                    var urlsList = alertURLsRepository.Collection.AsQueryable().ToList();
+                    foreach (var urlVal in urlsList)
+                    {
+                        result_urls.Add(new AlertUrlDefinition
+                        {
+                            Id = urlVal.Id.ToString(),
+                            Name = urlVal.Name,
+                            URL = urlVal.Url,
+                          
+                        });
+                    }
+                    Response = Common.CreateResponse(result_urls, Common.ResponseStatus.Success.ToDescription(), "Alert URL inserted successfully");
+                }
+                else
+                {
+                    filterDef = alertURLsRepository.Filter.Eq(x => x.Id, alert_url_definition.Id);
+                    updateAlertUrls = alertURLsRepository.Updater.Set(x => x.Name, alert_url_definition.Name)
+                       .Set(x => x.Url, alert_url_definition.URL);
+                       
+                    result = alertURLsRepository.Update(filterDef, updateAlertUrls);
+                    Response = Common.CreateResponse(alert_url_definition.Id, Common.ResponseStatus.Success.ToDescription(), "Alert URL updated successfully");
+                }
+            }
+            catch (Exception ex)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), ex.Message);
+                Console.WriteLine("error: " + ex.Message);
+            }
+            return Response;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -5353,6 +5444,22 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        [HttpDelete("delete_alert_url/{id}")]
+        public APIResponse DeleteAlertUrl(string id)
+        {
+            try
+            {
+                alertURLsRepository = new Repository<Alert_URLs>(ConnectionString);
+                Expression<Func<Alert_URLs, bool>> expression = (p => p.Id == id);
+                alertURLsRepository.Delete(expression);
+                Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "URL deleted successfully");
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Deletion of script has failed.\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
         /// <summary>
         /// 
         /// </summary>

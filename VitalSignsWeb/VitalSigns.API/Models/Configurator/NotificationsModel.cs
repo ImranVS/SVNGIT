@@ -216,6 +216,20 @@ namespace VitalSigns.API.Models
 
     }
 
+    public class AlertUrlDefinition
+    {
+        [JsonProperty("id")]
+        public string Id { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("url")]
+        public string URL { get; set; }
+
+       
+    }
+
     public class EventFilter
     {
         [JsonProperty("event_types")]
