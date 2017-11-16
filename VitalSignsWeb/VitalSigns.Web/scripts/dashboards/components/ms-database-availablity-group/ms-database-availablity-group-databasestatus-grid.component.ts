@@ -77,6 +77,7 @@ export class DatabaseStatusGrid implements WidgetComponent, OnInit {
                     this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(JSON.parse(data.data[0].dag_database)));
                     this.data.pageSize = this.currentPageSize;
                     this.data.moveCurrentToPosition(0);
+                    this.flex.autoSizeRow(0, true);
                 }
                 else
                 {

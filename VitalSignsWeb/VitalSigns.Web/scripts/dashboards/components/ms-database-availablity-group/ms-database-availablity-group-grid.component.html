@@ -1,4 +1,6 @@
-﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" id="flex" headersVisibility="Column" (selectionChanged)="onSelectionChanged($event)" #flex>
+﻿
+<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" headersVisibility="Column" (selectionChanged)="onSelectionChanged($event)" #flex>
+    <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'DAG Name'" [binding]="'device_name'" [width]="150"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Status'" [binding]="'status'" [width]="180" align="center">
@@ -16,9 +18,50 @@
             <span *ngIf="cell.item.file_witness_server_status == 'Not Responding'" class="label label-pill label-danger">Not Responding</span>
         </template>
     </wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Members'" [binding]="'members'" [width]="150"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Total Databases'" [binding]="'total_databases'" [width]="100"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Connected MailBoxes'" [binding]="'connected_mailboxes'" [width]="150"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Disconnected MailBoxes'" [binding]="'disconnected_mailboxes'" [width]="150"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Last Scan'" [binding]="'last_scan'" [width]="150"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Members'" [binding]="'dag_server_count'" [width]="150"> </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Total Databases'" [binding]="'dag_database_count'" [width]="100">  </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Connected MailBoxes'" [binding]="'connected_mailbox_count'" [width]="150"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Disconnected MailBoxes'" [binding]="'disconnected_mailbox_count'" [width]="150"> </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Last Scan'" [binding]="'last_updated'" [width]="150">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            {{cell.item.last_updated |date: 'shortDate'}}
+        </template>
+    </wj-flex-grid-column>
 </wj-flex-grid>
+<div class="btn-group" *ngIf="data != null">
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToFirstPage()"
+            [disabled]="data.pageIndex <= 0">
+        <span class="glyphicon glyphicon-fast-backward"></span>
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToPreviousPage()"
+            [disabled]="data.pageIndex <= 0">
+        <span class="glyphicon glyphicon-step-backward">
+        </span>
+    </button>
+    <button type="button" class="btn btn-default" disabled style="width:100px">
+        {{
+data.pageIndex + 1 | number
+        }} / {{data.pageCount | number}}
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToNextPage()"
+            [disabled]="data.pageIndex >= data.pageCount - 1">
+        <span class="glyphicon glyphicon-step-forward"></span>
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToLastPage()"
+            [disabled]="data.pageIndex >= data.pageCount - 1">
+        <span class="glyphicon glyphicon-fast-forward"></span>
+    </button>
+</div>
+<div class="pull-right" *ngIf="data != null">
+    <wj-menu [(value)]="pageSize" [header]="'Page size'">
+        <wj-menu-item [value]="10">10</wj-menu-item>
+        <wj-menu-item [value]="20">20</wj-menu-item>
+        <wj-menu-item [value]="50">50</wj-menu-item>
+        <wj-menu-item [value]="100">100</wj-menu-item>
+        <wj-menu-item [value]="200">200</wj-menu-item>
+    </wj-menu>
+</div>
