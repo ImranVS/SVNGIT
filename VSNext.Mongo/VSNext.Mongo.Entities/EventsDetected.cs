@@ -9,7 +9,7 @@ namespace VSNext.Mongo.Entities
 {
     [DataContract]
     [Serializable]
-    [CollectionName("events_detected_wes_test")]
+    [CollectionName("events_detected")]
     public class EventsDetected : Entity
     {
         [DataMember]
