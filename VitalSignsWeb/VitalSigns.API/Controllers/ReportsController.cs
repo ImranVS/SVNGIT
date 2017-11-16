@@ -2356,8 +2356,8 @@ namespace VitalSigns.API.Controllers
                 var results = o365MsolUsersRepository.Find(filterDef).ToList().Select(x => new MsolUser()
                 {
                     DisplayName = x.DisplayName,
-                    AccountLastModified = x.AccountLastModified
-
+                    AccountLastModified = x.AccountLastModified,
+                    UserPrincipalName = x.UserPrincipalName
                 }).ToList().OrderBy(x => x.DisplayName);
                 Response = Common.CreateResponse(results);
                 return Response;
