@@ -13,7 +13,6 @@ export class ReportsBrowser {
         //Creates a listener on the router and hides/dispalys export button
         router.events.subscribe(event => {
             //console.log(event)
-            this.fileName = activatedRoute.snapshot.firstChild.url[0].path;
             if (event instanceof NavigationStart) {
                 this.hideButton = true;
             }
