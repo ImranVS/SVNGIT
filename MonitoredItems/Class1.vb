@@ -9,8 +9,7 @@ Imports VSNext.Mongo.Entities
 Imports VSNext.Mongo.Repository
 Imports System.Linq
 'Monitored Items Class for use with VitalSigns
-'Developed by Alan Forbes
-'Copyright 2010, All Rights Reserved.
+
 
 
 'The Base Class for monitored items, such as URL, network device, etc.
@@ -4291,6 +4290,50 @@ Public Class IBMConnect
 End Class
 
 
+Public Class IBMFileNet
+    Inherits WebSphere
+
+    Public DeviceType As String = "IBM FileNet"
+    Public DeviceTypeID As Int32 = 33
+
+    'These tests are just copies from Connections and will need to be reviewed
+    Public TestCreateActivity As Boolean = True
+    Public TestCreateBlog As Boolean = True
+    Public TestCreateBookmarks As Boolean = True
+    Public TestCreateCommunities As Boolean = True
+    Public TestCreateFiles As Boolean = True
+    Public TestCreateForums As Boolean = True
+    Public TestSearchProfiles As Boolean = True
+    Public TestCreateWikis As Boolean = True
+
+    Public CreateActivityThreshold As Int32
+    Public CreateBlogThreshold As Int32
+    Public CreateBookmarkThreshold As Int32
+    Public CreateCommunitiesThreshold As Int32
+    Public CreateFilesThreshold As Int32
+    Public CreateForumsThreshold As Int32
+    Public SearchProfilesThreshold As Int32
+    Public CreateWikisThreshold As Int32
+
+    Public CreateActivityFailCount As Int32
+    Public CreateBlogFailCount As Int32
+    Public CreateBookmarkFailCount As Int32
+    Public CreateCommunitiesFailCount As Int32
+    Public CreateFilesFailCount As Int32
+    Public CreateForumsFailCount As Int32
+    Public SearchProfilesFailCount As Int32
+    Public CreateWikisFailCount As Int32
+
+    Public DBUserName As String
+    Public DBPassword As String
+    Public DBPort As String
+    Public DBHostName As String
+
+    Public CommunityUUID As String
+    Public TestUrl As String
+
+End Class
+
 #End Region
 
 #Region "Collections"
@@ -5826,6 +5869,64 @@ Public Class IBMConnectCollection
     Public Overloads Function Delete(ByVal Name As String) As Boolean
         Dim iIndex As Integer
         Dim MyCommand As MonitoredItems.IBMConnect
+        For iIndex = 0 To Me.List.Count - 1
+            MyCommand = Me.List(iIndex)
+            If MyCommand.Name = Name Then
+                Try
+                    Me.List.RemoveAt(iIndex)
+                    Return True
+                Catch ex As Exception
+                    Return False
+                End Try
+                Exit Function
+            End If
+        Next
+        Return Nothing
+    End Function
+End Class
+
+Public Class IBMFileNetCollection
+    Inherits MonitoredDevicesCollection
+
+    Public Overloads Sub Add(ByVal objItemToAdd As IBMFileNet)
+        Me.List.Add(objItemToAdd)
+    End Sub
+
+    Public Overloads ReadOnly Property Item(ByVal iIndex As Integer) As IBMFileNet
+        Get
+            Return Me.List(iIndex)
+        End Get
+    End Property
+
+    Public Overloads Function SearchByName(ByVal Name As String) As IBMFileNet
+        Dim iIndex As Integer
+        Dim MyFilNet As MonitoredItems.IBMFileNet
+        For iIndex = 0 To Me.List.Count - 1
+            MyFilNet = Me.List(iIndex)
+            If MyFilNet.Name.ToUpper = Name.ToUpper Then
+                Return Me.List(iIndex)
+                Exit Function
+            End If
+        Next
+        Return Nothing
+    End Function
+
+    Public Overloads Function SearchByIPAddress(ByVal Name As String) As IBMFileNet
+        Dim iIndex As Integer
+        Dim myFileNet As MonitoredItems.IBMConnect
+        For iIndex = 0 To Me.List.Count - 1
+            myFileNet = Me.List(iIndex)
+            If myFileNet.IPAddress = Name Then
+                Return Me.List(iIndex)
+                Exit Function
+            End If
+        Next
+        Return Nothing
+    End Function
+
+    Public Overloads Function Delete(ByVal Name As String) As Boolean
+        Dim iIndex As Integer
+        Dim MyCommand As MonitoredItems.IBMFileNet
         For iIndex = 0 To Me.List.Count - 1
             MyCommand = Me.List(iIndex)
             If MyCommand.Name = Name Then
