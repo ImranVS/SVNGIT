@@ -129,9 +129,12 @@ export class ScheduleReports extends GridBase {
         for (var item of this.weekDays) {
             this.weekDays[this.weekDays.indexOf(item)].isChecked = false;
         }
-
-        if (this.flex.collectionView.currentItem.report_frequency_value == "Weekly") {
+        console.log(this.flex.collectionView.currentItem.report_frequency)
+        if (this.flex.collectionView.currentItem.report_frequency == "Weekly") {
+            console.log("before")
             this.weeklyEditBinding();
+            console.log("after")
+
         }
         if (this.flex3.collectionView) {
             if (this.flex3.collectionView.items.length > 0) {
@@ -150,12 +153,12 @@ export class ScheduleReports extends GridBase {
 
     handleClickWeekly(index: any) {
 
-        if (this.formObject.report_frequency_value != "Weekly") {
+        if (this.formObject.selectedSetting != "Weekly") {
             for (var i = 0; i < 7; i++) {
                 this.weekDays[i].isChecked = false;
             }
         }
-        else if (this.formObject.report_frequency_value == "Weekly") {
+        else if (this.formObject.selectedSetting == "Weekly") {
             this.weeklyEditBinding();
         }
     }
@@ -163,11 +166,12 @@ export class ScheduleReports extends GridBase {
     weeklyEditBinding() {
         var selectedWeekDays = this.flex.collectionView.currentItem.frequency_days_list;
         var checkbox;
-        for (checkbox in this.weekDays) checkbox.isChecked = false;
+        var index;
+        for ( index = 0; index < this.weekDays.length; index++) this.weekDays[index].isChecked = false;
         console.log("Weekdays after setting to false:")
         console.log(this.weekDays)
-        for (var weekday in selectedWeekDays) {
-            checkbox = this.weekDays.filter(x => x.weekday == weekday);
+        for (index = 0; index < selectedWeekDays.length; index++) {
+            checkbox = this.weekDays.filter(x => x.weekday == selectedWeekDays[index]);
             console.log(checkbox)
             if (checkbox.length > 0) {
                 checkbox[0].isChecked = true;
@@ -200,7 +204,7 @@ export class ScheduleReports extends GridBase {
         if (this.formObject.selected_reports == false) {
             this.errorMessage = "No selection made. Please select at least one Report";
         }
-        console.log(this.formObject.selected_reports.length)
+        //console.log(this.formObject.selected_reports.length)
         if (this.selectedSetting == "Weekly") {
             for (var item of this.weekDays) {
                 if (item.isChecked == true) {
