@@ -1,0 +1,226 @@
+﻿<div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+    <div class="row">
+       <div class="grid-sort-group" *ngIf="data">
+            <!-- edit details in a popup -->
+            <button class="btn btn-success" (click)="editMaintenance(frmDialog)" [disabled]="data.itemCount==0">
+                Edit
+            </button>
+            <button class="btn btn-success" (click)="addServerTask(frmDialog)">
+                Add
+            </button>
+            <button class="btn btn-success" (click)="delteServerTaskDefinition();" [disabled]="data.itemCount==0">
+                Delete
+            </button>
+        </div>
+        <div>&nbsp;</div>
+        <wj-flex-grid  [itemsSource]="data" headersVisibility="Column" selectionMode="Row"  [isReadOnly]="true" #flex>
+            <wj-flex-grid-filter></wj-flex-grid-filter>
+            <wj-flex-grid-column [header]="'Schedule Report Name'" [binding]="'report_name'" [width]="180"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Frequency'" [binding]="'report_frequency'" [width]="200"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Send To'" [binding]="'send_to'" [width]="250"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Copy To '" [binding]="'copy_to'" [width]="150"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Blind Copy To'" [binding]="'blind_copy_to'" [width]="150"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'File Format'" [binding]="'file_format'" [width]="180"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Selected Reports'" [binding]="'selected_reports'" [visible]="false"></wj-flex-grid-column>
+              <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [visible]="false"></wj-flex-grid-column>
+          
+            </wj-flex-grid>
+        <div class="btn-group" *ngIf="data != null">
+            <button type="button" class="btn btn-default"
+                    (click)="data.moveToFirstPage()"
+                    [disabled]="data.pageIndex <= 0">
+                <span class="glyphicon glyphicon-fast-backward"></span>
+            </button>
+            <button type="button" class="btn btn-default"
+                    (click)="data.moveToPreviousPage()"
+                    [disabled]="data.pageIndex <= 0">
+                <span class="glyphicon glyphicon-step-backward">
+                </span>
+            </button>
+            <button type="button" class="btn btn-default" disabled style="width:100px">
+                {{
+data.pageIndex + 1 | number
+                }} / {{data.pageCount | number}}
+            </button>
+            <button type="button" class="btn btn-default"
+                    (click)="data.moveToNextPage()"
+                    [disabled]="data.pageIndex >= data.pageCount - 1">
+                <span class="glyphicon glyphicon-step-forward"></span>
+            </button>
+            <button type="button" class="btn btn-default"
+                    (click)="data.moveToLastPage()"
+                    [disabled]="data.pageIndex >= data.pageCount - 1">
+                <span class="glyphicon glyphicon-fast-forward"></span>
+            </button>
+        </div>
+        <div class="pull-right" *ngIf="data != null">
+            <wj-menu [(value)]="pageSize" [header]="'Page size'">
+                <wj-menu-item [value]="10">10</wj-menu-item>
+                <wj-menu-item [value]="20">20</wj-menu-item>
+                <wj-menu-item [value]="50">50</wj-menu-item>
+            </wj-menu>
+        </div>
+        <div>&nbsp;</div>
+        <wj-popup style="border: 0px; width: 80%; height: 80%" #frmDialog>
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    {{formTitle}}
+
+                    <!--<button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>-->
+                </div>
+                <form (ngSubmit)="saveServerTaskDefinition(frmDialog)" #frmUser="ngForm" class="form-horizontal">
+
+                    <div class="modal-body">
+                         <div class="col-sm-6">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">Scheduled Report Definition</div>
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="form-group col-sm-12">
+                                            <label for="report_subject" class="control-label col-sm-5">Schedule Report Name</label>
+                                            <div class="col-sm-7">
+                                                <input type="text" class="form-control" id="report_subject" required name="report_name" [(ngModel)]="formObject.report_name">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group col-sm-12">
+                                                <label for="report_subject" class="control-label col-sm-5">Report Subject</label>
+                                                <div class="col-sm-7">
+                                                    <input type="text" class="form-control" id="report_subject" required name="report_subject" [(ngModel)]="formObject.report_subject">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group col-sm-12">
+                                                <label for="report_body" class="control-label col-sm-5">Report Body</label>
+                                                <div class="col-sm-7">
+                                                    <input type="text" class="form-control" id="report_body" required name="report_body" [(ngModel)]="formObject.report_body">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group col-sm-12">
+                                                <label for="send_to" class="control-label col-sm-5">Send To</label>
+                                                <div class="col-sm-7">
+                                                    <input type="text" class="form-control" id="send_to" required name="send_to" [(ngModel)]="formObject.send_to">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group col-sm-12">
+                                                <label for="copy_to" class="control-label col-sm-5">Copy To</label>
+                                                <div class="col-sm-7">
+                                                    <input type="text" class="form-control" id="copy_to" name="copy_to" [(ngModel)]="formObject.copy_to">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group col-sm-12">
+                                                <label for="blind_copy" class="control-label col-sm-5"> Blind Copy To</label>
+                                                <div class="col-sm-7">
+                                                    <input type="text" class="form-control" id="blind_copy_to" name="blind_copy_to" [(ngModel)]="formObject.blind_copy_to">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group col-sm-12">
+                                                <label for="file_format" class="control-label col-sm-4">File Format</label>
+                                                <div class="col-sm-5">
+                                                    <select class="form-control" id="file_format" required name="file_format" [(ngModel)]="formObject.file_format">
+                                                        <option Value="Pdf">Pdf</option>
+                                                        <option Value="Xls">Xls</option>
+                                                        <option Value="Xlsx">Xlsx</option>
+                                                        <option Value="Csv">Csv</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-6">
+                            <div class="form-group col-sm-12">
+                                <label class="control-label col-sm-5">Report Frequency</label>
+                                <div class="col-sm-5">
+                                    <div class="funkyradio">
+                                        <div class="radio radio-info radio-inline col-sm-12">
+                                            <input type="radio" id="selectionType2" name="selectionType" value="Daily" [(ngModel)]="selectedSetting">
+                                            <label for="selectionType2" class="col-sm-2">Daily</label>
+                                            <input type="radio" id="selectionType3" name="selectionType" value="Weekly" [(ngModel)]="selectedSetting" (click)="handleClickWeekly(this);">
+                                            <label for="selectionType3" class="col-sm-2">Weekly</label>
+                                           
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row col-sm-12" *ngIf="selectedSetting!='Daily'">
+                            <div class="form-group col-sm-6" *ngIf="selectedSetting=='Weekly'">
+                                <label for="repeat" class="col-sm-4">Repeat every</label>
+                                <div class="form-group col-sm-3">
+                                    <input type="number" class="form-control" id="repeat" name="repeat" [(ngModel)]="formObject.repeat"
+                                           min="0" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+                                </div>
+                                <label for="repeat" class="col-sm-3">weeks on</label>
+                            </div>
+                               <div class="row col-sm-12" *ngIf="selectedSetting=='Weekly'">
+                                <div class="panel panel-default col-sm-4">
+
+                                    <div class="panel-body">
+
+                                        <div class="form-group col-sm-7">
+                                            <button class="btn btn-primary" type="button" name="submit" (click)="selectAllClick(this);">Select All</button>
+                                        </div>
+                                        <div class="form-group col-sm-4">
+                                            <button class="btn btn-primary" type="button" name="submit" (click)="deselectAllClick(this);">Clear All</button>
+                                        </div>
+                                        <div class="form-group col-sm-4">
+                                            &nbsp;
+                                        </div>
+                                        <div class="funkyradio" *ngFor="let weekDay of weekDays; let i = index">
+                                            <div class="funkyradio-default">
+                                                <input type="checkbox" class="checkbox-inline" id="day_{{weekDay.weekday}}" name="{{weekDay.weekday}}" [(ngModel)]="weekDay.isChecked">
+                                                <label [attr.for]="'day_' + weekDay.weekday">{{weekDay.weekday}} </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                               <div class="form-group">
+                                <div class="panel panel-default">
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-sm-10">
+                                                <button class="btn btn-primary" type="button" name="selectall" (click)="selectAll()">Select All</button>
+                                                <button class="btn btn-primary" type="button" name="deselectall" (click)="deselectAll()">Deselect All</button>
+                                                &nbsp;
+                                                <button class="btn btn-primary" type="button" (click)="collapse(flex3)">Collapse All Groups</button>
+                                                <button class="btn btn-primary" type="button" (click)="expand(flex3)">Expand All Groups</button>
+                                            </div>
+                                        </div>
+                                        <div>&nbsp;</div>
+                                        <wj-flex-grid style="height:400px;" [itemsSource]="scheduledata" selectionMode="Row" headersVisibility="Column" #flex3>
+                                            <wj-flex-grid-filter></wj-flex-grid-filter>
+                                            <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" align="center"></wj-flex-grid-column>
+                                            <wj-flex-grid-column [header]="'Report Title'" [binding]="'report_title'"  [visible]="false" [isReadOnly]="true"></wj-flex-grid-column>
+                                            <wj-flex-grid-column [header]="'Report Category'" [binding]="'report_category'" [width]="280" [isReadOnly]="true"></wj-flex-grid-column>
+                                           
+                                        </wj-flex-grid>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                         <div class="modal-footer">
+                        <button class="btn btn-primary" type="submit" name="submit">Save</button>
+                        <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </wj-popup>
+    </div>
+</div>
