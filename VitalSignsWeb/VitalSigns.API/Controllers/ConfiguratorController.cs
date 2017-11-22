@@ -52,6 +52,8 @@ namespace VitalSigns.API.Controllers
         private IRepository<WindowsService> windowsservicesRepository;
 
         private IRepository<DominoServerTasks> dominoservertasksRepository;
+        private IRepository<ScheduledReports> schedulereportsrepository;
+        private IRepository<VSNext.Mongo.Entities.SiteMap> sitemaprepository;
         private IRepository<EventsDetected> eventsdetectedRepository;
 
         private IRepository<Status> statusRepository;
@@ -3916,6 +3918,182 @@ namespace VitalSigns.API.Controllers
 
         #endregion
 
+        #region Schedule Reports
+
+        [HttpGet("get_scheduled_reports")]
+        public APIResponse GetScheduledReportsList()
+        {
+
+            List<dynamic> result = new List<dynamic>();
+
+            try
+            {
+                result = GetScheduledReport();
+                Response = Common.CreateResponse(result);
+            }
+            catch (Exception ex)
+            {
+                Response = Common.CreateResponse(null, "Error", ex.Message);
+            }
+            return Response;
+           }
+
+        private List<dynamic> GetScheduledReport()
+        {
+            List<dynamic> result_disp = new List<dynamic>();
+            List<bool> is_selected_event = new List<bool>();
+            List<string> event_ids = new List<string>();
+            List<ReportTitle> report = new List<ReportTitle>();
+            try
+            {
+                schedulereportsrepository = new Repository<ScheduledReports>(ConnectionString);
+                var schedulereports = schedulereportsrepository.All().ToList();
+                sitemaprepository = new Repository<VSNext.Mongo.Entities.SiteMap>(ConnectionString);
+                foreach (var schedulereport in schedulereports)
+                {
+
+                    result_disp.Add(new ScheduledReportsModel
+                    {
+                        Id = schedulereport.Id,
+                        ReportName = schedulereport.ReportName,
+                        ReportSubject = schedulereport.ReportSubject,
+                        ReportBody = schedulereport.ReportBody,
+                        Frequency = schedulereport.Frequency,
+                        CopyTo = schedulereport.CopyTo,
+                        SendTo = schedulereport.SendTo,
+                        BlindCopyTo = schedulereport.BlindCopyTo,
+                        FileFormat = schedulereport.FileFormat,
+                        FrequencyDayList = schedulereport.FrequencyDayList,
+                        Repeat = schedulereport.Repeat,
+                        SelectedReports = schedulereport.SelectedReports
+                      
+                    });
+                }
+                var reportTitleMapper = new Dictionary<string, string>();
+                var categorybyreport = new Dictionary<string, List<string>>();
+                reportTitleMapper.Add("CPU / Memory / Disk Utilization", "disk_reports");
+                reportTitleMapper.Add("Financial", "financial_reports");
+                reportTitleMapper.Add("IBM Connections", "connections_reports");
+                reportTitleMapper.Add("IBM Domino", "domino_reports");
+                reportTitleMapper.Add("IBM Traveler", "traveler_reports");
+                reportTitleMapper.Add("IBM WebSphere", "websphere_reports");
+                reportTitleMapper.Add("IBM Sametime", "sametime_reports");
+                reportTitleMapper.Add("Microsoft Exchange", "exchange_reports");
+                reportTitleMapper.Add("Mail", "mail_reports");
+                reportTitleMapper.Add("Mobile Devices", "mobile_users");
+                reportTitleMapper.Add("Office 365", "office365_reports");
+                reportTitleMapper.Add("Servers & Configuration", "server_reports");
+
+                var sitemapList = sitemaprepository.All().ToList();
+                foreach (var reportitem in reportTitleMapper)
+                {
+                   
+                    var node = sitemapList.Find(x => x.Id == reportitem.Value).Nodes;
+                    var nodeTitles = node.Select(x => x.Title).ToList();
+                    categorybyreport.Add(reportitem.Key, nodeTitles);
+                }
+
+
+                foreach (var currentparent in categorybyreport)
+                {
+                    foreach (var currchild in currentparent.Value)
+                    {
+                        ReportTitle temp = new ReportTitle();
+                        temp.IsSelected = false;
+                        temp.ReportTitles = currentparent.Key;
+                        temp.ReportCategory = currchild;
+                        report.Add(temp);
+                    }
+
+
+                }
+                return new List<dynamic>() {
+                    result_disp,
+                    report
+
+                };
+            }
+
+            catch (Exception exception)
+            {
+                throw exception;
+        }
+        }
+        [HttpPut("save_scheduled_reports")]
+        public APIResponse UpdateScheduledReports([FromBody]ScheduledReportsModel ScheduledReports)
+        {
+            List<dynamic> result_disp = new List<dynamic>();
+            try
+            {
+                schedulereportsrepository = new Repository<ScheduledReports>(ConnectionString);
+                if (string.IsNullOrEmpty(ScheduledReports.Id))
+                {
+                    ScheduledReports ScheduledDef = new ScheduledReports {
+                        Id = ScheduledReports.Id,
+                        ReportName = ScheduledReports.ReportName,
+                        ReportSubject = ScheduledReports.ReportSubject,
+                        ReportBody = ScheduledReports.ReportBody,
+                        Frequency = ScheduledReports.Frequency,
+                        SendTo = ScheduledReports.SendTo,
+                        CopyTo = ScheduledReports.CopyTo,
+                        BlindCopyTo = ScheduledReports.BlindCopyTo,
+                        FileFormat = ScheduledReports.FileFormat,
+                        FrequencyDayList = ScheduledReports.FrequencyDayList,
+                        Repeat = String.IsNullOrWhiteSpace(ScheduledReports.Repeat) ? "0" : ScheduledReports.Repeat,
+                        SelectedReports = ScheduledReports.SelectedReports,
+                        
+                    };
+                    string id = schedulereportsrepository.Insert(ScheduledDef);
+                    result_disp = GetScheduledReport();
+                    Response = Common.CreateResponse(result_disp, Common.ResponseStatus.Success.ToDescription(), "Scheduled Reports inserted successfully");
+                }
+                else
+                {
+                    FilterDefinition<ScheduledReports> filterDefination = Builders<ScheduledReports>.Filter.Where(p => p.Id == ScheduledReports.Id);
+                    var updateDefination = schedulereportsrepository.Updater.Set(p => p.ReportName, ScheduledReports.ReportName)
+                                                             .Set(p => p.ReportSubject, ScheduledReports.ReportSubject)
+                                                             .Set(p => p.ReportBody, ScheduledReports.ReportBody)
+                                                             .Set(p => p.Frequency, ScheduledReports.Frequency)
+                                                             .Set(p => p.SendTo, ScheduledReports.SendTo)
+                                                             .Set(p => p.CopyTo, ScheduledReports.CopyTo)
+                                                             .Set(p => p.BlindCopyTo, ScheduledReports.BlindCopyTo)
+                                                             .Set(p => p.FileFormat, ScheduledReports.FileFormat)
+                                                             .Set(p => p.FrequencyDayList, ScheduledReports.FrequencyDayList)
+                                                             .Set(p => p.Repeat, ScheduledReports.Repeat)
+                                                              .Set(p => p.SelectedReports, ScheduledReports.SelectedReports);
+                    var result = schedulereportsrepository.Update(filterDefination, updateDefination);
+                    result_disp = GetScheduledReport();
+                    Response = Common.CreateResponse(result_disp, Common.ResponseStatus.Success.ToDescription(), "Scheduled Reports updated successfully");
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Saving Scheduled Reports has failed.\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+        }
+
+        [HttpDelete("delete_scheduled_reports/{id}")]
+        public APIResponse DeleteScheduledReports(string id)
+        {
+            try
+            {
+                schedulereportsrepository = new Repository<ScheduledReports>(ConnectionString);
+                Expression<Func<ScheduledReports, bool>> expression = (p => p.Id == id);
+                schedulereportsrepository.Delete(expression);
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Scheduled Report  is deleted successfully");
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Deletion of a Scheduled Report has failed.\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        #endregion
+
+
         #region Log File Scanning
         /// <summary>
         /// Get Log Scanning 
@@ -6718,6 +6896,7 @@ namespace VitalSigns.API.Controllers
 
 
         #endregion
+
         #region Mobile Users
         /// <summary>
         ///Get all Mobile Users
