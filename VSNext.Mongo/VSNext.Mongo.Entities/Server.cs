@@ -98,6 +98,15 @@ namespace VSNext.Mongo.Entities
         public string Category { get; set; }
 
         [DataMember]
+        [BsonElement("ibm_file_host_name")]
+        [BsonIgnoreIfNull]
+        public string HostName { get; set; }
+        [DataMember]
+        [BsonElement("ibm_file_port_name")]
+        [BsonIgnoreIfNull]
+        public string PortName { get; set; }
+
+        [DataMember]
         [BsonElement("cpu_threshold")]
         [BsonIgnoreIfNull]
         public double? CpuThreshold { get; set; }
