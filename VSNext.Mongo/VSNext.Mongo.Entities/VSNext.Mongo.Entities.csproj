@@ -61,6 +61,10 @@
     <Compile Include="BusinessHours.cs" />
     <Compile Include="ConsoleCommands.cs" />
     <Compile Include="ConsolidationResults.cs" />
+    <Compile Include="EventsReport.cs" />
+    <Compile Include="ScheduledReports.cs" />
+    <Compile Include="SiteMap.cs" />
+    <Compile Include="SiteMapNode.cs" />
     <Compile Include="StatsTranslations.cs" />
     <Compile Include="DominoServerTasks.cs" />
     <Compile Include="DeviceAttributes.cs" />
