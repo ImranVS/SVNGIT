@@ -3087,7 +3087,144 @@ Partial Public Class VitalSignsPlusCore
 
 #End Region
 
-#Region "IBMConnect"
+#Region "IBM FileNet"
+
+    Private Sub UpdateIBMFileNetStatusTable(ByRef myServer As MonitoredItems.IBMFileNet)
+        '*************************************************************
+        'Update the Status Table
+        '*************************************************************
+        Dim strSQL As String = ""
+        Dim StatusDetails As String = ""
+        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+        Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status)
+        Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status)
+        Try
+            If MyLogLevel = LogLevel.Verbose Then
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "  Entered UpdateIBMFileNetStatusTable for " & myServer.Name)
+
+            End If
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Error logging StatusDetails String: " & ex.Message, LogLevel.Normal)
+        End Try
+
+        Try
+            If (myServer.ResponseDetails.Trim().EndsWith(".")) Then
+                myServer.ResponseDetails = myServer.ResponseDetails.Trim().Substring(0, myServer.ResponseDetails.Trim().Length - 1)
+            End If
+        Catch ex As Exception
+
+        End Try
+
+        Try
+            StatusDetails = myServer.ResponseDetails & " at " & Now.ToString("t")
+        Catch ex As Exception
+
+        End Try
+
+
+        Try
+            If InStr(StatusDetails, "'") > 0 Then
+                StatusDetails = StatusDetails.Replace("'", "")
+            End If
+
+            Dim Quote As Char
+            Quote = Chr(34)
+
+            If InStr(StatusDetails, Quote) > 0 Then
+                StatusDetails = StatusDetails.Replace(Quote, "~")
+            End If
+
+        Catch ex As Exception
+            StatusDetails = ""
+        End Try
+
+        If myServer.Status = "Disabled" Then
+            StatusDetails = "This instance is not enabled for monitoring."
+        End If
+
+        If myServer.Status = "Maintenance" Then
+            StatusDetails = "This instance is in a scheduled maintenance period.  Monitoring is temporarily disabled."
+        End If
+
+        If myServer.Status = "Not Scanned" Then
+            StatusDetails = "This instance has not been scanned yet."
+        End If
+
+        If MyLogLevel = LogLevel.Verbose Then
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Status Details for " & myServer.Name & " are " & StatusDetails)
+        End If
+
+
+        Try
+            myServer.StatusCode = ServerStatusCode(myServer.Status)
+        Catch ex As Exception
+            myServer.StatusCode = vbNull
+        End Try
+
+        Try
+            'Update the status table
+
+            With myServer
+
+
+                Dim TypeAndName As String = .Name & "-" & .ServerType
+
+                filterdef = repo.Filter.Where(Function(i) i.TypeAndName.Equals(TypeAndName))
+                updatedef = repo.Updater _
+                                  .Set(Function(i) i.DeviceName, .Name) _
+                                  .[Set](Function(i) i.CurrentStatus, .Status) _
+                                  .[Set](Function(i) i.StatusCode, .Status) _
+                                  .[Set](Function(i) i.LastUpdated, DateTime.Now) _
+                                  .[Set](Function(i) i.Details, StatusDetails) _
+                                  .[Set](Function(i) i.Category, .Category) _
+                                  .[Set](Function(i) i.TypeAndName, TypeAndName) _
+                                  .[Set](Function(i) i.Description, .Description) _
+                                  .[Set](Function(i) i.DeviceType, .ServerType) _
+                                  .[Set](Function(i) i.ResponseTime, Integer.Parse(.ResponseTime)) _
+                                  .[Set](Function(i) i.ResponseThreshold, Integer.Parse(.ResponseThreshold)) _
+                                  .[Set](Function(i) i.CPU, Integer.Parse(.CPU_Utilization)) _
+                                  .[Set](Function(i) i.Memory, Integer.Parse(.Memory_Utilization)) _
+                                  .[Set](Function(i) i.NextScan, .NextScan) _
+                                  .[Set](Function(i) i.DeviceId, .ServerObjectID)
+            End With
+            repo.Upsert(filterdef, updatedef)
+
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Error in IBM FileNet module creating SQL statement for status table: " & ex.Message)
+            WriteDeviceHistoryEntry(myServer.DeviceType, MyWebSphereServer.Name, Now.ToString & " Error in IBM FileNet module creating SQL statement for status table: " & ex.Message)
+        End Try
+
+
+    End Sub
+
+    Public Sub InsertIntoIBMFileNetDailyStats(ByVal ServerName As String, ByVal StatName As String, ByVal StatValue As String, ByVal DeviceId As String)
+        Dim dtNow As DateTime = Now
+
+        If StatValue IsNot Nothing Then
+
+            Try
+                Dim DailyStats As New DailyStatistics
+                Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
+                DailyStats.DeviceId = DeviceId
+                DailyStats.DeviceType = VSNext.Mongo.Entities.Enums.ServerType.IBMFileNet.ToDescription()
+                DailyStats.DeviceName = ServerName
+                DailyStats.StatName = StatName
+                DailyStats.StatValue = StatValue
+                repo.Insert(DailyStats)
+            Catch ex As Exception
+
+            End Try
+
+        Else
+            WriteDeviceHistoryEntry("WebSphere", StatName, Now.ToString & " the following stat is empty: " & StatName)
+        End If
+
+    End Sub
+
+
+#End Region
+
+#Region "IBM Connections"
 
     Private Sub UpdateIBMConnectionStatusTable(ByRef myServer As MonitoredItems.IBMConnect)
         '*************************************************************

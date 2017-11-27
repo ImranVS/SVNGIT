@@ -55,6 +55,11 @@ Partial Public Class VitalSignsPlusCore
 			WriteAuditEntry(Now.ToString & " Error creating IBM Connect collection: " & ex.Message)
 		End Try
 
+        Try
+            CreateIBMFileNetCollection()
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Error creating IBM FileNet collection: " & ex.Message)
+        End Try
 
     End Sub
 
@@ -3759,6 +3764,442 @@ Partial Public Class VitalSignsPlusCore
         InsufficentLicensesTest(MyIBMConnectServers)
 
     End Sub
+
+
+    Private Sub CreateIBMFileNetCollection()
+        'start with fresh data
+        'Connect to the data source
+        Dim mySecrets As New VSFramework.TripleDES
+        Dim listOfServers As New List(Of VSNext.Mongo.Entities.Server)
+        Dim listOfStatus As New List(Of VSNext.Mongo.Entities.Status)
+
+        Try
+
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Server) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.IBMFileNet.ToDescription())
+            Dim projectionDef As ProjectionDefinition(Of VSNext.Mongo.Entities.Server) = repository.Project _
+                .Include(Function(x) x.Id) _
+                .Include(Function(x) x.DeviceName) _
+                .Include(Function(x) x.DeviceType) _
+                .Include(Function(x) x.IsEnabled) _
+                .Include(Function(x) x.LocationId) _
+                .Include(Function(x) x.CredentialsId) _
+                .Include(Function(x) x.CurrentNode) _
+                .Include(Function(x) x.ScanInterval) _
+                .Include(Function(x) x.RetryInterval) _
+                .Include(Function(x) x.OffHoursScanInterval) _
+                .Include(Function(x) x.Category) _
+                .Include(Function(x) x.ResponseTime) _
+                .Include(Function(x) x.Description) _
+                .Include(Function(x) x.IPAddress)
+
+            listOfServers = repository.Find(filterDef, projectionDef).ToList()
+            WriteAuditEntry(Now.ToString & " Created ListOfServers dataset in CreateIBMFileNetCollection", LogLevel.Verbose)
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Failed to create ListOfServers dataset in CreateIBMFileNetCollection processing code. Exception: " & ex.Message)
+        End Try
+
+        Try
+                Dim repositoryStatus As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+                Dim filterDefStatus As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.IBMFileNet.ToDescription())
+                Dim projectionDefStatus As ProjectionDefinition(Of VSNext.Mongo.Entities.Status) = repositoryStatus.Project _
+                .Include(Function(x) x.StatusCode) _
+                .Include(Function(x) x.CurrentStatus) _
+                .Include(Function(x) x.LastUpdated) _
+                .Include(Function(x) x.DeviceType) _
+                .Include(Function(x) x.DeviceName)
+
+                listOfStatus = repositoryStatus.Find(filterDefStatus, projectionDefStatus).ToList()
+            WriteAuditEntry(Now.ToString & " Created ListOfStatus dataset in CreateIBMFileNetCollection", LogLevel.Verbose)
+
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Failed to create ListOfStatus dataset in CreateIBMFileNetCollection processing code. Exception: " & ex.Message)
+            ' Exit Sub
+        End Try
+
+        Try
+            For Each entity As VSNext.Mongo.Entities.Server In listOfServers
+                WriteAuditEntry(Now.ToString & " Server: " & entity.DeviceName, LogLevel.Verbose)
+            Next
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Exception loping through server list code. Exception: " & ex.Message)
+            ' Exit Sub
+        End Try
+
+        '***
+        'but first delete any that are in the collection but not in the database anymore
+        'Delete propogation
+
+        Try
+            Dim MyServerNames As String = ""
+
+            If myIBMFileNetServers.Count > 0 Then
+                WriteAuditEntry(Now.ToString & " Checking to see if any IBM FileNet Servers should be deleted. ")
+                'Get all the names of all the servers in the data table
+                For Each entity As VSNext.Mongo.Entities.Server In listOfServers
+                    MyServerNames += entity.DeviceName & "  "
+                    WriteAuditEntry(Now.ToString & " Checking on " & entity.DeviceName,  LogLevel.Verbose)
+                Next
+            End If
+
+            Dim server As MonitoredItems.IBMFileNet
+            Dim myIndex As Integer
+
+            If myIBMFileNetServers.Count > 0 Then
+                For myIndex = myIBMFileNetServers.Count - 1 To 0 Step -1
+                    server = myIBMFileNetServers.Item(myIndex)
+                    Try
+                        WriteAuditEntry(Now.ToString & " Checking to see if IBM Connect Server " & server.Name & " should be deleted...")
+                        If InStr(MyServerNames, server.Name) > 0 Then
+                            'the server has not been deleted
+                            WriteAuditEntry(Now.ToString & " " & server.Name & " is not marked for deletion. ")
+                        Else
+                            'the server has been deleted, so delete from the collection
+                            Try
+                                myIBMFileNetServers.Delete(server.Name)
+                                WriteAuditEntry(Now.ToString & " " & server.Name & " has been deleted by the service.")
+                            Catch ex As Exception
+                                WriteAuditEntry(Now.ToString & " " & server.Name & " was not deleted by the service because " & ex.Message)
+                            End Try
+                        End If
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " Exception IBM Connection servers Deletion Loop on " & server.Name & ".  The error was " & ex.Message)
+                    End Try
+                Next
+            End If
+
+            MyServerNames = Nothing
+            server = Nothing
+            myIndex = Nothing
+
+            '*** End delete propogation
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Error with IBM FileNet delete propogation: " & ex.Message, LogLevel.Normal)
+        End Try
+
+
+        Dim i As Integer = 0
+        'Add the FileNet servers to the collection
+        Try
+            WriteAuditEntry(Now.ToString & "  Reading configuration settings for " & listOfServers.Count & " IBM FileNet Servers.")
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Error with IBM FileNet table " & ex.Message, LogLevel.Normal)
+        End Try
+
+        Try
+            Dim myString As String = ""
+            For Each entity As VSNext.Mongo.Entities.Server In listOfServers
+                i += 1
+                Dim MyName As String
+                If entity.DeviceName Is Nothing Then
+                    MyName = "IBM FileNet #" & i.ToString
+                Else
+                    MyName = entity.DeviceName
+                End If
+                WriteAuditEntry(Now.ToString & "  Reading configuration settings for " & MyName)
+                'See if this server is already in the collection; if so, update its settings otherwise create a new one
+                Try
+                    MyIBMFileNetServer = myIBMFileNetServers.SearchByName(MyName)
+                Catch ex As Exception
+                    MyIBMFileNetServer = Nothing
+                End Try
+
+                If MyIBMFileNetServer Is Nothing Then
+                    Try
+                        WriteAuditEntry(Now.ToString & " Found a new IBM FileNet server to monitor:  " & MyName, LogLevel.Normal)
+                        MyIBMFileNetServer = New MonitoredItems.IBMFileNet
+                        MyIBMFileNetServer.Name = MyName
+                        MyIBMFileNetServer.LastScan = Now.AddMinutes(-30)
+                        MyIBMFileNetServer.NextScan = Now
+                        MyIBMFileNetServer.AlertCondition = False
+                        MyIBMFileNetServer.Status = "Not Scanned"
+                        MyIBMFileNetServer.IncrementUpCount()
+                        MyIBMFileNetServer.ServerType = MyIBMFileNetServer.DeviceType
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " Error adding new empty stats collection to " & MyIBMFileNetServer.Name)
+                    End Try
+                    MyIBMFileNetServers.Add(MyIBMFileNetServer)
+                    WriteAuditEntry(Now.ToString & " Adding new IBM FileNet server -- " & MyIBMFileNetServer.Name & " -- to the collection.")
+                Else
+                    WriteAuditEntry(Now.ToString & " Updating settings for existing IBM FileNet server-- " & MyIBMFileNetServer.Name & ".")
+                End If
+
+                With MyIBMFileNetServer
+                    If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Configuring settings for IBM FileNet server-- " & MyIBMFileNetServer.Name & ".", LogLevel.Verbose)
+
+                    'Standard attributes
+                    Try
+                        If entity.Id Is Nothing Then
+                            .ServerObjectID = ""
+                            WriteAuditEntry(Now.ToString & " Error: No filename specified for " & .Name)
+                        Else
+                            .ServerObjectID = entity.Id
+                        End If
+                    Catch ex As Exception
+                        .ServerObjectID = ""
+                        WriteAuditEntry(Now.ToString & " Error: No filename specified for " & .Name)
+                    End Try
+
+                    Try
+
+                        Dim repositoryLocation As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Location)(connectionString)
+                        Dim filterDefLocation As FilterDefinition(Of VSNext.Mongo.Entities.Location) = repositoryLocation.Filter.Eq(Function(x) x.Id, entity.LocationId)
+                        Dim locationAlias As String = repositoryLocation.Find(filterDefLocation).ToList()(0).LocationName.ToString()
+
+                        .Location = locationAlias
+
+                    Catch ex As Exception
+                        .Location = "Not Set"
+                    End Try
+
+                    Try
+                        If entity.Description Is Nothing Then
+                            .Description = ""
+                        Else
+                            .Description = entity.Description
+                        End If
+                    Catch ex As Exception
+                        .Description = ""
+                    End Try
+
+
+                    Try
+                        If entity.IsEnabled Is Nothing Then
+                            .Enabled = True
+                        Else
+                            .Enabled = entity.IsEnabled
+                        End If
+
+                    Catch ex As Exception
+                        .Enabled = True
+                    End Try
+
+                    Try
+                        If .Enabled = False Then
+                            .Status = "Disabled"
+                        End If
+
+                        If .Enabled = True And .Status = "Disabled" Then
+                            .Status = "Not Scanned"
+                        End If
+                    Catch ex As Exception
+
+                    End Try
+
+
+                    Try
+                        If entity.ResponseTime Is Nothing Then
+                            .ResponseThreshold = 100
+                        Else
+                            .ResponseThreshold = entity.ResponseTime
+                        End If
+                    Catch ex As Exception
+                        .ResponseThreshold = 100
+                    End Try
+
+
+                    Try
+                        If entity.ScanInterval Is Nothing Then
+                            .ScanInterval = 10
+                        Else
+                            .ScanInterval = entity.ScanInterval
+                        End If
+                    Catch ex As Exception
+                        .ScanInterval = 10
+                    End Try
+
+                    Try
+                        If entity.OffHoursScanInterval Is Nothing Then
+                            .OffHoursScanInterval = 30
+                        Else
+                            .OffHoursScanInterval = entity.OffHoursScanInterval
+                        End If
+                    Catch ex As Exception
+                        .OffHoursScanInterval = 30
+                    End Try
+                    Try
+                        '   WriteAuditEntry(Now.ToString & "Adding Category")
+                        If entity.Category Is Nothing Then
+                            .Category = "Not Categorized"
+                        Else
+                            .Category = entity.Category
+                        End If
+                    Catch ex As Exception
+                        .Category = "Not Categorized"
+                    End Try
+
+
+
+                    Try
+                        If entity.RetryInterval Is Nothing Then
+                            .RetryInterval = 2
+                            WriteAuditEntry(Now.ToString & " " & .Name & " IBM FileNet retry scan interval not set, using default of 10 minutes.")
+                        Else
+                            .RetryInterval = entity.RetryInterval
+                        End If
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " " & .Name & " IBM FileNet retry scan interval not set, using default of 10 minutes.")
+                        .RetryInterval = 2
+                    End Try
+
+                    Try
+                        If listOfStatus.Where(Function(x) x.DeviceName.Equals(entity.DeviceName) And x.DeviceType.Equals(entity.DeviceType)).ToList().Count() > 0 Then
+
+                            Dim entityStatus As VSNext.Mongo.Entities.Status = listOfStatus.Where(Function(x) x.DeviceName.Equals(entity.DeviceName) And x.DeviceType.Equals(entity.DeviceType)).ToList()(0)
+
+                            Try
+                                If entityStatus.CurrentStatus Is Nothing Then
+                                    .Status = "Not Scanned"
+                                Else
+                                    .Status = entityStatus.CurrentStatus
+                                End If
+                            Catch ex As Exception
+                                .Status = "Not Scanned"
+                            End Try
+
+                            Try
+                                If entityStatus.LastUpdated Is Nothing Then
+                                    .LastScan = Now.AddMinutes(-30)
+                                Else
+                                    .LastScan = entityStatus.LastUpdated
+                                End If
+                            Catch ex As Exception
+                                .LastScan = Now.AddMinutes(-30)
+                            End Try
+
+                        End If
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " Exception with IBM FileNet scan status:  " & ex.ToString, LogLevel.Verbose)
+
+                    End Try
+
+
+
+
+                    Try
+                        WriteAuditEntry(Now.ToString & " Getting server credentials.", LogLevel.Verbose)
+                        If entity.CredentialsId Is Nothing Then
+                            .UserName = ""
+                            .Password = ""
+                        Else
+                            'Run a query here, then parse the results
+
+                            Dim repositoryCredentials As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Credentials)(connectionString)
+                            Dim filterDefCredentials As FilterDefinition(Of VSNext.Mongo.Entities.Credentials) = repositoryCredentials.Filter.Eq(Function(x) x.Id, entity.CredentialsId)
+                            Dim entityCredentials As VSNext.Mongo.Entities.Credentials = repositoryCredentials.Find(filterDefCredentials).ToList()(0)
+
+                            .UserName = entityCredentials.UserId
+                            WriteAuditEntry(Now.ToString & " Username is " & .UserName, LogLevel.Verbose)
+
+                            Dim strEncryptedPassword As String
+                            Dim Password As String
+                            Dim myPass As Byte()
+
+                            strEncryptedPassword = entityCredentials.Password
+
+                            Try
+                                Dim strValue As Object
+                                Dim str1() As String
+                                str1 = strEncryptedPassword.Split(",")
+                                Dim bstr1(str1.Length - 1) As Byte
+                                For j As Integer = 0 To str1.Length - 1
+                                    bstr1(j) = str1(j).ToString()
+                                Next
+                                myPass = bstr1
+                            Catch ex As Exception
+
+                            End Try
+
+                            Try
+                                If Not strEncryptedPassword Is Nothing Then
+                                    Password = mySecrets.Decrypt(myPass) 'password in clear text, stored in memory now
+                                    ' If MyLogLevel = LogLevel.Verbose Then WriteAuditEntry(Now.ToString & " Successfully decrypted the Notes password as " & MyDominoPassword)
+                                    ' WriteAuditEntry(Now.ToString & " HTTP password is " & Password, LogLevel.Verbose)
+                                Else
+                                    Password = Nothing
+                                End If
+                            Catch ex As Exception
+                                Password = ""
+                                WriteAuditEntry(Now.ToString & " Error decrypting the FileNet password.  " & ex.ToString)
+                            End Try
+                            .Password = Password
+                        End If
+                    Catch ex As Exception
+
+                    End Try
+
+                    Try
+                        If entity.ConsecutiveFailuresBeforeAlert Is Nothing Then
+                            .FailureThreshold = 3
+                        Else
+                            .FailureThreshold = entity.ConsecutiveFailuresBeforeAlert
+                        End If
+                    Catch ex As Exception
+                        .FailureThreshold = 3
+                    End Try
+
+                    Try
+                        If entity.ConsecutiveOverThresholdBeforeAlert Is Nothing Then
+                            .ServerDaysAlert = 14
+                        Else
+                            .ServerDaysAlert = entity.ConsecutiveOverThresholdBeforeAlert
+                        End If
+                    Catch ex As Exception
+                        .ServerDaysAlert = 14
+                    End Try
+
+                    Try
+                        .ServerName = .Name
+                    Catch ex As Exception
+
+                    End Try
+
+                    Try
+                        If entity.IPAddress Is Nothing Then
+                            .IPAddress = ""
+                        Else
+                            .IPAddress = entity.IPAddress
+                        End If
+                    Catch ex As Exception
+                        .IPAddress = ""
+                    End Try
+
+
+
+                    Try
+                        If entity.CurrentNode Is Nothing Then
+                            WriteAuditEntry(Now.ToString & " " & .Name & " FileNet Server marked to insufficent licenses due to it not being set.", LogLevel.Verbose)
+                            .InsufficentLicenses = True
+                        Else
+                            If entity.CurrentNode.ToString() <> getCurrentNode() Then
+                                WriteAuditEntry(Now.ToString & " " & .Name & " FileNet Server marked to insufficent licenses due to it being -1.", LogLevel.Verbose)
+                                .InsufficentLicenses = True
+                            Else
+                                .InsufficentLicenses = False
+                            End If
+                        End If
+                        .CurrentNode = entity.CurrentNode
+                    Catch ex As Exception
+                        WriteAuditEntry(Now.ToString & " " & .Name & " FileNet Servers insufficient licenses not set.")
+                    End Try
+
+                End With
+
+
+                MyIBMFileNetServer = Nothing
+            Next
+
+        Catch exception As DataException
+            WriteAuditEntry(Now.ToString & " IBM FileNet Servers data exception " & exception.Message)
+
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " IBM FileNet Servers general exception " & ex.ToString)
+        End Try
+
+        InsufficentLicensesTest(MyIBMFileNetServers)
+
+    End Sub
+
 
     Private Sub InsufficentLicensesTest(ByRef coll As System.Collections.CollectionBase)
         'Return

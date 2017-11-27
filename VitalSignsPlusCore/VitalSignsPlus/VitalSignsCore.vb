@@ -58,7 +58,7 @@ Imports MongoDB.Driver
 
 Public Class VitalSignsPlusCore
     Inherits VSServices
-    Dim BuildNumber As Integer = 2276
+    Dim BuildNumber As Integer = 2278
     Dim ProductName As String 'value set in start up 
     Dim CompanyName As String = "RPR Wyatt"
 
@@ -81,6 +81,7 @@ Public Class VitalSignsPlusCore
     Dim ThreadSametimeServers As New Thread(AddressOf MonitorSametimeThread)
     Dim ThreadBlackBerryServers As New Thread(AddressOf MonitorBlackBerryServers)
     Dim ThreadIBMConnectServers As New Thread(AddressOf MonitorIBMConnect)
+    Dim ThreadIBMFileNetServers As New Thread(AddressOf MonitorIBMFileNet)
 
     '  Dim WithEvents PingControl As New nsoftware.IPWorks.Ping("31504E3641414E5852464336354235353231000000000000000000000000000000000000000000004D3047595958364A00003042394E505658333642345A0000")
     Dim WithEvents HTTP As New nsoftware.IPWorks.Http("31504E3641414E5852464336354235353231000000000000000000000000000000000000000000004D3047595958364A00003042394E505658333642345A0000")
@@ -197,6 +198,11 @@ Public Class VitalSignsPlusCore
     'Collection of IBM Connect Servers
     Dim MyIBMConnectServer As MonitoredItems.IBMConnect
     Dim MyIBMConnectServers As New MonitoredItems.IBMConnectCollection
+
+    'Collection of IBM FileNet Servers
+    Dim MyIBMFileNetServer As MonitoredItems.IBMFileNet
+    Dim myIBMFileNetServers As New MonitoredItems.IBMFileNetCollection
+    Dim CurrentIBMFileNet As String
 
     'URL Related
     Dim ListOfURLThreads As List(Of Threading.Thread) = New List(Of Threading.Thread)
@@ -403,8 +409,6 @@ Public Class VitalSignsPlusCore
             EventLog.WriteEntry("VitalSigns Core Services", "Error creating collections " & ex.ToString(), EventLogEntryType.Error)
         End Try
 
-
-
         Try
             InitializeStatusTable()
         Catch ex As Exception
@@ -574,9 +578,31 @@ Public Class VitalSignsPlusCore
 
         End Try
 
-        StartWebSphereThreads()
+        Try
+            If MyWebSphereServers.Count > 0 Then
+                StartWebSphereThreads()
+            End If
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Error starting thread to monitor Websphere: " & ex.ToString)
+        End Try
 
-        StartIBMConnectThreads()
+        Try
+            If MyIBMConnectServers.Count > 0 Then
+                StartIBMConnectThreads()
+            End If
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Error starting thread for IBM Connect: " & ex.ToString)
+        End Try
+
+
+        Try
+            If MyIBMConnectServers.Count > 0 Then
+                StartIBMFileNetThreads()
+            End If
+        Catch ex As Exception
+            WriteAuditEntry(Now.ToString & " Error starting thread for IBM Connect: " & ex.ToString)
+        End Try
+
 
         Try
             Dim MonitorCoreTableChanges As New Thread(AddressOf CheckForCoreTableChanges)
@@ -730,6 +756,21 @@ Public Class VitalSignsPlusCore
         End Try
 
 
+    End Sub
+
+
+    Protected Sub StartIBMFileNetThreads()
+        If (myIBMFileNetServers.Count > 0) Then
+            If (Not ThreadIBMFileNetServers.IsAlive()) Then
+                WriteAuditEntry(Now.ToString & " Starting IBM FileNet Servers monitoring thread...")
+                ThreadIBMFileNetServers.IsBackground = True
+                ThreadIBMFileNetServers.Priority = ThreadPriority.Normal
+                ThreadIBMFileNetServers.CurrentCulture = New CultureInfo(sCultureString)
+                ThreadIBMFileNetServers.Start()
+            End If
+        Else
+            WriteAuditEntry(Now.ToString & " IBM FileNet monitoring is DISABLED...")
+        End If
     End Sub
 
     Protected Sub StartIBMConnectThreads()
@@ -3436,6 +3477,273 @@ CleanUp:
     End Function
 #End Region
 
+#Region "IBM FileNet"
+
+    Private Sub MonitorIBMFileNet()
+
+        Dim WsDll As New VitalSignsWebSphereDLL.VitalSignsWebSphereDLL()
+        'Dim WsDllForObjs As VitalSignsWebSphereDLL.VitalSignsWebSphereDLL
+        ServicePointManager.ServerCertificateValidationCallback = AddressOf ValidateRemoteCertificate
+        'ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3
+        Dim adapter As New VSAdaptor()
+        Do While boolTimeToStop <> True
+
+            Try
+                Dim myServer As MonitoredItems.IBMFileNet
+                myServer = CType(SelectServerToMonitor(myIBMFileNetServers), MonitoredItems.IBMFileNet)
+
+                If myServer Is Nothing Then
+                    CurrentIBMFileNet = ""
+                    GoTo CleanUp
+                End If
+
+                If InMaintenance("IBM FileNet", myServer.Name) = True Then
+                    myServer.Status = "Maintenance"
+                    myServer.StatusCode = "Maintenance"
+                    myServer.ResponseDetails = "The server is currently in a scheduled maintenance window and will not be scanned."
+                    myServer.LastScan = Date.Now
+                    UpdateIBMFileNetStatusTable(myServer)
+                    myServer.IsBeingScanned = False
+                    CurrentIBMConnect = ""
+                    GoTo CleanUp
+                Else
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Begin scan of " & myServer.Name)
+
+
+                End If
+                myServer.Status = "OK"
+                myServer.StatusCode = "OK"
+                myServer.ResponseDetails = "This instance passed all tests"
+                myServer.AlertCondition = False
+
+                'Mock up of test results
+                'will populate the health tab with sample data
+                myAlert.ResetAlert(myServer.ServerType, myServer.Name, "Not Responding", myServer.Location, "The server is responding", myServer.ServerType)
+
+                myAlert.ResetAlert(myServer.ServerType, myServer.Name, "Workflow", myServer.Location, "Successfully launched a test workflow.", "Process Engine")
+                myAlert.ResetAlert(myServer.ServerType, myServer.Name, "Roster Query", myServer.Location, "Successfully queried a roster.", "Process Engine")
+                myAlert.ResetAlert(myServer.ServerType, myServer.Name, "Worflow Queue", myServer.Location, "Successfully accessed workflow queue.", "Process Engine")
+                myAlert.ResetAlert(myServer.ServerType, myServer.Name, "Process", myServer.Location, "Successfully queried process history.", "Process Engine")
+                myAlert.ResetAlert(myServer.ServerType, myServer.Name, "Space", myServer.Location, "Successfully launched a test workflow.", "Process Engine")
+                myAlert.ResetAlert(myServer.ServerType, myServer.Name, "Roles", myServer.Location, "Successfully launched a test workflow.", "Process Engine")
+                myAlert.ResetAlert(myServer.ServerType, myServer.Name, "File Object", myServer.Location, "Successfully filed a test object.", "Content Engine")
+                myAlert.ResetAlert(myServer.ServerType, myServer.Name, "Publish Object", myServer.Location, "Successfully published a test object.", "Content Engine")
+                myAlert.ResetAlert(myServer.ServerType, myServer.Name, "Delete Object", myServer.Location, "Successfully deleted a test object.", "Content Engine")
+
+
+
+                If TestIBMFileNetResponding(myServer) = True Then
+                    myAlert.ResetAlert(myServer.ServerType, myServer.Name, "Not Responding", myServer.Location, "The server is responding", myServer.ServerType)
+                    ' TestIMBConnectLogon(myServer)
+
+
+
+                Else
+
+                    myAlert.QueueAlert(myServer.ServerType, myServer.Name, "Not Responding", "The server is not responding", myServer.Location, myServer.ServerType)
+                    myServer.Status = "Not Responding"
+                    myServer.ResponseDetails = "This instance could not connect"
+
+                End If
+
+                myServer.LastScan = Date.Now
+
+                UpdateIBMFileNetStatusTable(myServer)
+
+
+                myServer.IsBeingScanned = False
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Done scanning " & myServer.Name)
+
+CleanUp:
+
+            Catch ThreadEx As ThreadAbortException
+                WriteAuditEntry(Now.ToString & " Aborting IBM Connect monitoring sub " & ThreadEx.Message)
+                Exit Sub
+            Catch ex As Exception
+                WriteAuditEntry(Now.ToString & " Exception IBM Connect monitoring sub " & ex.Message)
+            End Try
+
+            If MyIBMConnectServers.Count < 24 Then
+                Thread.Sleep(2500)
+            ElseIf MyIBMConnectServers.Count < 10 Then
+                Thread.Sleep(10000)
+            End If
+
+            dtIBMConnectLastUpdate = Now
+
+        Loop
+
+    End Sub
+
+
+    Public Function TestIBMFileNetResponding(ByRef myServer As MonitoredItems.IBMFileNet) As Boolean
+
+        Dim isResponding = False
+        Try
+
+            ServicePointManager.ServerCertificateValidationCallback = AddressOf ValidateRemoteCertificate
+
+            Dim URL As String = myServer.IPAddress & "/WorkplaceXT/ContainerLogin.jsp"
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "URL: " & URL, LogUtilities.LogUtils.LogLevel.Normal)
+            Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
+            httpWR.Timeout = 90000
+            httpWR.Method = "POST"
+            httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+            httpWR.ContentType = "application/x-www-form-urlencoded"
+            'httpWR.CookieContainer
+            Dim s As String = "service.name=&secure=&fragment=&j_username=" & myServer.UserName & "&j_password=" & Uri.EscapeUriString(myServer.Password)
+
+            Dim byteArr As Byte() = System.Text.Encoding.ASCII.GetBytes(s.ToString())
+            httpWR.ContentLength = byteArr.Length
+            Dim dataStr As Stream = httpWR.GetRequestStream()
+            dataStr.Write(byteArr, 0, byteArr.Length)
+            dataStr.Close()
+
+            'httpWR.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+            Dim webresp As HttpWebResponse
+            Try
+                webresp = httpWR.GetResponse()
+                isResponding = True
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Failed to connect in TestResponding. " & ex.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                isResponding = False
+                myServer.AlertCondition = True
+            Finally
+
+                If webresp IsNot Nothing Then
+                    webresp.Close()
+                End If
+
+            End Try
+
+
+
+        Catch ex As Exception
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Failed to connect in TestResponding 2. " & ex.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+        End Try
+
+        Return isResponding
+    End Function
+
+    Public Function TestIMBFileNetLogon(ByRef myServer As MonitoredItems.IBMFileNet)
+
+        Dim loggedIn = False
+        Try
+
+            ServicePointManager.ServerCertificateValidationCallback = AddressOf ValidateRemoteCertificate
+
+            Dim URL As String = myServer.IPAddress & "/homepage/j_security_check"
+
+            Dim httpWR As HttpWebRequest = WebRequest.Create(URL)
+            httpWR.Timeout = 90000
+            httpWR.Method = "POST"
+            httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+            httpWR.ContentType = "application/x-www-form-urlencoded"
+
+            Dim cookies As New CookieContainer()
+            httpWR.CookieContainer = cookies
+
+            'httpWR.CookieContainer
+            Dim s As String = "service.name=&secure=&fragment=&j_username=" & myServer.UserName & "&j_password=" & Uri.EscapeUriString(myServer.Password)
+
+            Dim byteArr As Byte() = System.Text.Encoding.ASCII.GetBytes(s.ToString())
+            httpWR.ContentLength = byteArr.Length
+            Dim dataStr As Stream = httpWR.GetRequestStream()
+            dataStr.Write(byteArr, 0, byteArr.Length)
+            dataStr.Close()
+
+            httpWR.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+            Dim webresp As HttpWebResponse
+            Try
+                Dim before As DateTime = DateTime.Now
+                webresp = httpWR.GetResponse()
+                Dim span As TimeSpan = New TimeSpan(Now.Ticks - before.Ticks)
+                Dim createTime As Double = Math.Round(span.TotalMilliseconds, 1)
+
+                Dim queryString As String = webresp.ResponseUri.Query
+
+                If queryString.Contains("error=true") Then
+                    'failed to log in
+                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, "Login Test", "The account failed to log in.", myServer.Location)
+                    myServer.ResponseTime = 0
+
+                    If myServer.StatusCode = "OK" Then
+                        myServer.StatusCode = "Issue"
+                        myServer.Status = "Issue"
+                        myServer.ResponseDetails = "The Login Test for this server failed."
+                    End If
+                Else
+                    'log in succedded
+                    loggedIn = True
+                    myAlert.ResetAlert(myServer.DeviceType, myServer.Name, "Login Test", myServer.Location, "The account logged in after " & createTime & " ms.")
+                    InsertIntoIBMConnectionsDailyStats(myServer.Name, "ResponseTime", createTime, myServer.ServerObjectID)
+                    myServer.ResponseTime = createTime
+
+                    Try
+
+
+                        If Not String.IsNullOrWhiteSpace(myServer.TestUrl) Then
+                            Dim httpWR2 As HttpWebRequest = WebRequest.Create(myServer.TestUrl)
+                            httpWR2.Timeout = 90000
+                            httpWR2.Method = "GET"
+                            httpWR2.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                            httpWR2.CookieContainer = cookies
+                            httpWR2.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+
+                            Dim webresp2 As HttpWebResponse
+
+                            Try
+                                webresp2 = httpWR2.GetResponse()
+                                Dim content As String = (New StreamReader(webresp2.GetResponseStream(), Encoding.UTF8)).ReadToEnd()
+                                Dim queryString2 As String = webresp2.ResponseUri.Query
+                                Dim responseStatusCode As String = webresp2.StatusCode
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " URL Content: " + content, LogUtilities.LogUtils.LogLevel.Verbose)
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " URL Query String: " + queryString2, LogUtilities.LogUtils.LogLevel.Verbose)
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " URL Status Code: " + responseStatusCode.ToString(), LogUtilities.LogUtils.LogLevel.Verbose)
+                                If responseStatusCode = HttpStatusCode.OK Then
+                                    myAlert.ResetAlert(myServer.DeviceType, myServer.Name, "URL Test", myServer.Location, "The URL responded.")
+                                Else
+                                    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, "URL Test", "The URL failed to respond and resulted in a " & responseStatusCode.ToString() & " status code.", myServer.Location)
+                                End If
+                            Catch ex As Exception
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error with test url 2. Error: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                            Finally
+
+                                If webresp2 IsNot Nothing Then
+                                    webresp2.Close()
+                                End If
+
+                            End Try
+
+                        End If
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error with test url. Error: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                    End Try
+
+                End If
+            Catch ex As Exception
+
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error getting Logon Test. Error: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+
+            Finally
+
+                If webresp IsNot Nothing Then
+                    webresp.Close()
+                End If
+
+            End Try
+
+
+
+        Catch ex As Exception
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error in TestIBMConnectLogon. Error: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+        End Try
+
+    End Function
+
+
+
+#End Region
 
 #Region "IBM Connectons Monitoring"
 
