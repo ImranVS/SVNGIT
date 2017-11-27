@@ -4295,6 +4295,7 @@ Public Class IBMFileNet
 
     Public DeviceType As String = "IBM FileNet"
     Public DeviceTypeID As Int32 = 33
+    Public Property UserCount As Long
 
     'These tests are just copies from Connections and will need to be reviewed
     Public TestCreateActivity As Boolean = True
