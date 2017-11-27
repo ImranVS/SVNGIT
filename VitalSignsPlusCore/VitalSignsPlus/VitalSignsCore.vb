@@ -3478,6 +3478,13 @@ CleanUp:
 #End Region
 
 #Region "IBM FileNet"
+    Public Function GetRandom(ByVal Min As Integer, ByVal Max As Integer) As Integer
+        ' by making Generator static, we preserve the same instance '
+        ' (i.e., do not create new instances with the same seed over and over) '
+        ' between calls '
+        Static Generator As System.Random = New System.Random()
+        Return Generator.Next(Min, Max)
+    End Function
 
     Private Sub MonitorIBMFileNet()
 
@@ -3525,12 +3532,15 @@ CleanUp:
                 myAlert.ResetAlert(myServer.ServerType, myServer.Name, "Worflow Queue", myServer.Location, "Successfully accessed workflow queue.", "Process Engine")
                 myAlert.ResetAlert(myServer.ServerType, myServer.Name, "Process", myServer.Location, "Successfully queried process history.", "Process Engine")
                 myAlert.ResetAlert(myServer.ServerType, myServer.Name, "Space", myServer.Location, "Successfully launched a test workflow.", "Process Engine")
-                myAlert.ResetAlert(myServer.ServerType, myServer.Name, "Roles", myServer.Location, "Successfully launched a test workflow.", "Process Engine")
+                myAlert.ResetAlert(myServer.ServerType, myServer.Name, "Roles", myServer.Location, "Successfully tested workflow roles.", "Process Engine")
                 myAlert.ResetAlert(myServer.ServerType, myServer.Name, "File Object", myServer.Location, "Successfully filed a test object.", "Content Engine")
                 myAlert.ResetAlert(myServer.ServerType, myServer.Name, "Publish Object", myServer.Location, "Successfully published a test object.", "Content Engine")
                 myAlert.ResetAlert(myServer.ServerType, myServer.Name, "Delete Object", myServer.Location, "Successfully deleted a test object.", "Content Engine")
 
-
+                myServer.ResponseTime = GetRandom(25, 5000)
+                myServer.CPU_Utilization = GetRandom(2, 75)
+                myServer.Memory_Used = GetRandom(2, 99)
+                myServer.UserCount
 
                 If TestIBMFileNetResponding(myServer) = True Then
                     myAlert.ResetAlert(myServer.ServerType, myServer.Name, "Not Responding", myServer.Location, "The server is responding", myServer.ServerType)
