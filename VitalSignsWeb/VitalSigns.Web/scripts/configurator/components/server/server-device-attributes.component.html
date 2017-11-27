@@ -91,68 +91,83 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-group" *ngIf="serverAttributes.device_type=='URL' || serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Sametime'">
-                    <label class="control-label col-sm-2">Address</label>
-                    <div class="col-sm-3">
-                        <input type="text" [(ngModel)]="serverAttributes.ip_address" class="form-control">
+                <div class="form-group">
+                    <div *ngIf="serverAttributes.device_type=='IBM FileNet'">
+                        <label class="control-label col-sm-2">Host Name</label>
+                        <div class="col-sm-3">
+                            <input type="text" [(ngModel)]="serverAttributes.ibm_file_host_name" class="form-control">
+                        </div>
+                        <div>
+                            <label class="control-label col-sm-2">Port Name</label>
+                            <div class="col-sm-3">
+                                <input type="text" [(ngModel)]="serverAttributes.ibm_file_port_name" class="form-control">
+                            </div>
+
+                        </div>
+                        </div>
+                </div>
+                        <div class="form-group" *ngIf="serverAttributes.device_type=='URL' || serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Sametime'">
+                        <label class="control-label col-sm-2">Address</label>
+                        <div class="col-sm-3">
+                            <input type="text" [(ngModel)]="serverAttributes.ip_address" class="form-control">
+                        </div>
+                        <div class="col-sm-2">&nbsp;</div>
+                        <div class="col-sm-3" *ngIf="serverAttributes.device_type=='Sametime'">
+                            <div class="funkyradio">
+                                <input type="checkbox" id="serverAttributes.require_ssl" name="serverAttributes.require_ssl" [(ngModel)]="serverAttributes.require_ssl">
+                                <label for="serverAttributes.require_ssl">Access via SSL</label>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-sm-2">&nbsp;</div>
-                    <div class="col-sm-3" *ngIf="serverAttributes.device_type=='Sametime'">
-                        <div class="funkyradio">
-                            <input type="checkbox" id="serverAttributes.require_ssl" name="serverAttributes.require_ssl" [(ngModel)]="serverAttributes.require_ssl">
-                            <label for="serverAttributes.require_ssl">Access via SSL</label>
+                    <div class="form-group" *ngIf="serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' ||
+                    serverAttributes.device_type=='Exchange' || serverAttributes.device_type=='IBM FileNet'">
+                        <label class="control-label col-sm-2">Credentials</label>
+                        <div class="col-sm-3">
+                            <wj-combo-box name="serverAttributes.credentials_id" displayMemberPath="text" selectedValuePath="value" [itemsSource]="deviceCredentialData"
+                                          [(ngModel)]="serverAttributes.credentials_id" placeholder="Select Credentials" [isEditable]="true">
+                            </wj-combo-box>
+                        </div>
+                    </div>
+                    <div class="form-group" *ngIf="serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' ||
+                    serverAttributes.device_type=='Exchange' || serverAttributes.device_type=='IBM FileNet'">
+                        <div class="col-sm-2">&nbsp;</div>
+                        <div class="col-sm-5">
+                            <button class="btn btn-primary" (click)="addCrdential(frmDialog)">
+                                Add Credentials
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group" *ngIf="serverAttributes.device_type=='Sametime'">
+                        <label class="control-label col-sm-2">Platform</label>
+                        <div class="col-sm-3">
+                            <div class="radio radio-info radio-inline">
+                                <input type="radio" name="selectedplatform" id="dominoplatform" value="Domino" [(ngModel)]="serverAttributes.platform" (click)="handleClick(serverAttributes.platform);">
+                                <label for="dominoplatform" class="col-sm-7">Domino</label>
+                            </div>
+                            <div class="radio radio-info radio-inline">
+                                <input type="radio" name="selectedplatform" id="websphereplatform" value="WebSphere" [(ngModel)]="serverAttributes.platform" (click)="handleClick(serverAttributes.platform);">
+                                <label for="websphereplatform" class="col-sm-5">WebSphere</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" *ngIf="serverAttributes.device_type=='Office365'">
+                        <label class="control-label col-sm-2">Mode</label>
+                        <div class="col-sm-4">
+                            <div class="radio radio-info radio-inline">
+                                <input type="radio" name="selectedmode" id="adfs" value="ADFS" [(ngModel)]="serverAttributes.mode" (change)="handleClick2($event.target.value);">
+                                <label for="adfs" class="col-sm-12">ADFS</label>
+                            </div>
+                            <div class="radio radio-info radio-inline">
+                                <input type="radio" name="selectedmode" id="cloud" value="Cloud Only" [(ngModel)]="serverAttributes.mode" (change)="handleClick2($event.target.value);">
+                                <label for="cloud" class="col-sm-12">Cloud Only</label>
+                            </div>
+                            <div class="radio radio-info radio-inline">
+                                <input type="radio" name="selectedmode" id="dirsync" value="Dir Sync" [(ngModel)]="serverAttributes.mode" (change)="handleClick2($event.target.value);">
+                                <label for="dirsync" class="col-sm-12">Dir Sync</label>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="form-group" *ngIf="serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' ||
-                    serverAttributes.device_type=='Exchange'">
-                    <label class="control-label col-sm-2">Credentials</label>
-                    <div class="col-sm-3">
-                        <wj-combo-box name="serverAttributes.credentials_id" displayMemberPath="text" selectedValuePath="value" [itemsSource]="deviceCredentialData"
-                                        [(ngModel)]="serverAttributes.credentials_id" placeholder="Select Credentials" [isEditable]="true">
-                        </wj-combo-box>
-                    </div>
-                </div>
-                <div class="form-group" *ngIf="serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' ||
-                    serverAttributes.device_type=='Exchange'">
-                    <div class="col-sm-2">&nbsp;</div>
-                    <div class="col-sm-5">
-                        <button class="btn btn-primary" (click)="adddominoCredentials(frmDialog)">
-                            Add Credentials
-                        </button>
-                    </div>
-                </div>
-                <div class="form-group" *ngIf="serverAttributes.device_type=='Sametime'">
-                    <label class="control-label col-sm-2">Platform</label>
-                    <div class="col-sm-3">
-                        <div class="radio radio-info radio-inline">
-                            <input type="radio" name="selectedplatform" id="dominoplatform" value="Domino" [(ngModel)]="serverAttributes.platform" (click)="handleClick(serverAttributes.platform);">
-                            <label for="dominoplatform" class="col-sm-7">Domino</label>
-                        </div>
-                        <div class="radio radio-info radio-inline">
-                            <input type="radio" name="selectedplatform" id="websphereplatform" value="WebSphere" [(ngModel)]="serverAttributes.platform" (click)="handleClick(serverAttributes.platform);">
-                            <label for="websphereplatform" class="col-sm-5">WebSphere</label>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group" *ngIf="serverAttributes.device_type=='Office365'">
-                    <label class="control-label col-sm-2">Mode</label>
-                    <div class="col-sm-4">
-                        <div class="radio radio-info radio-inline">
-                            <input type="radio" name="selectedmode" id="adfs" value="ADFS" [(ngModel)]="serverAttributes.mode" (change)="handleClick2($event.target.value);">
-                            <label for="adfs" class="col-sm-12">ADFS</label>
-                        </div>
-                        <div class="radio radio-info radio-inline">
-                            <input type="radio" name="selectedmode" id="cloud" value="Cloud Only" [(ngModel)]="serverAttributes.mode" (change)="handleClick2($event.target.value);">
-                            <label for="cloud" class="col-sm-12">Cloud Only</label>
-                        </div>
-                        <div class="radio radio-info radio-inline">
-                            <input type="radio" name="selectedmode" id="dirsync" value="Dir Sync" [(ngModel)]="serverAttributes.mode" (change)="handleClick2($event.target.value);">
-                            <label for="dirsync" class="col-sm-12">Dir Sync</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -437,7 +452,7 @@
                 <div class="form-group">
                     <div class="col-sm-2">&nbsp;</div>
                     <div class="col-sm-3">
-                        <button class="btn btn-primary" (click)="addSametimeCredentials(frmDialog)">
+                        <button class="btn btn-primary" (click)="addCrdential(frmDialog)">
                             Add Credentials
                         </button>
                     </div>

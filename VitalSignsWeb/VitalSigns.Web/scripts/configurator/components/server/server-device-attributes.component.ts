@@ -7,7 +7,7 @@ import {RESTService} from '../../../core/services';
 declare var injectSVG: any;
 import {DeviceAttributeValue} from '../../models/device-attribute';
 import {AppComponentService} from '../../../core/services';
-
+declare var injectSVG: any;
 
 
 @Component({
@@ -89,7 +89,9 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
         this.appComponentService = appComponentService;
     }
 
-
+    //ngAfterViewChecked() {
+    //    injectSVG();
+    //}
 
     ngOnInit() {
 
@@ -98,55 +100,37 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
             this.deviceId = params['service'];
             this.loadData();
         });
+        injectSVG();
     }
 
     loadData() {
-
         this.Attribute.get('/configurator/' + this.deviceId + '/servers_attributes')
             .subscribe(
             response => {
                 this.serverAttributes = response.data.serverresult;
                 this.deviceCredentialData = response.data.credentialsData;
                 this.exchangeservers = response.data.exchangeservers
-               // this.platform = response.data.serverresult.platform;
-                //  this.selectedplatform = response.data.platform;
-                //this.attributes = response.data.device_attributes;
-            },
+               },
             error => this.errorMessage = <any>error
-
-
-            );
-
-
+           );
     }
 
-    adddominoCredentials(dlg: wijmo.input.Popup) {
+   
+    addCrdential(dlg: wijmo.input.Popup)
+    {
         if (dlg) {
             dlg.modal = this.modal;
             dlg.hideTrigger = dlg.modal ? wijmo.input.PopupTrigger.None : wijmo.input.PopupTrigger.Blur;
             dlg.show();
-            this.serverType = "Domino"
+            this.serverType = this.serverAttributes["device_type"];
 
         }
     }
-    addSametimeCredentials(dlg: wijmo.input.Popup) {
-        if (dlg) {
-            dlg.modal = this.modal;
-            dlg.hideTrigger = dlg.modal ? wijmo.input.PopupTrigger.None : wijmo.input.PopupTrigger.Blur;
-            dlg.show();
-            this.serverType = "Sametime"
-
-        }
-    }
-
     SaveCredential(addCrdential: any, dialog: wijmo.input.Popup) {
-        if (this.serverType == "Domino")
-            addCrdential.device_type = "Domino";
-        else if (this.serverType = "Sametime")
-            addCrdential.device_type = "Sametime";
+        addCrdential.device_type = this.serverType;
         addCrdential.confirm_password = "";
         addCrdential.id = null;
-        addCrdential.is_modified = true;
+        addCrdential.is_modified = false;
         this.Attribute.put('/Configurator/save_credentials', addCrdential)
             .subscribe(
 
