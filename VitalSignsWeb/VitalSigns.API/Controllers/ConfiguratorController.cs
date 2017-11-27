@@ -1877,7 +1877,9 @@ namespace VitalSigns.API.Controllers
                     CredentialsId = s.CredentialsId,
                     Mode = s.Mode,
                     RequireSSL = s.RequireSSL,
-                    AuthenticationType = s.AuthenticationType
+                    AuthenticationType = s.AuthenticationType,
+                    HostName = s.HostName,
+                    PortName = s.PortName
 
                     // CellName = serversRepository.Collection.Find(filter).AsQueryable().Select(x => x.NodeId).FirstOrDefault(),
                     //   NodeName = serversRepository.Collection.AsQueryable().Select(x => x.NodeIds).FirstOrDefault()
@@ -2281,6 +2283,8 @@ namespace VitalSigns.API.Controllers
                 }
                 var updateDefination = serversRepository.Updater.Set(p => p.DeviceName, deviceAttributes.DeviceName)
                     .Set(p => p.Category, deviceAttributes.Category)
+                    .Set(p => p.HostName, deviceAttributes.HostName)
+                    .Set(p => p.PortName, deviceAttributes.PortName)
                     .Set(p => p.IPAddress, deviceAttributes.IPAddress)
                     .Set(p => p.LocationId, deviceAttributes.LocationId)
                     .Set(p => p.Description, deviceAttributes.Description)

@@ -40,6 +40,12 @@ namespace VitalSigns.API.Models
         [JsonProperty("category")]
         public string Category { get; set; }
 
+        [JsonProperty("ibm_file_host_name")]
+        public string HostName { get; set; }
+
+        [JsonProperty("ibm_file_port_name")]
+        public string PortName { get; set; }
+
         [JsonProperty("device_type")]
         public string Devicetype { get; set; }
 
