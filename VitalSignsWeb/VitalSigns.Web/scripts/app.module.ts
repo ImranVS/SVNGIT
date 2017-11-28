@@ -64,6 +64,7 @@ import {NoSelectedReport} from './reports/components/no-selected-report.componen
 import {SampleReport} from './reports/components/sample-report.component';
 import {DiskHealthReport} from './reports/components/disk/disk-health.component';
 import { MailFileStatisticsReport } from './reports/components/mail/mail-file-statistics.component';
+import { ScheduleReports } from './reports/components/schedule-reports/schedule-reports.component';
 import { MailVolumeReport } from './reports/components/mail/mail-volume-report.component';
 import { DiskAvailabilityTrendReport } from './reports/components/disk/disk-availability-trend.component';
 import { CPUUtilizationReport } from './reports/components/disk/cpu-utilization.component';
@@ -205,6 +206,7 @@ import { exchnagemaillistreport } from './reports/components/ms-exchange/ms-exch
         SampleReport,
         DiskHealthReport,
         MailFileStatisticsReport,
+        ScheduleReports,
         MailVolumeReport,
         DiskAvailabilityTrendReport,
         CPUUtilizationReport,

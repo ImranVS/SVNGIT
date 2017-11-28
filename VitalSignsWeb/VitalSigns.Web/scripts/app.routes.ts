@@ -142,9 +142,9 @@ import { memorypercentagereport } from './reports/components/ms-exchange/ms-exch
 import { ExchnageStatisticReport } from './reports/components/ms-exchange/ms-exchange-statistic-report.component';
 import { ExchangeMailboxReport } from './reports/components/ms-exchange/ms-exchange-mailbox-report.component';
 import { exchnagemaillistreport } from './reports/components/ms-exchange/ms-exchange-mailbox.component';
+import { ScheduleReports } from './reports/components/schedule-reports/schedule-reports.component';
 
 import { FileUploadSample } from './configurator/components/serverImport/file-upload-sample.component';
-
 import { NotYetImplemented } from './not-yet-implemented.component';
 import { ApplicationSettings } from './configurator/components/applicationSettings/application-settings-tabs.component';
 import { ServerSettings } from './configurator/components/serverSettings/server-settings-tabs.component';
@@ -671,8 +671,12 @@ const appRoutes: Routes = [
                     {
                         path: 'mailboxreport',
                         component: exchnagemaillistreport
-                    }
+                    }, 
+                    {
+                        path: 'schedulereports',
+                        component: ScheduleReports
                     
+                    }
                     
                 ]
             },
