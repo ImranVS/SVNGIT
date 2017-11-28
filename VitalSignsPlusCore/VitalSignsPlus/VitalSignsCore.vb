@@ -1252,7 +1252,7 @@ Public Class VitalSignsPlusCore
 
             Try
 
-                If Now.Day <> Day And Now.Minute >= 30 Then
+                If Now.Day <> Day And (Now.Hour >= 1 Or Now.Minute >= 30) Then
                     Try
                         WriteAuditEntry(Now.ToString & " Now starting the Daily Task...")
                         Dim ThreadDaily As New Thread(AddressOf DailyTasks)
@@ -8190,7 +8190,7 @@ CleanUp:
          "SELECT COUNT(*) NUM_OF_ACTIVITIES_FOLLOWED_YESTERDAY FROM ACTIVITIES.OA_NODEMEMBER WHERE DATE(CREATED) = CURRENT_DATE - 1 DAY;" &
          "SELECT node.Name, 'Activity' as Type, node.CREATED, node.LASTMOD, mp.EXID, node.ACTIVITYUUID FROM ACTIVITIES.OA_NODE node INNER JOIN ACTIVITIES.OA_MEMBERPROFILE mp ON mp.MEMBERID = node.CREATEDBY WHERE node.ISDELETED = 0;" &
          "SELECT NODEUUID, NAME FROM ACTIVITIES.OA_TAG;" &
-         "SELECT nm.NODEUUID, mp.EXID FROM ACTIVITIES.OA_NODEMEMBER nm INNER JOIN ACTIVITIES.OA_MEMBERPROFILE mp ON mp.MEMBERID = nm.MEMBERID;" &
+         "SELECT node.ACTIVITYUUID, mp.EXID, ac.ROLEID FROM ACTIVITIES.OA_NODE node INNER JOIN ACTIVITIES.OA_ACLENTRY ac ON node.ACTIVITYUUID = ac.OBJECTUUID INNER JOIN ACTIVITIES.OA_MEMBERPROFILE mp ON mp.MEMBERID = ac.MEMBERID WHERE node.ISDELETED = 0 AND mp.MEMBERTYPE <> 3;" &
          "select mp.exid, node.nodeuuid from (select exid, memberid from activities.oa_memberprofile where exid in ('" & String.Join("','", dictOfCommunityIds.Keys) & "')) mp inner join activities.oa_memberprofile mp2 on mp2.exid =  mp.memberid || '+owner' inner join activities.OA_ACLENTRY al on mp2.memberid = al.memberid inner join activities.oa_node node on node.nodeuuid = al.objectuuid and node.isdeleted = 0;"
 
         Dim Category As String = "Activity"
@@ -8327,16 +8327,13 @@ CleanUp:
                     Try
 
                         Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))
+
                         Dim allUsers As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Find(repoIbmConnectionsUsers.Filter.Eq(Function(x) x.Type, "Users") And repoIbmConnectionsUsers.Filter.Eq(Function(x) x.DeviceId, myServerId)).ToList()
 
 
                         For Each row As DataRow In ds.Tables(6).Rows()
                             Try
-
-                                Dim filterdefIbmConnectionsUsers As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Filter.Where(Function(j) j.DeviceName.Equals(myServerName) And j.GUID.Equals(row("EXID").ToString()) And j.Type.Equals("Users"))
-                                Dim projectDefIbmConnectionsUsers As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Project.Include(Function(j) j.Id)
-                                Dim IbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).DefaultIfEmpty(New VSNext.Mongo.Entities.IbmConnectionsObjects() With {.Id = Nothing}).First()
-                                Dim connectionsUserId As String = IbmConnectionsUsers.Id
+                                Dim connectionsUserId As String = allUsers.Where(Function(x) x.GUID = row("EXID").ToString()).FirstOrDefault().Id
 
                                 Dim IbmConnectionsObjects2 As New VSNext.Mongo.Entities.IbmConnectionsObjects
                                 IbmConnectionsObjects2.Name = row("NAME").ToString()
@@ -8370,7 +8367,7 @@ CleanUp:
                                 End Try
 
                                 Dim users As New List(Of String)
-                                For Each userRow As DataRow In ds.Tables(8).Select("NODEUUID = '" & row("ACTIVITYUUID").ToString() & "'")
+                                For Each userRow As DataRow In ds.Tables(8).Select("ACTIVITYUUID = '" & row("ACTIVITYUUID").ToString() & "'")
                                     Try
                                         'Dim filterdefIbmConnectionsUsers2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Filter.Where(Function(j) j.GUID.Equals(userRow("EXID").ToString()) And j.DeviceId.Equals(myServerId) And j.Type.Equals("Users"))
                                         'Dim projectDefIbmConnectionsUsers2 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Project.Include(Function(j) j.Id)
@@ -8837,7 +8834,7 @@ CleanUp:
          "SELECT COUNT(*) TOP_TAG_COUNT, NAME FROM SNCOMM.TAG GROUP BY NAME ORDER BY TOP_TAG_COUNT DESC FETCH FIRST 20 ROWS ONLY;" &
          "SELECT COUNT(*) NUM_OF_COMMUNITIES_CREATED_YESTERDAY FROM SNCOMM.COMMUNITY WHERE DATE(CREATED) = CURRENT_DATE - 1 DAY AND DELETE_STATE = 0;" &
          "SELECT c.COMMUNITY_UUID, c.NAME, 'Community' as Type, c.CREATED, c.LASTMOD, c.TAGS_LIST, mp.DIRECTORY_UUID, c.COMMUNITY_TYPE, c.PLAIN_DESCR, c.COMMUNITY_TYPE, t.OWNER_COUNT, t.MEMBER_COUNT, f.FOLLOWING_COUNT FROM SNCOMM.COMMUNITY c INNER JOIN SNCOMM.MEMBERPROFILE mp ON mp.MEMBER_UUID = c.CREATED_BY INNER JOIN (SELECT COMMUNITY_UUID, COALESCE(SUM(CASE WHEN ROLE = 1 THEN 1 ELSE 0 END),0) OWNER_COUNT, COALESCE(SUM(CASE WHEN ROLE = 0 THEN 1 ELSE 0 END),0) MEMBER_COUNT FROM SNCOMM.MEMBER m GROUP BY COMMUNITY_UUID) as t on t.COMMUNITY_UUID = c.COMMUNITY_UUID INNER JOIN (SELECT COMMUNITY_UUID, COALESCE(COUNT(*),0) FOLLOWING_COUNT FROM SNCOMM.Following GROUP BY COMMUNITY_UUID) as f on f.COMMUNITY_UUID = c.COMMUNITY_UUID WHERE c.DELETE_STATE = 0;" &
-         "Select mp.Display, mp.DIRECTORY_UUID, c.Name, (CASE WHEN m.Role = 1 THEN 'Owner' ELSE 'Member' END) MemberType from sncomm.community c inner join sncomm.member m on c.community_uuid = m.community_uuid and c.delete_state = 0 inner join sncomm.memberprofile mp on mp.member_uuid = m.member_uuid;" &
+         "Select mp.Display, mp.DIRECTORY_UUID, c.COMMUNITY_UUID, (CASE WHEN m.Role = 1 THEN 'Owner' ELSE 'Member' END) MemberType from sncomm.community c inner join sncomm.member m on c.community_uuid = m.community_uuid and c.delete_state = 0 inner join sncomm.memberprofile mp on mp.member_uuid = m.member_uuid;" &
          "SELECT r.REF_UUID, r.COMMUNITY_UUID, r.NAME, 'Bookmark' as Type,  r.CREATED, r.LASTMOD, mp.DIRECTORY_UUID FROM SNCOMM.REF r INNER JOIN SNCOMM.MEMBERPROFILE mp ON mp.MEMBER_UUID = r.CREATED_BY;"
 
 
@@ -9046,7 +9043,13 @@ CleanUp:
                                 IbmConnectionsObjects.Description = row("PLAIN_DESCR").ToString()
                                 IbmConnectionsObjects.users = New List(Of String)()
 
-                                'repoIbmConnectionsObjects.Insert(IbmConnectionsObjects)
+                                For Each row2 As DataRow In ds.Tables(7).Rows().Cast(Of DataRow).Where(Function(x) x("COMMUNITY_UUID").ToString() = IbmConnectionsObjects.GUID)
+                                    Dim listOfUser As List(Of String) = allUsers.Where(Function(x) x.GUID = row2("DIRECTORY_UUID").ToString()).Select(Function(x) x.Id).ToList()
+                                    If listOfUser.Count > 0 Then
+                                        IbmConnectionsObjects.users.Add(listOfUser.First())
+                                    End If
+                                Next
+
                                 bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects))
 
 
@@ -9077,24 +9080,9 @@ CleanUp:
                         Try
                             For Each bookmarkRow As DataRow In ds.Tables(8).Rows()     '.Select("COMMUNITY_UUID = '" & row("COMMUNITY_UUID").ToString() & "'")
                                 Try
-                                    'Dim filterdefIbmConnectionsUsers2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Filter.Where(Function(i) i.GUID.Equals(bookmarkRow("DIRECTORY_UUID").ToString()) And i.DeviceName.Equals(myServerName) And i.Type.Equals("Users"))
-                                    'Dim projectDefIbmConnectionsUsers2 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Project.Include(Function(i) i.Id)
-                                    ''Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
-                                    'Dim sxs3 As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers2, projectDefIbmConnectionsUsers2).DefaultIfEmpty(New VSNext.Mongo.Entities.IbmConnectionsObjects() With {.Id = Nothing}).First()
-
                                     Dim sxs3 As VSNext.Mongo.Entities.IbmConnectionsObjects = allUsers.Where(Function(x) x.GUID = bookmarkRow("DIRECTORY_UUID").ToString()).FirstOrDefault()
                                     Dim userId3 As String = sxs3.Id
 
-
-                                    ' Dim filterdefIbmConnectionsObjects3 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Filter.Where(Function(i) i.GUID.Equals(bookmarkRow("COMMUNITY_UUID").ToString()) And i.DeviceName.Equals(myServerName))
-                                    ' Dim projectDefIbmConnectionsObjects3 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Project.Include(Function(i) i.Id)
-                                    'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
-
-
-                                    'Dim filterdefIbmConnectionsObjects2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Filter.Where(Function(i) i.GUID.Equals(row("COMMUNITY_UUID").ToString()) And i.DeviceName.Equals(myServerName))
-                                    'Dim projectDefIbmConnectionsObjects2 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Project.Include(Function(i) i.Id)
-
-                                    'Dim sxs4 As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsObjects.Find(filterdefIbmConnectionsObjects2, projectDefIbmConnectionsObjects2).DefaultIfEmpty(New VSNext.Mongo.Entities.IbmConnectionsObjects() With {.Id = Nothing}).First()
 
                                     Dim id3 As String = Nothing
                                     Try
@@ -9127,49 +9115,6 @@ CleanUp:
                         Catch ex As Exception
                             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Stats. Exception adding finding table 8. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                         End Try
-
-
-
-                        Dim userId As String = ""
-                        bulkOps = New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))()
-                        'Using sqlConn As SqlClient.SqlConnection = adapter.StartConnectionSQL("VitalSigns")
-
-                        For Each row As DataRow In ds.Tables(7).Rows()
-                            'Dim filterdefIbmConnectionsObjects2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Filter.Where(Function(i) i.Type.Equals("Community") And i.DeviceId.Equals(myServerId) And i.Name.Equals(row("NAME").ToString()))
-                            'Dim projectDefIbmConnectionsUsers2 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Project.Include(Function(i) i.users)
-                            'Dim filterdefIbmConnectionsUsers As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Filter.Where(Function(i) i.GUID.Equals(row("DIRECTORY_UUID").ToString()) And i.DeviceId.Equals(myServerId) And i.Type.Equals("Users"))
-                            'Dim projectDefIbmConnectionsUsers As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Project.Include(Function(i) i.Id)
-                            'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
-                            userId = Nothing
-                            Try
-                                Dim objIbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsObjects = allUsers.Where(Function(x) x.GUID = row("DIRECTORY_UUID").ToString()).First()   'x.GUID.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).FirstOrDefault()
-                                userId = objIbmConnectionsUsers.Id
-                            Catch ex As Exception
-
-                            End Try
-
-
-                            'Dim commUsers As List(Of String) = repoIbmConnectionsObjects.Find(filterdefIbmConnectionsObjects2, projectDefIbmConnectionsUsers2).DefaultIfEmpty(New VSNext.Mongo.Entities.IbmConnectionsObjects() With {.Id = Nothing}).First().users
-                            'If commUsers Is Nothing Then
-                            'commUsers = New List(Of String)
-                            'End If
-                            'Dim commUsers As New List(Of String)()
-                            'If Not commUsers.Contains(userId) Then
-                            '    commUsers.Add(userId)
-                            'End If
-
-                            Dim filterdefIbmConnectionsObjects2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Filter.Where(Function(i) i.Type.Equals("Community") And i.DeviceId.Equals(myServerId) And i.Name.Equals(row("NAME").ToString()))
-                            Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects)
-                            updatedef = repoIbmConnectionsObjects.Updater _
-                                .AddToSet(Function(i) i.users, userId)
-
-                            bulkOps.Add(New MongoDB.Driver.UpdateOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(filterdefIbmConnectionsObjects2, updatedef))
-
-                            'repoIbmConnectionsObjects.Update(filterdefIbmConnectionsObjects2, updatedef)
-
-                        Next
-
-                        repoIbmConnectionsObjects.BulkUpsert(bulkOps)
                     Catch ex As Exception
                         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Stats. Exception finding table 7. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                     End Try
@@ -10124,6 +10069,11 @@ CleanUp:
                                 IbmConnectionsObjects.ObjectModifiedDate = Convert.ToDateTime(row("LAST_UPDATE").ToString())
                                 IbmConnectionsObjects.GUID = HexToGUID(row("ID").ToString())
                                 IbmConnectionsObjects.tags = New List(Of String)()
+
+                                For Each tagRow As DataRow In ds.Tables(7).Rows().Cast(Of DataRow).Where(Function(x) HexToGUID(x("LIBRARY_ID").ToString()).Equals(IbmConnectionsObjects.GUID))
+                                    IbmConnectionsObjects.tags.Add(tagRow("TAG"))
+                                Next
+
                                 If (row("EXTERNAL_CONTAINER_ID") IsNot Nothing And row("EXTERNAL_CONTAINER_ID").ToString() <> "") Then
                                     IbmConnectionsObjects.ParentGUID = dictOfCommunityIds(row("EXTERNAL_CONTAINER_ID").ToString())
                                 End If
@@ -10144,26 +10094,6 @@ CleanUp:
                         repo.BulkInsert(bulkOps)
                     Catch ex As Exception
                         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Stats. Exception at table 6. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
-                    End Try
-
-                    Dim myServerName As String = myServer.Name
-                    Try
-                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))()
-                        For Each tagRow As DataRow In ds.Tables(7).Rows()
-                            Try
-                                Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Where(Function(i) i.GUID.Equals(HexToGUID(tagRow("LIBRARY_ID").ToString())) And i.DeviceName.Equals(myServerName) And i.Type.Equals("Wiki"))
-                                Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Updater _
-                                            .AddToSet(Function(i) i.tags, tagRow("TAG").ToString())
-
-                                bulkOps.Add(New MongoDB.Driver.UpdateOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(filterdef, updatedef))
-                                'repo.Update(filterdef, updatedef)
-                            Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Stats. Exception at insering tags. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
-                            End Try
-                        Next
-                        repo.BulkUpsert(bulkOps)
-                    Catch ex As Exception
-                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Stats. Exception at table 7. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                     End Try
 
                     Try
