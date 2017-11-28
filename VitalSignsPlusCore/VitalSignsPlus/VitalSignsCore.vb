@@ -3540,7 +3540,7 @@ CleanUp:
                 myServer.ResponseTime = GetRandom(25, 5000)
                 myServer.CPU_Utilization = GetRandom(2, 75)
                 myServer.Memory_Used = GetRandom(2, 99)
-                myServer.UserCount
+                myServer.UserCount = GetRandom(2, 99)
 
                 If TestIBMFileNetResponding(myServer) = True Then
                     myAlert.ResetAlert(myServer.ServerType, myServer.Name, "Not Responding", myServer.Location, "The server is responding", myServer.ServerType)
