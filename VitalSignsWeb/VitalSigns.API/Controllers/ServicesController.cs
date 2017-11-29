@@ -173,6 +173,7 @@ namespace VitalSigns.API.Controllers
                         Maintenance = statusData.Where(x => x.Type == type && x.StatusCode == "Maintenance").Count()
                     });
                 }
+                summaryList = summaryList.OrderBy(x => x.Type).ToList();
                 Response = Common.CreateResponse(summaryList.Where(x => x.Type != null && x.Type != "Domino Cluster").ToList());
             }
             catch (Exception exception)
@@ -1370,8 +1371,6 @@ namespace VitalSigns.API.Controllers
             {
                 FilterdefStatus = statusRepository.Filter.Eq(x => x.DeviceId,deviceId);
             }
-            
-
             try
             {
                 if (string.IsNullOrEmpty(type))
@@ -1408,9 +1407,7 @@ namespace VitalSigns.API.Controllers
                         if (type == "IBM Connections" || type == "Office365")
                         {
                            
-
                             statusDetailsRepository = new Repository<StatusDetails>(ConnectionString);
-
                             FilterDefinition<StatusDetails> filterDefDetails = statusDetailsRepository.Filter.Eq(p => p.Type, type);
                             if (deviceId != "")
                             {
