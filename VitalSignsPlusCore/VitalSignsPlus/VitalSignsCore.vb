@@ -3185,6 +3185,7 @@ CleanUp:
             statName = "Up Time"
             SendWebSphereAlert(server, actualVal, thresholdVal, statName)
             InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
+            InsertIntoWebSphereDailyStats(server.Name, "HourlyUpTimePercent", actualVal, "", server.ServerObjectID)
             WriteAuditEntryWebSphere(Now.ToString & " " & statName & " " & thresholdVal & " " & actualVal)
 
             actualVal = .CPU_Utilization
