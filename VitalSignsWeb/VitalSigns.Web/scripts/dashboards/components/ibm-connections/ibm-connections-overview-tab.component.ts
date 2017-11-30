@@ -38,6 +38,51 @@ export class IBMConnectionsOverviewTab extends WidgetController implements OnIni
 
         this.widgets = [
             {
+                id: 'responseTime',
+                title: 'Response Time',
+                name: 'ChartComponent',
+                css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
+                settings: {
+                    url: `/services/statistics?statname= ResponseTime&deviceId=${this.serviceId}&operation=hourly`,
+                    dateformat: 'time',
+                    chart: {
+                        chart: {
+                            renderTo: 'responseTime',
+                            type: 'areaspline',
+                            height: 300
+                        },
+                        //colors: ['#5fbe7f'],
+                        title: { text: '' },
+                        subtitle: { text: '' },
+                        xAxis: {
+                            labels: {
+                                step: 4
+                            },
+                            categories: [],
+                            title: {
+                                //text: 'Time'
+                            }
+                        },
+                        yAxis: {
+                            title: {
+                                text: 'ms'
+                            }
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        exporting: {
+                            enabled: false
+                        },
+                        series: []
+                    }
+                }
+            },
+
+            {
                 id: 'dailyActivities',
                 title: 'Daily Activities',
                 name: 'ChartComponent',
@@ -125,6 +170,53 @@ export class IBMConnectionsOverviewTab extends WidgetController implements OnIni
                 }
             },
             {
+                id: 'hourlyupPercent',
+                title: 'Hourly Up Percent',
+                name: 'ChartComponent',
+                css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
+                settings: {
+                    url: `/services/statistics?statname= HourlyUpTimePercent&deviceId=${this.serviceId}&operation=hourly`,
+                    dateformat: 'time',
+                    chart: {
+                        chart: {
+                            renderTo: 'hourlyupPercent',
+                            type: 'areaspline',
+                            height: 300
+                        },
+                        //colors: ['#5fbe7f'],
+                        title: { text: '' },
+                        subtitle: { text: '' },
+                        xAxis: {
+                            labels: {
+                                step: 4
+                            },
+                            categories: [],
+                            title: {
+                                //text: 'Time'
+                            }
+                        },
+                        yAxis: {
+                            title: {
+                                text: 'Percent'
+                            }
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        exporting: {
+                            enabled: false
+                        },
+                        series: [{
+                            name: '% Usage',
+                            data: []
+                        }]
+                    }
+                }
+            },
+            {
                 id: 'overviewGrid',
                 title: '',
                 name: 'IBMConnectionsStatsGrid',
@@ -141,11 +233,18 @@ export class IBMConnectionsOverviewTab extends WidgetController implements OnIni
 
             this.serviceId = value;
 
+            this.widgetService.refreshWidget('responseTimes', `/services/statistics?statName=ResponseTime&deviceId=${this.serviceId}&operation=hourly`)
+                .catch(error => console.log(error));
+
             this.widgetService.refreshWidget('dailyActivities', `/services/summarystats?statName=*_CREATED_LAST_DAY&deviceid=${this.serviceId}`)
                 .catch(error => console.log(error));
 
             this.widgetService.refreshWidget('top5Tags', `/dashboard/connections/top_tags?deviceid=${this.serviceId}&type=Bookmark&count=5`)
                 .catch(error => console.log(error));
+
+            this.widgetService.refreshWidget('hourlyupPercent', `/services/summarystats?statname= HourlyUpTimePercent&deviceId=${this.serviceId}&operation=hourly`)
+                .catch(error => console.log(error));
+           
 
         }
 

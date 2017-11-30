@@ -26,6 +26,51 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
     
         this.widgets = [
             {
+                id: 'responseTime',
+                title: 'Response Time',
+                name: 'ChartComponent',
+                css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
+                settings: {
+                    url: `/services/statistics?statname= ResponseTime&deviceId=${this.serviceId}&operation=hourly`,
+                    dateformat: 'time',
+                    chart: {
+                        chart: {
+                            renderTo: 'responseTime',
+                            type: 'areaspline',
+                            height: 300
+                        },
+                        //colors: ['#5fbe7f'],
+                        title: { text: '' },
+                        subtitle: { text: '' },
+                        xAxis: {
+                            labels: {
+                                step: 4
+                            },
+                            categories: [],
+                            title: {
+                                //text: 'Time'
+                            }
+                        },
+                        yAxis: {
+                            title: {
+                                text: 'ms'
+                            }
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        exporting: {
+                            enabled: false
+                        },
+                        series: []
+                    }
+                }
+            },
+
+            {
                 id: 'usersConnectionsDuringTheDay',
                 title: 'Users connections during the day',
                 name: 'ChartComponent',
@@ -204,6 +249,53 @@ export class ServiceOverallTab extends WidgetController implements OnInit, Servi
                             enabled: false
                         },
                         series: []
+                    }
+                }
+            },
+            {
+                id: 'hourlyupPercent',
+                title: 'Hourly Up Percent',
+                name: 'ChartComponent',
+                css: 'col-xs-12 col-sm-12 col-md-6 col-lg-6',
+                settings: {
+                    url: `/services/statistics?statname= HourlyUpTimePercent&deviceId=${this.serviceId}&operation=hourly`,
+                    dateformat: 'time',
+                    chart: {
+                        chart: {
+                            renderTo: 'hourlyupPercent',
+                            type: 'areaspline',
+                            height: 300
+                        },
+                        //colors: ['#5fbe7f'],
+                        title: { text: '' },
+                        subtitle: { text: '' },
+                        xAxis: {
+                            labels: {
+                                step: 4
+                            },
+                            categories: [],
+                            title: {
+                                //text: 'Time'
+                            }
+                        },
+                        yAxis: {
+                            title: {
+                                text: 'Percent'
+                            }
+                        },
+                        legend: {
+                            enabled: false
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        exporting: {
+                            enabled: false
+                        },
+                        series: [{
+                            name: '% Usage',
+                            data: []
+                        }]
                     }
                 }
             }
