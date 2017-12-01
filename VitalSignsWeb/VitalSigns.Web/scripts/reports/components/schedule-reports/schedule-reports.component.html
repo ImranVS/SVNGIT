@@ -137,26 +137,22 @@ data.pageIndex + 1 | number
                                                 </div>
                                             </div>
                                             <div class="row">
-                                              
-                                                    <div class="form-group col-sm-6">
+                                          <div class="form-group col-sm-6">
                                                         <label class="control-label col-sm-5">Report Frequency</label>
                                                         <div class="col-sm-6">
                                                             <div class="funkyradio">
-                                                                <div class="radio radio-info radio-inline col-sm-6">
-                                                                    <input type="radio" id="selectionType2" name="selectionType" value="Daily" [(ngModel)]="selectedSetting">
+                                                                <div class="radio radio-info">
+                                                                    <input type="radio" id="selectionType2" name="selectionType1" value="Daily" [(ngModel)]="selectedSetting">
                                                                     <label for="selectionType2" class="col-sm-3">Daily</label>
-                                                                    <input type="radio" id="selectionType3" name="selectionType" value="Weekly" [(ngModel)]="selectedSetting" (click)="handleClickWeekly(this);">
+                                                                    <input type="radio" id="selectionType3" name="selectionType2" value="Weekly" [(ngModel)]="selectedSetting" (click)="handleClickWeekly(this);">
                                                                     <label for="selectionType3" class="col-sm-3">Weekly</label>
-
-                                                                </div>
+                                                              </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                               
+                                           </div>
                                             </div>
-                                            </div>
-                                       
-                                        <div class="row">
+                                  <div class="row">
                                             <div class="row col-sm-6" *ngIf="selectedSetting!='Daily'">
                                                 <div class="form-group col-sm-6" *ngIf="selectedSetting=='Weekly'">
                                                     <label for="repeat" class="col-sm-6">Repeat every</label>
