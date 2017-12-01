@@ -13,7 +13,7 @@
     <div class="container-fluid">
         <office365-disabled-users-sort [(widgetName)]="currentWidgetName"></office365-disabled-users-sort>
         <div class="reportsPage">
-            <h1>Disabled Users Consuming License</h1>
+            <h1>Licenses Eligible for Reassignment</h1>
             <div *ngFor="let widget of widgets">
                 <h3>{{widget.title}}</h3>
                 <div id="{{widget.id}}">
