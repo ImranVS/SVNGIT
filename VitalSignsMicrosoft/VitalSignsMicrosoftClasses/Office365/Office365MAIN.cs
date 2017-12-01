@@ -742,7 +742,7 @@ repo.Upsert(filterdef, updatedef);
 					//DataRow DR = dtServers.Rows[i];
                     VSNext.Mongo.Entities.Server currServer = listOfServers[i];
                     //if the O365 server is not set to scan this node, skip it
-                    if (currServer.NodeIds != null && currServer.NodeId.Count() > 0 && !currServer.NodeIds.Contains(listOfNodes.Where(x => x.Name == NodeName).FirstOrDefault().Id))
+                    if (currServer.NodeIds != null && currServer.NodeIds.Count() > 0 && !currServer.NodeIds.Contains(listOfNodes.Where(x => x.Name == NodeName).FirstOrDefault().Id))
                         continue;
 
 					MonitoredItems.Office365Server oldServer = myOffice365Servers.SearchByName(currServer.DeviceName);
