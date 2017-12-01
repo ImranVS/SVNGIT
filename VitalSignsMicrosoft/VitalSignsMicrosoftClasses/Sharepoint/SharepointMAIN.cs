@@ -755,8 +755,8 @@ namespace VitalSignsMicrosoftClasses
                         }
                     }
 
-                    mySPServer.InsufficentLicenses = entity.CurrentNode == null || entity.CurrentNode != NodeName;
-
+                    //mySPServer.InsufficentLicenses = entity.CurrentNode == null || entity.CurrentNode != NodeName;
+                    mySPServer.CurrentNode = entity.CurrentNode;
 
                 }
 
