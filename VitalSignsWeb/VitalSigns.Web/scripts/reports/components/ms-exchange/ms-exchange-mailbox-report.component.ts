@@ -110,7 +110,10 @@ export class ExchangeMailboxReport extends WidgetController {
                         exporting: {
                             enabled: false
                         },
-                        series: []
+                        series: [],
+                        tooltip: {
+                            followPointer: true,
+                         }
                     }
                 }
             }
