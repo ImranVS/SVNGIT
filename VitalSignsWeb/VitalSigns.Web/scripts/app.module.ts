@@ -108,6 +108,8 @@ import {ConnectionsProfilesReport} from './reports/components/ibm-connections/co
 import {ConnectionsTagsReport} from './reports/components/ibm-connections/connections-tags-report.component';
 import { ConnectionsWikiReport } from './reports/components/ibm-connections/connections-wiki-report.component';
 import { Office365DisabledUsersSort } from './reports/filters/components/office365-disabled-users-sort.component';
+import { Office365ActiveDirectorySyncSort } from './reports/filters/components/o365-active-directory-sync-sort.component';
+
 import { IbmInactiveUsersSort } from './reports/filters/components/ibm-inactive-users-sort.component';
 import { Office365StatisticsReport } from './reports/components/office365/office365-statistics-report.component';
 
@@ -138,6 +140,8 @@ import { Office365MailLatencyReport } from './reports/components/office365/offic
 import { Office365OneDriveReport } from './reports/components/office365/office365-onedrive.component';
 import { Office365MailboxReport } from './reports/components/office365/office365-mailbox.component';
 import { Office365DisabledUsersReport } from './reports/components/office365/office365-disabled-users.component';
+import { Office365ActiveDirectorySyncReport } from './reports/components/office365/office365-active-directory-sync.component';
+
 import { ibmconnectionsinactiveUsersReport } from './reports/components/ibm-connections/inactive-users.component';
 
 import { MobileDevicesSummaryOS } from './reports/components/mobile-users/mobile-users-os-summary.component';
@@ -278,8 +282,10 @@ import { exchnagemaillistreport } from './reports/components/ms-exchange/ms-exch
         MobileUsersReport,
         ConnectionsExecutiveOverviewReport,
         Office365DisabledUsersReport,
+        Office365ActiveDirectorySyncReport,
         ibmconnectionsinactiveUsersReport,
         Office365DisabledUsersSort,
+        Office365ActiveDirectorySyncSort,
         IbmInactiveUsersSort,
         MsExchangeDetail,
         Office365StatisticsReport,
@@ -464,6 +470,7 @@ import { exchnagemaillistreport } from './reports/components/ms-exchange/ms-exch
         widgets.MailboxList,
         widgets.ExchnagemailboxList,
         widgets.Office365DisabledUsersList,
+        widgets.Office365ActiveDirectorySyncList,
         widgets.ibmdominoinactiveUsersList,
         widgets.ExecutiveSummaryWidget,
         tabs.DominoHealthTab,
@@ -662,6 +669,7 @@ import { exchnagemaillistreport } from './reports/components/ms-exchange/ms-exch
         widgets.MailboxList,
         widgets.ExchnagemailboxList,
         widgets.Office365DisabledUsersList,
+        widgets.Office365ActiveDirectorySyncList,
         widgets.ibmdominoinactiveUsersList,
         widgets.ExecutiveSummaryWidget,
         tabs.DominoHealthTab,

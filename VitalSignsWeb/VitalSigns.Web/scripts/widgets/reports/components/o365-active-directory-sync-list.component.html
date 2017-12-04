@@ -1,0 +1,16 @@
+﻿<table class="table table-condensed small table-striped" id="htmlTable">
+    <thead>
+        <tr>
+            <th>Display Name</th>
+            <th>User Principal Name</th>
+            <th>Active Directory Sync</th>
+        </tr>
+    </thead>
+    <tbody *ngIf="data">
+        <tr *ngFor="let entry of data">
+            <td>{{entry.display_name}}</td>
+            <td>{{entry.user_principal_name}}</td>
+            <td>{{entry.ad_last_sync |date: 'shortDate'}}</td>
+        </tr>
+    </tbody>
+</table>
