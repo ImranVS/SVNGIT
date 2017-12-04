@@ -1691,6 +1691,11 @@ namespace VSNext.Mongo.Entities
         [BsonElement("account_last_modified")]
         [BsonIgnoreIfNull]
         public DateTime? AccountLastModified { get; set; }
+
+        [DataMember]
+        [BsonElement("ad_last_sync")]
+        [BsonIgnoreIfNull]
+        public DateTime? ADLastSync { get; set; }
     }
 
     [DataContract]
