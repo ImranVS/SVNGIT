@@ -43,5 +43,8 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("account_last_modified", NullValueHandling = NullValueHandling.Ignore)]
         public DateTime? AccountLastModified { get; set; }
+
+        [JsonProperty("ad_last_sync", NullValueHandling = NullValueHandling.Ignore)]
+        public DateTime? ADLastSync { get; set; }
     }
 }
