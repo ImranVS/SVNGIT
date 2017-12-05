@@ -83,6 +83,12 @@ namespace VSNext.Mongo.Entities
         public string NotificationId { get; set; }
 
         [DataMember]
+        [BsonElement("notification_destination_id")]
+        [BsonIgnoreIfNullAttribute]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string NotificationDestinationId { get; set; }
+
+        [DataMember]
         [BsonElement("event_detected_sent")]
         [BsonIgnoreIfNullAttribute]
         public DateTime? EventDetectedSent { get; set; }
