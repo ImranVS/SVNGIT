@@ -444,19 +444,19 @@ Public Class VSMaster
         End Try
 
         Try
-            StopService(VitalSignsPlusDomino)
+            StopService(VitalSignsPlusDomino, True)
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Error stopping " & VitalSignsPlusDomino & ": " & ex.Message)
         End Try
 
         Try
-            StopService(VitalSignsMicrosoft)
+            StopService(VitalSignsMicrosoft, True)
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Error stopping Exchange service: " & ex.Message)
         End Try
 
         Try
-            StopService(VitalSignsPlusCore)
+            StopService(VitalSignsPlusCore, True)
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Error stopping " & VitalSignsPlusCore & ": " & ex.Message)
         End Try
@@ -469,37 +469,37 @@ Public Class VSMaster
 
 
         Try
-            StopService(VitalSignsPlusAlerting)
+            StopService(VitalSignsPlusAlerting, True)
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Error stopping " & VitalSignsPlusAlerting & ": " & ex.Message)
         End Try
 
         Try
-            StopService(VitalSignsDailyService)
+            StopService(VitalSignsDailyService, True)
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Error stopping Daily Tasks service: " & ex.Message)
         End Try
 
         Try
-            StopService(EXJournalServiceName)
+            StopService(EXJournalServiceName, True)
         Catch ex As Exception
             'WriteAuditEntry(Now.ToString & " Error stopping " & VitalSignsPlusCore & ": " & ex.Message)
         End Try
 
         Try
-            StopService(VitalSignsPlusDBHealthService)
+            StopService(VitalSignsPlusDBHealthService, True)
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Error stopping Database Health service: " & ex.Message)
         End Try
 
         Try
-            StopService(VitalSignsConsoleCommands)
+            StopService(VitalSignsConsoleCommands, True)
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Error stopping Domino Console Commands service: " & ex.Message)
         End Try
 
         Try
-            StopService(VitalSignsCore64)
+            StopService(VitalSignsCore64, True)
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & "Error stopping Core 64 service: " & ex.Message)
         End Try
@@ -2192,7 +2192,7 @@ Public Class VSMaster
         End If
 
     End Sub
-    Private Sub StopService(ByVal ServiceName As String)
+    Private Sub StopService(ByVal ServiceName As String, Optional masterServiceStopping As Boolean = False)
         ' Find service
         Dim objServiceController As New ServiceController(ServiceName, ".")
         WriteAuditEntry(Now.ToString & " Stopping the " & ServiceName & " service.")
@@ -2202,6 +2202,21 @@ Public Class VSMaster
             WriteAuditEntry(Now.ToString & " Ooops!  Big problem-- I could not find the " & ServiceName & "  service on this machine, so I couldn't stop it.")
             Return
         End If
+
+        'If master service is not stopping, test to see if the service is oaky to stop
+        If masterServiceStopping = False Then
+            If ServiceName = VitalSignsPlusCore Then
+                Dim registry As New VSFramework.RegistryHandler()
+                Try
+                    If registry.ReadFromRegistry("CoreDailyRunning").ToString() = "True" Then
+                        WriteAuditEntry(Now.ToString & " Core service is doing Daily Tasks and will not restart.")
+                        Return
+                    End If
+                Catch ex As Exception
+                End Try
+            End If
+        End If
+
 
         ' See if it's running
         If (objServiceController.Status = ServiceControllerStatus.Running) Then

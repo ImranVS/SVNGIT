@@ -1295,6 +1295,9 @@ Public Class VitalSignsPlusCore
         Loop
     End Sub
 
+
+    Dim connectionsDailyTask As Thread
+
     Public Sub DailyTasks()
 
         Try
@@ -1317,17 +1320,50 @@ Public Class VitalSignsPlusCore
                 End If
             End If
 
-
+            Dim CoreDailyRunning As String = ""
+            Try
+                CoreDailyRunning = myRegistry.ReadFromRegistry("CoreDailyRunning")
+            Catch ex As Exception
+                WriteAuditEntry(Now.ToString & " Error getting status of the daily tasks ran.", LogLevel.Normal)
+            End Try
 
 
 
             WriteAuditEntry(Now.ToString & " Beginning to perform Daily Tasks.", LogLevel.Verbose)
 
+            'Starts the connections scanning if...
+            'it is marked as running but it is not actually running
+            'it never ran before (value is empty or does not exist)
+            'It is not running and it is saturday (only runs on weekends)
+
+            If (CoreDailyRunning = "True" And (connectionsDailyTask Is Nothing OrElse connectionsDailyTask.IsAlive = False)) Or
+                (CoreDailyRunning = "") Or
+                (CoreDailyRunning = "False" And Now.DayOfWeek = DayOfWeek.Saturday) Then
+                connectionsDailyTask = New Thread(
+                    Sub()
+                        WriteAuditEntry(Now.ToString & " Will do daily objects for Connections. CoreDailyRunning: " & CoreDailyRunning & ".", LogLevel.Normal)
+                        myRegistry.WriteToRegistry("CoreDailyRunning", "True")
+
+                        For Each server As MonitoredItems.IBMConnect In MyIBMConnectServers
+                            WriteAuditEntry(Now.ToString & " Beginning to perform weekly tasks for IBM Connections server " & server.Name, LogLevel.Verbose)
+                            GetConnectionsObjects(server)
+                        Next
+                        myRegistry.WriteToRegistry("CoreDailyRunning", "False")
+
+                    End Sub)
+                connectionsDailyTask.IsBackground = True
+                connectionsDailyTask.Priority = ThreadPriority.Normal
+                connectionsDailyTask.CurrentCulture = New CultureInfo(sCultureString)
+                connectionsDailyTask.Start()
+            Else
+                WriteAuditEntry(Now.ToString & " Will not do daily objects for Connections. CoreDailyRunning: " & CoreDailyRunning & ". Day: " & Now.DayOfWeek.ToString(), LogLevel.Normal)
+            End If
+
+
             For Each server As MonitoredItems.IBMConnect In MyIBMConnectServers
-                WriteAuditEntry(Now.ToString & " Beginning to perform daily Tasks for IBM Connections server " & server.Name, LogLevel.Verbose)
+                WriteAuditEntry(Now.ToString & " Beginning to perform daily tasks for IBM Connections server " & server.Name, LogLevel.Verbose)
                 GetConnectionsStats(server)
             Next
-
 
             For Each server As MonitoredItems.SametimeServer In mySametimeServers
                 WriteAuditEntry(Now.ToString & " Beginning to perform daily Tasks for Sametime server " & server.Name, LogLevel.Verbose)
@@ -8121,6 +8157,1801 @@ CleanUp:
 
 
 
+    Public Sub GetConnectionsObjects(ByRef myServer As MonitoredItems.IBMConnect)
+        Try
+
+            'This should be first
+            GetProfileObjects(myServer)
+            GetCommunityObjects(myServer)
+
+            'These can go whenever
+            GetActivityObjects(myServer)
+            GetBlogObjects(myServer)
+            GetBookmarksObjects(myServer)
+            'GetFileObjects(myServer)
+            GetWikiObjects(myServer)
+            GetForumObjects(myServer)
+            'GetLibraryObjects(myServer)
+
+            'This should be last
+            'GetHomepageStats(myServer)
+            ConsolidateConnectionObjects(myServer)
+
+        Catch ex As Exception
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error in GetConnectionsObjects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+        End Try
+
+    End Sub
+
+    Public Sub GetActivityObjects(ByRef myServer As MonitoredItems.IBMConnect)
+        Dim oWatch As New System.Diagnostics.Stopwatch
+        oWatch.Start()
+        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects.", LogUtilities.LogUtils.LogLevel.Normal)
+        Dim sql As String = "SELECT node.Name, 'Activity' as Type, node.CREATED, node.LASTMOD, mp.EXID, node.ACTIVITYUUID FROM ACTIVITIES.OA_NODE node INNER JOIN ACTIVITIES.OA_MEMBERPROFILE mp ON mp.MEMBERID = node.CREATEDBY WHERE node.ISDELETED = 0;" &
+         "SELECT NODEUUID, NAME FROM ACTIVITIES.OA_TAG;" &
+         "SELECT node.ACTIVITYUUID, mp.EXID, ac.ROLEID FROM ACTIVITIES.OA_NODE node INNER JOIN ACTIVITIES.OA_ACLENTRY ac ON node.ACTIVITYUUID = ac.OBJECTUUID INNER JOIN ACTIVITIES.OA_MEMBERPROFILE mp ON mp.MEMBERID = ac.MEMBERID WHERE node.ISDELETED = 0 AND mp.MEMBERTYPE <> 3;" &
+         "select mp.exid, node.nodeuuid from (select exid, memberid from activities.oa_memberprofile where exid in ('" & String.Join("','", dictOfCommunityIds.Keys) & "')) mp inner join activities.oa_memberprofile mp2 on mp2.exid =  mp.memberid || '+owner' inner join activities.OA_ACLENTRY al on mp2.memberid = al.memberid inner join activities.oa_node node on node.nodeuuid = al.objectuuid and node.isdeleted = 0;"
+
+        Dim Category As String = "Activity"
+        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After query made: " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+        Try
+            Dim con As IBM.Data.DB2.DB2Connection
+            Dim ds As New DataSet
+            Try
+                con = New IBM.Data.DB2.DB2Connection("Database=OPNACT;UserID=" & myServer.DBUserName & ";Password=" & myServer.DBPassword & ";Server=" & myServer.DBHostName & ":" & myServer.DBPort & ";Connect Timeout=60;")
+                con.Open()
+                Dim cmd As New IBM.Data.DB2.DB2Command(sql, con)
+                Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
+                cmd.CommandTimeout = getConnectionsTimeout()
+                adapter.Fill(ds)
+
+
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error getting Activity Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            Finally
+                Try
+                    If con.IsOpen Then
+                        con.Close()
+                    End If
+                Catch ex As Exception
+
+                End Try
+
+            End Try
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After DB call made: " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+            Try
+                For Each table As DataTable In ds.Tables
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Category: " & Category & " Table " & ds.Tables.IndexOf(table) & " Rows " & table.Rows.Count & " Columns " & table.Columns.Count, LogUtilities.LogUtils.LogLevel.Normal)
+                Next
+                If MyLogLevel = LogLevel.Verbose Then
+                    DataSetToLog(myServer, ds)
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error printing Atiity Objects data log. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            End Try
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After printing made: " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+            'sql = "INSERT INTO IbmConnectionsActivityObjects (ServerId, StatName, StatValue, Category, DateTime) VALUES "
+            Dim dict As New Dictionary(Of String, String)
+
+            Try
+                If (ds.Tables.Count = 0) Then
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Could not get " & Category & " Objects.", LogUtilities.LogUtils.LogLevel.Normal)
+                Else
+
+                    ClearConnectionObjectTables(myServer, "Activity")
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After cleaning made: " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+
+                    Dim myServerName As String = myServer.Name
+                    Dim myServerId As String = myServer.ServerObjectID
+                    'Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
+                    Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+                    'Dim filterdef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Where(Function(j) j.Type.Equals("Activity") And j.DeviceId.Equals(myServerId))
+                    ' repo.Delete(filterdef)
+                    Dim repoIbmConnectionsUsers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+                    Try
+
+                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. Before users made: " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                        Dim allUsers As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Find(repoIbmConnectionsUsers.Filter.Eq(Function(x) x.Type, "Users") And repoIbmConnectionsUsers.Filter.Eq(Function(x) x.DeviceId, myServerId)).ToList()
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After users made: " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                        Dim counter = 0
+
+                        For Each row As DataRow In ds.Tables(0).Rows()
+                            Try
+                                Dim print = counter Mod 1000 = 0
+                                counter += 1
+                                'Counter X. Elapsed time Y seconds
+                                If print Then
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. Start " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                                End If
+                                Dim connectionsUserId As String = allUsers.Where(Function(x) x.GUID = row("EXID").ToString()).FirstOrDefault().Id
+                                If print Then
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After User Found " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                                End If
+                                Dim IbmConnectionsObjects2 As New VSNext.Mongo.Entities.IbmConnectionsObjects
+                                IbmConnectionsObjects2.Name = row("NAME").ToString()
+                                IbmConnectionsObjects2.DeviceName = myServerName
+                                IbmConnectionsObjects2.DeviceId = myServerId
+                                IbmConnectionsObjects2.Type = "Activity"
+                                IbmConnectionsObjects2.ObjectCreatedDate = Convert.ToDateTime(row("CREATED").ToString())
+                                IbmConnectionsObjects2.ObjectModifiedDate = Convert.ToDateTime(row("LASTMOD").ToString())
+                                IbmConnectionsObjects2.OwnerId = connectionsUserId
+                                IbmConnectionsObjects2.GUID = row("ACTIVITYUUID").ToString()
+                                If print Then
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After Object Made " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                                End If
+                                Try
+                                    If (ds.Tables(3).Select("NODEUUID = '" + row("ACTIVITYUUID").ToString() + "'").Count > 0) Then
+                                        Dim parentGUID As String = ds.Tables(3).Select("NODEUUID = '" + row("ACTIVITYUUID").ToString() + "'").First()("exid").ToString()
+                                        IbmConnectionsObjects2.ParentGUID = dictOfCommunityIds(parentGUID)
+                                    End If
+                                Catch ex As Exception
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " GetActivityObjects. Exception findign activity parent. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
+                                End Try
+                                If print Then
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After ParentGUID " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                                End If
+                                Try
+                                    Dim tags As New List(Of String)
+                                    For Each tagRow As DataRow In ds.Tables(1).Select("NODEUUID = '" & row("ACTIVITYUUID").ToString() & "'")
+                                        If Not tags.Contains(tagRow("NAME").ToString()) Then
+                                            tags.Add(tagRow("NAME").ToString())
+                                        End If
+
+                                    Next
+                                    IbmConnectionsObjects2.tags = tags
+                                Catch ex As Exception
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " GetActivityObjects. Exception getting activitry tags. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
+                                End Try
+                                If print Then
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After Tags Made " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                                End If
+                                Dim users As New List(Of String)
+                                For Each userRow As DataRow In ds.Tables(2).Select("ACTIVITYUUID = '" & row("ACTIVITYUUID").ToString() & "'")
+                                    Try
+                                        'Dim filterdefIbmConnectionsUsers2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Filter.Where(Function(j) j.GUID.Equals(userRow("EXID").ToString()) And j.DeviceId.Equals(myServerId) And j.Type.Equals("Users"))
+                                        'Dim projectDefIbmConnectionsUsers2 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Project.Include(Function(j) j.Id)
+                                        'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
+                                        'Dim objIbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers2, projectDefIbmConnectionsUsers2).FirstOrDefault()
+                                        Dim objIbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsObjects = allUsers.Where(Function(x) x.GUID = userRow("EXID").ToString()).FirstOrDefault()
+                                        If Not users.Contains(objIbmConnectionsUsers.Id) Then
+                                            users.Add(objIbmConnectionsUsers.Id)
+                                        End If
+                                    Catch ex As Exception
+                                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " GetActivityObjects. Exception getting owner. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
+                                    End Try
+
+                                Next
+                                If print Then
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After Users added " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                                End If
+
+                                IbmConnectionsObjects2.users = users
+
+                                'repo.Insert(IbmConnectionsObjects2)
+                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects2))
+                            Catch ex As Exception
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " GetActivityObjeGet Activity Objectscts. Exception in Activities Loop. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                            End Try
+                        Next
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. Before bulk insert " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                        repoIbmConnectionsUsers.BulkInsert(bulkOps)
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After Bulk insert " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "GetActivityObjects Error trying to get table 6. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                    End Try
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error parsing Activity Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            End Try
+
+        Catch ex As Exception
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error in GetActivityObjects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+        End Try
+
+    End Sub
+
+    Public Sub GetBlogObjects(ByRef myServer As MonitoredItems.IBMConnect)
+        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetBlogObjects.", LogUtilities.LogUtils.LogLevel.Verbose)
+        Dim oWatch As New System.Diagnostics.Stopwatch
+        oWatch.Start()
+        Dim sql As String = "SELECT blog.ID, blog.NAME, 'Blog' as TYPE, blog.DATECREATED, blog.LASTMODIFIED, users.EXTID FROM BLOGS.WEBSITE blog INNER JOIN BLOGS.ROLLERUSER users ON blog.USERID = users.ID;" &
+         "SELECT NAME, WEBSITEID FROM BLOGS.ROLLER_WEBSITETAG;" &
+         "SELECT entry.ID, entry.Title, 'Blog Entry' as TYPE, entry.PUBTIME, entry.UPDATETIME, users.EXTID, entry.WEBSITEID FROM BLOGS.WEBLOGENTRY entry INNER JOIN BLOGS.ROLLERUSER users ON entry.USERID = users.ID;" &
+         "SELECT ASSOCID, WEBSITEID FROM BLOGS.WEBSITEASSOC"
+
+        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetBlogObjects. After query made: " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+
+        Dim Category As String = "Blog"
+
+        Try
+            Dim con As IBM.Data.DB2.DB2Connection
+            Dim ds As New DataSet
+            Try
+                con = New IBM.Data.DB2.DB2Connection("Database=BLOGS;UserID=" & myServer.DBUserName & ";Password=" & myServer.DBPassword & ";Server=" & myServer.DBHostName & ":" & myServer.DBPort & ";Connect Timeout=60;")
+                con.Open()
+                Dim cmd As New IBM.Data.DB2.DB2Command(sql, con)
+                Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
+                cmd.CommandTimeout = getConnectionsTimeout()
+                adapter.Fill(ds)
+
+
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error getting GetBlogObjects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            Finally
+                Try
+                    If con.IsOpen Then
+                        con.Close()
+                    End If
+                Catch ex As Exception
+
+                End Try
+
+            End Try
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetBlogObjects. After DB made: " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+            Try
+                For Each table As DataTable In ds.Tables
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Category: " & Category & " Table " & ds.Tables.IndexOf(table) & " Rows " & table.Rows.Count & " Columns " & table.Columns.Count, LogUtilities.LogUtils.LogLevel.Normal)
+                Next
+                If MyLogLevel = LogLevel.Verbose Then
+                    DataSetToLog(myServer, ds)
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error printing Bog Objects data log. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            End Try
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetBlogObjects. After print made: " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+            Dim dict As New Dictionary(Of String, String)
+
+            Try
+                If (ds.Tables.Count = 0) Then
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Could not get " & Category & " Objects.", LogUtilities.LogUtils.LogLevel.Normal)
+                Else
+
+                    ClearConnectionObjectTables(myServer, "Blog")
+                    ClearConnectionObjectTables(myServer, "Blog Entry")
+                    ' Dim adapter As New VSAdaptor()
+
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetBlogObjects. After Summary Objects made: " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                    Dim serverId As String = myServer.ServerObjectID
+                    Dim serverName As String = myServer.Name
+
+                    Dim repoObjects As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+                    Dim filterdefObjects As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Filter.Where(Function(i) i.DeviceId.Equals(serverId) And i.Type.Equals("Activity"))
+
+                    Dim repoIbmConnectionsUsers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+
+                    Dim connectionsUserId As String = ""
+
+                    Try
+                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))
+                        Dim listOfUsers As New List(Of VSNext.Mongo.Entities.IbmConnectionsObjects)
+                        Try
+                            listOfUsers = repoIbmConnectionsUsers.Find(repoIbmConnectionsUsers.Filter.Eq(Function(x) x.Type, "Users") And repoIbmConnectionsUsers.Filter.Eq(Function(x) x.DeviceName, serverName)).ToList()
+                        Catch ex As Exception
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " GetBlogObjects. Exception getting the user list. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                        End Try
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetBlogObjects. After users made: " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+
+                        For Each row As DataRow In ds.Tables(0).Rows()
+
+                            ' first get the 
+                            Dim filterdefIbmConnectionsUsers As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Filter.Where(Function(i) i.DeviceName.Equals(serverName) And i.GUID.Equals(row("EXTID").ToString()) And i.Type.Equals("Users"))
+                            Dim projectDefIbmConnectionsUsers As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Project.Include(Function(i) i.Id)
+                            'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsUsers) = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).ToList()
+                            Try
+                                If listOfUsers.Exists(Function(x) x.GUID = row("EXTID").ToString()) Then
+                                    Dim IbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsObjects = listOfUsers.Where(Function(x) x.GUID = row("EXTID").ToString()).First()
+                                    connectionsUserId = IbmConnectionsUsers.Id
+                                End If
+
+                            Catch ex As Exception
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " GetBlogObjects. Exception getting the user id. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
+                                connectionsUserId = Nothing
+                            End Try
+                            'For Each s As VSNext.Mongo.Entities.IbmConnectionsUsers In serverList
+                            'Next
+                            'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Processign blog ID : " & row("ID").ToString(), LogUtilities.LogUtils.LogLevel.Verbose)
+                            Try
+
+
+                                Dim IbmConnectionsObjects2 As New VSNext.Mongo.Entities.IbmConnectionsObjects
+                                IbmConnectionsObjects2.Name = row("NAME").ToString()
+                                IbmConnectionsObjects2.DeviceName = myServer.Name
+                                IbmConnectionsObjects2.DeviceId = myServer.ServerObjectID
+                                IbmConnectionsObjects2.Type = "Blog"
+                                IbmConnectionsObjects2.ObjectCreatedDate = Convert.ToDateTime(row("DATECREATED").ToString())
+                                IbmConnectionsObjects2.ObjectModifiedDate = Convert.ToDateTime(row("LASTMODIFIED").ToString())
+                                IbmConnectionsObjects2.OwnerId = connectionsUserId
+                                IbmConnectionsObjects2.GUID = row("ID").ToString()
+                                'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Checking for parent object", LogUtilities.LogUtils.LogLevel.Verbose)
+                                If (ds.Tables(3).Select("WEBSITEID = '" + row("ID").ToString() + "'").Count > 0) Then
+                                    Try
+                                        'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Num of entries as a parent : " & ds.Tables(21).Select("WEBSITEID = '" + row("ID").ToString() + "'").Count(), LogUtilities.LogUtils.LogLevel.Verbose)
+                                        Dim parentGUID As String = ds.Tables(21).Select("WEBSITEID = '" + row("ID").ToString() + "'").First()("ASSOCID").ToString()
+
+                                        IbmConnectionsObjects2.ParentGUID = dictOfCommunityIds(parentGUID)
+                                    Catch ex As Exception
+                                        'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " GetBlogObjects. Exception getting parent guid. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                                    End Try
+
+                                End If
+
+                                'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Checking for tags", LogUtilities.LogUtils.LogLevel.Verbose)
+                                Try
+                                    Dim tags As New List(Of String)
+
+                                    For Each tagRow As DataRow In ds.Tables(1).Select("WEBSITEID = '" & row("ID").ToString() & "'")
+                                        If Not tags.Contains(tagRow("NAME").ToString()) Then
+                                            tags.Add(tagRow("NAME").ToString())
+                                        End If
+
+                                    Next
+                                    IbmConnectionsObjects2.tags = tags
+                                    bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects2))
+                                    'repoObjects.Insert(IbmConnectionsObjects2)
+                                Catch ex As Exception
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " GetBlogObjects. Exception getting tags. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
+                                End Try
+                            Catch ex As Exception
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " GetBlogObjects. Exception making blog object. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
+                            End Try
+
+                        Next
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetBlogObjects. before mongo insert 1 : " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                        repoIbmConnectionsUsers.BulkInsert(bulkOps)
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetBlogObjects. after mongo insert 1 : " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " GetBlogObjects. No table 18. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
+                    End Try
+
+                    Dim myServerName As String = myServer.Name
+                    Dim ParentObjectID As String = ""
+                    Try
+                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))
+                        Dim allUsers As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(repoObjects.Filter.Eq(Function(x) x.Type, "Blog") And repoObjects.Filter.Eq(Function(x) x.DeviceName, myServerName)).ToList()
+                        For Each row As DataRow In ds.Tables(2).Rows()
+
+                            'Dim FilterDefIbmConnectionsObjects4 As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Filter.Where(Function(i) i.GUID.Equals(row("WEBSITEID").ToString()) And i.DeviceName.Equals(myServerName))
+                            'Dim projectDefIbmConnections4 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Project.Include(Function(i) i.Id)
+                            'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
+                            Try
+                                Dim s As VSNext.Mongo.Entities.IbmConnectionsObjects = allUsers.Where(Function(x) x.GUID = row("WEBSITEID").ToString()).First()   'repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).First()
+
+                                'For Each s As VSNext.Mongo.Entities.IbmConnectionsObjects In serverList
+                                ParentObjectID = s.Id
+                            Catch ex As Exception
+                                ParentObjectID = Nothing
+                            End Try
+
+                            'Next
+                            Try
+                                Dim IbmConnectionsObjects4 As New VSNext.Mongo.Entities.IbmConnectionsObjects
+                                IbmConnectionsObjects4.Name = row("TITLE").ToString()
+                                IbmConnectionsObjects4.DeviceName = myServer.Name
+                                IbmConnectionsObjects4.DeviceId = myServer.ServerObjectID
+                                IbmConnectionsObjects4.GUID = row("ID").ToString()
+                                IbmConnectionsObjects4.OwnerId = connectionsUserId
+                                'IbmConnectionsObjects4.owner = row("EXTID").ToString()
+                                IbmConnectionsObjects4.ParentGUID = ParentObjectID
+                                IbmConnectionsObjects4.Type = "Blog Entry"
+                                IbmConnectionsObjects4.ObjectCreatedDate = Convert.ToDateTime(row("PUBTIME").ToString())
+                                IbmConnectionsObjects4.ObjectModifiedDate = Convert.ToDateTime(row("UPDATETIME").ToString())
+                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects4))
+                                'repoObjects.Insert(IbmConnectionsObjects4)
+                            Catch ex As Exception
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " GetBlogObjects. Exception makign blog entry object. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
+                            End Try
+                        Next
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetBlogObjects. before mongo insert 1 : " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                        repoIbmConnectionsUsers.BulkInsert(bulkOps)
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetBlogObjects. after mongo insert 1 : " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " GetBlogObjects. Exception finding table 20. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
+                    End Try
+                End If
+
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error parsing GetBlogObjects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            End Try
+        Catch ex As Exception
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error in GetBlogObjects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+        End Try
+
+    End Sub
+
+    Public Sub GetCommunityObjects(ByRef myServer As MonitoredItems.IBMConnect)
+        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetCommunityObjects.", LogUtilities.LogUtils.LogLevel.Verbose)
+        Dim oWatch As New System.Diagnostics.Stopwatch
+        oWatch.Start()
+        Dim sql As String = "SELECT c.COMMUNITY_UUID, c.NAME, 'Community' as Type, c.CREATED, c.LASTMOD, c.TAGS_LIST, mp.DIRECTORY_UUID, c.COMMUNITY_TYPE, c.PLAIN_DESCR, c.COMMUNITY_TYPE, t.OWNER_COUNT, t.MEMBER_COUNT, f.FOLLOWING_COUNT FROM SNCOMM.COMMUNITY c INNER JOIN SNCOMM.MEMBERPROFILE mp ON mp.MEMBER_UUID = c.CREATED_BY INNER JOIN (SELECT COMMUNITY_UUID, COALESCE(SUM(CASE WHEN ROLE = 1 THEN 1 ELSE 0 END),0) OWNER_COUNT, COALESCE(SUM(CASE WHEN ROLE = 0 THEN 1 ELSE 0 END),0) MEMBER_COUNT FROM SNCOMM.MEMBER m GROUP BY COMMUNITY_UUID) as t on t.COMMUNITY_UUID = c.COMMUNITY_UUID INNER JOIN (SELECT COMMUNITY_UUID, COALESCE(COUNT(*),0) FOLLOWING_COUNT FROM SNCOMM.Following GROUP BY COMMUNITY_UUID) as f on f.COMMUNITY_UUID = c.COMMUNITY_UUID WHERE c.DELETE_STATE = 0;" &
+         "Select mp.Display, mp.DIRECTORY_UUID, c.COMMUNITY_UUID, (CASE WHEN m.Role = 1 THEN 'Owner' ELSE 'Member' END) MemberType from sncomm.community c inner join sncomm.member m on c.community_uuid = m.community_uuid and c.delete_state = 0 inner join sncomm.memberprofile mp on mp.member_uuid = m.member_uuid;" &
+         "SELECT r.REF_UUID, r.COMMUNITY_UUID, r.NAME, 'Bookmark' as Type,  r.CREATED, r.LASTMOD, mp.DIRECTORY_UUID FROM SNCOMM.REF r INNER JOIN SNCOMM.MEMBERPROFILE mp ON mp.MEMBER_UUID = r.CREATED_BY;"
+
+        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetCommunityObjects. After query : " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+
+        Dim myServerName As String = myServer.Name
+        Dim myServerId As String = myServer.ServerObjectID
+        Dim Category As String = "Community"
+
+        Try
+            Dim con As IBM.Data.DB2.DB2Connection
+            Dim ds As New DataSet
+            Try
+
+                con = New IBM.Data.DB2.DB2Connection("Database=SNCOMM;UserID=" & myServer.DBUserName & ";Password=" & myServer.DBPassword & ";Server=" & myServer.DBHostName & ":" & myServer.DBPort & ";Connect Timeout=60;")
+                con.Open()
+
+                Dim cmd As New IBM.Data.DB2.DB2Command(sql, con)
+                Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
+                cmd.CommandTimeout = getConnectionsTimeout()
+                adapter.Fill(ds)
+
+
+
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error getting Community Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            Finally
+                Try
+                    If con.IsOpen Then
+                        con.Close()
+                    End If
+                Catch ex As Exception
+
+                End Try
+
+            End Try
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetCommunityObjects. After DB call : " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+            Try
+                For Each table As DataTable In ds.Tables
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Category: " & Category & " Table " & ds.Tables.IndexOf(table) & " Rows " & table.Rows.Count & " Columns " & table.Columns.Count, LogUtilities.LogUtils.LogLevel.Normal)
+                Next
+                If MyLogLevel = LogLevel.Verbose Then
+                    DataSetToLog(myServer, ds)
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error printing Community Objects data log. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            End Try
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetCommunityObjects. After print : " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+            sql = "INSERT INTO TABLENAME (ServerId, StatName, StatValue, Category, DateTime) VALUES "
+
+            Dim tupleList As New List(Of Tuple(Of String, String, String))()
+            Try
+                If (ds.Tables.Count = 0) Then
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Could not get " & Category & " Objects.", LogUtilities.LogUtils.LogLevel.Normal)
+                Else
+
+                    ClearConnectionObjectTables(myServer, "Community")
+
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetCommunityObjects. After summery : " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+
+                    Dim repoIbmConnectionsObjects As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+
+
+                    Dim filterdefIbmConnectionsObjects As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Filter.Where(Function(i) i.Type.Equals("Community") And i.DeviceName.Equals(myServerName))
+                    repoIbmConnectionsObjects.Delete(filterdefIbmConnectionsObjects)
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetCommunityObjects. After delete : " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                    'Processes
+                    Dim list As New List(Of String)()
+                    Try
+                        Dim allUsers As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Find(repoIbmConnectionsObjects.Filter.Eq(Function(x) x.Type, "Users") And repoIbmConnectionsObjects.Filter.Eq(Function(x) x.DeviceName, myServerName)).ToList()
+                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetCommunityObjects. After users : " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                        Dim counter = 0
+                        For Each row As DataRow In ds.Tables(0).Rows()
+                            Try
+                                Dim print = counter Mod 1000 = 0
+                                counter += 1
+                                'Counter X. Elapsed time Y seconds
+                                If print Then
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetCommunityObjects. Start " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                                End If
+
+                                Dim tags As New List(Of String)
+                                For Each tag As String In row("TAGS_LIST").ToString().Split(",")
+                                    If Not tags.Contains(tag) Then
+                                        tags.Add(tag)
+                                    End If
+                                Next
+                                If print Then
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetCommunityObjects. after tags " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                                End If
+                                'Dim filterdefIbmConnectionsUsers As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Filter.Where(Function(i) i.GUID.Equals(row("DIRECTORY_UUID").ToString()) And i.DeviceName.Equals(myServerName) And i.Type.Equals("Users"))
+                                'Dim projectDefIbmConnectionsUsers As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Project.Include(Function(i) i.Id)
+                                'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
+                                'Dim sxs As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).DefaultIfEmpty(New VSNext.Mongo.Entities.IbmConnectionsObjects() With {.Id = Nothing}).First()
+                                Dim sxs As VSNext.Mongo.Entities.IbmConnectionsObjects = allUsers.Where(Function(x) x.GUID = row("DIRECTORY_UUID").ToString()).FirstOrDefault()
+                                Dim userId2 As String = sxs.Id
+                                If print Then
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetCommunityObjects. after user " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                                End If
+                                Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
+                                IbmConnectionsObjects.DeviceId = myServer.ServerObjectID
+                                IbmConnectionsObjects.DeviceName = myServer.Name
+                                IbmConnectionsObjects.Name = row("NAME").ToString()
+                                IbmConnectionsObjects.Type = "Community"
+                                IbmConnectionsObjects.OwnerId = userId2
+                                IbmConnectionsObjects.GUID = row("COMMUNITY_UUID").ToString()
+                                IbmConnectionsObjects.tags = tags
+                                IbmConnectionsObjects.CommunityType = row("COMMUNITY_TYPE").ToString()
+                                IbmConnectionsObjects.ObjectCreatedDate = Convert.ToDateTime(row("CREATED").ToString())
+                                IbmConnectionsObjects.ObjectModifiedDate = Convert.ToDateTime(row("LASTMOD").ToString())
+                                IbmConnectionsObjects.NumOfFollowers = row("FOLLOWING_COUNT").ToString()
+                                IbmConnectionsObjects.NumOfMembers = row("MEMBER_COUNT").ToString()
+                                IbmConnectionsObjects.NumOfOwners = row("OWNER_COUNT").ToString()
+                                IbmConnectionsObjects.ObjectUrl = myServer.IPAddress + "/communities/service/html/communitystart?communityUuid=" + row("COMMUNITY_UUID").ToString()
+                                IbmConnectionsObjects.Description = row("PLAIN_DESCR").ToString()
+                                IbmConnectionsObjects.users = New List(Of String)()
+                                If print Then
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetCommunityObjects. after object " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                                End If
+                                For Each row2 As DataRow In ds.Tables(1).Rows().Cast(Of DataRow).Where(Function(x) x("COMMUNITY_UUID").ToString() = IbmConnectionsObjects.GUID)
+                                    Dim listOfUser As List(Of String) = allUsers.Where(Function(x) x.GUID = row2("DIRECTORY_UUID").ToString()).Select(Function(x) x.Id).ToList()
+                                    If listOfUser.Count > 0 Then
+                                        IbmConnectionsObjects.users.Add(listOfUser.First())
+                                    End If
+                                Next
+                                If print Then
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetCommunityObjects. after users " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                                End If
+                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects))
+
+
+                            Catch ex As Exception
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Objects. Exception adding community object. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
+                            End Try
+
+                        Next
+                        'list.AddRange(bulkOps.Select(Function(x) CType(x, MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)).Document.Id))
+                        'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Wes " + String.Join(",", list).ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetCommunityObjects. before mongo insert " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                        repoIbmConnectionsObjects.BulkInsert(bulkOps)
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetCommunityObjects. after mongo insert " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+
+                        'Grabs a lsit of all comunity IDs and their GUIDs
+                        Try
+                            Dim listOfComms As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Find(filterdefIbmConnectionsObjects).ToList()
+                            For Each entity As VSNext.Mongo.Entities.IbmConnectionsObjects In listOfComms
+                                dictOfCommunityIds.Add(entity.GUID, entity.Id)
+                            Next
+
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Objects. There are " & dictOfCommunityIds.Count & " communities found", LogUtilities.LogUtils.LogLevel.Normal)
+
+                        Catch ex As Exception
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Objects. Exception adding communities to list. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                        End Try
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetCommunityObjects. after dictionary creation " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+
+                        bulkOps = New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))()
+                        Try
+                            For Each bookmarkRow As DataRow In ds.Tables(2).Rows()     '.Select("COMMUNITY_UUID = '" & row("COMMUNITY_UUID").ToString() & "'")
+                                Try
+                                    Dim sxs3 As VSNext.Mongo.Entities.IbmConnectionsObjects = allUsers.Where(Function(x) x.GUID = bookmarkRow("DIRECTORY_UUID").ToString()).FirstOrDefault()
+                                    Dim userId3 As String = sxs3.Id
+
+
+                                    Dim id3 As String = Nothing
+                                    Try
+                                        Dim sxs4 As String = dictOfCommunityIds(bookmarkRow("COMMUNITY_UUID").ToString())
+                                        id3 = sxs4
+                                    Catch ex As Exception
+
+                                    End Try
+
+
+                                    Dim IbmConnectionsObjects2 As New VSNext.Mongo.Entities.IbmConnectionsObjects
+                                    IbmConnectionsObjects2.DeviceId = myServer.ServerObjectID
+                                    IbmConnectionsObjects2.DeviceName = myServer.Name
+                                    IbmConnectionsObjects2.Name = bookmarkRow("NAME").ToString()
+                                    IbmConnectionsObjects2.Type = "Bookmark"
+                                    IbmConnectionsObjects2.ParentGUID = id3
+                                    IbmConnectionsObjects2.OwnerId = userId3
+                                    IbmConnectionsObjects2.GUID = bookmarkRow("REF_UUID").ToString()
+                                    IbmConnectionsObjects2.ObjectCreatedDate = Convert.ToDateTime(bookmarkRow("CREATED").ToString())
+                                    IbmConnectionsObjects2.ObjectModifiedDate = Convert.ToDateTime(bookmarkRow("LASTMOD").ToString())
+
+                                    bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects2))
+                                    'repoIbmConnectionsObjects.Insert(IbmConnectionsObjects2)
+                                Catch ex As Exception
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Objects. Exception adding bookmarks. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
+                                End Try
+                            Next
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetCommunityObjects. before mongo insert 2 " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                            repoIbmConnectionsObjects.BulkInsert(bulkOps)
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetCommunityObjects. after mongo insert 2 " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                        Catch ex As Exception
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Objects. Exception adding finding table 8. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                        End Try
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Objects. Exception finding table 7. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                    End Try
+                End If
+
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error parsing Community Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            End Try
+
+        Catch ex As Exception
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error in GetCommunityObjects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+        End Try
+
+    End Sub
+
+    'Public Sub GetFileObjects(ByRef myServer As MonitoredItems.IBMConnect)
+
+    '    Dim sql As String = "SELECT COALESCE(SUM(CASE WHEN LAST_VISIT > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) LOGIN_LAST_MONTH, COALESCE(SUM(CASE WHEN LAST_VISIT > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) LOGIN_LAST_WEEK, COALESCE(SUM(CASE WHEN LAST_VISIT > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) LOGIN_LAST_DAY FROM FILES.USER WHERE LAST_VISIT > CURRENT_TIMESTAMP - 1 MONTH;" &
+    '     "SELECT COUNT(*) TOTAL_NUM_OF_FILES, COALESCE(SUM(CASE WHEN FILE_SIZE >= 1024 AND FILE_SIZE < 1024*1024 THEN 1 ELSE 0 END),0) FILES_OVER_KB, COALESCE(SUM(CASE WHEN FILE_SIZE >= 1024*1024 AND FILE_SIZE < 1024*1024*1024 THEN 1 ELSE 0 END),0) FILES_OVER_MB, COALESCE(SUM(CASE WHEN FILE_SIZE >= 1024*1024*1024 THEN 1 ELSE 0 END),0) FILES_OVER_GB FROM FILES.MEDIA;" &
+    '     "select COUNT(*) NUM_OF_USERS_WITH_NO_FILES FROM FILES.USER WHERE ID NOT IN (SELECT OWNER_USER_ID FROM FILES.MEDIA);" &
+    '     "SELECT FILES.USER.NAME, COALESCE(SUM(FILES.MEDIA.FILE_SIZE),0) FILE_SIZE FROM FILES.MEDIA INNER JOIN FILES.USER ON FILES.USER.ID = FILES.MEDIA.OWNER_USER_ID GROUP BY FILES.USER.NAME;" &
+    '     "SELECT COUNT(*) NUM_OF_FILES_IN_TRASH FROM FILES.R_MEDIA;" &
+    '     "SELECT COALESCE(SUM(CASE WHEN LAST_UPDATE > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) NUM_OF_FILES_UPDATED_LAST_MONTH, COALESCE(SUM(CASE WHEN LAST_UPDATE > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) NUM_OF_FILES_UPDATED_LAST_WEEK, COALESCE(SUM(CASE WHEN LAST_UPDATE > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) NUM_OF_FILES_UPDATED_LAST_DAY FROM FILES.MEDIA WHERE LAST_UPDATE > CURRENT_TIMESTAMP - 1 MONTH;" &
+    '     "SELECT CASE VISIBILITY_COMPUTED WHEN '1' THEN 'Everyone' WHEN '2' THEN 'OnlyMe' WHEN '3' THEN 'Shared' ELSE 'Unknown' END SHAREDWITH , COUNT(*) COUNT  FROM FILES.MEDIA GROUP BY VISIBILITY_COMPUTED;" &
+    '     "SELECT COUNT(*) NUM_OF_FILES_WITH_A_REVISION FROM (SELECT MEDIA_ID FROM FILES.MEDIA_REVISION GROUP BY MEDIA_ID HAVING COUNT(*) > 1);" &
+    '     "SELECT COUNT(DISTINCT MEDIA_ID) FILES_WITH_COMMENTS FROM FILES.MEDIA_COMMENT;" &
+    '     "SELECT COUNT(DISTINCT MEDIA_ID) FILES_WITH_SHARES FROM FILES.MEDIA_SHARE;" &
+    '     "SELECT COALESCE(SUM(CASE WHEN DOWNLOADED_AT > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) DOWNLOADS_LAST_MONTH, COALESCE(SUM(CASE WHEN DOWNLOADED_AT > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) DOWNLOADS_LAST_WEEK, COALESCE(SUM(CASE WHEN DOWNLOADED_AT > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) DOWNLOADS_LAST_DAY FROM FILES.MEDIA_DOWNLOAD WHERE DOWNLOADED_AT > CURRENT_TIMESTAMP - 1 MONTH;" &
+    '     "SELECT COUNT(*) TOTAL_NUM_OF_TAGS FROM FILES.MEDIA_TO_TAG;" &
+    '     "SELECT COUNT(*) NUM_OF_FILES_CREATED_YESTERDAY FROM FILES.MEDIA WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY;" &
+    '     "SELECT COUNT(*) NUM_OF_FILES_UPDATED_YESTERDAY FROM FILES.MEDIA WHERE DATE(LAST_UPDATE) = CURRENT_DATE - 1 DAY;" &
+    '     "SELECT COUNT(*) NUM_OF_FILES_DOWNLOADED_YESTERDAY FROM FILES.MEDIA_DOWNLOAD WHERE DATE(DOWNLOADED_AT) = CURRENT_DATE - 1 DAY;" &
+    '     "SELECT COUNT(*) NUM_OF_FILES_REVISIONED_YESTERDAY FROM FILES.MEDIA_REVISION WHERE DATE(LAST_UPDATE) = CURRENT_DATE - 1 DAY;"
+
+
+    '    Dim Category As String = "File"
+
+    '    Try
+    '        Dim con As IBM.Data.DB2.DB2Connection
+    '        Dim ds As New DataSet
+    '        Try
+
+    '            con = New IBM.Data.DB2.DB2Connection("Database=FILES;UserID=" & myServer.DBUserName & ";Password=" & myServer.DBPassword & ";Server=" & myServer.DBHostName & ":" & myServer.DBPort & ";Connect Timeout=60;")
+    '            con.Open()
+
+    '            Dim cmd As New IBM.Data.DB2.DB2Command(sql, con)
+    '            Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
+    '            cmd.CommandTimeout = getConnectionsTimeout()
+    '            adapter.Fill(ds)
+
+
+
+    '        Catch ex As Exception
+    '            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error getting Files Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '        Finally
+    '            Try
+    '                If con.IsOpen Then
+    '                    con.Close()
+    '                End If
+    '            Catch ex As Exception
+
+    '            End Try
+
+    '        End Try
+
+    '        Try
+    '            For Each table As DataTable In ds.Tables
+    '                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Category: " & Category & " Table " & ds.Tables.IndexOf(table) & " Rows " & table.Rows.Count & " Columns " & table.Columns.Count, LogUtilities.LogUtils.LogLevel.Normal)
+    '            Next
+    '            If MyLogLevel = LogLevel.Verbose Then
+    '                DataSetToLog(myServer, ds)
+    '            End If
+    '        Catch ex As Exception
+    '            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error printing File Objects data log. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '        End Try
+
+
+    '        Dim dict As New Dictionary(Of String, String)
+    '        Try
+    '            If (ds.Tables.Count = 0) Then
+    '                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Could not get " & Category & " Objects.", LogUtilities.LogUtils.LogLevel.Normal)
+    '            Else
+    '                Dim adapter As New VSAdaptor()
+
+    '                Try
+    '                    dict.Add("FILE_LOGIN_LAST_MONTH", ds.Tables(0).Rows(0)("LOGIN_LAST_MONTH"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at stat FILE_LOGIN_LAST_MONTH. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("FILE_LOGIN_LAST_WEEK", ds.Tables(0).Rows(0)("LOGIN_LAST_WEEK"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at stat FILE_LOGIN_LAST_WEEK. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("FILE_LOGIN_LAST_DAY", ds.Tables(0).Rows(0)("LOGIN_LAST_DAY"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at stat FILE_LOGIN_LAST_DAY. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("TOTAL_NUM_OF_FILES", ds.Tables(1).Rows(0)("TOTAL_NUM_OF_FILES"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at stat TOTAL_NUM_OF_FILES. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("FILES_OVER_KB", ds.Tables(1).Rows(0)("FILES_OVER_KB"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at stat FILES_OVER_KB. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("FILES_OVER_MB", ds.Tables(1).Rows(0)("FILES_OVER_MB"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at stat FILES_OVER_MB. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("FILES_OVER_GB", ds.Tables(1).Rows(0)("FILES_OVER_GB"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at stat FILES_OVER_GB. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("NUM_OF_USERS_WITH_NO_FILES", ds.Tables(2).Rows(0)("NUM_OF_USERS_WITH_NO_FILES"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at stat NUM_OF_USERS_WITH_NO_FILES. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("NUM_OF_FILES_IN_TRASH", ds.Tables(4).Rows(0)("NUM_OF_FILES_IN_TRASH"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at stat NUM_OF_FILES_IN_TRASH. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("NUM_OF_FILES_UPDATED_LAST_MONTH", ds.Tables(5).Rows(0)("NUM_OF_FILES_UPDATED_LAST_MONTH"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at stat NUM_OF_FILES_UPDATED_LAST_MONTH. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("NUM_OF_FILES_UPDATED_LAST_WEEK", ds.Tables(5).Rows(0)("NUM_OF_FILES_UPDATED_LAST_WEEK"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at stat NUM_OF_FILES_UPDATED_LAST_WEEK. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("NUM_OF_FILES_UPDATED_LAST_DAY", ds.Tables(5).Rows(0)("NUM_OF_FILES_UPDATED_LAST_DAY"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at stat NUM_OF_FILES_UPDATED_LAST_DAY. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+
+    '                Dim counter As Integer = 0
+    '                Try
+    '                    For Each row As DataRow In ds.Tables(6).Rows
+    '                        Try
+    '                            If {"Everyone", "OnlyMe", "Shared"}.Contains(ds.Tables(6).Rows(counter)("SHAREDWITH")) Then
+    '                                dict.Add("FILES_PERMISSIONS_FOR_" & ds.Tables(6).Rows(counter)("SHAREDWITH"), ds.Tables(6).Rows(counter)("COUNT"))
+    '                            Else
+    '                                'Add a print statement here
+    '                            End If
+
+    '                        Catch ex As Exception
+    '                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at stat File Permissions. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                        End Try
+
+    '                        counter += 1
+    '                    Next
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at stat table 6. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("NUM_OF_FILES_WITH_A_REVISION", ds.Tables(7).Rows(0)("NUM_OF_FILES_WITH_A_REVISION"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at stat NUM_OF_FILES_WITH_A_REVISION. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("FILES_WITH_COMMENTS", ds.Tables(8).Rows(0)("FILES_WITH_COMMENTS"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at stat FILES_WITH_COMMENTS. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("FILES_WITH_SHARES", ds.Tables(9).Rows(0)("FILES_WITH_SHARES"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at stat FILES_WITH_SHARES. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("FILE_DOWNLOADS_LAST_MONTH", ds.Tables(10).Rows(0)("DOWNLOADS_LAST_MONTH"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at stat FILE_DOWNLOADS_LAST_MONTH. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("FILE_DOWNLOADS_LAST_WEEK", ds.Tables(10).Rows(0)("DOWNLOADS_LAST_WEEK"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at stat FILE_DOWNLOADS_LAST_WEEK. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("FILE_DOWNLOADS_LAST_DAY", ds.Tables(10).Rows(0)("DOWNLOADS_LAST_DAY"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at stat FILE_DOWNLOADS_LAST_DAY. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("FILE_TOTAL_NUM_OF_TAGS", ds.Tables(11).Rows(0)("TOTAL_NUM_OF_TAGS"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at stat FILE_TOTAL_NUM_OF_TAGS. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("NUM_OF_FILES_FILES_CREATED_YESTERDAY", ds.Tables(12).Rows(0)("NUM_OF_FILES_CREATED_YESTERDAY"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at stat NUM_OF_FILES_FILES_CREATED_YESTERDAY. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("NUM_OF_FILES_FILES_UPDATED_YESTERDAY", ds.Tables(13).Rows(0)("NUM_OF_FILES_UPDATED_YESTERDAY"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at stat NUM_OF_FILES_FILES_UPDATED_YESTERDAY. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("NUM_OF_FILES_FILES_DOWNLOADED_YESTERDAY", ds.Tables(14).Rows(0)("NUM_OF_FILES_DOWNLOADED_YESTERDAY"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at stat NUM_OF_FILES_FILES_DOWNLOADED_YESTERDAY. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("NUM_OF_FILES_FILES_REVISIONED_YESTERDAY", ds.Tables(15).Rows(0)("NUM_OF_FILES_REVISIONED_YESTERDAY"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at stat NUM_OF_FILES_FILES_REVISIONED_YESTERDAY. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+
+    '                Dim sqlVals As String = ""
+    '                For Each key In dict.Keys
+    '                    Try
+    '                        Dim Name As String = key
+    '                        Dim Val As String = dict(key)
+
+    '                        If myServer.IPAddress.ToLower().Contains("jnittech") Then
+    '                            If key = "NUM_OF_FILES_FILES_CREATED_YESTERDAY" Or key = "NUM_OF_FILES_FILES_UPDATED_YESTERDAY" Or key = "NUM_OF_FILES_FILES_DOWNLOADED_YESTERDAY" Or key = "NUM_OF_FILES_FILES_REVISIONED_YESTERDAY" Then
+    '                                Val = Int(20 * Rnd()) + 1
+    '                            End If
+    '                        End If
+
+    '                        'sql += "('" & myServer.Name & "', GetDate(), '" & Name.ToUpper() & "', '" & Val & "', '" & GetWeekNumber(Now) & "', '" & Now.Month.ToString() & "', '" & Now.Year.ToString() & "', '" & Now.Day.ToString() & "'),"
+    '                        addSummaryObjects(myServer, Name.ToUpper(), Val)
+
+    '                    Catch ex As Exception
+    '                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get File Objects. Exception at inserting Objects. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                    End Try
+
+    '                Next
+
+
+    '                'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
+
+    '            End If
+
+    '        Catch ex As Exception
+    '            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error parsing Files Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '        End Try
+
+
+
+    '    Catch ex As Exception
+    '        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error in GetFilesObjects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '    End Try
+
+    'End Sub
+
+    Public Sub GetBookmarksObjects(ByRef myServer As MonitoredItems.IBMConnect)
+
+        Dim sql As String = "SELECT url.LINK_ID, url.TITLE, 'Bookmark' as TYPE, url.DATE, url.MODIFIED, users.MEMBER_ID FROM DOGEAR.LINK url INNER JOIN DOGEAR.PERSON users ON users.PERSON_ID = url.PERSON WHERE url.DELETED = 0;" &
+            "SELECT TAG, LINK_ID FROM DOGEAR.TAGS WHERE LINK_ID IN ( SELECT LINK_ID FROM DOGEAR.LINK WHERE DELETED = 0 );"
+
+        Dim Category As String = "Bookmark"
+
+        Try
+            Dim con As IBM.Data.DB2.DB2Connection
+            Dim ds As New DataSet
+            Try
+
+                con = New IBM.Data.DB2.DB2Connection("Database=DOGEAR;UserID=" & myServer.DBUserName & ";Password=" & myServer.DBPassword & ";Server=" & myServer.DBHostName & ":" & myServer.DBPort & ";Connect Timeout=60;")
+                con.Open()
+
+                Dim cmd As New IBM.Data.DB2.DB2Command(sql, con)
+                Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
+                cmd.CommandTimeout = getConnectionsTimeout()
+                adapter.Fill(ds)
+
+
+
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error getting bookmark Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            Finally
+                Try
+                    If con.IsOpen Then
+                        con.Close()
+                    End If
+                Catch ex As Exception
+
+                End Try
+
+            End Try
+
+            Try
+                For Each table As DataTable In ds.Tables
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Category: " & Category & " Table " & ds.Tables.IndexOf(table) & " Rows " & table.Rows.Count & " Columns " & table.Columns.Count, LogUtilities.LogUtils.LogLevel.Normal)
+                Next
+                If MyLogLevel = LogLevel.Verbose Then
+                    DataSetToLog(myServer, ds)
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error printing Bookmark Objects data log. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            End Try
+
+
+            Dim dict As New Dictionary(Of String, String)
+            Try
+
+                If (ds.Tables.Count = 0) Then
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Could not get " & Category & " Objects.", LogUtilities.LogUtils.LogLevel.Normal)
+                Else
+                    ClearConnectionObjectTables(myServer, "Bookmark")
+                    Dim adapter As New VSAdaptor()
+
+
+
+                    Try
+                        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))()
+
+                        For Each row As DataRow In ds.Tables(0).Rows()
+                            Try
+
+                                Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
+                                IbmConnectionsObjects.Name = row("TITLE").ToString()
+                                IbmConnectionsObjects.DeviceName = myServer.Name
+                                IbmConnectionsObjects.DeviceId = myServer.ServerObjectID
+                                IbmConnectionsObjects.Type = "Bookmark"
+                                IbmConnectionsObjects.OwnerId = getObjectUser(myServer.Name, row("MEMBER_ID").ToString())
+                                IbmConnectionsObjects.ObjectCreatedDate = Convert.ToDateTime(row("DATE").ToString())
+                                IbmConnectionsObjects.ObjectModifiedDate = Convert.ToDateTime(row("MODIFIED").ToString())
+                                IbmConnectionsObjects.GUID = row("LINK_ID").ToString()
+                                Dim tags As New List(Of String)
+                                For Each tagRow As DataRow In ds.Tables(1).Rows()
+                                    Try
+                                        If (tagRow("LINK_ID").ToString().Equals(row("LINK_ID").ToString())) Then
+                                            If Not tags.Contains(tagRow("TAG").ToString()) Then
+                                                tags.Add(tagRow("TAG").ToString())
+                                            End If
+                                        End If
+                                    Catch ex As Exception
+                                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Bookmark Objects. Exception at adding tags. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
+                                    End Try
+                                Next
+                                IbmConnectionsObjects.tags = tags
+
+                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects))
+                                'repo.Insert(IbmConnectionsObjects)
+                            Catch ex As Exception
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Bookmark Objects. Exception at making bookmark. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
+                            End Try
+                        Next
+                        repo.BulkInsert(bulkOps)
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Bookmark Objects. Exception at table 3. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                    End Try
+
+                End If
+
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error parsing Bookmark Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            End Try
+
+
+
+        Catch ex As Exception
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error in GetBookmarksObjects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+        End Try
+
+    End Sub
+
+    Public Sub GetForumObjects(ByRef myServer As MonitoredItems.IBMConnect)
+
+        Dim sql As String = ""
+
+        Try
+
+
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Eq(Function(x) x.Type, "Community") And
+                repo.Filter.Eq(Function(x) x.DeviceId, myServer.ServerObjectID)
+            Dim str As String = String.Join("','", repo.Find(filterDef).ToList().Select(Function(x) x.GUID).ToList())
+
+            sql += " SELECT com.COMMUNITYUUID, node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD, node.CREATED FROM FORUM.DF_NODECOMMMAP com INNER JOIN FORUM.DF_NODE node ON com.FORUMUUID = node.FORUMUUID INNER JOIN FORUM.DF_MEMBERPROFILE users on users.MEMBERID = node.CREATEDBY WHERE com.COMMUNITYUUID IN ('" & str & "') AND node.STATE = 0 AND NODETYPE IN ('application/forum', 'forum/topic') ORDER BY CASE node.NODETYPE WHEN 'application/forum' THEN 1 WHEN 'forum/topic' THEN 2 ELSE 3 END;"
+
+        Catch ex As Exception
+            sql += " SELECT com.COMMUNITYUUID, node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD, node.CREATED FROM FORUM.DF_NODECOMMMAP com INNER JOIN FORUM.DF_NODE node ON com.FORUMUUID = node.FORUMUUID INNER JOIN FORUM.DF_MEMBERPROFILE users on users.MEMBERID = node.CREATEDBY WHERE node.STATE = 0 AND NODETYPE IN ('application/forum', 'forum/topic') ORDER BY CASE node.NODETYPE WHEN 'application/forum' THEN 1 WHEN 'forum/topic' THEN 2 ELSE 3 END;"
+        End Try
+
+        sql += "SELECT node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD, node.CREATED FROM FORUM.DF_NODE node INNER JOIN FORUM.DF_MEMBERPROFILE users on users.MEMBERID = node.CREATEDBY WHERE node.FORUMUUID IN (Select FORUMUUID FROM FORUM.DF_NODE WHERE NODEALIAS != 'community' AND NODETYPE = 'application/forum' AND STATE = 0 AND DELSTATE = 0) AND node.NODEALIAS != 'community' AND node.STATE = 0 AND node.DELSTATE = 0 AND node.NODETYPE IN ('application/forum', 'forum/topic') ORDER BY CASE node.NODETYPE WHEN 'application/forum' THEN 1 WHEN 'forum/topic' THEN 2 ELSE 3 END;"
+        sql += "SELECT NAME, NODEUUID FROM FORUM.DF_TAG;"
+        sql += "SELECT COUNT(*) COUNT, FORUMID, TOPICID from FORUM.DF_SUBSCRIPTION GROUP BY FORUMID, TOPICID"
+
+
+        Dim Category As String = "File"
+
+        Try
+            Dim con As IBM.Data.DB2.DB2Connection
+            Dim ds As New DataSet
+            Try
+
+                con = New IBM.Data.DB2.DB2Connection("Database=FORUM;UserID=" & myServer.DBUserName & ";Password=" & myServer.DBPassword & ";Server=" & myServer.DBHostName & ":" & myServer.DBPort & ";Connect Timeout=60;")
+                con.Open()
+
+                Dim cmd As New IBM.Data.DB2.DB2Command(sql, con)
+                Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
+                cmd.CommandTimeout = getConnectionsTimeout()
+                adapter.Fill(ds)
+
+
+
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error getting Forum Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            Finally
+                Try
+                    If con.IsOpen Then
+                        con.Close()
+                    End If
+                Catch ex As Exception
+
+                End Try
+
+            End Try
+
+            Try
+                For Each table As DataTable In ds.Tables
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Category: " & Category & " Table " & ds.Tables.IndexOf(table) & " Rows " & table.Rows.Count & " Columns " & table.Columns.Count, LogUtilities.LogUtils.LogLevel.Normal)
+                Next
+                If MyLogLevel = LogLevel.Verbose Then
+                    DataSetToLog(myServer, ds)
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error printing Forum Objects data log. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            End Try
+
+
+            Dim dict As New Dictionary(Of String, String)
+            Try
+                If (ds.Tables.Count = 0) Then
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Could not get " & Category & " Objects.", LogUtilities.LogUtils.LogLevel.Normal)
+                Else
+                    ClearConnectionObjectTables(myServer, "Forum")
+                    ClearConnectionObjectTables(myServer, "Forum Topic")
+                    ClearConnectionObjectTables(myServer, "Fourum Reply")
+                    Dim adapter As New VSAdaptor()
+
+
+                    'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
+
+                    Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))()
+                    Try
+
+                        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+                        For Each row As DataRow In ds.Tables(0).Rows()
+                            Try
+                                Dim type As String = ""
+                                Dim parent As String = ""
+                                Dim parentType As String = ""
+
+                                If (row("NODETYPE").ToString() = "application/forum") Then
+                                    type = "Forum"
+                                    parent = row("COMMUNITYUUID").ToString()
+                                    parentType = "Community"
+                                ElseIf (row("NODETYPE").ToString() = "forum/reply") Then
+                                    type = "Forum Reply"
+                                    parent = row("PARENTUUID").ToString()
+                                    parentType = "Forum Topic"
+                                ElseIf (row("NODETYPE").ToString() = "forum/topic") Then
+                                    type = "Forum Topic"
+                                    parent = row("PARENTUUID").ToString()
+                                    parentType = "Forum"
+                                End If
+
+
+                                Dim parentObjectId As String = Nothing
+
+                                Try
+                                    If (parentType = "Community") Then
+                                        parentObjectId = dictOfCommunityIds(parent)
+                                    Else
+
+                                        Dim writeModel As WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = bulkOps.Where(Function(x) CType(x, MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)).Document.GUID = parent And
+                                                          CType(x, MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)).Document.Type = parentType).First()
+                                        parentObjectId = CType(writeModel, MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)).Document.Id
+
+                                        'Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Eq(Function(x) x.GUID, parent) And
+                                        '    repo.Filter.Eq(Function(x) x.Type, parentType)
+                                        'parentObjectId = repo.Find(filterDef).ToList()(0).Id
+                                    End If
+                                Catch ex As Exception
+                                    parentObjectId = Nothing
+                                End Try
+
+                                'com.COMMUNITYUUID, node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD
+                                Dim entity As New VSNext.Mongo.Entities.IbmConnectionsObjects() With {
+                                    .Name = row("NAME").ToString(),
+                                    .ObjectCreatedDate = Convert.ToDateTime(row("CREATED").ToString()),
+                                    .ObjectModifiedDate = Convert.ToDateTime(row("LASTMOD").ToString()),
+                                    .DeviceId = myServer.ServerObjectID,
+                                    .DeviceName = myServer.Name,
+                                    .OwnerId = getObjectUser(myServer.Name, row("EXID").ToString()),
+                                    .GUID = row("NODEUUID").ToString(),
+                                    .Type = type,
+                                    .ParentGUID = parentObjectId,
+                                    .Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString()
+                                }
+
+                                Dim tagList As New List(Of String)()
+
+                                Try
+                                    For Each tagRow As DataRow In ds.Tables(2).Rows()
+                                        If row("NODEUUID").ToString() <> tagRow("NODEUUID") Then
+                                            Continue For
+                                        End If
+                                        tagList.Add(tagRow("NAME").ToString)
+                                    Next
+                                Catch ex As Exception
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Forum Objects. Exception at table 8. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
+                                End Try
+
+                                If {"Forum Topic", "Forum"}.Contains(type) Then
+                                    Dim selectStatement As String = ""
+                                    If (type = "Forum") Then
+                                        selectStatement = "FORUMID='" & entity.GUID & "' AND TOPICID='00000000-0000-0000-0000-000000000000'"
+                                    ElseIf type = "Forum Topic" Then
+                                        selectStatement = "FORUMID='" & parentObjectId & "' AND TOPICID='" & entity.GUID & "'"
+                                    End If
+                                    Try
+                                        entity.NumOfFollowers = ds.Tables(3).Select(selectStatement).ToList()(0)("COUNT").ToString()
+                                    Catch ex As Exception
+                                        entity.NumOfFollowers = 0
+                                    End Try
+
+                                End If
+
+                                entity.tags = tagList
+
+                                'repo.Insert(entity)
+                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(entity))
+                            Catch ex As Exception
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Forum Objects. Exception at inserting fourm first. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
+                            End Try
+                            'repo.BulkInsert(bulkOps)
+                        Next
+
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Forum Objects. Exception at table 6. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                    End Try
+
+                    'node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD, node.CREATED
+
+                    Try
+                        'Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))()
+                        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+                        For Each row As DataRow In ds.Tables(1).Rows()
+                            Try
+                                Dim type As String = ""
+                                Dim parent As String = ""
+                                Dim parentType As String = ""
+
+                                If (row("NODETYPE").ToString() = "application/forum") Then
+                                    type = "Forum"
+                                    parent = ""
+                                    parentType = ""
+                                ElseIf (row("NODETYPE").ToString() = "forum/reply") Then
+                                    type = "Forum Reply"
+                                    parent = row("PARENTUUID").ToString()
+                                    parentType = "Forum Topic"
+                                ElseIf (row("NODETYPE").ToString() = "forum/topic") Then
+                                    type = "Forum Topic"
+                                    parent = row("PARENTUUID").ToString()
+                                    parentType = "Forum"
+                                End If
+
+
+                                Dim parentObjectId As String = Nothing
+                                Try
+
+                                    If (parentType = "Community") Then
+                                        parentObjectId = dictOfCommunityIds(parent)
+                                    Else
+
+                                        Dim writeModel As WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = bulkOps.Where(Function(x) CType(x, MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)).Document.GUID = parent And
+                                                          CType(x, MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)).Document.Type = parentType).First()
+                                        parentObjectId = CType(writeModel, MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)).Document.Id
+
+                                        'Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Eq(Function(x) x.GUID, parent) And
+                                        '    repo.Filter.Eq(Function(x) x.Type, parentType)
+                                        'parentObjectId = repo.Find(filterDef).ToList()(0).Id
+                                    End If
+                                Catch ex As Exception
+                                    parentObjectId = Nothing
+                                End Try
+
+                                'com.COMMUNITYUUID, node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD
+                                Dim entity As New VSNext.Mongo.Entities.IbmConnectionsObjects() With {
+                                    .Name = row("NAME").ToString(),
+                                    .ObjectCreatedDate = Convert.ToDateTime(row("CREATED").ToString()),
+                                    .ObjectModifiedDate = Convert.ToDateTime(row("LASTMOD").ToString()),
+                                    .DeviceId = myServer.ServerObjectID,
+                                    .DeviceName = myServer.Name,
+                                    .OwnerId = getObjectUser(myServer.Name, row("EXID").ToString()),
+                                    .GUID = row("NODEUUID").ToString(),
+                                    .Type = type,
+                                    .ParentGUID = parentObjectId,
+                                    .Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString()
+                                }
+
+                                Dim tagList As New List(Of String)()
+
+                                Try
+                                    For Each tagRow As DataRow In ds.Tables(2).Rows()
+                                        If row("NODEUUID").ToString() <> tagRow("NODEUUID") Then
+                                            Continue For
+                                        End If
+                                        tagList.Add(tagRow("NAME").ToString)
+                                    Next
+
+                                Catch ex As Exception
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Forum Objects. Exception at table 8 2. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
+                                End Try
+
+                                If {"Forum Topic", "Forum"}.Contains(type) Then
+                                    Dim selectStatement As String = ""
+                                    If (type = "Forum") Then
+                                        selectStatement = "FORUMID='" & entity.GUID & "' AND TOPICID='00000000-0000-0000-0000-000000000000'"
+                                    ElseIf type = "Forum Topic" Then
+                                        selectStatement = "FORUMID='" & parentObjectId & "' AND TOPICID='" & entity.GUID & "'"
+                                    End If
+                                    Try
+                                        entity.NumOfFollowers = ds.Tables(3).Select(selectStatement).ToList()(0)("COUNT").ToString()
+                                    Catch ex As Exception
+                                        entity.NumOfFollowers = 0
+                                    End Try
+
+                                End If
+
+                                entity.tags = tagList
+
+                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(entity))
+                                'repo.Insert(entity)
+
+                            Catch ex As Exception
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Forum Objects. Exception at inserting fourms objects 2. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
+                            End Try
+
+                        Next
+                        repo.BulkInsert(bulkOps)
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Forum Objects. Exception at table 7. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                    End Try
+
+                End If
+
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error parsing Forum Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            End Try
+
+
+
+        Catch ex As Exception
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error in GetForumObjects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+        End Try
+
+    End Sub
+
+    Public Sub GetWikiObjects(ByRef myServer As MonitoredItems.IBMConnect)
+
+        Dim sql As String = "SELECT HEX(wiki.ID) as ID, wiki.LABEL, 'Wiki' as Type, wiki.CREATE_DATE, wiki.LAST_UPDATE, user.DIRECTORY_ID, wiki.EXTERNAL_CONTAINER_ID, notifications.COUNT FOLLOWERS FROM WIKIS.LIBRARY wiki INNER JOIN WIKIS.USER user ON wiki.OWNER_USER_ID = user.ID INNER JOIN (SELECT HEX(LIBRARY_ID) LIBRARY_ID, COUNT(*) COUNT FROM WIKIS.LIBRARY_NOTIFICATION GROUP BY HEX(LIBRARY_ID)) notifications ON notifications.LIBRARY_ID = HEX(wiki.ID);" &
+            "SELECT HEX(lib.LIBRARY_ID) as LIBRARY_ID, tag.TAG FROM WIKIS.LIBRARY_TO_TAG lib INNER JOIN WIKIS.TAG tag ON tag.ID = lib.TAG_ID;" &
+            "SELECT HEX(media.ID) as ID, media.LABEL, 'Wiki Entry' as TYPE, media.CREATE_DATE, media.LAST_UPDATE, user.DIRECTORY_ID, HEX(media.LIBRARY_ID) as LIBRARY_ID, notifications.COUNT FOLLOWERS FROM WIKIS.MEDIA media INNER JOIN WIKIS.USER user ON user.ID = media.OWNER_USER_ID LEFT OUTER JOIN (SELECT HEX(MEDIA_ID) MEDIA_ID, COUNT(*) COUNT FROM WIKIS.MEDIA_NOTIFICATION GROUP BY HEX(MEDIA_ID)) notifications ON notifications.MEDIA_ID = HEX(media.ID);"
+
+
+        Dim Category As String = "WIKIS"
+
+        Try
+            Dim con As IBM.Data.DB2.DB2Connection
+            Dim ds As New DataSet
+            Try
+
+                con = New IBM.Data.DB2.DB2Connection("Database=WIKIS;UserID=" & myServer.DBUserName & ";Password=" & myServer.DBPassword & ";Server=" & myServer.DBHostName & ":" & myServer.DBPort & ";Connect Timeout=60;")
+                con.Open()
+
+                Dim cmd As New IBM.Data.DB2.DB2Command(sql, con)
+                Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
+                cmd.CommandTimeout = getConnectionsTimeout()
+                adapter.Fill(ds)
+
+
+
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error getting Wiki Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            Finally
+                Try
+                    If con.IsOpen Then
+                        con.Close()
+                    End If
+                Catch ex As Exception
+
+                End Try
+
+            End Try
+
+            Try
+                For Each table As DataTable In ds.Tables
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Category: " & Category & " Table " & ds.Tables.IndexOf(table) & " Rows " & table.Rows.Count & " Columns " & table.Columns.Count, LogUtilities.LogUtils.LogLevel.Normal)
+                Next
+                If MyLogLevel = LogLevel.Verbose Then
+                    DataSetToLog(myServer, ds)
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error printing Wiki Objects data log. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            End Try
+
+
+            Dim dict As New Dictionary(Of String, String)
+            Try
+                If (ds.Tables.Count = 0) Then
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Could not get " & Category & " Objects.", LogUtilities.LogUtils.LogLevel.Normal)
+                Else
+                    ClearConnectionObjectTables(myServer, "Wiki")
+                    ClearConnectionObjectTables(myServer, "Wiki Entry")
+                    Dim adapter As New VSAdaptor()
+
+
+                    'Dim cmd As New SqlClient.SqlCommand()
+                    Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+
+                    Try
+                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))()
+                        Dim allUsers As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Find(
+                            repo.Filter.Eq(Function(x) x.Type, "Users") And
+                            repo.Filter.Eq(Function(x) x.DeviceName, myServer.Name)
+                        ).ToList()
+                        For Each row As DataRow In ds.Tables(0).Rows()
+                            Try
+
+                                Dim ownerId As String = Nothing
+                                Try
+                                    ownerId = allUsers.Where(Function(x) x.GUID = HexToGUID(row("DIRECTORY_ID").ToString())).First().Id
+                                Catch ex As Exception
+
+                                End Try
+
+                                Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
+                                IbmConnectionsObjects.Name = row("LABEL").ToString()
+                                IbmConnectionsObjects.DeviceName = myServer.Name
+                                IbmConnectionsObjects.DeviceId = myServer.ServerObjectID
+                                IbmConnectionsObjects.Type = "Wiki"
+                                IbmConnectionsObjects.OwnerId = ownerId
+                                IbmConnectionsObjects.ObjectCreatedDate = Convert.ToDateTime(row("CREATE_DATE").ToString())
+                                IbmConnectionsObjects.ObjectModifiedDate = Convert.ToDateTime(row("LAST_UPDATE").ToString())
+                                IbmConnectionsObjects.GUID = HexToGUID(row("ID").ToString())
+                                IbmConnectionsObjects.tags = New List(Of String)()
+
+                                For Each tagRow As DataRow In ds.Tables(1).Rows().Cast(Of DataRow).Where(Function(x) HexToGUID(x("LIBRARY_ID").ToString()).Equals(IbmConnectionsObjects.GUID))
+                                    IbmConnectionsObjects.tags.Add(tagRow("TAG"))
+                                Next
+
+                                If (row("EXTERNAL_CONTAINER_ID") IsNot Nothing And row("EXTERNAL_CONTAINER_ID").ToString() <> "") Then
+                                    IbmConnectionsObjects.ParentGUID = dictOfCommunityIds(row("EXTERNAL_CONTAINER_ID").ToString())
+                                End If
+
+                                If (Not IsDBNull(row("FOLLOWERS"))) And (row("FOLLOWERS").ToString() <> Nothing) And row("FOLLOWERS").ToString() <> "" Then
+                                    IbmConnectionsObjects.NumOfFollowers = Convert.ToInt32(row("FOLLOWERS").ToString())
+                                Else
+                                    IbmConnectionsObjects.NumOfFollowers = 0
+                                End If
+
+                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects))
+                                'repo.Insert(IbmConnectionsObjects)
+                            Catch ex As Exception
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Objects. Exception at making wiki. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
+                            End Try
+
+                        Next
+                        repo.BulkInsert(bulkOps)
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Objects. Exception at table 6. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
+                    End Try
+
+                    Try
+                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))()
+                        Dim allWikis As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Find(
+                            repo.Filter.Eq(Function(x) x.Type, "Wiki") And
+                            repo.Filter.Eq(Function(x) x.DeviceName, myServer.Name)
+                        ).ToList()
+
+                        Dim allUsers As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Find(
+                            repo.Filter.Eq(Function(x) x.Type, "Users") And
+                            repo.Filter.Eq(Function(x) x.DeviceName, myServer.Name)
+                        ).ToList()
+
+                        For Each row As DataRow In ds.Tables(2).Rows()
+                            Try
+                                Dim parentId As String = Nothing
+                                Try
+                                    parentId = allWikis.Where(Function(x) x.GUID = HexToGUID(row("LIBRARY_ID").ToString())).First().Id
+                                Catch ex As Exception
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Topic parent Exception: " & ex.ToString(), LogUtilities.LogUtils.LogLevel.Verbose)
+                                End Try
+
+                                Dim ownerId As String = Nothing
+                                Try
+                                    ownerId = allUsers.Where(Function(x) x.GUID = row("DIRECTORY_ID").ToString()).First().Id
+                                Catch ex As Exception
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Topic ownerId Exception: " & ex.ToString(), LogUtilities.LogUtils.LogLevel.Verbose)
+                                End Try
+
+                                Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
+                                IbmConnectionsObjects.Name = row("LABEL").ToString()
+                                IbmConnectionsObjects.DeviceName = myServer.Name
+                                IbmConnectionsObjects.DeviceId = myServer.ServerObjectID
+                                IbmConnectionsObjects.Type = "Wiki Entry"
+                                IbmConnectionsObjects.ParentGUID = parentId
+                                IbmConnectionsObjects.OwnerId = ownerId
+                                IbmConnectionsObjects.ObjectCreatedDate = Convert.ToDateTime(row("CREATE_DATE").ToString())
+                                IbmConnectionsObjects.ObjectModifiedDate = Convert.ToDateTime(row("LAST_UPDATE").ToString())
+                                IbmConnectionsObjects.GUID = HexToGUID(row("ID").ToString())
+
+                                If (Not IsDBNull(row("FOLLOWERS"))) And (row("FOLLOWERS").ToString() <> Nothing) And row("FOLLOWERS").ToString() <> "" Then
+                                    IbmConnectionsObjects.NumOfFollowers = Convert.ToInt32(row("FOLLOWERS").ToString())
+                                Else
+                                    IbmConnectionsObjects.NumOfFollowers = 0
+                                End If
+
+                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects))
+                                'repo.Insert(IbmConnectionsObjects)
+                            Catch ex As Exception
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Objects. Exception at inserting wiki entries. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
+                            End Try
+                        Next
+                        repo.BulkInsert(bulkOps)
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Objects. Exception at table 8. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                    End Try
+                End If
+
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error parsing Wiki Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            End Try
+
+
+
+        Catch ex As Exception
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error in GetWikiObjects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+        End Try
+
+    End Sub
+
+    Public Sub GetProfileObjects(ByRef myServer As MonitoredItems.IBMConnect)
+        Dim oWatch As New System.Diagnostics.Stopwatch
+        oWatch.Start()
+        Dim sql As String = "SELECT PROF_KEY, PROF_GUID, PROF_DISPLAY_NAME, PROF_MODE, PROF_STATE, PROF_UID_LOWER FROM EMPINST.EMPLOYEE;" &
+            "SELECT PROF_KEY, PROF_LAST_LOGIN FROM EMPINST.PROFILE_LAST_LOGIN"
+
+
+
+        Dim Category As String = "Profiles"
+
+        Try
+            Dim con As IBM.Data.DB2.DB2Connection
+            Dim ds As New DataSet
+            Try
+
+                con = New IBM.Data.DB2.DB2Connection("Database=PEOPLEDB;UserID=" & myServer.DBUserName & ";Password=" & myServer.DBPassword & ";Server=" & myServer.DBHostName & ":" & myServer.DBPort & ";Connect Timeout=60;")
+                con.Open()
+
+                Dim cmd As New IBM.Data.DB2.DB2Command(sql, con)
+                Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
+                cmd.CommandTimeout = getConnectionsTimeout()
+                adapter.Fill(ds)
+
+
+
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error getting Profile Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            Finally
+                Try
+                    If con.IsOpen Then
+                        con.Close()
+                    End If
+                Catch ex As Exception
+
+                End Try
+
+            End Try
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetProfileObjects. After DB Call insert " & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+            Try
+                For Each table As DataTable In ds.Tables
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Category: " & Category & " Table " & ds.Tables.IndexOf(table) & " Rows " & table.Rows.Count & " Columns " & table.Columns.Count, LogUtilities.LogUtils.LogLevel.Normal)
+                Next
+                If MyLogLevel = LogLevel.Verbose Then
+                    DataSetToLog(myServer, ds)
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error printing Profile Objects data log. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            End Try
+
+            Dim dict As New Dictionary(Of String, String)
+            Try
+                If (ds.Tables.Count = 0) Then
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Could not get " & Category & " Objects.", LogUtilities.LogUtils.LogLevel.Normal)
+                Else
+                    ClearConnectionObjectTables(myServer, "Users")
+                    Dim adapter As New VSAdaptor()
+
+                    Try
+                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))
+                        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+                        Dim loginCountForDay As Int32 = 0
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetProfileObjects. Before objects " & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                        For Each row As DataRow In ds.Tables(0).Rows()
+                            Try
+                                Dim myServerName As String = myServer.Name
+
+                                Dim lastLoginTime As DateTime? = Nothing
+                                'PROF_KEY, PROF_LAST_LOGIN
+                                If ds.Tables(1).AsEnumerable.Where(Function(x) x.Field(Of String)("PROF_KEY").ToLower() = row("PROF_KEY").ToString().ToLower()).Count > 0 Then
+                                    'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Inside for ") ' & ds.Tables(15).Select("PROF_KEY = '" & row("PROF_GUID").ToString() & "'").First()("PROF_LAST_LOGIN").ToString() & "...." & ds.Tables(15).Select("PROF_KEY = '" & row("PROF_GUID").ToString() & "'").First()("PROF_KEY").ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                                    lastLoginTime = DateTime.Parse(ds.Tables(1).AsEnumerable.Where(Function(x) x("PROF_KEY").ToString().ToLower() = row("PROF_KEY").ToString().ToLower()).First()("PROF_LAST_LOGIN").ToString())
+                                End If
+
+
+                                Dim entry As New VSNext.Mongo.Entities.IbmConnectionsObjects With {
+                                    .GUID = row("PROF_GUID").ToString(),
+                                    .DeviceName = myServerName,
+                                    .Type = "Users",
+                                    .Name = row("PROF_DISPLAY_NAME").ToString(),
+                                    .IsActive = Convert.ToBoolean(IIf(row("PROF_STATE").ToString() = "0", True, False)),
+                                    .IsInternal = Convert.ToBoolean(IIf(row("PROF_MODE").ToString() = "0", True, False)),
+                                    .DeviceId = myServer.ServerObjectID,
+                                    .LogonName = row("PROF_UID_LOWER").ToString(),
+                                    .LastLoginDate = lastLoginTime,
+                                    .CreatedOn = DateTime.Now
+                                }
+                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(entry))
+
+                                If lastLoginTime.HasValue Then
+                                    If lastLoginTime.Value.AddDays(-1).Date.CompareTo(DateTime.Now.AddDays(-1).Date) >= 0 Then
+                                        loginCountForDay += 1
+                                    End If
+                                End If
+
+                            Catch ex As Exception
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error Inserting Users in Profile Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                            End Try
+                        Next
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetProfileObjects. Before Bulk insert " & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                        repo.BulkInsert(bulkOps.AsEnumerable())
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After Bulk insert " & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                        InsertIntoIBMConnectionsDailyStats(myServer.Name, "UniqueLoginsPerDay", loginCountForDay.ToString(), myServer.ServerObjectID)
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Profile Objects. Exception at table 12. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                    End Try
+                    'End Using
+
+                End If
+            Catch ex As Exception
+                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error parsing Profile Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            End Try
+
+
+
+        Catch ex As Exception
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error in GetProfileObjects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+        End Try
+
+    End Sub
+
+    'Public Sub GetLibraryObjects(ByRef myServer As MonitoredItems.IBMConnect)
+
+    '    Dim sql As String = "SELECT COUNT(*) LIBRARIES_TOTAL_NUM_OF_FILES, COALESCE(SUM(CASE WHEN CONTENT_SIZE >= 1024 AND CONTENT_SIZE < 1024*1024 THEN 1 ELSE 0 END),0) LIBRARIES_FILES_OVER_KB, COALESCE(SUM(CASE WHEN CONTENT_SIZE >= 1024*1024 AND CONTENT_SIZE < 1024*1024*1024 THEN 1 ELSE 0 END),0) LIBRARIES_FILES_OVER_MB, COALESCE(SUM(CASE WHEN CONTENT_SIZE >= 1024*1024*1024 THEN 1 ELSE 0 END),0) LIBRARIES_FILES_OVER_GB FROM DOCVERSION WHERE RECOVERY_ITEM_ID IS NULL AND IS_CURRENT = 1;" &
+    '        "SELECT COUNT(*) LIBRARIES_NUM_OF_FILES_IN_TRASH FROM RECOVERYITEM;" &
+    '        "SELECT COALESCE(SUM(CASE WHEN MODIFY_DATE > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) LIBRARIES_NUM_OF_FILES_UPDATED_LAST_MONTH, COALESCE(SUM(CASE WHEN MODIFY_DATE > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) LIBRARIES_NUM_OF_FILES_UPDATED_LAST_WEEK, COALESCE(SUM(CASE WHEN MODIFY_DATE > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) LIBRARIES_NUM_OF_FILES_UPDATED_LAST_DAY FROM DOCVERSION WHERE MODIFY_DATE > CURRENT_TIMESTAMP - 1 MONTH AND RECOVERY_ITEM_ID IS NULL AND IS_CURRENT = 1;" &
+    '        "SELECT COUNT(DISTINCT VERSION_SERIES_ID) LIBRARIES_NUM_OF_FILES_WITH_A_REVISION FROM DOCVERSION WHERE RECOVERY_ITEM_ID IS NULL GROUP BY VERSION_SERIES_ID HAVING COUNT(VERSION_SERIES_ID) > 1;" &
+    '        "SELECT COUNT(*) LIBRARIES_TOTAL_NUM_OF_TAGS FROM UT_CLBTAG;" &
+    '        "SELECT COUNT(*) LIBRARIES_NUM_OF_FILES_CREATED_YESTERDAY FROM DOCVERSION WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY AND MAJOR_VERSION_NUMBER = 1;" &
+    '        "SELECT COUNT(*) LIBRARIES_NUM_OF_FILES_UPDATED_YESTERDAY FROM DOCVERSION a INNER JOIN (SELECT VERSION_SERIES_ID, MAX(MAJOR_VERSION_NUMBER) MAJOR_NUMBER FROM DOCVERSION GROUP BY VERSION_SERIES_ID) AS b ON a.VERSION_SERIES_ID = b.VERSION_SERIES_ID AND b.MAJOR_NUMBER = a.MAJOR_VERSION_NUMBER WHERE DATE(MODIFY_DATE) = CURRENT_DATE - 1 DAY;" &
+    '        "SELECT COUNT(*) LIBRARIES_NUM_OF_FILES_DOWNLOADED_YESTERDAY FROM UT_CLBDOWNLOADRECORD WHERE DATE(MODIFY_DATE) = CURRENT_DATE - 1 DAY;" &
+    '        "SELECT COUNT(*) LIBRARIES_NUM_OF_FILES_REVISIONED_YESTERDAY FROM DOCVERSION WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY AND MAJOR_VERSION_NUMBER != 1;" &
+    '        "SELECT COUNT(*) LIBRARIES_TOTAL_NUM_OF_LIBRARIES FROM CONTAINER;" &
+    '        "SELECT COUNT(*) LIBRARIES_NUM_OF_LIBRARIES_CREATED_YESTERDAY FROM CONTAINER WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY;" &
+    '        "SELECT COUNT(*) LIBRARIES_NUM_OF_LIBRARIES_MODIFIED_YESTERDAY FROM CONTAINER WHERE DATE(MODIFY_DATE) = CURRENT_DATE - 1 DAY;"
+
+
+    '    Dim Category As String = "Library"
+
+    '    Try
+    '        Dim con As IBM.Data.DB2.DB2Connection
+    '        Dim ds As New DataSet
+    '        Try
+
+    '            con = New IBM.Data.DB2.DB2Connection("Database=FNOS;UserID=" & myServer.DBUserName & ";Password=" & myServer.DBPassword & ";Server=" & myServer.DBHostName & ":" & myServer.DBPort & ";Connect Timeout=60;")
+    '            con.Open()
+
+    '            Dim cmd As New IBM.Data.DB2.DB2Command(sql, con)
+    '            Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
+    '            cmd.CommandTimeout = getConnectionsTimeout()
+    '            adapter.Fill(ds)
+
+
+
+    '        Catch ex As Exception
+    '            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error getting Library Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '        Finally
+    '            Try
+    '                If con.IsOpen Then
+    '                    con.Close()
+    '                End If
+    '            Catch ex As Exception
+
+    '            End Try
+
+    '        End Try
+
+    '        Try
+    '            For Each table As DataTable In ds.Tables
+    '                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Category: " & Category & " Table " & ds.Tables.IndexOf(table) & " Rows " & table.Rows.Count & " Columns " & table.Columns.Count, LogUtilities.LogUtils.LogLevel.Normal)
+    '            Next
+    '            If MyLogLevel = LogLevel.Verbose Then
+    '                DataSetToLog(myServer, ds)
+    '            End If
+    '        Catch ex As Exception
+    '            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error printing Homepage Objects data log. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '        End Try
+
+
+    '        Dim dict As New Dictionary(Of String, String)
+    '        Try
+    '            If (ds.Tables.Count = 0) Then
+    '                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Could not get " & Category & " Objects.", LogUtilities.LogUtils.LogLevel.Normal)
+    '            Else
+    '                Dim adapter As New VSAdaptor()
+
+    '                Try
+    '                    dict.Add("LIBRARIES_TOTAL_NUM_OF_FILES", ds.Tables(0).Rows(0)("LIBRARIES_TOTAL_NUM_OF_FILES"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Library Objects. Exception at stat LIBRARIES_TOTAL_NUM_OF_FILES. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("LIBRARIES_FILES_OVER_KB", ds.Tables(0).Rows(0)("LIBRARIES_FILES_OVER_KB"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Library Objects. Exception at stat LIBRARIES_FILES_OVER_KB. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("LIBRARIES_FILES_OVER_MB", ds.Tables(0).Rows(0)("LIBRARIES_FILES_OVER_MB"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Library Objects. Exception at stat LIBRARIES_FILES_OVER_MB. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("LIBRARIES_FILES_OVER_GB", ds.Tables(0).Rows(0)("LIBRARIES_FILES_OVER_GB"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Library Objects. Exception at stat LIBRARIES_FILES_OVER_GB. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("LIBRARIES_NUM_OF_FILES_IN_TRASH", ds.Tables(1).Rows(0)("LIBRARIES_NUM_OF_FILES_IN_TRASH"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Library Objects. Exception at stat LIBRARIES_NUM_OF_FILES_IN_TRASH. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("LIBRARIES_NUM_OF_FILES_UPDATED_LAST_MONTH", ds.Tables(2).Rows(0)("LIBRARIES_NUM_OF_FILES_UPDATED_LAST_MONTH"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Library Objects. Exception at stat LIBRARIES_NUM_OF_FILES_UPDATED_LAST_MONTH. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("LIBRARIES_NUM_OF_FILES_UPDATED_LAST_WEEK", ds.Tables(2).Rows(0)("LIBRARIES_NUM_OF_FILES_UPDATED_LAST_WEEK"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Library Objects. Exception at stat LIBRARIES_NUM_OF_FILES_UPDATED_LAST_WEEK. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("LIBRARIES_NUM_OF_FILES_UPDATED_LAST_DAY", ds.Tables(2).Rows(0)("LIBRARIES_NUM_OF_FILES_UPDATED_LAST_DAY"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Library Objects. Exception at stat LIBRARIES_NUM_OF_FILES_UPDATED_LAST_DAY. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("LIBRARIES_NUM_OF_FILES_WITH_A_REVISION", ds.Tables(3).Rows(0)("LIBRARIES_NUM_OF_FILES_WITH_A_REVISION"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Library Objects. Exception at stat LIBRARIES_NUM_OF_FILES_WITH_A_REVISION. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("LIBRARIES_TOTAL_NUM_OF_TAGS", ds.Tables(4).Rows(0)("LIBRARIES_TOTAL_NUM_OF_TAGS"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Library Objects. Exception at stat LIBRARIES_TOTAL_NUM_OF_TAGS. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("LIBRARIES_NUM_OF_FILES_CREATED_YESTERDAY", ds.Tables(5).Rows(0)("LIBRARIES_NUM_OF_FILES_CREATED_YESTERDAY"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Library Objects. Exception at stat LIBRARIES_NUM_OF_FILES_CREATED_YESTERDAY. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("LIBRARIES_NUM_OF_FILES_UPDATED_YESTERDAY", ds.Tables(6).Rows(0)("LIBRARIES_NUM_OF_FILES_UPDATED_YESTERDAY"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Library Objects. Exception at stat LIBRARIES_NUM_OF_FILES_UPDATED_YESTERDAY. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("LIBRARIES_NUM_OF_FILES_DOWNLOADED_YESTERDAY", ds.Tables(7).Rows(0)("LIBRARIES_NUM_OF_FILES_DOWNLOADED_YESTERDAY"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Library Objects. Exception at stat LIBRARIES_NUM_OF_FILES_DOWNLOADED_YESTERDAY. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("LIBRARIES_NUM_OF_FILES_REVISIONED_YESTERDAY", ds.Tables(8).Rows(0)("LIBRARIES_NUM_OF_FILES_REVISIONED_YESTERDAY"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Library Objects. Exception at stat LIBRARIES_NUM_OF_FILES_REVISIONED_YESTERDAY. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("LIBRARIES_TOTAL_NUM_OF_LIBRARIES", ds.Tables(9).Rows(0)("LIBRARIES_TOTAL_NUM_OF_LIBRARIES"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Library Objects. Exception at stat LIBRARIES_TOTAL_NUM_OF_LIBRARIES. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("LIBRARIES_NUM_OF_LIBRARIES_CREATED_YESTERDAY", ds.Tables(10).Rows(0)("LIBRARIES_NUM_OF_LIBRARIES_CREATED_YESTERDAY"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Library Objects. Exception at stat LIBRARIES_NUM_OF_LIBRARIES_CREATED_YESTERDAY. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                Try
+    '                    dict.Add("LIBRARIES_NUM_OF_LIBRARIES_MODIFIED_YESTERDAY", ds.Tables(11).Rows(0)("LIBRARIES_NUM_OF_LIBRARIES_MODIFIED_YESTERDAY"))
+    '                Catch ex As Exception
+    '                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Library Objects. Exception at stat LIBRARIES_NUM_OF_LIBRARIES_MODIFIED_YESTERDAY. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                End Try
+
+    '                For Each key In dict.Keys
+    '                    Try
+    '                        Dim Name As String = key
+    '                        Dim Val As String = dict(key)
+
+    '                        If myServer.IPAddress.ToLower().Contains("jnittech") Then
+    '                            If key = "NUM_OF_BLOGS_BLOGS_CREATED_YESTERDAY" Or key = "NUM_OF_BLOGS_ENTRIES_CREATED_YESTERDAY" Or key = "NUM_OF_BLOGS_COMMENTS_CREATED_YESTERDAY" Or key = "NUM_OF_BLOGS_NOTIFICATIONS_CREATED_YESTERDAY" Then
+    '                                Val = Int(20 * Rnd()) + 1
+    '                            End If
+    '                        End If
+    '                        addSummaryObjects(myServer, Name.ToUpper(), Val)
+    '                    Catch ex As Exception
+    '                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Library Objects. Exception at inserting Objects. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '                    End Try
+    '                Next
+    '            End If
+    '        Catch ex As Exception
+    '            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error parsing Library Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '        End Try
+
+
+
+    '    Catch ex As Exception
+    '        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error in GetLibraryObjects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+    '    End Try
+
+    'End Sub
+
+
+
 
     Public Sub GetConnectionsStats(ByRef myServer As MonitoredItems.IBMConnect)
         'Activities https://connections-as.jnittech.com:9444/activities/service/html/servermetrics
@@ -8151,7 +9982,7 @@ CleanUp:
 
             'This should be last
             'GetHomepageStats(myServer)
-            ConsolidateConnectionObjects(myServer)
+            'ConsolidateConnectionObjects(myServer)
 
         Catch ex As Exception
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error in GetConnetionsStats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
@@ -8182,20 +10013,18 @@ CleanUp:
     End Sub
 
     Public Sub GetActivityStats(ByRef myServer As MonitoredItems.IBMConnect)
-        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityStats.", LogUtilities.LogUtils.LogLevel.Verbose)
+        Dim oWatch As New System.Diagnostics.Stopwatch
+        oWatch.Start()
+        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityStats.", LogUtilities.LogUtils.LogLevel.Normal)
         Dim sql As String = "SELECT COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END), 0) LOGINS_LAST_MONTH,COALESCE( SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) LOGINS_LAST_WEEK, COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) LOGINS_LAST_DAY FROM ACTIVITIES.OA_MEMBERPROFILE;" &
          "SELECT COUNT(*) NUM_OF_ACTIVITIES FROM ACTIVITIES.OA_NODE WHERE ISDELETED = 0 AND NODETYPE = 'application/activity';" &
          "SELECT COUNT(distinct ACTIVITIES.OA_NODEMEMBER.MEMBERID) NUM_OF_USERS_FOLLOWING_ACTIVITY FROM ACTIVITIES.OA_NODEMEMBER INNER JOIN ACTIVITIES.OA_MEMBERPROFILE ON ACTIVITIES.OA_NODEMEMBER.MEMBERID = ACTIVITIES.OA_MEMBERPROFILE.MEMBERID;" &
          "SELECT COUNT(distinct ACTIVITIES.OA_NODE.CREATEDBY) NUM_OF_ACTIVITY_OWNERS FROM ACTIVITIES.OA_NODE WHERE ISDELETED = 0 AND NODETYPE = 'application/activity';" &
          "SELECT COUNT(*) NUM_OF_ACTIVITIES_CREATED_YESTERDAY FROM ACTIVITIES.OA_NODE WHERE ISDELETED = 0 AND NODETYPE = 'application/activity' AND DATE(CREATED) = CURRENT_DATE - 1 DAY;" &
-         "SELECT COUNT(*) NUM_OF_ACTIVITIES_FOLLOWED_YESTERDAY FROM ACTIVITIES.OA_NODEMEMBER WHERE DATE(CREATED) = CURRENT_DATE - 1 DAY;" &
-         "SELECT node.Name, 'Activity' as Type, node.CREATED, node.LASTMOD, mp.EXID, node.ACTIVITYUUID FROM ACTIVITIES.OA_NODE node INNER JOIN ACTIVITIES.OA_MEMBERPROFILE mp ON mp.MEMBERID = node.CREATEDBY WHERE node.ISDELETED = 0;" &
-         "SELECT NODEUUID, NAME FROM ACTIVITIES.OA_TAG;" &
-         "SELECT node.ACTIVITYUUID, mp.EXID, ac.ROLEID FROM ACTIVITIES.OA_NODE node INNER JOIN ACTIVITIES.OA_ACLENTRY ac ON node.ACTIVITYUUID = ac.OBJECTUUID INNER JOIN ACTIVITIES.OA_MEMBERPROFILE mp ON mp.MEMBERID = ac.MEMBERID WHERE node.ISDELETED = 0 AND mp.MEMBERTYPE <> 3;" &
-         "select mp.exid, node.nodeuuid from (select exid, memberid from activities.oa_memberprofile where exid in ('" & String.Join("','", dictOfCommunityIds.Keys) & "')) mp inner join activities.oa_memberprofile mp2 on mp2.exid =  mp.memberid || '+owner' inner join activities.OA_ACLENTRY al on mp2.memberid = al.memberid inner join activities.oa_node node on node.nodeuuid = al.objectuuid and node.isdeleted = 0;"
+         "SELECT COUNT(*) NUM_OF_ACTIVITIES_FOLLOWED_YESTERDAY FROM ACTIVITIES.OA_NODEMEMBER WHERE DATE(CREATED) = CURRENT_DATE - 1 DAY;"
 
         Dim Category As String = "Activity"
-
+        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityStats. After query made: " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
         Try
             Dim con As IBM.Data.DB2.DB2Connection
             Dim ds As New DataSet
@@ -8220,7 +10049,7 @@ CleanUp:
                 End Try
 
             End Try
-
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityStats. After DB call made: " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
             Try
                 For Each table As DataTable In ds.Tables
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Category: " & Category & " Table " & ds.Tables.IndexOf(table) & " Rows " & table.Rows.Count & " Columns " & table.Columns.Count, LogUtilities.LogUtils.LogLevel.Normal)
@@ -8231,7 +10060,7 @@ CleanUp:
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error printing Atiity Stats data log. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
             End Try
-
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityStats. After printing made: " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
             'sql = "INSERT INTO IbmConnectionsActivityStats (ServerId, StatName, StatValue, Category, DateTime) VALUES "
             Dim dict As New Dictionary(Of String, String)
 
@@ -8239,15 +10068,6 @@ CleanUp:
                 If (ds.Tables.Count = 0) Then
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Could not get " & Category & " stats.", LogUtilities.LogUtils.LogLevel.Normal)
                 Else
-
-                    ClearConnectionObjectTables(myServer, "Activity")
-
-                    Dim cols As String = ""
-                    Dim i As Integer = 0
-                    For Each column As DataColumn In ds.Tables(0).Columns
-                        cols += column.ColumnName + ","
-                        i += 1
-                    Next
 
                     Try
                         dict.Add("ACTIVITY_LOGINS_LAST_MONTH", ds.Tables(0).Rows(0)("LOGINS_LAST_MONTH"))
@@ -8316,86 +10136,8 @@ CleanUp:
                         End Try
 
                     Next
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityStats. After summary stats made: " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
 
-
-                    Dim myServerName As String = myServer.Name
-                    Dim myServerId As String = myServer.ServerObjectID
-                    'Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
-                    Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
-                    'Dim filterdef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Where(Function(j) j.Type.Equals("Activity") And j.DeviceId.Equals(myServerId))
-                    ' repo.Delete(filterdef)
-                    Dim repoIbmConnectionsUsers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
-                    Try
-
-                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))
-
-                        Dim allUsers As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Find(repoIbmConnectionsUsers.Filter.Eq(Function(x) x.Type, "Users") And repoIbmConnectionsUsers.Filter.Eq(Function(x) x.DeviceId, myServerId)).ToList()
-
-
-                        For Each row As DataRow In ds.Tables(6).Rows()
-                            Try
-                                Dim connectionsUserId As String = allUsers.Where(Function(x) x.GUID = row("EXID").ToString()).FirstOrDefault().Id
-
-                                Dim IbmConnectionsObjects2 As New VSNext.Mongo.Entities.IbmConnectionsObjects
-                                IbmConnectionsObjects2.Name = row("NAME").ToString()
-                                IbmConnectionsObjects2.DeviceName = myServerName
-                                IbmConnectionsObjects2.DeviceId = myServerId
-                                IbmConnectionsObjects2.Type = "Activity"
-                                IbmConnectionsObjects2.ObjectCreatedDate = Convert.ToDateTime(row("CREATED").ToString())
-                                IbmConnectionsObjects2.ObjectModifiedDate = Convert.ToDateTime(row("LASTMOD").ToString())
-                                IbmConnectionsObjects2.OwnerId = connectionsUserId
-                                IbmConnectionsObjects2.GUID = row("ACTIVITYUUID").ToString()
-                                Try
-                                    If (ds.Tables(9).Select("NODEUUID = '" + row("ACTIVITYUUID").ToString() + "'").Count > 0) Then
-                                        Dim parentGUID As String = ds.Tables(9).Select("NODEUUID = '" + row("ACTIVITYUUID").ToString() + "'").First()("exid").ToString()
-                                        IbmConnectionsObjects2.ParentGUID = dictOfCommunityIds(parentGUID)
-                                    End If
-                                Catch ex As Exception
-                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Activity Stats. Exception findign activity parent. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
-                                End Try
-
-                                Try
-                                    Dim tags As New List(Of String)
-                                    For Each tagRow As DataRow In ds.Tables(7).Select("NODEUUID = '" & row("ACTIVITYUUID").ToString() & "'")
-                                        If Not tags.Contains(tagRow("NAME").ToString()) Then
-                                            tags.Add(tagRow("NAME").ToString())
-                                        End If
-
-                                    Next
-                                    IbmConnectionsObjects2.tags = tags
-                                Catch ex As Exception
-                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Activity Stats. Exception getting activitry tags. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
-                                End Try
-
-                                Dim users As New List(Of String)
-                                For Each userRow As DataRow In ds.Tables(8).Select("ACTIVITYUUID = '" & row("ACTIVITYUUID").ToString() & "'")
-                                    Try
-                                        'Dim filterdefIbmConnectionsUsers2 As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Filter.Where(Function(j) j.GUID.Equals(userRow("EXID").ToString()) And j.DeviceId.Equals(myServerId) And j.Type.Equals("Users"))
-                                        'Dim projectDefIbmConnectionsUsers2 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Project.Include(Function(j) j.Id)
-                                        'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
-                                        'Dim objIbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers2, projectDefIbmConnectionsUsers2).FirstOrDefault()
-                                        Dim objIbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsObjects = allUsers.Where(Function(x) x.GUID = userRow("EXID").ToString()).FirstOrDefault()
-                                        If Not users.Contains(objIbmConnectionsUsers.Id) Then
-                                            users.Add(objIbmConnectionsUsers.Id)
-                                        End If
-                                    Catch ex As Exception
-                                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Activity Stats. Exception getting owner. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
-                                    End Try
-
-                                Next
-
-                                IbmConnectionsObjects2.users = users
-
-                                'repo.Insert(IbmConnectionsObjects2)
-                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects2))
-                            Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Activity Stats. Exception in Activities Loop. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                            End Try
-                        Next
-                        repoIbmConnectionsUsers.BulkInsert(bulkOps)
-                    Catch ex As Exception
-                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Get Activity Stats Error trying to get table 6. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                    End Try
                 End If
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error parsing Activity Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
@@ -8409,7 +10151,8 @@ CleanUp:
 
     Public Sub GetBlogStats(ByRef myServer As MonitoredItems.IBMConnect)
         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetBlogStats.", LogUtilities.LogUtils.LogLevel.Verbose)
-
+        Dim oWatch As New System.Diagnostics.Stopwatch
+        oWatch.Start()
         Dim sql As String = "select count(*) Num_Of_Published_Blogs from BLOGS.WEBSITE;" &
          "select count(distinct WEBSITEID) Num_Of_Blogs_More_Than_One_Author from (select USERID, WEBSITEID FROM BLOGS.WEBLOGENTRY GROUP BY WEBSITEID,USERID) group by WEBSITEID having count(*) > 1;" &
          "select COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) LOGINS_LAST_MONTH, COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) LOGINS_LAST_WEEK, COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) LOGINS_LAST_DAY from BLOGS.ROLLERUSER;" &
@@ -8427,12 +10170,9 @@ CleanUp:
          "SELECT COUNT(*) NUM_OF_BLOGS_CREATED_YESTERDAY FROM BLOGS.WEBSITE WHERE DATE(DATECREATED) = CURRENT_DATE - 1 DAY;" &
          "SELECT COUNT(*) NUM_OF_ENTRIES_CREATED_YESTERDAY FROM BLOGS.WEBLOGENTRY WHERE DATE(PUBTIME) = CURRENT_DATE - 1 DAY;" &
          "SELECT COUNT(*) NUM_OF_COMMENTS_CREATED_YESTERDAY FROM BLOGS.ROLLER_COMMENT WHERE DATE(POSTTIME) = CURRENT_DATE - 1 DAY;" &
-         "SELECT COUNT(*) NUM_OF_NOTIFICATIONS_CREATED_YESTERDAY FROM BLOGS.ROLLER_NOTIFICATION WHERE DATE(TIME) = CURRENT_DATE - 1 DAY;" &
-         "SELECT blog.ID, blog.NAME, 'Blog' as TYPE, blog.DATECREATED, blog.LASTMODIFIED, users.EXTID FROM BLOGS.WEBSITE blog INNER JOIN BLOGS.ROLLERUSER users ON blog.USERID = users.ID;" &
-         "SELECT NAME, WEBSITEID FROM BLOGS.ROLLER_WEBSITETAG;" &
-         "SELECT entry.ID, entry.Title, 'Blog Entry' as TYPE, entry.PUBTIME, entry.UPDATETIME, users.EXTID, entry.WEBSITEID FROM BLOGS.WEBLOGENTRY entry INNER JOIN BLOGS.ROLLERUSER users ON entry.USERID = users.ID;" &
-         "SELECT ASSOCID, WEBSITEID FROM BLOGS.WEBSITEASSOC"
+         "SELECT COUNT(*) NUM_OF_NOTIFICATIONS_CREATED_YESTERDAY FROM BLOGS.ROLLER_NOTIFICATION WHERE DATE(TIME) = CURRENT_DATE - 1 DAY;"
 
+        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetBlogStats. After query made: " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
 
         Dim Category As String = "Blog"
 
@@ -8460,7 +10200,7 @@ CleanUp:
                 End Try
 
             End Try
-
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetBlogStats. After DB made: " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
             Try
                 For Each table As DataTable In ds.Tables
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Category: " & Category & " Table " & ds.Tables.IndexOf(table) & " Rows " & table.Rows.Count & " Columns " & table.Columns.Count, LogUtilities.LogUtils.LogLevel.Normal)
@@ -8471,17 +10211,13 @@ CleanUp:
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error printing Bog Stats data log. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
             End Try
-
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetBlogStats. After print made: " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
             Dim dict As New Dictionary(Of String, String)
 
             Try
                 If (ds.Tables.Count = 0) Then
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Could not get " & Category & " stats.", LogUtilities.LogUtils.LogLevel.Normal)
                 Else
-
-                    ClearConnectionObjectTables(myServer, "Blog")
-                    ClearConnectionObjectTables(myServer, "Blog Entry")
-                    ' Dim adapter As New VSAdaptor()
 
                     Try
                         dict.Add("Num_Of_Published_Blogs", ds.Tables(0).Rows(0)("Num_Of_Published_Blogs"))
@@ -8681,145 +10417,13 @@ CleanUp:
                         End Try
                     Next
 
-                    Dim serverId As String = myServer.ServerObjectID
-                    Dim serverName As String = myServer.Name
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetBlogStats. After Summary Stats made: " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
 
-                    Dim repoObjects As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
-                    Dim filterdefObjects As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Filter.Where(Function(i) i.DeviceId.Equals(serverId) And i.Type.Equals("Activity"))
-
-                    Dim repoIbmConnectionsUsers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
-
-                    Dim connectionsUserId As String = ""
-
-                    Try
-                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))
-                        Dim listOfUsers As New List(Of VSNext.Mongo.Entities.IbmConnectionsObjects)
-                        Try
-                            listOfUsers = repoIbmConnectionsUsers.Find(repoIbmConnectionsUsers.Filter.Eq(Function(x) x.Type, "Users") And repoIbmConnectionsUsers.Filter.Eq(Function(x) x.DeviceName, serverName)).ToList()
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. Exception getting the user list. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                        End Try
-                        For Each row As DataRow In ds.Tables(18).Rows()
-
-                            ' first get the 
-                            Dim filterdefIbmConnectionsUsers As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Filter.Where(Function(i) i.DeviceName.Equals(serverName) And i.GUID.Equals(row("EXTID").ToString()) And i.Type.Equals("Users"))
-                            Dim projectDefIbmConnectionsUsers As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Project.Include(Function(i) i.Id)
-                            'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsUsers) = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).ToList()
-                            Try
-                                If listOfUsers.Exists(Function(x) x.GUID = row("EXTID").ToString()) Then
-                                    Dim IbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsObjects = listOfUsers.Where(Function(x) x.GUID = row("EXTID").ToString()).First()
-                                    connectionsUserId = IbmConnectionsUsers.Id
-                                End If
-
-                            Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. Exception getting the user id. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
-                                connectionsUserId = Nothing
-                            End Try
-                            'For Each s As VSNext.Mongo.Entities.IbmConnectionsUsers In serverList
-                            'Next
-                            'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Processign blog ID : " & row("ID").ToString(), LogUtilities.LogUtils.LogLevel.Verbose)
-                            Try
-
-
-                                Dim IbmConnectionsObjects2 As New VSNext.Mongo.Entities.IbmConnectionsObjects
-                                IbmConnectionsObjects2.Name = row("NAME").ToString()
-                                IbmConnectionsObjects2.DeviceName = myServer.Name
-                                IbmConnectionsObjects2.DeviceId = myServer.ServerObjectID
-                                IbmConnectionsObjects2.Type = "Blog"
-                                IbmConnectionsObjects2.ObjectCreatedDate = Convert.ToDateTime(row("DATECREATED").ToString())
-                                IbmConnectionsObjects2.ObjectModifiedDate = Convert.ToDateTime(row("LASTMODIFIED").ToString())
-                                IbmConnectionsObjects2.OwnerId = connectionsUserId
-                                IbmConnectionsObjects2.GUID = row("ID").ToString()
-                                'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Checking for parent object", LogUtilities.LogUtils.LogLevel.Verbose)
-                                If (ds.Tables(21).Select("WEBSITEID = '" + row("ID").ToString() + "'").Count > 0) Then
-                                    Try
-                                        'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Num of entries as a parent : " & ds.Tables(21).Select("WEBSITEID = '" + row("ID").ToString() + "'").Count(), LogUtilities.LogUtils.LogLevel.Verbose)
-                                        Dim parentGUID As String = ds.Tables(21).Select("WEBSITEID = '" + row("ID").ToString() + "'").First()("ASSOCID").ToString()
-
-                                        IbmConnectionsObjects2.ParentGUID = dictOfCommunityIds(parentGUID)
-                                    Catch ex As Exception
-                                        'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. Exception getting parent guid. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                                    End Try
-
-                                End If
-
-                                'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Checking for tags", LogUtilities.LogUtils.LogLevel.Verbose)
-                                Try
-                                    Dim tags As New List(Of String)
-
-                                    For Each tagRow As DataRow In ds.Tables(19).Select("WEBSITEID = '" & row("ID").ToString() & "'")
-                                        If Not tags.Contains(tagRow("NAME").ToString()) Then
-                                            tags.Add(tagRow("NAME").ToString())
-                                        End If
-
-                                    Next
-                                    IbmConnectionsObjects2.tags = tags
-                                    bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects2))
-                                    'repoObjects.Insert(IbmConnectionsObjects2)
-                                Catch ex As Exception
-                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. Exception getting tags. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
-                                End Try
-                            Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. Exception making blog object. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
-                            End Try
-
-                        Next
-                        repoIbmConnectionsUsers.BulkInsert(bulkOps)
-                    Catch ex As Exception
-                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. No table 18. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
-                    End Try
-
-                    Dim myServerName As String = myServer.Name
-                    Dim ParentObjectID As String = ""
-                    Try
-                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))
-                        Dim allUsers As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(repoObjects.Filter.Eq(Function(x) x.Type, "Blog") And repoObjects.Filter.Eq(Function(x) x.DeviceName, myServerName)).ToList()
-                        For Each row As DataRow In ds.Tables(20).Rows()
-
-                            'Dim FilterDefIbmConnectionsObjects4 As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Filter.Where(Function(i) i.GUID.Equals(row("WEBSITEID").ToString()) And i.DeviceName.Equals(myServerName))
-                            'Dim projectDefIbmConnections4 As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Project.Include(Function(i) i.Id)
-                            'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
-                            Try
-                                Dim s As VSNext.Mongo.Entities.IbmConnectionsObjects = allUsers.Where(Function(x) x.GUID = row("WEBSITEID").ToString()).First()   'repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).First()
-
-                                'For Each s As VSNext.Mongo.Entities.IbmConnectionsObjects In serverList
-                                ParentObjectID = s.Id
-                            Catch ex As Exception
-                                ParentObjectID = Nothing
-                            End Try
-
-                            'Next
-                            Try
-                                Dim IbmConnectionsObjects4 As New VSNext.Mongo.Entities.IbmConnectionsObjects
-                                IbmConnectionsObjects4.Name = row("TITLE").ToString()
-                                IbmConnectionsObjects4.DeviceName = myServer.Name
-                                IbmConnectionsObjects4.DeviceId = myServer.ServerObjectID
-                                IbmConnectionsObjects4.GUID = row("ID").ToString()
-                                IbmConnectionsObjects4.OwnerId = connectionsUserId
-                                'IbmConnectionsObjects4.owner = row("EXTID").ToString()
-                                IbmConnectionsObjects4.ParentGUID = ParentObjectID
-                                IbmConnectionsObjects4.Type = "Blog Entry"
-                                IbmConnectionsObjects4.ObjectCreatedDate = Convert.ToDateTime(row("PUBTIME").ToString())
-                                IbmConnectionsObjects4.ObjectModifiedDate = Convert.ToDateTime(row("UPDATETIME").ToString())
-                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects4))
-                                'repoObjects.Insert(IbmConnectionsObjects4)
-                            Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. Exception makign blog entry object. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
-                            End Try
-                        Next
-                        repoIbmConnectionsUsers.BulkInsert(bulkOps)
-                    Catch ex As Exception
-                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Blog Stats. Exception finding table 20. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
-                    End Try
                 End If
 
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error parsing Blog Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
             End Try
-
-
-
-
         Catch ex As Exception
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error in GetBlogStats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
         End Try
@@ -8828,17 +10432,16 @@ CleanUp:
 
     Public Sub GetCommunityStats(ByRef myServer As MonitoredItems.IBMConnect)
         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetCommunityStats.", LogUtilities.LogUtils.LogLevel.Verbose)
+        Dim oWatch As New System.Diagnostics.Stopwatch
+        oWatch.Start()
         Dim sql As String = "SELECT COMMUNITY_TYPE, COUNT(*) Num_Of_Communities FROM SNCOMM.COMMUNITY WHERE DELETE_STATE = 0 GROUP BY COMMUNITY_TYPE;" &
          "SELECT COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 1 MONTH THEN 1 ELSE 0 END),0) COMMUNITY_LOGIN_LAST_MONTH, COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 7 DAYS THEN 1 ELSE 0 END),0) COMMUNITY_LOGIN_LAST_WEEK, COALESCE(SUM(CASE WHEN LASTLOGIN > CURRENT_TIMESTAMP - 1 DAY THEN 1 ELSE 0 END),0) COMMUNITY_LOGIN_LAST_DAY FROM SNCOMM.MEMBERPROFILE WHERE LASTLOGIN > CURRENT_TIMESTAMP - 1 MONTH;" &
          "SELECT COUNT(*) NUM_OF_COMMUNITIES_MADE_IN_LAST_MONTH FROM SNCOMM.COMMUNITY WHERE CREATED > CURRENT_TIMESTAMP - 1 MONTH AND DELETE_STATE = 0;" &
          "SELECT COUNT(*) TAG_COUNT, COUNT(DISTINCT NAME) DISTINCT_TAG_COUNT FROM SNCOMM.TAG;" &
          "SELECT COUNT(*) TOP_TAG_COUNT, NAME FROM SNCOMM.TAG GROUP BY NAME ORDER BY TOP_TAG_COUNT DESC FETCH FIRST 20 ROWS ONLY;" &
-         "SELECT COUNT(*) NUM_OF_COMMUNITIES_CREATED_YESTERDAY FROM SNCOMM.COMMUNITY WHERE DATE(CREATED) = CURRENT_DATE - 1 DAY AND DELETE_STATE = 0;" &
-         "SELECT c.COMMUNITY_UUID, c.NAME, 'Community' as Type, c.CREATED, c.LASTMOD, c.TAGS_LIST, mp.DIRECTORY_UUID, c.COMMUNITY_TYPE, c.PLAIN_DESCR, c.COMMUNITY_TYPE, t.OWNER_COUNT, t.MEMBER_COUNT, f.FOLLOWING_COUNT FROM SNCOMM.COMMUNITY c INNER JOIN SNCOMM.MEMBERPROFILE mp ON mp.MEMBER_UUID = c.CREATED_BY INNER JOIN (SELECT COMMUNITY_UUID, COALESCE(SUM(CASE WHEN ROLE = 1 THEN 1 ELSE 0 END),0) OWNER_COUNT, COALESCE(SUM(CASE WHEN ROLE = 0 THEN 1 ELSE 0 END),0) MEMBER_COUNT FROM SNCOMM.MEMBER m GROUP BY COMMUNITY_UUID) as t on t.COMMUNITY_UUID = c.COMMUNITY_UUID INNER JOIN (SELECT COMMUNITY_UUID, COALESCE(COUNT(*),0) FOLLOWING_COUNT FROM SNCOMM.Following GROUP BY COMMUNITY_UUID) as f on f.COMMUNITY_UUID = c.COMMUNITY_UUID WHERE c.DELETE_STATE = 0;" &
-         "Select mp.Display, mp.DIRECTORY_UUID, c.COMMUNITY_UUID, (CASE WHEN m.Role = 1 THEN 'Owner' ELSE 'Member' END) MemberType from sncomm.community c inner join sncomm.member m on c.community_uuid = m.community_uuid and c.delete_state = 0 inner join sncomm.memberprofile mp on mp.member_uuid = m.member_uuid;" &
-         "SELECT r.REF_UUID, r.COMMUNITY_UUID, r.NAME, 'Bookmark' as Type,  r.CREATED, r.LASTMOD, mp.DIRECTORY_UUID FROM SNCOMM.REF r INNER JOIN SNCOMM.MEMBERPROFILE mp ON mp.MEMBER_UUID = r.CREATED_BY;"
+         "SELECT COUNT(*) NUM_OF_COMMUNITIES_CREATED_YESTERDAY FROM SNCOMM.COMMUNITY WHERE DATE(CREATED) = CURRENT_DATE - 1 DAY AND DELETE_STATE = 0;"
 
-
+        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetCommunityStats. After query : " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
 
         Dim myServerName As String = myServer.Name
         Dim myServerId As String = myServer.ServerObjectID
@@ -8871,7 +10474,7 @@ CleanUp:
                 End Try
 
             End Try
-
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetCommunityStats. After DB call : " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
             Try
                 For Each table As DataTable In ds.Tables
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Category: " & Category & " Table " & ds.Tables.IndexOf(table) & " Rows " & table.Rows.Count & " Columns " & table.Columns.Count, LogUtilities.LogUtils.LogLevel.Normal)
@@ -8882,8 +10485,7 @@ CleanUp:
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error printing Community Stats data log. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
             End Try
-
-            sql = "INSERT INTO TABLENAME (ServerId, StatName, StatValue, Category, DateTime) VALUES "
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetCommunityStats. After print : " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
 
             Dim tupleList As New List(Of Tuple(Of String, String, String))()
             Try
@@ -8891,7 +10493,6 @@ CleanUp:
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Could not get " & Category & " stats.", LogUtilities.LogUtils.LogLevel.Normal)
                 Else
 
-                    ClearConnectionObjectTables(myServer, "Community")
                     Dim counter As Integer = 0
                     Dim adapter As New VSAdaptor()
                     Try
@@ -8998,131 +10599,8 @@ CleanUp:
                         End Try
                     Next
 
-                    Dim repoIbmConnectionsObjects As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetCommunityStats. After summery : " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
 
-
-                    Dim filterdefIbmConnectionsObjects As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Filter.Where(Function(i) i.Type.Equals("Community") And i.DeviceName.Equals(myServerName))
-                    repoIbmConnectionsObjects.Delete(filterdefIbmConnectionsObjects)
-
-                    'Processes
-                    Dim list As New List(Of String)()
-                    Try
-                        Dim allUsers As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Find(repoIbmConnectionsObjects.Filter.Eq(Function(x) x.Type, "Users") And repoIbmConnectionsObjects.Filter.Eq(Function(x) x.DeviceName, myServerName)).ToList()
-                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))
-
-                        For Each row As DataRow In ds.Tables(6).Rows()
-                            Try
-                                Dim tags As New List(Of String)
-                                For Each tag As String In row("TAGS_LIST").ToString().Split(",")
-                                    If Not tags.Contains(tag) Then
-                                        tags.Add(tag)
-                                    End If
-                                Next
-
-                                'Dim filterdefIbmConnectionsUsers As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Filter.Where(Function(i) i.GUID.Equals(row("DIRECTORY_UUID").ToString()) And i.DeviceName.Equals(myServerName) And i.Type.Equals("Users"))
-                                'Dim projectDefIbmConnectionsUsers As ProjectionDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsUsers.Project.Include(Function(i) i.Id)
-                                'Dim serverList As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoObjects.Find(FilterDefIbmConnectionsObjects4, projectDefIbmConnections4).Take(1)
-                                'Dim sxs As VSNext.Mongo.Entities.IbmConnectionsObjects = repoIbmConnectionsUsers.Find(filterdefIbmConnectionsUsers, projectDefIbmConnectionsUsers).DefaultIfEmpty(New VSNext.Mongo.Entities.IbmConnectionsObjects() With {.Id = Nothing}).First()
-                                Dim sxs As VSNext.Mongo.Entities.IbmConnectionsObjects = allUsers.Where(Function(x) x.GUID = row("DIRECTORY_UUID").ToString()).FirstOrDefault()
-                                Dim userId2 As String = sxs.Id
-
-                                Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
-                                IbmConnectionsObjects.DeviceId = myServer.ServerObjectID
-                                IbmConnectionsObjects.DeviceName = myServer.Name
-                                IbmConnectionsObjects.Name = row("NAME").ToString()
-                                IbmConnectionsObjects.Type = "Community"
-                                IbmConnectionsObjects.OwnerId = userId2
-                                IbmConnectionsObjects.GUID = row("COMMUNITY_UUID").ToString()
-                                IbmConnectionsObjects.tags = tags
-                                IbmConnectionsObjects.CommunityType = row("COMMUNITY_TYPE").ToString()
-                                IbmConnectionsObjects.ObjectCreatedDate = Convert.ToDateTime(row("CREATED").ToString())
-                                IbmConnectionsObjects.ObjectModifiedDate = Convert.ToDateTime(row("LASTMOD").ToString())
-                                IbmConnectionsObjects.NumOfFollowers = row("FOLLOWING_COUNT").ToString()
-                                IbmConnectionsObjects.NumOfMembers = row("MEMBER_COUNT").ToString()
-                                IbmConnectionsObjects.NumOfOwners = row("OWNER_COUNT").ToString()
-                                IbmConnectionsObjects.ObjectUrl = myServer.IPAddress + "/communities/service/html/communitystart?communityUuid=" + row("COMMUNITY_UUID").ToString()
-                                IbmConnectionsObjects.Description = row("PLAIN_DESCR").ToString()
-                                IbmConnectionsObjects.users = New List(Of String)()
-
-                                For Each row2 As DataRow In ds.Tables(7).Rows().Cast(Of DataRow).Where(Function(x) x("COMMUNITY_UUID").ToString() = IbmConnectionsObjects.GUID)
-                                    Dim listOfUser As List(Of String) = allUsers.Where(Function(x) x.GUID = row2("DIRECTORY_UUID").ToString()).Select(Function(x) x.Id).ToList()
-                                    If listOfUser.Count > 0 Then
-                                        IbmConnectionsObjects.users.Add(listOfUser.First())
-                                    End If
-                                Next
-
-                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects))
-
-
-                            Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Stats. Exception adding community object. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
-                            End Try
-
-                        Next
-                        'list.AddRange(bulkOps.Select(Function(x) CType(x, MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)).Document.Id))
-                        'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Wes " + String.Join(",", list).ToString(), LogUtilities.LogUtils.LogLevel.Normal)
-                        repoIbmConnectionsObjects.BulkInsert(bulkOps)
-
-                        'Grabs a lsit of all comunity IDs and their GUIDs
-                        Try
-                            Dim listOfComms As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repoIbmConnectionsObjects.Find(filterdefIbmConnectionsObjects).ToList()
-                            For Each entity As VSNext.Mongo.Entities.IbmConnectionsObjects In listOfComms
-                                dictOfCommunityIds.Add(entity.GUID, entity.Id)
-                            Next
-
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Stats. There are " & dictOfCommunityIds.Count & " communities found", LogUtilities.LogUtils.LogLevel.Normal)
-
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Stats. Exception adding communities to list. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                        End Try
-
-
-                        bulkOps = New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))()
-                        Try
-                            For Each bookmarkRow As DataRow In ds.Tables(8).Rows()     '.Select("COMMUNITY_UUID = '" & row("COMMUNITY_UUID").ToString() & "'")
-                                Try
-                                    Dim sxs3 As VSNext.Mongo.Entities.IbmConnectionsObjects = allUsers.Where(Function(x) x.GUID = bookmarkRow("DIRECTORY_UUID").ToString()).FirstOrDefault()
-                                    Dim userId3 As String = sxs3.Id
-
-
-                                    Dim id3 As String = Nothing
-                                    Try
-                                        Dim sxs4 As String = dictOfCommunityIds(bookmarkRow("COMMUNITY_UUID").ToString())
-                                        id3 = sxs4
-                                    Catch ex As Exception
-
-                                    End Try
-
-
-                                    Dim IbmConnectionsObjects2 As New VSNext.Mongo.Entities.IbmConnectionsObjects
-                                    IbmConnectionsObjects2.DeviceId = myServer.ServerObjectID
-                                    IbmConnectionsObjects2.DeviceName = myServer.Name
-                                    IbmConnectionsObjects2.Name = bookmarkRow("NAME").ToString()
-                                    IbmConnectionsObjects2.Type = "Bookmark"
-                                    IbmConnectionsObjects2.ParentGUID = id3
-                                    IbmConnectionsObjects2.OwnerId = userId3
-                                    IbmConnectionsObjects2.GUID = bookmarkRow("REF_UUID").ToString()
-                                    IbmConnectionsObjects2.ObjectCreatedDate = Convert.ToDateTime(bookmarkRow("CREATED").ToString())
-                                    IbmConnectionsObjects2.ObjectModifiedDate = Convert.ToDateTime(bookmarkRow("LASTMOD").ToString())
-
-                                    bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects2))
-                                    'repoIbmConnectionsObjects.Insert(IbmConnectionsObjects2)
-                                Catch ex As Exception
-                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Stats. Exception adding bookmarks. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
-                                End Try
-                            Next
-
-                            repoIbmConnectionsObjects.BulkInsert(bulkOps)
-                        Catch ex As Exception
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Stats. Exception adding finding table 8. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                        End Try
-                    Catch ex As Exception
-                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Stats. Exception finding table 7. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                    End Try
-
-
-
-                    'End Using
                 End If
 
             Catch ex As Exception
@@ -9406,9 +10884,7 @@ CleanUp:
 
         Dim sql As String = "SELECT COUNT(*) NUM_OF_BOOKMARKS_BOOKMARKS FROM DOGEAR.LINK WHERE DELETED = 0;" &
             "SELECT COUNT(*) NUM_OF_BOOKMARKS_BOOKMARKS_CREATED_YESTERDAY FROM DOGEAR.LINK WHERE DELETED = 0 AND DATE(DATE) = CURRENT_DATE - 1 DAY;" &
-            "SELECT COUNT(DISTINCT URL) NUM_OF_DISTINCT_BOOKMARK_URLS FROM DOGEAR.URL WHERE LINKCOUNT > 0;" &
-            "SELECT url.LINK_ID, url.TITLE, 'Bookmark' as TYPE, url.DATE, url.MODIFIED, users.MEMBER_ID FROM DOGEAR.LINK url INNER JOIN DOGEAR.PERSON users ON users.PERSON_ID = url.PERSON WHERE url.DELETED = 0;" &
-            "SELECT TAG, LINK_ID FROM DOGEAR.TAGS WHERE LINK_ID IN ( SELECT LINK_ID FROM DOGEAR.LINK WHERE DELETED = 0 );"
+            "SELECT COUNT(DISTINCT URL) NUM_OF_DISTINCT_BOOKMARK_URLS FROM DOGEAR.URL WHERE LINKCOUNT > 0;"
 
         Dim Category As String = "Bookmark"
 
@@ -9458,7 +10934,6 @@ CleanUp:
                 If (ds.Tables.Count = 0) Then
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Could not get " & Category & " stats.", LogUtilities.LogUtils.LogLevel.Normal)
                 Else
-                    ClearConnectionObjectTables(myServer, "Bookmark")
                     Dim adapter As New VSAdaptor()
 
                     Try
@@ -9500,56 +10975,11 @@ CleanUp:
                             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Bookmark Stats. Exception at inserting stats. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                         End Try
                     Next
-
-                    Try
-                        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
-                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))()
-
-                        For Each row As DataRow In ds.Tables(3).Rows()
-                            Try
-
-                                Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
-                                IbmConnectionsObjects.Name = row("TITLE").ToString()
-                                IbmConnectionsObjects.DeviceName = myServer.Name
-                                IbmConnectionsObjects.DeviceId = myServer.ServerObjectID
-                                IbmConnectionsObjects.Type = "Bookmark"
-                                IbmConnectionsObjects.OwnerId = getObjectUser(myServer.Name, row("MEMBER_ID").ToString())
-                                IbmConnectionsObjects.ObjectCreatedDate = Convert.ToDateTime(row("DATE").ToString())
-                                IbmConnectionsObjects.ObjectModifiedDate = Convert.ToDateTime(row("MODIFIED").ToString())
-                                IbmConnectionsObjects.GUID = row("LINK_ID").ToString()
-                                Dim tags As New List(Of String)
-                                For Each tagRow As DataRow In ds.Tables(4).Rows()
-                                    Try
-                                        If (tagRow("LINK_ID").ToString().Equals(row("LINK_ID").ToString())) Then
-                                            If Not tags.Contains(tagRow("TAG").ToString()) Then
-                                                tags.Add(tagRow("TAG").ToString())
-                                            End If
-                                        End If
-                                    Catch ex As Exception
-                                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Bookmark Stats. Exception at adding tags. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
-                                    End Try
-                                Next
-                                IbmConnectionsObjects.tags = tags
-
-                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects))
-                                'repo.Insert(IbmConnectionsObjects)
-                            Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Bookmark Stats. Exception at making bookmark. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
-                            End Try
-                        Next
-                        repo.BulkInsert(bulkOps)
-                    Catch ex As Exception
-                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Bookmark Stats. Exception at table 3. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                    End Try
-
                 End If
 
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error parsing Bookmark Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
             End Try
-
-
-
         Catch ex As Exception
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error in GetBookmarksStats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
         End Try
@@ -9564,26 +10994,6 @@ CleanUp:
             "SELECT COUNT(*) NUM_OF_FORUMS_FORUMS_CREATED_YESTERDAY FROM FORUM.DF_NODE WHERE NODETYPE = 'application/forum' AND NODEALIAS <> 'community' AND STATE = 0 AND DATE(CREATED) = CURRENT_DATE - 1 DAY;" &
             "SELECT COUNT(*) NUM_OF_FORUMS_TOPICS_CREATED_YESTERDAY FROM FORUM.DF_NODE WHERE NODETYPE = 'forum/topic' AND NODEALIAS <> 'community' AND STATE = 0 AND DATE(CREATED) = CURRENT_DATE - 1 DAY;" &
             "SELECT COUNT(*) NUM_OF_FORUMS_REPLIES_CREATED_YESTERDAY FROM FORUM.DF_NODE WHERE NODETYPE = 'forum/reply' AND NODEALIAS <> 'community' AND STATE = 0 AND DATE(CREATED) = CURRENT_DATE - 1 DAY;"
-
-        Try
-
-
-            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Eq(Function(x) x.Type, "Community") And
-                repo.Filter.Eq(Function(x) x.DeviceId, myServer.ServerObjectID)
-            Dim str As String = String.Join("','", repo.Find(filterDef).ToList().Select(Function(x) x.GUID).ToList())
-
-            'sql += "SELECT com.COMMUNITYUUID, node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD, node.CREATED FROM FORUM.DF_NODECOMMMAP com INNER JOIN FORUM.DF_NODE node ON com.FORUMUUID = node.FORUMUUID INNER JOIN FORUM.DF_MEMBERPROFILE users on users.MEMBERID = node.CREATEDBY WHERE com.COMMUNITYUUID IN ('" & String.Join("','", linq) & "') AND node.STATE = 0 AND NODEALIAS = 'community';"
-            sql += " SELECT com.COMMUNITYUUID, node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD, node.CREATED FROM FORUM.DF_NODECOMMMAP com INNER JOIN FORUM.DF_NODE node ON com.FORUMUUID = node.FORUMUUID INNER JOIN FORUM.DF_MEMBERPROFILE users on users.MEMBERID = node.CREATEDBY WHERE com.COMMUNITYUUID IN ('" & str & "') AND node.STATE = 0 AND NODETYPE IN ('application/forum', 'forum/topic') ORDER BY CASE node.NODETYPE WHEN 'application/forum' THEN 1 WHEN 'forum/topic' THEN 2 ELSE 3 END;"
-
-        Catch ex As Exception
-            sql += " SELECT com.COMMUNITYUUID, node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD, node.CREATED FROM FORUM.DF_NODECOMMMAP com INNER JOIN FORUM.DF_NODE node ON com.FORUMUUID = node.FORUMUUID INNER JOIN FORUM.DF_MEMBERPROFILE users on users.MEMBERID = node.CREATEDBY WHERE node.STATE = 0 AND NODETYPE IN ('application/forum', 'forum/topic') ORDER BY CASE node.NODETYPE WHEN 'application/forum' THEN 1 WHEN 'forum/topic' THEN 2 ELSE 3 END;"
-        End Try
-
-        sql += "SELECT node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD, node.CREATED FROM FORUM.DF_NODE node INNER JOIN FORUM.DF_MEMBERPROFILE users on users.MEMBERID = node.CREATEDBY WHERE node.FORUMUUID IN (Select FORUMUUID FROM FORUM.DF_NODE WHERE NODEALIAS != 'community' AND NODETYPE = 'application/forum' AND STATE = 0 AND DELSTATE = 0) AND node.NODEALIAS != 'community' AND node.STATE = 0 AND node.DELSTATE = 0 AND node.NODETYPE IN ('application/forum', 'forum/topic') ORDER BY CASE node.NODETYPE WHEN 'application/forum' THEN 1 WHEN 'forum/topic' THEN 2 ELSE 3 END;"
-        sql += "SELECT NAME, NODEUUID FROM FORUM.DF_TAG;"
-        sql += "SELECT COUNT(*) COUNT, FORUMID, TOPICID from FORUM.DF_SUBSCRIPTION GROUP BY FORUMID, TOPICID"
-
 
         Dim Category As String = "File"
 
@@ -9632,9 +11042,6 @@ CleanUp:
                 If (ds.Tables.Count = 0) Then
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Could not get " & Category & " stats.", LogUtilities.LogUtils.LogLevel.Normal)
                 Else
-                    ClearConnectionObjectTables(myServer, "Forum")
-                    ClearConnectionObjectTables(myServer, "Forum Topic")
-                    ClearConnectionObjectTables(myServer, "Fourum Reply")
                     Dim adapter As New VSAdaptor()
 
                     Try
@@ -9695,213 +11102,6 @@ CleanUp:
                             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Forum Stats. Exception at stat NUM_OF_DISTINCT_BOOKMARK_URLS. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                         End Try
                     Next
-
-
-                    'adapter.ExecuteNonQueryAny("VSS_Statistics", "VSS_Statistics", sql.Substring(0, sql.Length - 1))
-
-                    Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))()
-                    Try
-
-                        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
-                        For Each row As DataRow In ds.Tables(6).Rows()
-                            Try
-                                Dim type As String = ""
-                                Dim parent As String = ""
-                                Dim parentType As String = ""
-
-                                If (row("NODETYPE").ToString() = "application/forum") Then
-                                    type = "Forum"
-                                    parent = row("COMMUNITYUUID").ToString()
-                                    parentType = "Community"
-                                ElseIf (row("NODETYPE").ToString() = "forum/reply") Then
-                                    type = "Forum Reply"
-                                    parent = row("PARENTUUID").ToString()
-                                    parentType = "Forum Topic"
-                                ElseIf (row("NODETYPE").ToString() = "forum/topic") Then
-                                    type = "Forum Topic"
-                                    parent = row("PARENTUUID").ToString()
-                                    parentType = "Forum"
-                                End If
-
-
-                                Dim parentObjectId As String = Nothing
-
-                                Try
-                                    If (parentType = "Community") Then
-                                        parentObjectId = dictOfCommunityIds(parent)
-                                    Else
-
-                                        Dim writeModel As WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = bulkOps.Where(Function(x) CType(x, MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)).Document.GUID = parent And
-                                                          CType(x, MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)).Document.Type = parentType).First()
-                                        parentObjectId = CType(writeModel, MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)).Document.Id
-
-                                        'Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Eq(Function(x) x.GUID, parent) And
-                                        '    repo.Filter.Eq(Function(x) x.Type, parentType)
-                                        'parentObjectId = repo.Find(filterDef).ToList()(0).Id
-                                    End If
-                                Catch ex As Exception
-                                    parentObjectId = Nothing
-                                End Try
-
-                                'com.COMMUNITYUUID, node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD
-                                Dim entity As New VSNext.Mongo.Entities.IbmConnectionsObjects() With {
-                                    .Name = row("NAME").ToString(),
-                                    .ObjectCreatedDate = Convert.ToDateTime(row("CREATED").ToString()),
-                                    .ObjectModifiedDate = Convert.ToDateTime(row("LASTMOD").ToString()),
-                                    .DeviceId = myServer.ServerObjectID,
-                                    .DeviceName = myServer.Name,
-                                    .OwnerId = getObjectUser(myServer.Name, row("EXID").ToString()),
-                                    .GUID = row("NODEUUID").ToString(),
-                                    .Type = type,
-                                    .ParentGUID = parentObjectId,
-                                    .Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString()
-                                }
-
-                                Dim tagList As New List(Of String)()
-
-                                Try
-                                    For Each tagRow As DataRow In ds.Tables(8).Rows()
-                                        If row("NODEUUID").ToString() <> tagRow("NODEUUID") Then
-                                            Continue For
-                                        End If
-                                        tagList.Add(tagRow("NAME").ToString)
-                                    Next
-                                Catch ex As Exception
-                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Forum Stats. Exception at table 8. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
-                                End Try
-
-                                If {"Forum Topic", "Forum"}.Contains(type) Then
-                                    Dim selectStatement As String = ""
-                                    If (type = "Forum") Then
-                                        selectStatement = "FORUMID='" & entity.GUID & "' AND TOPICID='00000000-0000-0000-0000-000000000000'"
-                                    ElseIf type = "Forum Topic" Then
-                                        selectStatement = "FORUMID='" & parentObjectId & "' AND TOPICID='" & entity.GUID & "'"
-                                    End If
-                                    Try
-                                        entity.NumOfFollowers = ds.Tables(9).Select(selectStatement).ToList()(0)("COUNT").ToString()
-                                    Catch ex As Exception
-                                        entity.NumOfFollowers = 0
-                                    End Try
-
-                                End If
-
-                                entity.tags = tagList
-
-                                'repo.Insert(entity)
-                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(entity))
-                            Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Forum Stats. Exception at inserting fourm first. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
-                            End Try
-                            'repo.BulkInsert(bulkOps)
-                        Next
-
-                    Catch ex As Exception
-                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Forum Stats. Exception at table 6. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                    End Try
-
-                    'node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD, node.CREATED
-
-                    Try
-                        'Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))()
-                        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
-                        For Each row As DataRow In ds.Tables(7).Rows()
-                            Try
-                                Dim type As String = ""
-                                Dim parent As String = ""
-                                Dim parentType As String = ""
-
-                                If (row("NODETYPE").ToString() = "application/forum") Then
-                                    type = "Forum"
-                                    parent = ""
-                                    parentType = ""
-                                ElseIf (row("NODETYPE").ToString() = "forum/reply") Then
-                                    type = "Forum Reply"
-                                    parent = row("PARENTUUID").ToString()
-                                    parentType = "Forum Topic"
-                                ElseIf (row("NODETYPE").ToString() = "forum/topic") Then
-                                    type = "Forum Topic"
-                                    parent = row("PARENTUUID").ToString()
-                                    parentType = "Forum"
-                                End If
-
-
-                                Dim parentObjectId As String = Nothing
-                                Try
-
-                                    If (parentType = "Community") Then
-                                        parentObjectId = dictOfCommunityIds(parent)
-                                    Else
-
-                                        Dim writeModel As WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = bulkOps.Where(Function(x) CType(x, MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)).Document.GUID = parent And
-                                                          CType(x, MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)).Document.Type = parentType).First()
-                                        parentObjectId = CType(writeModel, MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)).Document.Id
-
-                                        'Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Eq(Function(x) x.GUID, parent) And
-                                        '    repo.Filter.Eq(Function(x) x.Type, parentType)
-                                        'parentObjectId = repo.Find(filterDef).ToList()(0).Id
-                                    End If
-                                Catch ex As Exception
-                                    parentObjectId = Nothing
-                                End Try
-
-                                'com.COMMUNITYUUID, node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD
-                                Dim entity As New VSNext.Mongo.Entities.IbmConnectionsObjects() With {
-                                    .Name = row("NAME").ToString(),
-                                    .ObjectCreatedDate = Convert.ToDateTime(row("CREATED").ToString()),
-                                    .ObjectModifiedDate = Convert.ToDateTime(row("LASTMOD").ToString()),
-                                    .DeviceId = myServer.ServerObjectID,
-                                    .DeviceName = myServer.Name,
-                                    .OwnerId = getObjectUser(myServer.Name, row("EXID").ToString()),
-                                    .GUID = row("NODEUUID").ToString(),
-                                    .Type = type,
-                                    .ParentGUID = parentObjectId,
-                                    .Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString()
-                                }
-
-                                Dim tagList As New List(Of String)()
-
-                                Try
-                                    For Each tagRow As DataRow In ds.Tables(8).Rows()
-                                        If row("NODEUUID").ToString() <> tagRow("NODEUUID") Then
-                                            Continue For
-                                        End If
-                                        tagList.Add(tagRow("NAME").ToString)
-                                    Next
-
-                                Catch ex As Exception
-                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Forum Stats. Exception at table 8 2. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
-                                End Try
-
-                                If {"Forum Topic", "Forum"}.Contains(type) Then
-                                    Dim selectStatement As String = ""
-                                    If (type = "Forum") Then
-                                        selectStatement = "FORUMID='" & entity.GUID & "' AND TOPICID='00000000-0000-0000-0000-000000000000'"
-                                    ElseIf type = "Forum Topic" Then
-                                        selectStatement = "FORUMID='" & parentObjectId & "' AND TOPICID='" & entity.GUID & "'"
-                                    End If
-                                    Try
-                                        entity.NumOfFollowers = ds.Tables(9).Select(selectStatement).ToList()(0)("COUNT").ToString()
-                                    Catch ex As Exception
-                                        entity.NumOfFollowers = 0
-                                    End Try
-
-                                End If
-
-                                entity.tags = tagList
-
-                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(entity))
-                                'repo.Insert(entity)
-
-                            Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Forum Stats. Exception at inserting fourms objects 2. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
-                            End Try
-
-                        Next
-                        repo.BulkInsert(bulkOps)
-                    Catch ex As Exception
-                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Forum Stats. Exception at table 7. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                    End Try
-
                 End If
 
             Catch ex As Exception
@@ -9923,11 +11123,7 @@ CleanUp:
             "SELECT COUNT(*) NUM_OF_WIKIS_PAGES FROM WIKIS.MEDIA;" &
             "SELECT COUNT(*) NUM_OF_WIKIS_PAGES_CREATED_YESTERDAY FROM WIKIS.MEDIA WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY;" &
             "SELECT COUNT(*) NUM_OF_WIKIS_REVISIONS FROM WIKIS.MEDIA_REVISION;" &
-            "SELECT COUNT(*) NUM_OF_WIKIS_REVISIONS_EDITED_YESTERDAY FROM WIKIS.MEDIA_REVISION WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY;" &
-            "SELECT HEX(wiki.ID) as ID, wiki.LABEL, 'Wiki' as Type, wiki.CREATE_DATE, wiki.LAST_UPDATE, user.DIRECTORY_ID, wiki.EXTERNAL_CONTAINER_ID, notifications.COUNT FOLLOWERS FROM WIKIS.LIBRARY wiki INNER JOIN WIKIS.USER user ON wiki.OWNER_USER_ID = user.ID INNER JOIN (SELECT HEX(LIBRARY_ID) LIBRARY_ID, COUNT(*) COUNT FROM WIKIS.LIBRARY_NOTIFICATION GROUP BY HEX(LIBRARY_ID)) notifications ON notifications.LIBRARY_ID = HEX(wiki.ID);" &
-            "SELECT HEX(lib.LIBRARY_ID) as LIBRARY_ID, tag.TAG FROM WIKIS.LIBRARY_TO_TAG lib INNER JOIN WIKIS.TAG tag ON tag.ID = lib.TAG_ID;" &
-            "SELECT HEX(media.ID) as ID, media.LABEL, 'Wiki Entry' as TYPE, media.CREATE_DATE, media.LAST_UPDATE, user.DIRECTORY_ID, HEX(media.LIBRARY_ID) as LIBRARY_ID, notifications.COUNT FOLLOWERS FROM WIKIS.MEDIA media INNER JOIN WIKIS.USER user ON user.ID = media.OWNER_USER_ID LEFT OUTER JOIN (SELECT HEX(MEDIA_ID) MEDIA_ID, COUNT(*) COUNT FROM WIKIS.MEDIA_NOTIFICATION GROUP BY HEX(MEDIA_ID)) notifications ON notifications.MEDIA_ID = HEX(media.ID);"
-
+            "SELECT COUNT(*) NUM_OF_WIKIS_REVISIONS_EDITED_YESTERDAY FROM WIKIS.MEDIA_REVISION WHERE DATE(CREATE_DATE) = CURRENT_DATE - 1 DAY;"
 
         Dim Category As String = "WIKIS"
 
@@ -9976,8 +11172,6 @@ CleanUp:
                 If (ds.Tables.Count = 0) Then
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Could not get " & Category & " stats.", LogUtilities.LogUtils.LogLevel.Normal)
                 Else
-                    ClearConnectionObjectTables(myServer, "Wiki")
-                    ClearConnectionObjectTables(myServer, "Wiki Entry")
                     Dim adapter As New VSAdaptor()
 
                     Try
@@ -10039,127 +11233,11 @@ CleanUp:
                             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Stats. Exception at stat NUM_OF_DISTINCT_BOOKMARK_URLS. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                         End Try
                     Next
-
-
-                    'Dim cmd As New SqlClient.SqlCommand()
-                    Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
-
-                    Try
-                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))()
-                        Dim allUsers As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Find(
-                            repo.Filter.Eq(Function(x) x.Type, "Users") And
-                            repo.Filter.Eq(Function(x) x.DeviceName, myServer.Name)
-                        ).ToList()
-                        For Each row As DataRow In ds.Tables(6).Rows()
-                            Try
-
-                                Dim ownerId As String = Nothing
-                                Try
-                                    ownerId = allUsers.Where(Function(x) x.GUID = HexToGUID(row("DIRECTORY_ID").ToString())).First().Id
-                                Catch ex As Exception
-
-                                End Try
-
-                                Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
-                                IbmConnectionsObjects.Name = row("LABEL").ToString()
-                                IbmConnectionsObjects.DeviceName = myServer.Name
-                                IbmConnectionsObjects.DeviceId = myServer.ServerObjectID
-                                IbmConnectionsObjects.Type = "Wiki"
-                                IbmConnectionsObjects.OwnerId = ownerId
-                                IbmConnectionsObjects.ObjectCreatedDate = Convert.ToDateTime(row("CREATE_DATE").ToString())
-                                IbmConnectionsObjects.ObjectModifiedDate = Convert.ToDateTime(row("LAST_UPDATE").ToString())
-                                IbmConnectionsObjects.GUID = HexToGUID(row("ID").ToString())
-                                IbmConnectionsObjects.tags = New List(Of String)()
-
-                                For Each tagRow As DataRow In ds.Tables(7).Rows().Cast(Of DataRow).Where(Function(x) HexToGUID(x("LIBRARY_ID").ToString()).Equals(IbmConnectionsObjects.GUID))
-                                    IbmConnectionsObjects.tags.Add(tagRow("TAG"))
-                                Next
-
-                                If (row("EXTERNAL_CONTAINER_ID") IsNot Nothing And row("EXTERNAL_CONTAINER_ID").ToString() <> "") Then
-                                    IbmConnectionsObjects.ParentGUID = dictOfCommunityIds(row("EXTERNAL_CONTAINER_ID").ToString())
-                                End If
-
-                                If (Not IsDBNull(row("FOLLOWERS"))) And (row("FOLLOWERS").ToString() <> Nothing) And row("FOLLOWERS").ToString() <> "" Then
-                                    IbmConnectionsObjects.NumOfFollowers = Convert.ToInt32(row("FOLLOWERS").ToString())
-                                Else
-                                    IbmConnectionsObjects.NumOfFollowers = 0
-                                End If
-
-                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects))
-                                'repo.Insert(IbmConnectionsObjects)
-                            Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Stats. Exception at making wiki. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
-                            End Try
-
-                        Next
-                        repo.BulkInsert(bulkOps)
-                    Catch ex As Exception
-                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Stats. Exception at table 6. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
-                    End Try
-
-                    Try
-                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))()
-                        Dim allWikis As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Find(
-                            repo.Filter.Eq(Function(x) x.Type, "Wiki") And
-                            repo.Filter.Eq(Function(x) x.DeviceName, myServer.Name)
-                        ).ToList()
-
-                        Dim allUsers As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Find(
-                            repo.Filter.Eq(Function(x) x.Type, "Users") And
-                            repo.Filter.Eq(Function(x) x.DeviceName, myServer.Name)
-                        ).ToList()
-
-                        For Each row As DataRow In ds.Tables(8).Rows()
-                            Try
-                                Dim parentId As String = Nothing
-                                Try
-                                    parentId = allWikis.Where(Function(x) x.GUID = HexToGUID(row("LIBRARY_ID").ToString())).First().Id
-                                Catch ex As Exception
-                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Topic parent Exception: " & ex.ToString(), LogUtilities.LogUtils.LogLevel.Verbose)
-                                End Try
-
-                                Dim ownerId As String = Nothing
-                                Try
-                                    ownerId = allUsers.Where(Function(x) x.GUID = row("DIRECTORY_ID").ToString()).First().Id
-                                Catch ex As Exception
-                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Topic ownerId Exception: " & ex.ToString(), LogUtilities.LogUtils.LogLevel.Verbose)
-                                End Try
-
-                                Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
-                                IbmConnectionsObjects.Name = row("LABEL").ToString()
-                                IbmConnectionsObjects.DeviceName = myServer.Name
-                                IbmConnectionsObjects.DeviceId = myServer.ServerObjectID
-                                IbmConnectionsObjects.Type = "Wiki Entry"
-                                IbmConnectionsObjects.ParentGUID = parentId
-                                IbmConnectionsObjects.OwnerId = ownerId
-                                IbmConnectionsObjects.ObjectCreatedDate = Convert.ToDateTime(row("CREATE_DATE").ToString())
-                                IbmConnectionsObjects.ObjectModifiedDate = Convert.ToDateTime(row("LAST_UPDATE").ToString())
-                                IbmConnectionsObjects.GUID = HexToGUID(row("ID").ToString())
-
-                                If (Not IsDBNull(row("FOLLOWERS"))) And (row("FOLLOWERS").ToString() <> Nothing) And row("FOLLOWERS").ToString() <> "" Then
-                                    IbmConnectionsObjects.NumOfFollowers = Convert.ToInt32(row("FOLLOWERS").ToString())
-                                Else
-                                    IbmConnectionsObjects.NumOfFollowers = 0
-                                End If
-
-                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(IbmConnectionsObjects))
-                                'repo.Insert(IbmConnectionsObjects)
-                            Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Stats. Exception at inserting wiki entries. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
-                            End Try
-                        Next
-                        repo.BulkInsert(bulkOps)
-                    Catch ex As Exception
-                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Wiki Stats. Exception at table 8. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                    End Try
                 End If
 
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error parsing Wiki Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
             End Try
-
-
-
         Catch ex As Exception
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error in GetWikiStats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
         End Try
@@ -10167,7 +11245,8 @@ CleanUp:
     End Sub
 
     Public Sub GetProfileStats(ByRef myServer As MonitoredItems.IBMConnect)
-
+        Dim oWatch As New System.Diagnostics.Stopwatch
+        oWatch.Start()
         Dim sql As String = "SELECT COUNT(*) NUM_OF_PROFILES_WITH_NO_PICTURE FROM EMPINST.EMPLOYEE WHERE PROF_KEY NOT IN (SELECT PROF_KEY FROM EMPINST.PHOTO);" &
             "SELECT COUNT(*) NUM_OF_PROFILES_NOT_RECENTLY_UPDATED FROM EMPINST.EMPLOYEE WHERE PROF_LAST_UPDATE > CURRENT_DATE - 90 DAYS;" &
             "SELECT COUNT(*) NUM_OF_PROFILES_WITH_NO_PRONUNCIATION FROM EMPINST.EMPLOYEE WHERE PROF_KEY NOT IN (SELECT PROF_KEY FROM EMPINST.PRONUNCIATION); " &
@@ -10180,10 +11259,8 @@ CleanUp:
             "SELECT COUNT(*) NUM_OF_PROFILES_EDITED_YESTERDAY FROM EMPINST.EMPLOYEE WHERE DATE(PROF_LAST_UPDATE) = CURRENT_DATE - 1 DAY;" &
             "SELECT COUNT(*) NUM_OF_PROFILES_PROFILES FROM EMPINST.EMPLOYEE;" &
             "SELECT COUNT(*) NUM_OF_PROFILES_CREATED_YESTERDAY FROM EMPINST.EMP_ROLE_MAP E1 INNER JOIN EMPINST.EMPLOYEE E2 ON E1.PROF_KEY = E2.PROF_KEY WHERE DATE(E1.CREATED) = CURRENT_DATE - 1 DAY;" &
-            "SELECT PROF_KEY, PROF_GUID, PROF_DISPLAY_NAME, PROF_MODE, PROF_STATE, PROF_UID_LOWER FROM EMPINST.EMPLOYEE;" &
             "SELECT COUNT(*) NUM_OF_PROFILES_WITH_PICTURE FROM EMPINST.EMPLOYEE WHERE PROF_KEY IN (SELECT PROF_KEY FROM EMPINST.PHOTO);" &
-            "SELECT COUNT(*) NUM_OF_PROFILES_WITH_MANAGER FROM EMPINST.EMPLOYEE WHERE PROF_MANAGER_UID IN (SELECT PROF_UID FROM EMPINST.EMPLOYEE);" &
-            "SELECT PROF_KEY, PROF_LAST_LOGIN FROM EMPINST.PROFILE_LAST_LOGIN"
+            "SELECT COUNT(*) NUM_OF_PROFILES_WITH_MANAGER FROM EMPINST.EMPLOYEE WHERE PROF_MANAGER_UID IN (SELECT PROF_UID FROM EMPINST.EMPLOYEE);"
 
 
 
@@ -10216,7 +11293,7 @@ CleanUp:
                 End Try
 
             End Try
-
+            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetProfileStats. After DB Call insert " & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
             Try
                 For Each table As DataTable In ds.Tables
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Category: " & Category & " Table " & ds.Tables.IndexOf(table) & " Rows " & table.Rows.Count & " Columns " & table.Columns.Count, LogUtilities.LogUtils.LogLevel.Normal)
@@ -10309,13 +11386,13 @@ CleanUp:
                     End Try
 
                     Try
-                        dict.Add("NUM_OF_PROFILES_WITH_PICTURE", ds.Tables(13).Rows(0)("NUM_OF_PROFILES_WITH_PICTURE"))
+                        dict.Add("NUM_OF_PROFILES_WITH_PICTURE", ds.Tables(12).Rows(0)("NUM_OF_PROFILES_WITH_PICTURE"))
                     Catch ex As Exception
                         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Profile Stats. Exception at stat NUM_OF_PROFILES_WITH_PICTURE. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                     End Try
 
                     Try
-                        dict.Add("NUM_OF_PROFILES_WITH_MANAGER", ds.Tables(14).Rows(0)("NUM_OF_PROFILES_WITH_MANAGER"))
+                        dict.Add("NUM_OF_PROFILES_WITH_MANAGER", ds.Tables(13).Rows(0)("NUM_OF_PROFILES_WITH_MANAGER"))
                     Catch ex As Exception
                         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Profile Stats. Exception at stat NUM_OF_PROFILES_WITH_MANAGER. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                     End Try
@@ -10340,72 +11417,6 @@ CleanUp:
                             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Profile Stats. Exception at inserting stats. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                         End Try
                     Next
-
-                    Try
-                        Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects))
-                        Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
-                        Dim loginCountForDay As Int32 = 0
-
-                        For Each row As DataRow In ds.Tables(12).Rows()
-                            Try
-                                Dim myServerName As String = myServer.Name
-
-                                Dim lastLoginTime As DateTime? = Nothing
-                                'PROF_KEY, PROF_LAST_LOGIN
-                                If ds.Tables(15).AsEnumerable.Where(Function(x) x.Field(Of String)("PROF_KEY").ToLower() = row("PROF_KEY").ToString().ToLower()).Count > 0 Then
-                                    'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Inside for ") ' & ds.Tables(15).Select("PROF_KEY = '" & row("PROF_GUID").ToString() & "'").First()("PROF_LAST_LOGIN").ToString() & "...." & ds.Tables(15).Select("PROF_KEY = '" & row("PROF_GUID").ToString() & "'").First()("PROF_KEY").ToString(), LogUtilities.LogUtils.LogLevel.Normal)
-                                    lastLoginTime = DateTime.Parse(ds.Tables(15).AsEnumerable.Where(Function(x) x("PROF_KEY").ToString().ToLower() = row("PROF_KEY").ToString().ToLower()).First()("PROF_LAST_LOGIN").ToString())
-                                End If
-
-
-                                Dim entry As New VSNext.Mongo.Entities.IbmConnectionsObjects With {
-                                    .GUID = row("PROF_GUID").ToString(),
-                                    .DeviceName = myServerName,
-                                    .Type = "Users",
-                                    .Name = row("PROF_DISPLAY_NAME").ToString(),
-                                    .IsActive = Convert.ToBoolean(IIf(row("PROF_STATE").ToString() = "0", True, False)),
-                                    .IsInternal = Convert.ToBoolean(IIf(row("PROF_MODE").ToString() = "0", True, False)),
-                                    .DeviceId = myServer.ServerObjectID,
-                                    .LogonName = row("PROF_UID_LOWER").ToString(),
-                                    .LastLoginDate = lastLoginTime,
-                                    .CreatedOn = DateTime.Now
-                                }
-                                bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(entry))
-
-                                If lastLoginTime.HasValue Then
-                                    If lastLoginTime.Value.AddDays(-1).Date.CompareTo(DateTime.Now.AddDays(-1).Date) >= 0 Then
-                                        loginCountForDay += 1
-                                    End If
-                                End If
-
-
-                                'Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Where(Function(i) i.GUID.Equals(row("PROF_GUID").ToString()) And i.DeviceName.Equals(myServerName) And i.Type.Equals("Users"))
-                                'Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects)
-
-
-                                'updatedef = repo.Updater _
-                                '            .Set(Function(i) i.Name, row("PROF_DISPLAY_NAME").ToString()) _
-                                '            .Set(Function(i) i.IsActive, Convert.ToBoolean(IIf(row("PROF_STATE").ToString() = "0", True, False))) _
-                                '            .Set(Function(i) i.IsInternal, Convert.ToBoolean(IIf(row("PROF_MODE").ToString() = "0", True, False))) _
-                                '            .Set(Function(i) i.DeviceId, myServer.ServerObjectID) _
-                                '            .Set(Function(i) i.LogonName, row("PROF_UID_LOWER").ToString()) _
-                                '            .Set(Function(i) i.LastLoginDate, lastLoginTime)
-
-                                'repo.Upsert(filterdef, updatedef)
-
-                                'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Inserting Users in Profile Stats.", LogUtilities.LogUtils.LogLevel.Normal)
-                                ' UpdateStatusTable(strSQL)
-                            Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error Inserting Users in Profile Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                            End Try
-                        Next
-                        repo.BulkInsert(bulkOps.AsEnumerable())
-                        InsertIntoIBMConnectionsDailyStats(myServer.Name, "UniqueLoginsPerDay", loginCountForDay.ToString(), myServer.ServerObjectID)
-                    Catch ex As Exception
-                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Profile Stats. Exception at table 12. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                    End Try
-                    'End Using
-
                 End If
             Catch ex As Exception
                 WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error parsing Profile Stats. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
