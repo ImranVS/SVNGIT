@@ -488,7 +488,7 @@
     ]
 
   },
-    {
+  {
     "server_type": "IBM FileNet",
     "icon": "/img/servers/IBMFileNet.svg",
       "tabs": [
@@ -679,13 +679,20 @@
       },
       {
         "tab_id": 5,
+        "title": "Active Directory",
+        "type": "Dashboard",
+        "component": "Office365ActiveDirectorySyncTab",
+        "path": "/app/dashboards/components/office365/office365-active-directory-sync-tab.component"
+      },
+      {
+        "tab_id": 6,
         "title": "Password Settings",
         "type": "Dashboard",
         "component": "Office365PasswordSettingsTab",
         "path": "/app/dashboards/components/office365/office365-password-settings.component"
       },
       {
-        "tab_id": 6,
+        "tab_id": 7,
         "title": "Events",
         "type": "Dashboard",
         "component": "ServiceEventsTab",
