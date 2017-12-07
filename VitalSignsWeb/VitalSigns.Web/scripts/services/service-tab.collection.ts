@@ -23,12 +23,10 @@ export * from '../dashboards/components/ibm-sametime/ibm-sametime-chats-tab.comp
 export * from '../dashboards/components/ibm-sametime/ibm-sametime-conferences-tab.component';
 export * from '../dashboards/components/ibm-sametime/ibm-sametime-meetings-tab.component';
 export * from '../dashboards/components/ibm-sametime/ibm-sametime-overall-tab.component';
-
-
-
 export * from '../dashboards/components/office365/office365-overall-tab.component';
 export * from '../dashboards/components/office365/office365-user-scenario-tests-tab.component';
 export * from '../dashboards/components/office365/office365-mail-stats-tab.component';
+export * from '../dashboards/components/office365/office365-active-directory-sync-tab.component';
 export * from '../dashboards/components/office365/office365-password-settings.component';
 
 export * from '../dashboards/components/key-metrics/overall-database-all-tab.component';

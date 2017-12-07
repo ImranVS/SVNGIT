@@ -31,6 +31,8 @@ import { Office365Dashboard } from './dashboards/components/office365/office365-
 import { Office365OverallTab } from './dashboards/components/office365/office365-overall-tab.component';
 import { Office365UserScenarioTestsTab } from './dashboards/components/office365/office365-user-scenario-tests-tab.component';
 import { Office365MailStatsTab } from './dashboards/components/office365/office365-mail-stats-tab.component';
+import { Office365ActiveDirectorySyncTab } from './dashboards/components/office365/office365-active-directory-sync-tab.component';
+
 import { Office365PasswordSettingsTab } from './dashboards/components/office365/office365-password-settings.component';
 
 import { CloudServicesDashboard } from './dashboards/components/cloud-services-dashboard.component';
