@@ -1314,7 +1314,7 @@ Public Class VitalSignsPlusCore
                 If LastCoreDaily <> "" Then
                     Dim lastUpdateDateTime As DateTime = DateTime.Parse(LastCoreDaily)
                     If lastUpdateDateTime.Date = Now.Date Then
-                        WriteAuditEntry(Now.ToString & " Already performed Daily Tasks today.", LogLevel.Verbose)
+                        WriteAuditEntry(Now.ToString & " Already performed Daily Tasks today.", LogLevel.Normal)
                         Exit Sub
                     End If
                 End If
@@ -1329,7 +1329,7 @@ Public Class VitalSignsPlusCore
 
 
 
-            WriteAuditEntry(Now.ToString & " Beginning to perform Daily Tasks.", LogLevel.Verbose)
+            WriteAuditEntry(Now.ToString & " Beginning to perform Daily Tasks.", LogLevel.Normal)
 
             'Starts the connections scanning if...
             'it is marked as running but it is not actually running
