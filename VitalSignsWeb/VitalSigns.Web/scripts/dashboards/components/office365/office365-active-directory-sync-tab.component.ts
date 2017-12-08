@@ -44,7 +44,7 @@ export class Office365ActiveDirectorySyncTab extends WidgetController implements
                 name: 'ChartComponent',
                 css: 'col-xs-9 col-sm-4',
                 settings: {
-                    url: `/reports/group_by_ad_sync_interval?deviceId=${this.serviceId}`,
+                    url: `/dashboard/group_by_ad_sync_interval?deviceId=${this.serviceId}`,
                     chart: {
                         chart: {
                             renderTo: 'activedirectorysync',

@@ -60,8 +60,13 @@ export class ActiveDirectoryStatsGrid implements WidgetComponent, OnInit {
         }
     }
 
+
+    ExportExcel(event) {
+        this.gridHelpers.ExportExcel(this.flex, "ActiveDirectoryStatsGrid.xlsx")
+    }
+
     ngOnInit() {
-        this.service.get('/reports/active_directory_sync_grid_report?type=Office365')
+        this.service.get('/dashboard/active_directory_sync_grid_report?type=Office365')
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));

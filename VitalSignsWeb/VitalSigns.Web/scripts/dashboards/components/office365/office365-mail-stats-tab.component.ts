@@ -39,8 +39,8 @@ export class Office365MailStatsTab extends WidgetController implements OnInit {
                 this.serviceId = res[0];
             }
         });
-        this.widgets = [
-            {
+            this.widgets = [
+                {
                 id: 'top5ActiveMailboxes',
                 title: 'Top 5 mailboxes',
                 name: 'ChartComponent',

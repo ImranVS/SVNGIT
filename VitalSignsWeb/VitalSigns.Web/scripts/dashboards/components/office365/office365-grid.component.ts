@@ -25,8 +25,8 @@ import * as helpers from '../../../core/services/helpers/helpers';
 export class Office365Grid implements WidgetComponent, OnInit {
     @Input() settings: any;
     @Output() select: EventEmitter<string> = new EventEmitter<string>();
-    @ViewChild('flex') flex: wijmo.grid.FlexGrid;  
-    data: wijmo.collections.CollectionView;
+    @ViewChild('flex') flex: wijmo.grid.FlexGrid;
+    data: wijmo.collections.CollectionView = new wijmo.collections.CollectionView();
     errorMessage: string;
     currentPageSize: any = 20;
     
