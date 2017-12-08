@@ -43,6 +43,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<IbmConnectionsObjects> connectionsRepository;
         private IRepository<ClusterDatabaseDetails> clusterDatabaseRepository;
         private IRepository<ServerOther> serverOtherRepository;
+        private IRepository<Office365MSOLUsers> o365MsolUsersRepository;
 
         private string DateFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
         /// <summary>
@@ -2896,6 +2897,94 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
+
+        [HttpGet("active_directory_sync_grid_report")]
+        public APIResponse ActiveDirectorySyncGridReport(string type = "")
+        {
+            try
+            {
+                o365MsolUsersRepository = new Repository<Office365MSOLUsers>(ConnectionString);
+                serverRepository = new Repository<Server>(ConnectionString);
+                var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription())).ToList().Select(x => x.Id).ToList();
+                var filterDef = o365MsolUsersRepository.Filter.In(x => x.DeviceId, listOfDevices) &
+                     o365MsolUsersRepository.Filter.Lt(x => x.ADLastSync, DateTime.UtcNow.AddDays(-3));
+                var results = o365MsolUsersRepository.Find(filterDef).ToList().Select(x => new MsolUser()
+                {
+                    DisplayName = x.DisplayName,
+                    ADLastSync = x.ADLastSync,
+                    UserPrincipalName = x.UserPrincipalName,
+                    AccountLastModified = x.AccountLastModified
+                }).ToList().OrderBy(x => x.DisplayName);
+                Response = Common.CreateResponse(results);
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
+        [HttpGet("group_by_ad_sync_interval")]
+        public APIResponse GroupBySyncInterval(string deviceId = "")
+        {
+
+            o365MsolUsersRepository = new Repository<Office365MSOLUsers>(ConnectionString);
+            serverRepository = new Repository<Server>(ConnectionString);
+            var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription())).ToList().Select(x => x.Id).ToList();
+            var filterDef = o365MsolUsersRepository.Filter.In(x => x.DeviceId, listOfDevices);
+            var result = o365MsolUsersRepository.Find(filterDef).ToList().Select(x => new MsolUser()
+
+            {
+                ADLastSync = x.ADLastSync
+
+
+            }).ToList();
+
+
+            List<Segment> segments = new List<Segment>();
+
+            double adsynctoday = result.Where(x => x.ADLastSync > (DateTime.Now.ToUniversalTime().AddDays(-1)) && x.ADLastSync <= DateTime.Now.ToUniversalTime()).Count();
+            double adsyncmorethan1daywithin3days = result.Where(x => x.ADLastSync < DateTime.Now.ToUniversalTime().AddDays(-1) && x.ADLastSync >= DateTime.Now.ToUniversalTime().AddDays(-3)).Count();
+            double adsyncmorethan3daywithin7days = result.Where(x => x.ADLastSync < DateTime.Now.ToUniversalTime().AddDays(-3) && x.ADLastSync >= DateTime.Now.ToUniversalTime().AddDays(-7)).Count();
+            double adsyncmorethan7days = result.Where(x => x.ADLastSync < DateTime.Now.ToUniversalTime().AddDays(-7)).Count();
+            double adneversync = result.Where(x => x.ADLastSync == null).Count();
+            if (adsynctoday > 0)
+            {
+                segments.Add(new Segment { Label = "Today.", Value = adsynctoday });
+            }
+
+            if (adsyncmorethan1daywithin3days > 0)
+            {
+                segments.Add(new Segment { Label = "Within In 3 Days.", Value = adsyncmorethan1daywithin3days });
+            }
+            if (adsyncmorethan3daywithin7days > 0)
+            {
+                segments.Add(new Segment { Label = "With In 7 Days.", Value = adsyncmorethan3daywithin7days });
+            }
+            if (adsyncmorethan7days > 0)
+            {
+                segments.Add(new Segment { Label = "More Than 7 Days.", Value = adsyncmorethan7days });
+            }
+            if (adneversync > 0)
+            {
+                segments.Add(new Segment { Label = "Never Synced.", Value = adneversync });
+            }
+
+            Serie serie = new Serie();
+            serie.Title = "Device Sync Chart";
+            serie.Segments = segments.ToList();
+
+            List<Serie> series = new List<Serie>();
+            series.Add(serie);
+
+            Chart chart = new Chart();
+            chart.Title = "Device Sync Chart";
+            chart.Series = series;
+            Response = Common.CreateResponse(chart);
+            return Response;
+        }
+
     }
 }
 

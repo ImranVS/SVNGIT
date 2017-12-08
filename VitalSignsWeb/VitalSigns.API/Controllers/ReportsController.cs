@@ -71,14 +71,14 @@ namespace VitalSigns.API.Controllers
                     summaryRepository.Filter.Lt(p => p.StatDate, dtEnd),
                     summaryRepository.Filter.Ne(p => p.DeviceName, null),
                     summaryRepository.Filter.Regex(p => p.StatName, new BsonRegularExpression("/Disk.*Free/i")));
-                   
+
                 }
-               
-                 else
-                 {
-                    
-                        List<string> listofdevices  = deviceId.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
-     
+
+                else
+                {
+
+                    List<string> listofdevices = deviceId.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
+
                     filterDef = summaryRepository.Filter.And(summaryRepository.Filter.Gte(p => p.StatDate, dtStart),
                     summaryRepository.Filter.Lt(p => p.StatDate, dtEnd),
                     summaryRepository.Filter.Ne(p => p.DeviceName, null),
@@ -103,16 +103,16 @@ namespace VitalSigns.API.Controllers
                         StatName = row.Key.StatName,
                         DiskName = row.Key.DeviceName + " - " + row.Key.StatName,
                         DeviceId = row.Key.DeviceId,
-                        _DiskName = row.Key.StatName.Replace(".Free","")
+                        _DiskName = row.Key.StatName.Replace(".Free", "")
                     }).ToList();
                 List<Serie> series = new List<Serie>();
                 foreach (var disk in result.Select(i => i.DiskName).Distinct())
                 {
-                   
+
                     Serie serie = new Serie();
                     var output = result.Where(x => x.DiskName == disk).ToList();
                     var segments = new List<Segment>();
- 
+
                     if (ismonitored == "true" && (servers.Where(x => x.Id == output[0].DeviceId).Count() > 0))
                     {
 
@@ -286,7 +286,7 @@ namespace VitalSigns.API.Controllers
                 {
                     double aggregatedValue = 0;
                     string aggregationDisplay = "";
-                    
+
                     foreach (var stat in statNames)
                     {
                         var res = results.Where(x => x.DeviceId == deviceId && x.StatName == stat).ToList();
@@ -316,14 +316,14 @@ namespace VitalSigns.API.Controllers
 
                             var expandoObj = new ExpandoObject() as IDictionary<string, Object>;
 
-                            
+
                             foreach (var entity in results.Where(x => x.DeviceId == deviceId && x.StatName == stat))
                             {
                                 //expandoObj.Add(entity.CreatedOn.ToString("MM/dd/yyyy"), entity.StatValue);
                                 expandoObj.Add(entity.StatDate.Value.ToString(DateFormat), entity.StatValue);
                             }
                             expandoObj.Add("Device Name", results.Where(x => x.DeviceId == deviceId && x.StatName == stat).ToList()[0].DeviceName);
-                            
+
                             expandoObj.Add(aggregationDisplay, aggregatedValue);
                             if (statNames.Count > 1)
                             {
@@ -348,7 +348,7 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("summarystats_chart")]
-        public APIResponse GetSumamryStatsChart(string statName ,string deviceId = "", string startDate = "", string endDate = "", string type = "", string aggregation = "", bool getNode = false)
+        public APIResponse GetSumamryStatsChart(string statName, string deviceId = "", string startDate = "", string endDate = "", string type = "", string aggregation = "", bool getNode = false)
         {
             FilterDefinition<SummaryStatistics> filterDef = null;
             if (startDate == "")
@@ -379,7 +379,7 @@ namespace VitalSigns.API.Controllers
             {
                 listOfTypes = new List<string>();
             }
-            
+
             else
             {
                 listOfTypes = type.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
@@ -398,7 +398,7 @@ namespace VitalSigns.API.Controllers
             {
                 statusRepository = new Repository<Status>(ConnectionString);
                 FilterDefinition<Status> filterDefStatus = statusRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription());
-                if(listOfDevices.Count > 0)
+                if (listOfDevices.Count > 0)
                 {
                     filterDefStatus = statusRepository.Filter.In(x => x.DeviceId, listOfDevices);
                 }
@@ -432,9 +432,9 @@ namespace VitalSigns.API.Controllers
                 {
                     filterDef = filterDef & summaryRepository.Filter.Eq(p => p.AggregationType, aggregation);
                 }
-               
-                    var result = summaryRepository.Find(filterDef).OrderBy(p => p.StatDate).ToList();
-                 List<Serie> series = new List<Serie>();
+
+                var result = summaryRepository.Find(filterDef).OrderBy(p => p.StatDate).ToList();
+                List<Serie> series = new List<Serie>();
 
                 UtilsController uc = new UtilsController();
 
@@ -600,14 +600,14 @@ namespace VitalSigns.API.Controllers
                 string dbStatName = statName;
                 switch (dbStatName)
                 {
-                   // case "DeviceUpTimeStats":
+                    // case "DeviceUpTimeStats":
 
                 }
 
                 Chart chart = ((Chart)(GetSumamryStatsChart(statName, deviceId: deviceId, startDate: dtStart.ToString(DateFormat), endDate: dtEnd.ToString(DateFormat), type: type).Data));
                 List<Serie> series = chart.Series.ToList();
                 List<Segment> segments = new List<Segment>();
-                
+
                 foreach (Serie currSerie in series)
                 {
                     if (reportType == "minutes")
@@ -937,7 +937,7 @@ namespace VitalSigns.API.Controllers
                                  Submitter = x.Submitter,
                                  Result = x.Result,
                                  Comment = x.Comments,
-                                 SubmittedDate=x.DateTimeProcessed
+                                 SubmittedDate = x.DateTimeProcessed
                              }).ToList();
 
             Response = Common.CreateResponse(result.OrderBy(x => x.ServerName));
@@ -1123,46 +1123,46 @@ namespace VitalSigns.API.Controllers
         [HttpGet("sametime_stats_grid")]
         public APIResponse GetSametimeStatisticsGrid(string startDate = "", string endDate = "", string deviceId = "", string type = "")
         {
-                List<String> StatNames = new List<string>() { "TotalnWayChats", "Total2WayChats", "PeakLogins" };
-                //StatNames = new List<string>() { "Platform.System.PctCombinedCpuUtil", "ResponseTime", "Mem.PercentUsed" };
-                if (startDate == "")
-                    startDate = DateTime.UtcNow.AddDays(-7).ToUniversalTime().ToString(DateFormat);
+            List<String> StatNames = new List<string>() { "TotalnWayChats", "Total2WayChats", "PeakLogins" };
+            //StatNames = new List<string>() { "Platform.System.PctCombinedCpuUtil", "ResponseTime", "Mem.PercentUsed" };
+            if (startDate == "")
+                startDate = DateTime.UtcNow.AddDays(-7).ToUniversalTime().ToString(DateFormat);
 
-                if (endDate == "")
-                    endDate = DateTime.UtcNow.ToUniversalTime().ToString(DateFormat);
+            if (endDate == "")
+                endDate = DateTime.UtcNow.ToUniversalTime().ToString(DateFormat);
 
-                //1 day is added to the end so we include that days data
-                DateTime dtStart = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture);
-                DateTime dtEnd = DateTime.ParseExact(endDate, DateFormat, CultureInfo.InvariantCulture).AddDays(1);
+            //1 day is added to the end so we include that days data
+            DateTime dtStart = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture);
+            DateTime dtEnd = DateTime.ParseExact(endDate, DateFormat, CultureInfo.InvariantCulture).AddDays(1);
 
-                dtStart = DateTime.SpecifyKind(dtStart, DateTimeKind.Utc);
-                dtEnd = DateTime.SpecifyKind(dtEnd, DateTimeKind.Utc);
+            dtStart = DateTime.SpecifyKind(dtStart, DateTimeKind.Utc);
+            dtEnd = DateTime.SpecifyKind(dtEnd, DateTimeKind.Utc);
 
-                summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
-                List<String> listOfDevices;
-                List<String> listOfTypes;
-                if (string.IsNullOrWhiteSpace(deviceId))
-                {
-                    listOfDevices = new List<string>();
-                }
-                else
-                {
-                    listOfDevices = deviceId.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
-                }
-                if (string.IsNullOrWhiteSpace(type))
-                {
-                    listOfTypes = new List<string>();
-                }
-                else
-                {
-                    listOfTypes = type.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
-                }
+            summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
+            List<String> listOfDevices;
+            List<String> listOfTypes;
+            if (string.IsNullOrWhiteSpace(deviceId))
+            {
+                listOfDevices = new List<string>();
+            }
+            else
+            {
+                listOfDevices = deviceId.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
+            }
+            if (string.IsNullOrWhiteSpace(type))
+            {
+                listOfTypes = new List<string>();
+            }
+            else
+            {
+                listOfTypes = type.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
+            }
             try
             {
                 var filterDef = summaryRepository.Filter.In(x => x.StatName, StatNames) &
                     summaryRepository.Filter.Gte(p => p.StatDate, dtStart) &
-                    summaryRepository.Filter.Lte(p => p.StatDate, dtEnd); 
-                if(listOfDevices.Count > 0)
+                    summaryRepository.Filter.Lte(p => p.StatDate, dtEnd);
+                if (listOfDevices.Count > 0)
                 {
                     filterDef = filterDef & summaryRepository.Filter.In(p => p.DeviceId, listOfDevices);
                 }
@@ -1424,8 +1424,8 @@ namespace VitalSigns.API.Controllers
                     .Aggregate()
                     .Match(filterDef)
                     .Group(
-                        x => new { DeviceName = x.DeviceName, Type = x.Type, ParentGUID = x.ParentGUID }, 
-                        g => new { Key = g.Key, Count = g.Count()})
+                        x => new { DeviceName = x.DeviceName, Type = x.Type, ParentGUID = x.ParentGUID },
+                        g => new { Key = g.Key, Count = g.Count() })
                     .ToList()
                     .Select(x => new CommunityActivity
                     {
@@ -1439,7 +1439,7 @@ namespace VitalSigns.API.Controllers
                     .ThenBy(x => x.Community)
                     .ThenBy(x => x.ObjectName)
                     .ToList();
-                                    
+
                 Response = Common.CreateResponse(res);
                 return Response;
             }
@@ -1507,7 +1507,7 @@ namespace VitalSigns.API.Controllers
                 {
                     filterDef = connectionsObjectsRepository.Filter.Eq(i => i.Type, "Users");
                 }
-                
+
                 var listOfUsers = connectionsObjectsRepository.Find(filterDef).ToList();
                 //var listOfUserNames = connectionsObjectsRepository.Collection.Distinct(i => i.Name, filterDef).ToList();
 
@@ -1522,8 +1522,8 @@ namespace VitalSigns.API.Controllers
                 var res = connectionsObjectsRepository.Collection.Aggregate()
                     .Match(filterDef)
                     .Group(
-                    x => new { DeviceName = x.DeviceName, OwnerId = x.OwnerId, Type = x.Type},
-                    g => new {Key = g.Key , Count = g.Count()})
+                    x => new { DeviceName = x.DeviceName, OwnerId = x.OwnerId, Type = x.Type },
+                    g => new { Key = g.Key, Count = g.Count() })
                     .ToList()
                     .Select(x => new UserAdoption
                     {
@@ -1561,7 +1561,7 @@ namespace VitalSigns.API.Controllers
                 }
                 else
                 {
-                    if(topX != 0)
+                    if (topX != 0)
                     {
                         var grouped = res.GroupBy(x => x.UserName).Select(g => new { UserName = g.Key, Sum = g.Sum(x => x.ObjectValue) }).OrderByDescending(x => x.Sum).Take(5);
                         res = res.Where(x => grouped.Select(y => y.UserName).Contains(x.UserName)).ToList();
@@ -1569,10 +1569,10 @@ namespace VitalSigns.API.Controllers
 
                     userList = res.GroupBy(x => x.UserName).Select(x => new { UserName = x.Key, Count = x.Sum(y => y.ObjectValue) }).OrderByDescending(x => x.Count).Select(x => x.UserName).Distinct().ToList();
 
-                    foreach(var user in userList)
+                    foreach (var user in userList)
                     {
-                        var currList = res.Where(x => x.UserName == user).GroupBy(x => x.ObjectName).Select(x => new { ObjectName = x.Key, Count = x.Sum(y => y.ObjectValue)}).ToList();
-                        foreach(var curr in currList)
+                        var currList = res.Where(x => x.UserName == user).GroupBy(x => x.ObjectName).Select(x => new { ObjectName = x.Key, Count = x.Sum(y => y.ObjectValue) }).ToList();
+                        foreach (var curr in currList)
                         {
                             var currResult = new UserActivityBubble()
                             {
@@ -1590,9 +1590,9 @@ namespace VitalSigns.API.Controllers
                         xcoord += 1;
                     }
 
-                    
+
                 }
-                
+
 
 
                 if (topX != 0)
@@ -1792,7 +1792,7 @@ namespace VitalSigns.API.Controllers
                             UserName = listOfUsers.Find(y => y.Id == x.Key.OwnerId).Name
                         }).ToList();
 
-                foreach(var curr in res)
+                foreach (var curr in res)
                 {
 
                     ua = new UserAdoptionPivot
@@ -1804,7 +1804,7 @@ namespace VitalSigns.API.Controllers
                         ObjectCreatedDate = curr.ObjectCreatedDate
                     };
                     result.Add(ua);
-                    
+
                 }
 
                 result = result.OrderBy(i => i.ObjectCreatedDate).ToList();
@@ -2058,7 +2058,7 @@ namespace VitalSigns.API.Controllers
                         Value = entity.Children.Sum(x => x.Count)
                     };
                     segmentList.Add(segment);
-                    foreach(var child in entity.Children)
+                    foreach (var child in entity.Children)
                     {
                         Segment subSegment = new Segment()
                         {
@@ -2152,7 +2152,7 @@ namespace VitalSigns.API.Controllers
                 //creates a filter def
                 var types = new List<string>() { "Community", "Blog", "Wiki", "Forum", "Activity" };
                 var filterDef = connectionsObjectsRepository.Filter.In(x => x.Type, types) & connectionsObjectsRepository.Filter.Lte(x => x.ObjectCreatedDate, dtEnd);
-                
+
                 //excludes the user ID which VS uses to test simulation tests
                 try
                 {
@@ -2192,16 +2192,16 @@ namespace VitalSigns.API.Controllers
 
                 //loops through the results and creates a return reponse
                 List<ConnectionsBreakdown> results = new List<ConnectionsBreakdown>();
-                foreach(string deviceName in resultsFromMongo.Select(x => x.DeviceName).Distinct())
+                foreach (string deviceName in resultsFromMongo.Select(x => x.DeviceName).Distinct())
                 {
                     ConnectionsBreakdown result;
-                   
+
                     result = new ConnectionsBreakdown();
                     result.DeviceName = deviceName;
                     result.StartDate = dtStart;
                     result.EndDate = dtEnd;
                     result.Types = new List<ConnectionsBreakdownType>();
-                    foreach(string type in types)
+                    foreach (string type in types)
                     {
                         var currTypeFromMongoList = resultsFromMongo.Where(x => x.DeviceName == deviceName && x.Type == type).ToList();
                         if (currTypeFromMongoList.Count() == 0)
@@ -2232,7 +2232,7 @@ namespace VitalSigns.API.Controllers
                             currType.Type = "Community " + type;
                             result.Types.Add(currType);
                         }
-                        
+
 
                     }
                     results.Add(result);
@@ -2253,7 +2253,7 @@ namespace VitalSigns.API.Controllers
                         currType.Total = results.Sum(x => x.Types.Where(y => y.IsInCommunity == currType.IsInCommunity && y.Type == type).First().Total);
                         currType.Type = type;
                         totalBreakdown.Types.Add(currType);
-                        
+
                     }
 
                     results.Insert(0, totalBreakdown);
@@ -2283,9 +2283,9 @@ namespace VitalSigns.API.Controllers
                     listOfDevices = deviceId.Split(',').ToList();
                 }
                 var filterDef = connectionsObjectsRepository.Filter.In(x => x.DeviceId, listOfDevices)
-                    & ( (connectionsObjectsRepository.Filter.Lt(x => x.ObjectModifiedDate, DateTime.UtcNow.AddDays(-28)) & connectionsObjectsRepository.Filter.Eq(x => x.Type, "Community"))  
-                    | (connectionsObjectsRepository.Filter.Eq(x => x.Type, "Users" )));
-                
+                    & ((connectionsObjectsRepository.Filter.Lt(x => x.ObjectModifiedDate, DateTime.UtcNow.AddDays(-28)) & connectionsObjectsRepository.Filter.Eq(x => x.Type, "Community"))
+                    | (connectionsObjectsRepository.Filter.Eq(x => x.Type, "Users")));
+
                 var allResults = connectionsObjectsRepository.Find(filterDef).ToList();
                 var users = allResults.Where(x => x.Type == "Users").ToList();
                 var results = allResults.Where(x => x.Type == "Community").Select(x => new CommunityActivity()
@@ -2351,7 +2351,7 @@ namespace VitalSigns.API.Controllers
                 serverRepository = new Repository<Server>(ConnectionString);
                 var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription())).ToList().Select(x => x.Id).ToList();
                 var filterDef = o365MsolUsersRepository.Filter.In(x => x.DeviceId, listOfDevices) &
-                    o365MsolUsersRepository.Filter.Eq(x => x.IsLicensed, true) & 
+                    o365MsolUsersRepository.Filter.Eq(x => x.IsLicensed, true) &
                     o365MsolUsersRepository.Filter.Eq(x => x.AccountDisabled, true);
                 var results = o365MsolUsersRepository.Find(filterDef).ToList().Select(x => new MsolUser()
                 {
@@ -2379,7 +2379,7 @@ namespace VitalSigns.API.Controllers
                 serverRepository = new Repository<Server>(ConnectionString);
                 var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription())).ToList().Select(x => x.Id).ToList();
                 var filterDef = o365MsolUsersRepository.Filter.In(x => x.DeviceId, listOfDevices) &
-                     o365MsolUsersRepository.Filter.Lt(x => x.ADLastSync, DateTime.UtcNow.AddHours(-24) );
+                     o365MsolUsersRepository.Filter.Lt(x => x.ADLastSync, DateTime.UtcNow.AddHours(-24));
                 var results = o365MsolUsersRepository.Find(filterDef).ToList().Select(x => new MsolUser()
                 {
                     DisplayName = x.DisplayName,
@@ -2396,89 +2396,6 @@ namespace VitalSigns.API.Controllers
                 return Response;
             }
         }
-
-        [HttpGet("active_directory_sync_grid_report")]
-        public APIResponse ActiveDirectorySyncGridReport(string type="")
-        {
-            try
-            {
-                o365MsolUsersRepository = new Repository<Office365MSOLUsers>(ConnectionString);
-                serverRepository = new Repository<Server>(ConnectionString);
-                var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription())).ToList().Select(x => x.Id).ToList();
-                var filterDef = o365MsolUsersRepository.Filter.In(x => x.DeviceId, listOfDevices) &
-                     o365MsolUsersRepository.Filter.Lt(x => x.ADLastSync, DateTime.UtcNow.AddDays(-3));
-                var results = o365MsolUsersRepository.Find(filterDef).ToList().Select(x => new MsolUser()
-                {
-                    DisplayName = x.DisplayName,
-                    ADLastSync = x.ADLastSync,
-                    UserPrincipalName = x.UserPrincipalName,
-                    AccountLastModified = x.AccountLastModified
-                }).ToList().OrderBy(x => x.DisplayName);
-                Response = Common.CreateResponse(results);
-                return Response;
-            }
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", exception.Message);
-
-                return Response;
-            }
-        }
-        [HttpGet("group_by_ad_sync_interval")]
-        public APIResponse GroupBySyncInterval( string deviceId = "")
-        {
-
-            o365MsolUsersRepository = new Repository<Office365MSOLUsers>(ConnectionString);
-            serverRepository = new Repository<Server>(ConnectionString);
-            var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription())).ToList().Select(x => x.Id).ToList();
-            var filterDef = o365MsolUsersRepository.Filter.In(x => x.DeviceId, listOfDevices);
-            var result = o365MsolUsersRepository.Find(filterDef).ToList().Select(x => new MsolUser()
-                                      
-                                              {
-                                                  ADLastSync = x.ADLastSync
-
-
-                                              }).ToList();
-
-
-            List<Segment> segments = new List<Segment>();
-            
-            double adsynctoday = result.Where(x => x.ADLastSync > (DateTime.Now.ToUniversalTime().AddDays(-1)) && x.ADLastSync <= DateTime.Now.ToUniversalTime()).Count();
-            double adsyncmorethan1daywithin3days = result.Where(x => x.ADLastSync < DateTime.Now.ToUniversalTime().AddDays(-1) && x.ADLastSync >= DateTime.Now.ToUniversalTime().AddDays(-3)).Count();
-           double adsyncmorethan3daywithin7days = result.Where(x => x.ADLastSync < DateTime.Now.ToUniversalTime().AddDays(-3) && x.ADLastSync >= DateTime.Now.ToUniversalTime().AddDays(-7)).Count();
-            double adsyncmorethan7days = result.Where(x => x.ADLastSync < DateTime.Now.ToUniversalTime().AddDays(-7)).Count();
-            if (adsynctoday > 0)
-            {
-                segments.Add(new Segment { Label = "Today.", Value = adsynctoday });
-            }
-
-            if (adsyncmorethan1daywithin3days > 0)
-            {
-                segments.Add(new Segment { Label = "Within In 3 Days.", Value = adsyncmorethan1daywithin3days });
-            }
-            if (adsyncmorethan3daywithin7days > 0)
-            {
-                segments.Add(new Segment { Label = "With In 7 Days.", Value = adsyncmorethan3daywithin7days });
-            }
-            if (adsyncmorethan7days > 0)
-            {
-                segments.Add(new Segment { Label = "More Than 7 Days.", Value = adsyncmorethan7days });
-            }
-
-            Serie serie = new Serie();
-            serie.Title = "Device Sync Chart";
-            serie.Segments = segments.ToList();
-
-            List<Serie> series = new List<Serie>();
-            series.Add(serie);
-
-            Chart chart = new Chart();
-            chart.Title = "Device Sync Chart";
-            chart.Series = series;
-            Response = Common.CreateResponse(chart);
-            return Response;
-        }
-
 
         [HttpGet("ibm_inactive_users")]
         public APIResponse DisableInactiveusers(string mailboxType)
@@ -2533,7 +2450,7 @@ namespace VitalSigns.API.Controllers
                 parentSerie.Segments = listsegments;
                 series1.Add(parentSerie);
             }
-            else if(statname == "item_count")
+            else if (statname == "item_count")
             {
                 serietitle = "Items";
                 listsegments = result.OrderByDescending(x => x.ItemCount).Take(25)
@@ -2566,8 +2483,8 @@ namespace VitalSigns.API.Controllers
                 serietitle = "Highest Folder Count";
                 var listOfMailboxes = result.Where(x => x.Folders != null).OrderByDescending(x => x.Folders.Max(y => y.ItemCount)).Take(25).ToList();
                 listsegments = listOfMailboxes.Select(x => new Segment()
-                    {
-                        Label = x.DisplayName,
+                {
+                    Label = x.DisplayName,
                     Value = x.Folders.Max(y => y.ItemCount),
                     DrillDownName = x.SAMAccountName
                 }).ToList();
@@ -2620,7 +2537,7 @@ namespace VitalSigns.API.Controllers
                         var subsegements = mailbox.Folders.OrderByDescending(x => x.TotalItemSizeMb).Take(10).Select(x => new Segment()
                         {
                             Label = x.Name,
-                            Value = Math.Round(x.TotalItemSizeMb.GetValueOrDefault(),2),
+                            Value = Math.Round(x.TotalItemSizeMb.GetValueOrDefault(), 2),
                             DrillDownName = samAcct
                         }).ToList();
                         subSerie.Segments = subsegements;
@@ -2642,20 +2559,20 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-               
+
                 mailboxRepository = new Repository<Mailbox>(ConnectionString);
-                var filterDef = mailboxRepository.Filter.Eq(x => x.DeviceName,"Exchange") &
+                var filterDef = mailboxRepository.Filter.Eq(x => x.DeviceName, "Exchange") &
                     mailboxRepository.Filter.Ne(x => x.IssueWarningQuota, "Unlimited");
                 var results = mailboxRepository.Find(filterDef).ToList()
-                    .Where(x=>double.Parse(x.IssueWarningQuota) < x.TotalItemSizeMb)
+                    .Where(x => double.Parse(x.IssueWarningQuota) < x.TotalItemSizeMb)
                     .Select(x => new MailboxModel()
-                {
-                    DisplayName = x.DisplayName,
-                    DatabaseName = x.DatabaseName,
-                    IssueWarningQuota =Math.Round(double.Parse( x.IssueWarningQuota)/1024,2).ToString(),
-                    TotalItemSizeMb= Math.Round((double)x.TotalItemSizeMb/1024,2),
-                    ProhibitSendQuota = Math.Round(double.Parse(x.ProhibitSendQuota) / 1024, 2).ToString(),
-                    ProhibitedSendPercentage =Math.Round((x.TotalItemSizeMb.Value/double.Parse(x.ProhibitSendQuota))*100,2)
+                    {
+                        DisplayName = x.DisplayName,
+                        DatabaseName = x.DatabaseName,
+                        IssueWarningQuota = Math.Round(double.Parse(x.IssueWarningQuota) / 1024, 2).ToString(),
+                        TotalItemSizeMb = Math.Round((double)x.TotalItemSizeMb / 1024, 2),
+                        ProhibitSendQuota = Math.Round(double.Parse(x.ProhibitSendQuota) / 1024, 2).ToString(),
+                        ProhibitedSendPercentage = Math.Round((x.TotalItemSizeMb.Value / double.Parse(x.ProhibitSendQuota)) * 100, 2)
                     }).ToList().OrderBy(x => x.DisplayName);
                 Response = Common.CreateResponse(results);
                 return Response;
@@ -2673,23 +2590,20 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-
                 mailboxRepository = new Repository<Mailbox>(ConnectionString);
                 var filterDef = mailboxRepository.Filter.Eq(x => x.DeviceName, "Exchange");
                 var results = mailboxRepository.Find(filterDef).ToList().Select(x => new MailboxModel()
-
                 {
                     DisplayName = x.DisplayName,
                     SAMAccountName = x.SAMAccountName,
                     PrimarySmtpAddress = x.PrimarySmtpAddress,
                     Company = x.Company,
                     Department = x.Department,
-                    MaxFolderSizeMb = Math.Round(x.Folders == null ? 0 : (double)x.Folders.Max(z => z.TotalItemSizeMb) / 1024, 2),
-                    // MaxFolderSizeMb = Math.Round((double)x.MaxFolderSizeMb / 1024, 2),
+                    MaxFolderSizeMb = Math.Round(x.Folders == null || !x.Folders.Exists(g => g.TotalItemSizeMb != null) ? 0 : (double)x.Folders.Where(g => g.TotalItemSizeMb != null).Max(z => z.TotalItemSizeMb) / 1024, 2),
                     ItemCount = x.ItemCount,
-                    FolderCount = x.Folders == null ? 0: x.Folders.Count,
-                    DatabaseName=x.DatabaseName,
-                    LastLogonTime =x.LastLogonTime 
+                    FolderCount = x.Folders == null ? 0 : x.Folders.Count,
+                    DatabaseName = x.DatabaseName,
+                    LastLogonTime = x.LastLogonTime
                 }).ToList().OrderBy(x => x.DisplayName);
                 Response = Common.CreateResponse(results);
                 return Response;
@@ -2700,7 +2614,13 @@ namespace VitalSigns.API.Controllers
 
                 return Response;
             }
+
         }
     }
-
 }
+        
+    
+        
+    
+
+
