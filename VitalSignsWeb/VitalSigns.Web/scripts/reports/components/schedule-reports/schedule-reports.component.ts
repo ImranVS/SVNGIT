@@ -59,7 +59,7 @@ export class ScheduleReports extends GridBase {
 
     constructor(service: RESTService, AppComponentService: AppComponentService, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) {
         super(service, AppComponentService);
-        this.formName = "ScheduleReports";
+        this.formName = " Scheduled Reports";
         this.weekDays = [
             { weekday: "Sunday", dayNumber: "7", isChecked: false },
             { weekday: "Monday", dayNumber: "1", isChecked: false },
@@ -168,8 +168,6 @@ export class ScheduleReports extends GridBase {
         var checkbox;
         var index;
         for ( index = 0; index < this.weekDays.length; index++) this.weekDays[index].isChecked = false;
-        console.log("Weekdays after setting to false:")
-        console.log(this.weekDays)
         for (index = 0; index < selectedWeekDays.length; index++) {
             checkbox = this.weekDays.filter(x => x.weekday == selectedWeekDays[index]);
             console.log(checkbox)
@@ -178,9 +176,6 @@ export class ScheduleReports extends GridBase {
                 console.log("Set : " + checkbox[0] + " to true")
             }
         }
-        console.log("Weekdays after setting to DB configuration:")
-        console.log(this.weekDays)
-
     }
 
     selectAllClick(index: any) {
@@ -263,6 +258,8 @@ export class ScheduleReports extends GridBase {
         this.formObject.frequency_days_list = "";
         this.formObject.send_to = "";
         this.formObject.copy_to = "";
+        this.formObject.report_subject = "";
+        this.formObject.report_body = "";
         this.formObject.blind_copy_to = "";
         this.formObject.file_format = "";
         this.selectedSetting = "";
