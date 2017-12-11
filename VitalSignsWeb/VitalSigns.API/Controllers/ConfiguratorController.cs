@@ -4086,7 +4086,7 @@ namespace VitalSigns.API.Controllers
                 schedulereportsrepository = new Repository<ScheduledReports>(ConnectionString);
                 Expression<Func<ScheduledReports, bool>> expression = (p => p.Id == id);
                 schedulereportsrepository.Delete(expression);
-                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Scheduled Report  is deleted successfully");
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Scheduled Report has been deleted successfully");
             }
             catch (Exception exception)
             {
