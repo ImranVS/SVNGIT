@@ -1160,6 +1160,9 @@ Public Class Office365Server
     Public Property DirSyncExportThreshold As Integer
     Public Property DirSyncImportThreshold As Integer
 
+    Public Property ProxyType As String
+
+
     Public Property ServiceTestsResults As New List(Of ServiceTests)
     Public Property ServiceResults As New List(Of ServiceTests)
 
