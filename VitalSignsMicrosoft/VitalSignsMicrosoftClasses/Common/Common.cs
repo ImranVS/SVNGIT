@@ -1300,11 +1300,11 @@ namespace VitalSignsMicrosoftClasses
                 switch (Server.ProxyType){
 
                     case null:
-                        sessionOption.ProxyAccessType = ProxyAccessType.IEConfig;
+                        sessionOption.ProxyAccessType = ProxyAccessType.None;
                         break;
 
                     case "":
-                        sessionOption.ProxyAccessType = ProxyAccessType.IEConfig;
+                        sessionOption.ProxyAccessType = ProxyAccessType.None;
                         break;
 
                     case "None":
