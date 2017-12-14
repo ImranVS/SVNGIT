@@ -857,6 +857,11 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public List<string> PassFailTests { get; set; }
 
+        [DataMember]
+        [BsonElement("proxy_type")]
+        [BsonIgnoreIfNullAttribute]
+        public string ProxyType { get; set; }
+
         #endregion
 
         #region WebSphereCell

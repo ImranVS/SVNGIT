@@ -1296,6 +1296,44 @@ namespace VitalSignsMicrosoftClasses
                 psSession.AddParameter("Credential", creds);
                 psSession.AddParameter("Authentication", "Basic");
                 psSession.AddParameter("AllowRedirection");
+                PSSessionOption sessionOption = new PSSessionOption();
+                switch (Server.ProxyType){
+
+                    case null:
+                        sessionOption.ProxyAccessType = ProxyAccessType.IEConfig;
+                        break;
+
+                    case "":
+                        sessionOption.ProxyAccessType = ProxyAccessType.IEConfig;
+                        break;
+
+                    case "None":
+                        sessionOption.ProxyAccessType = ProxyAccessType.None;
+                        break;
+
+                    case "IEConfig":
+                        sessionOption.ProxyAccessType = ProxyAccessType.IEConfig;
+                        break;
+
+                    case "AutoDetect":
+                        sessionOption.ProxyAccessType = ProxyAccessType.AutoDetect;
+                        break;
+
+                    case "NoProxyServer":
+                        sessionOption.ProxyAccessType = ProxyAccessType.NoProxyServer;
+                        break;
+
+                    case "WinHttpConfig":
+                        sessionOption.ProxyAccessType = ProxyAccessType.WinHttpConfig;
+                        break;
+
+                    default:
+                        Common.WriteDeviceHistoryEntry(ServerType, ServerName, "In  PrereqForOffice365WithCmdlets using default proxy value. Value: " + Server.ProxyType, Common.LogLevel.Normal);
+                        sessionOption.ProxyAccessType = ProxyAccessType.None;
+                        break;
+                }
+                Common.WriteDeviceHistoryEntry(ServerType, ServerName, "In  PrereqForOffice365WithCmdlets proxy value: " + sessionOption.ProxyAccessType.ToString(), Common.LogLevel.Verbose);
+                psSession.AddParameter("SessionOption", sessionOption);
 
                 powerShell.Commands = psSession;
                 //var result = powerShell.Invoke();

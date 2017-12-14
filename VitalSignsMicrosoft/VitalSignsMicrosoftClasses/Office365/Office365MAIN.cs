@@ -481,7 +481,7 @@ namespace VitalSignsMicrosoftClasses
 
 					Common.WriteDeviceHistoryEntry("All", serverType, "Getting the server to monitor", Common.LogLevel.Normal);
 					MonitoredItems.Office365Server thisServer = Common.SelectServerToMonitor(myOffice365Servers) as MonitoredItems.Office365Server;
-					try
+                    try
 					{
 						if (thisServer != null && !thisServer.IsBeingScanned)
 						{
@@ -688,7 +688,8 @@ repo.Upsert(filterdef, updatedef);
                 .Include(x => x.DeviceType)
                 .Include(x => x.CurrentNode)
                 .Include(x => x.SimulationTests)
-                .Include(x => x.NodeIds);
+                .Include(x => x.NodeIds)
+                .Include(x => x.ProxyType);
 
 
             listOfServers = repository.Find(filterDef, projectionDef).ToList();
@@ -800,6 +801,7 @@ repo.Upsert(filterdef, updatedef);
                         oldServer.VersionNo = "NA";
                         oldServer.ADFSMode = false;  //set it to false initially
                         oldServer.ADFSRedirectTest = false;  //set it to false initially
+                        oldServer.ProxyType = currServer.ProxyType;
 
                         oldServer.ResponseThreshold = long.Parse(currServer.ResponseTime.HasValue ? currServer.ResponseTime.Value.ToString() : "0");
                         oldServer.ScanInterval = currServer.ScanInterval.Value;
