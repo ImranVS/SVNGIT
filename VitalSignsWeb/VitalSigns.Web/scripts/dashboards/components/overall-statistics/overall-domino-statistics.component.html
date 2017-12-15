@@ -21,7 +21,7 @@
                 <div class="form-group col-sm-4">
                     <label for="start_date" class="control-label col-sm-3">Month/Year</label>
                     <div class="col-sm-4">
-                        <wj-input-date format="yyyy-MM" [(value)]="filterDate" style="width:125px;" id="start_date" selectionMode="Month"></wj-input-date>
+                        <wj-input-date format="MM-yyyy" [(value)]="filterDate" style="width:125px;" id="start_date" selectionMode="Month"></wj-input-date>
                     </div>
                     <div class="col-sm-3">
                         <button type="button" class="btn btn-primary" (click)="filterStats()" [disabled]="loading">Filter</button>
