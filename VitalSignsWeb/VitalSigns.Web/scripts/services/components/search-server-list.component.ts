@@ -1,6 +1,5 @@
 ﻿import {Component, Output, EventEmitter, OnInit}  from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
-
+import { ActivatedRoute, Router, NavigationStart, NavigationEnd} from '@angular/router';
 import {RESTService} from '../../core/services';
 @Component({
     selector: 'search-server-list',
@@ -19,7 +18,7 @@ export class SearchServerList implements OnInit  {
     deviceLocationData: any;
     errorMessage: any;
 
-    constructor(private service: RESTService, private route: ActivatedRoute) { }
+    constructor(private service: RESTService, private route: ActivatedRoute, private router: Router) { }
     
     deviceName: string = "";
     deviceType: string = "-All-";
@@ -49,19 +48,29 @@ export class SearchServerList implements OnInit  {
         }
         this.location.emit(this.deviceLocation);
     }
-    ngOnInit() {
+
+
+    refreshSearchFields() {
         let paramstatus = null;
         let paramtype = null;
         let paramName = null;
         let module = null;
         //Get a query parameter if the page is called from the main dashboard via a link in a status component
         this.route.queryParams.subscribe(params => [paramstatus = params['status'] || '-All-',
-            paramtype = params['type'] || '-All-', paramName = params['devicename'] || '']);
+        paramtype = params['type'] || '-All-', paramName = params['devicename'] || '']);
         this.name.emit('');
         this.type.emit(paramtype);
         this.status.emit(paramstatus);
         this.location.emit('-All-');
         this.name.emit(paramName);
+        //Set a selected value of the Status drop down box to the passed query parameter or -All- if no parameter is available
+        this.deviceType = paramtype;
+        this.deviceStatus = paramstatus;
+        this.deviceName = paramName;
+    }
+
+    ngOnInit() {
+        
         this.service.get('/services/server_list_selectlist_data')
             .subscribe(
             (response) => {
@@ -71,9 +80,13 @@ export class SearchServerList implements OnInit  {
             },
             (error) => this.errorMessage = <any>error
         );
-        //Set a selected value of the Status drop down box to the passed query parameter or -All- if no parameter is available
-        this.deviceType = paramtype;
-        this.deviceStatus = paramstatus;
-        this.deviceName = paramName;
+        this.refreshSearchFields();
+
+        this.router.events.subscribe(event => {
+            if (event instanceof NavigationEnd) {
+                this.refreshSearchFields();
+            }
+        });
+
     }
 }
