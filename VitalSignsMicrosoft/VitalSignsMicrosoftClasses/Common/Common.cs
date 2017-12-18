@@ -1357,8 +1357,8 @@ namespace VitalSignsMicrosoftClasses
 
                 powerShell.Commands = setVar;
                 powerShell.Runspace = runspace;
-                powerShell.Invoke();
-
+                    powerShell.Invoke();
+                
                 PSCommand importSession = new PSCommand();
                 importSession.AddScript("Import-PSSession -AllowClobber -Session $ra " + cmdlets + " -FormatTypeName *");
                 powerShell.Commands = importSession;
@@ -1380,7 +1380,14 @@ namespace VitalSignsMicrosoftClasses
                     command.AddCommand("Import-Module");
                     command.AddParameter("Name", mod);
                     powerShell.Commands = command;
-                    powerShell.Invoke();
+                    try
+                    {
+                        powerShell.Invoke();
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteDeviceHistoryEntry(ServerType, ServerName, " Failed to import the module " + mod + "." + ex.Message.ToString(), role, LogLevel.Normal);
+                    }
 
                     WriteDeviceHistoryEntry(ServerType, ServerName, "Imported the module " + mod + ".", LogLevel.Normal);
                 }
@@ -1391,7 +1398,15 @@ namespace VitalSignsMicrosoftClasses
                 connect.AddCommand("Connect-MsolService");
                 connect.AddParameter("Credential", creds);
                 powerShell.Commands = connect;
-                powerShell.Invoke();
+                try
+                {
+                    powerShell.Invoke();
+                }
+                catch (Exception ex)
+                {
+                    WriteDeviceHistoryEntry(ServerType, ServerName, " Failed to connect to MsolService." + ex.Message.ToString(), role, LogLevel.Normal);
+                }
+
                 WriteDeviceHistoryEntry(ServerType, ServerName, "In  PrereqForOffice365WithCmdlets after MSOL connection", Common.LogLevel.Normal);
                 PSCommand connectSPOL = new PSCommand();
                 connectSPOL.AddCommand("Connect-SPOService");
@@ -1406,7 +1421,14 @@ namespace VitalSignsMicrosoftClasses
                 connectSPOL.AddParameter("Url", sharePointURL);
                 connectSPOL.AddParameter("Credential", creds);
                 powerShell.Commands = connectSPOL;
-                powerShell.Invoke();
+                try
+                {
+                    powerShell.Invoke();
+                }
+                catch (Exception ex)
+                {
+                    WriteDeviceHistoryEntry(ServerType, ServerName, " Failed to connect to SPOService." + ex.Message.ToString(), role, LogLevel.Normal);
+                }
                 WriteDeviceHistoryEntry(ServerType, ServerName, "In  PrereqForOffice365WithCmdlets after SPO connection-URL:" + sharePointURL, Common.LogLevel.Normal);
 
                 PSObj.PS = powerShell;
