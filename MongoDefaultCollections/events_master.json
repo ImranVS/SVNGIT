@@ -97,5 +97,29 @@
 {"_id":{"$oid":"58d58518ca97a28482f25d81"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"DirSync Import","device_type":"Office365"}
 {"_id":{"$oid":"58d58518ca97a28482f25d82"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"DirSync Export","device_type":"Office365"}
 {"_id":{"$oid":"59b829235a790c6e0531a94d"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Response Time","device_type":"Domino"}
-{"_id":{"$oid":"59b82f435a790c6e0531a95a"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Response Time","device_type":"Exchange"}
 {"_id":{"$oid":"59cd1df9e6082201f647f473"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"URL Test","device_type":"IBM Connections"}
+{"_id":{"$oid":"5a381218bf46715e101958de"},"created_on":{"$date":"2017-12-18T19:08:08.000Z"},"event_type":"CPU","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958df"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Memory","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958e0"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"SMTP","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958e1"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"IMAP","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958e2"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"MAPO","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958e3"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Active Sync","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958e4"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Active Sync Devices","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958e5"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Submission","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958e6"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Poison","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958e7"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Unreachable","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958e8"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Reboot Overdue","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958e9"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Not Responding","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958ea"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Mailbox Database Size","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958eb"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Mailbox Send Prohibited","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958ec"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Mailbox Receive Prohibited","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958ed"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Shadow","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958ee"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"RPC","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958ef"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"POP3","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958f0"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Auto Discovery","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958f1"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Services","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958f2"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Disk Space","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958f3"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Health Check","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958f4"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"MailBox Assistants Service Test","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958f5"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Mailbox Replication Service Test","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958f6"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Database Corruption","device_type":"Exchange"}
