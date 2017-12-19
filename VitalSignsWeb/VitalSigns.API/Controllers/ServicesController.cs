@@ -1610,6 +1610,78 @@ namespace VitalSigns.API.Controllers
 
         }
 
+        [HttpGet("server_count")]
+        public APIResponse GetServerCount(string type, string docfield)
+        {
+
+            serverRepository = new Repository<Server>(ConnectionString);
+
+            try
+            {
+                string color = "";
+                var types = type.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',');
+
+                Expression<Func<Server, bool>> expression = (p => types.Contains(p.DeviceType));
+                var bsonDocs = serverRepository.Collection.Aggregate()
+                                    .Match(expression)
+                                    .Unwind(new MongoDB.Driver.StringFieldDefinition<Server>(docfield))
+                                    .Group(new BsonDocument { { "_id", "$" + docfield }, { "count", new BsonDocument("$sum", 1) } }).ToList();
+                List<Segment> result = new List<Segment>();
+                foreach (BsonDocument doc in bsonDocs)
+                {
+                    if (!doc["_id"].IsBsonNull)
+                    {
+                        if (doc["_id"].ToString() == "Not Responding" || doc["_id"].ToString() == "Red" || doc["_id"].ToString() == "Fail")
+                        {
+                            color = "rgba(239, 58, 36, 1)";
+                        }
+                        else if (doc["_id"].ToString() == "OK" || doc["_id"].ToString() == "Green")
+                        {
+                            color = "rgba(95, 190, 127, 1)";
+                        }
+                        else if (doc["_id"].ToString() == "Issue" || doc["_id"].ToString() == "Yellow")
+                        {
+                            //color = "rgba(255, 195, 0, 1)";
+                            color = "rgba(249, 156, 28, 1)";
+                        }
+                        else if (doc["_id"].ToString() == "Maintenance")
+                        {
+                            color = "rgba(119 , 119, 119, 1)";
+                        }
+                        Segment segment = new Segment()
+                        {
+                            //Might have to add additional types for support.  Format is IfThis ? DoThis : Else
+                            Label = doc["_id"].ToString(),
+                            Value = doc["count"].AsInt32,
+                            Color = color
+                        };
+                        result.Add(segment);
+                    }
+                }
+                result.RemoveAll(item => item.Label == null);
+                result.RemoveAll(item => item.Label == "");
+                Serie serie = new Serie();
+                serie.Title = docfield;
+                serie.Segments = result;
+                List<Serie> series = new List<Serie>();
+                series.Add(serie);
+                Chart chart = new Chart();
+                chart.Title = docfield;
+                chart.Series = series;
+                Response = Common.CreateResponse(chart);
+
+                return Response;
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+
+        }
+
         [HttpGet("disk_space")]
         public APIResponse GetDiskSpace(string deviceId = "",string ismonitored ="")
         {
