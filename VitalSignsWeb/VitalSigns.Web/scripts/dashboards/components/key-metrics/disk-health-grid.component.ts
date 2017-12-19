@@ -24,7 +24,7 @@ import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 })
 export class DiskHealthGrid implements WidgetComponent, OnInit {
     @Input() settings: any;
-    @ViewChild("flex") wjFlexGrid: wijmo.grid.FlexGrid;
+    @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     data: wijmo.collections.CollectionView;
     errorMessage: string;
     _serviceId: string;
@@ -56,6 +56,9 @@ export class DiskHealthGrid implements WidgetComponent, OnInit {
                 (error) => console.log(error)
                 );
         }
+    }
+    ExportExcel(event) {
+        this.gridHelpers.ExportExcel(this.flex, "DiskHealthGrid.xlsx")
     }
 
     ngOnInit() {

@@ -1,5 +1,5 @@
 ﻿
-<wj-flex-grid [itemsSource]="data" control="flex" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" headersVisibility="Column" (itemsSourceChanged)="onItemsSourceChanged()" #flex>
+<wj-flex-grid [itemsSource]="data" control="flex" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" headersVisibility="Column" (selectionChanged)="onSelectionChanged($event)" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'Server Name'" [binding]="'device_name'" [width]="280"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Status'" [binding]="'status'" [width]="180" align="center">
@@ -14,15 +14,15 @@
     </wj-flex-grid-column>
     <wj-flex-grid-column [header]="'CAS'" [binding]="'cas'"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'MBX'" [binding]="'mbx'"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'EDGE'" [binding]="'edge'" ></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'EDGE'" [binding]="'edge'"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'HUB'" [binding]="'hub'" align="right"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'CPU'" [binding]="'cpu'"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Memory'" [binding]="'memory'" [width]="300"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Response Time'" [binding]="'response_time'" ></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'OS'" [binding]="'operating_system'"[width]="300"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Response Time'" [binding]="'response_time'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'OS'" [binding]="'operating_system'" [width]="300"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Version'" [binding]="'Version'"></wj-flex-grid-column>
 
-    
+
 
 </wj-flex-grid>
 <div class="btn-group" *ngIf="data != null">

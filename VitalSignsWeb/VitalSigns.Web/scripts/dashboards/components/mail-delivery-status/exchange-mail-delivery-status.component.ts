@@ -1,10 +1,11 @@
-﻿import {Component, Input, OnInit} from '@angular/core';
+﻿import { Component, Input, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 import {WidgetComponent} from '../../../core/widgets';
 import {WidgetService} from '../../../core/widgets/services/widget.service';
 import {RESTService} from '../../../core/services';
 import {AppNavigator} from '../../../navigation/app.navigator.component';
+import * as gridHelpers from '../../../core/services/helpers/gridutils';
 
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
 import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
@@ -24,10 +25,12 @@ declare var injectSVG: any;
 export class ExchangeMailDeliveryStatus implements OnInit {
     @Input() settings: any;
     deviceId: any;
+    
+    @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     data: wijmo.collections.CollectionView;
     errorMessage: string;
 
-    constructor(private service: RESTService, private route: ActivatedRoute) { }
+    constructor(private service: RESTService, private route: ActivatedRoute, protected gridHelpers: gridHelpers.CommonUtils) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -38,6 +41,10 @@ export class ExchangeMailDeliveryStatus implements OnInit {
             this.data.refresh();
         }
     }
+    ExportExcel(event) {
+        this.gridHelpers.ExportExcel(this.flex, "ExchangeMailDeliveryStatus.xlsx")
+    }
+
     ngOnInit() {
 
         this.route.params.subscribe(params => {

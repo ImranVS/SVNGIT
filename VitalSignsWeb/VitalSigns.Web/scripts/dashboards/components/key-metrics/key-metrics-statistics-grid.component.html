@@ -1,4 +1,5 @@
-﻿<div class="row">
+﻿<button class="btn btn-primary" (click)="ExportExcel()">Export to Excel</button>
+<div class="row">
     <div class="form-group col-sm-5">
         <label for="start_date" class="control-label col-sm-2">Month/Year</label>
         <div class="col-sm-3">
@@ -8,7 +9,6 @@
             <button type="button" class="btn btn-primary" (click)="filterStats()">Filter</button>
         </div>
     </div>
-</div>
 <wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" headersVisibility="Column" (itemsSourceChanged)="onItemsSourceChanged()" (selectionChanged)="refreshChart($event)" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'Device Name'" [binding]="'DeviceName'" [width]="280"></wj-flex-grid-column>
@@ -57,4 +57,5 @@ data.pageIndex + 1 | number
         <wj-menu-item [value]="100">100</wj-menu-item>
         <wj-menu-item [value]="200">200</wj-menu-item>
     </wj-menu>
+</div>
 </div>

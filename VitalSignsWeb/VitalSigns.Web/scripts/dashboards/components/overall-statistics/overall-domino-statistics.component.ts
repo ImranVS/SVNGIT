@@ -52,6 +52,9 @@ export class DominoStatistics implements OnInit {
                 );
         }
     }
+    ExportExcel(event) {
+        this.gridHelpers.ExportExcel(this.flex, "DominoStatistics.xlsx")
+    }
     ngOnInit() {
         this.service.get('/DashBoard/get_domino_statistics')
             .subscribe(

@@ -58,6 +58,9 @@ export class KeyMetricsStatisticsGrid implements WidgetComponent, OnInit {
         }
         }
     
+    ExportExcel(event) {
+        this.gridHelpers.ExportExcel(this.flex, "KeyMetricsStatisticsGrid.xlsx")
+    }
 
     ngOnInit() {
 

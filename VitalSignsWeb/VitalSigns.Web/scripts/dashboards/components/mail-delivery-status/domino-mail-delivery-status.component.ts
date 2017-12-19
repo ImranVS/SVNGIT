@@ -65,9 +65,6 @@ export class DominoMailDeliveryStatus implements OnInit {
         this.gridHelpers.ExportExcel(this.flex, "MailDelivery.xlsx")
     }
 
-   
-    //
-    
     ngOnInit() {
         
 

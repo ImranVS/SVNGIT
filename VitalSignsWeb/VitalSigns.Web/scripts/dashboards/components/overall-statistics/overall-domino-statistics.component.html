@@ -16,7 +16,8 @@
 <div id="zeusContent">
     <div class="col-xs-12">
         <div class="widgetWrapper">
-            <div class="widgetContent">
+            <button class="btn btn-primary" (click)="ExportExcel()">Export to Excel</button>
+             <div class="widgetContent">
                 <div>&nbsp;</div>
                 <div class="form-group col-sm-4">
                     <label for="start_date" class="control-label col-sm-3">Month/Year</label>
@@ -28,61 +29,60 @@
                         <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
                     </div>              
                 </div>
-                <div>&nbsp;</div>
-                <wj-flex-grid #flex [itemsSource]="data" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" (itemsSourceChanged)="onItemsSourceChanged()">
-                    <wj-flex-grid-filter></wj-flex-grid-filter>
-                    <wj-flex-grid-column [header]="'Server Name'" [binding]="'device_name'" [width]="200"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Location'" [binding]="'location_name'" [width]="120"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Total Mail Delivered'" [binding]="'total_mail_delivered'" [width]="150" align="right"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Avg Mail Delivery Time (ms)'" [binding]="'avg_mail_delivery'" [width]="150" align="right"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Avg Server Availability Index'" [binding]="'avg_server_availability_index'" [width]="150" align="right"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Down Time (min)'" [binding]="'down_time'" [width]="150" align="right"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Avg Memory % Available'" [binding]="'avg_memory'" [width]="150" align="right"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Web Documents Opened'" [binding]="'web_documents_opened'" [width]="150" align="right"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Web Documents Created'" [binding]="'web_documents_created'" [width]="150" align="right"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Web Databases Opened'" [binding]="'web_database_opened'" [width]="150" align="right"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Web Views Opened'" [binding]="'web_views_opened'" [width]="150" align="right"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Web Commands Total'" [binding]="'web_commands_total'" [width]="150" align="right"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'HTTP Sessions'" [binding]="'http_session'" [width]="150" align="right"></wj-flex-grid-column>
-                </wj-flex-grid>
-                <div class="btn-group" *ngIf="data != null">
-                    <button type="button" class="btn btn-default"
-                            (click)="data.moveToFirstPage()"
-                            [disabled]="data.pageIndex <= 0">
-                        <span class="glyphicon glyphicon-fast-backward"></span>
-                    </button>
-                    <button type="button" class="btn btn-default"
-                            (click)="data.moveToPreviousPage()"
-                            [disabled]="data.pageIndex <= 0">
-                        <span class="glyphicon glyphicon-step-backward">
-                        </span>
-                    </button>
-                    <button type="button" class="btn btn-default" disabled style="width:100px">
-                        {{
+                    <wj-flex-grid #flex [itemsSource]="data" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" (itemsSourceChanged)="onItemsSourceChanged()">
+                        <wj-flex-grid-filter></wj-flex-grid-filter>
+                        <wj-flex-grid-column [header]="'Server Name'" [binding]="'device_name'" [width]="200"></wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Location'" [binding]="'location_name'" [width]="120"></wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Total Mail Delivered'" [binding]="'total_mail_delivered'" [width]="150" align="right"></wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Avg Mail Delivery Time (ms)'" [binding]="'avg_mail_delivery'" [width]="150" align="right"></wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Avg Server Availability Index'" [binding]="'avg_server_availability_index'" [width]="150" align="right"></wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Down Time (min)'" [binding]="'down_time'" [width]="150" align="right"></wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Avg Memory % Available'" [binding]="'avg_memory'" [width]="150" align="right"></wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Web Documents Opened'" [binding]="'web_documents_opened'" [width]="150" align="right"></wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Web Documents Created'" [binding]="'web_documents_created'" [width]="150" align="right"></wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Web Databases Opened'" [binding]="'web_database_opened'" [width]="150" align="right"></wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Web Views Opened'" [binding]="'web_views_opened'" [width]="150" align="right"></wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Web Commands Total'" [binding]="'web_commands_total'" [width]="150" align="right"></wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'HTTP Sessions'" [binding]="'http_session'" [width]="150" align="right"></wj-flex-grid-column>
+                    </wj-flex-grid>
+                    <div class="btn-group" *ngIf="data != null">
+                        <button type="button" class="btn btn-default"
+                                (click)="data.moveToFirstPage()"
+                                [disabled]="data.pageIndex <= 0">
+                            <span class="glyphicon glyphicon-fast-backward"></span>
+                        </button>
+                        <button type="button" class="btn btn-default"
+                                (click)="data.moveToPreviousPage()"
+                                [disabled]="data.pageIndex <= 0">
+                            <span class="glyphicon glyphicon-step-backward">
+                            </span>
+                        </button>
+                        <button type="button" class="btn btn-default" disabled style="width:100px">
+                            {{
 data.pageIndex + 1 | number
-                        }} / {{data.pageCount | number}}
-                    </button>
-                    <button type="button" class="btn btn-default"
-                            (click)="data.moveToNextPage()"
-                            [disabled]="data.pageIndex >= data.pageCount - 1">
-                        <span class="glyphicon glyphicon-step-forward"></span>
-                    </button>
-                    <button type="button" class="btn btn-default"
-                            (click)="data.moveToLastPage()"
-                            [disabled]="data.pageIndex >= data.pageCount - 1">
-                        <span class="glyphicon glyphicon-fast-forward"></span>
-                    </button>
+                            }} / {{data.pageCount | number}}
+                        </button>
+                        <button type="button" class="btn btn-default"
+                                (click)="data.moveToNextPage()"
+                                [disabled]="data.pageIndex >= data.pageCount - 1">
+                            <span class="glyphicon glyphicon-step-forward"></span>
+                        </button>
+                        <button type="button" class="btn btn-default"
+                                (click)="data.moveToLastPage()"
+                                [disabled]="data.pageIndex >= data.pageCount - 1">
+                            <span class="glyphicon glyphicon-fast-forward"></span>
+                        </button>
+                    </div>
+                    <div class="pull-right" *ngIf="data != null">
+                        <wj-menu [(value)]="pageSize" [header]="'Page size'">
+                            <wj-menu-item [value]="10">10</wj-menu-item>
+                            <wj-menu-item [value]="20">20</wj-menu-item>
+                            <wj-menu-item [value]="50">50</wj-menu-item>
+                            <wj-menu-item [value]="100">100</wj-menu-item>
+                            <wj-menu-item [value]="200">200</wj-menu-item>
+                        </wj-menu>
+                    </div>
                 </div>
-                <div class="pull-right" *ngIf="data != null">
-                    <wj-menu [(value)]="pageSize" [header]="'Page size'">
-                        <wj-menu-item [value]="10">10</wj-menu-item>
-                        <wj-menu-item [value]="20">20</wj-menu-item>
-                        <wj-menu-item [value]="50">50</wj-menu-item>
-                        <wj-menu-item [value]="100">100</wj-menu-item>
-                        <wj-menu-item [value]="200">200</wj-menu-item>
-                    </wj-menu>
-                </div>
-            </div>
         </div>
     </div>
 </div>
