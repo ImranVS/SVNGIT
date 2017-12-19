@@ -310,6 +310,11 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public int? ShadowQueueThreshold { get; set; }
 
+
+        [DataMember]
+        [BsonElement("server_roles")]
+        [BsonIgnoreIfNull]
+        public List<String> ServerRoles { get; set; }
         #endregion
 
         #region ActiveDirectory
@@ -1613,7 +1618,7 @@ namespace VSNext.Mongo.Entities
 
     [DataContract]
     [Serializable]
-    [CollectionName("o365_msol_users")]
+    [CollectionName("o365_msol_users_copy")]
     public class Office365MSOLUsers : Entity
     {
         [DataMember]
