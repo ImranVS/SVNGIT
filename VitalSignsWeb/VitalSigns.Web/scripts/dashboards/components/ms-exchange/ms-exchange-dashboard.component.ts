@@ -25,7 +25,7 @@ export class MSExchangeDashboard extends WidgetController implements OnInit {
             name: 'ChartComponent',
             css: 'col-xs-12 col-sm-6 col-md-6 col-lg-4',
             settings: {
-                url: '/services/status_count?type=Exchange&docfield=response_time',
+                url: '/services/server_count?type=Exchange&docfield=server_roles',
                 chart: {
                     chart: {
                         renderTo: 'serverRoles',
