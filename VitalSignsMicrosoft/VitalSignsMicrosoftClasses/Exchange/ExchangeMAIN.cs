@@ -1499,7 +1499,14 @@ namespace VitalSignsMicrosoftClasses
 
                             AllTestResults.MongoEntity.Add(mongoUpdate);
 
-							Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Roles: " + ServerRoles + "...Version: " + Version, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                            MongoStatementsUpdate<VSNext.Mongo.Entities.Status> mongoStatusUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Status>();
+                            mongoStatusUpdate.filterDef = mongoStatusUpdate.repo.Filter.Where(i => i.DeviceName == myServer.Name && i.DeviceType == myServer.ServerType);
+                            mongoStatusUpdate.updateDef = mongoStatusUpdate.repo.Updater
+                                .Set(i => i.ServerRoles, myServer.Role.ToList());
+
+                            AllTestResults.MongoEntity.Add(mongoUpdate);
+
+                            Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Roles: " + ServerRoles + "...Version: " + Version, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
 						}
 
