@@ -58,6 +58,27 @@ namespace VSNext.Mongo.Entities
     [CollectionName("ibm_connections_objects")]
     public class IbmConnectionsObjects : Entity
     {
+
+        public IbmConnectionsObjects(IbmConnectionsObjectsTemp obj)
+        {
+            System.Reflection.PropertyInfo[] props = obj.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty);// | System.Reflection.BindingFlags.DeclaredOnly);
+            foreach (var property in props)
+            {
+                if (property.SetMethod == null)
+                    continue;
+                property.SetValue(this, property.GetValue(obj));
+            }
+        }
+
+        public IbmConnectionsObjects()
+        {
+            System.Reflection.PropertyInfo[] props = this.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly);
+            foreach (var property in props)
+            {
+                property.SetValue(this, null);
+            }
+        }
+
         [DataMember]
         [BsonElement("name")]
         [BsonIgnoreIfNull]
@@ -174,6 +195,15 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         public DateTime? LastLoginDate { get; set; }
     }
+
+    [DataContract]
+    [Serializable]
+    [CollectionName("ibm_connections_objects_temp")]
+    public class IbmConnectionsObjectsTemp : IbmConnectionsObjects
+    {
+        
+    }
+
 
     public class IbmConnectionChildren
     {

@@ -3110,7 +3110,8 @@ Partial Public Class VitalSignsPlusCore
                 .Include(Function(x) x.DatabaseSettingsPort) _
                 .Include(Function(x) x.SimulationTests) _
                 .Include(Function(x) x.ConnectionsCommunityUuid) _
-                .Include(Function(x) x.ConnectionsTestUrl)
+                .Include(Function(x) x.ConnectionsTestUrl) _
+                .Include(Function(x) x.ObjectsToGather)
 
             listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
@@ -3361,147 +3362,6 @@ Partial Public Class VitalSignsPlusCore
 
                     End If
 
-                    'Try
-                    '    If dr.Item("CurrentNodeID") Is Nothing Then
-                    '        .InsufficentLicenses = True
-                    '    Else
-                    '        If dr.Item("CurrentNodeID").ToString() = "-1" Then
-                    '            .InsufficentLicenses = True
-                    '        Else
-                    '            .InsufficentLicenses = False
-                    '        End If
-
-                    '    End If
-                    'Catch ex As Exception
-                    '    WriteAuditEntry(Now.ToString & " " & .Name & " IBM Connect insufficent licenses not set.")
-
-                    'End Try
-
-                    If (False) Then
-
-
-                        'Try
-                        '    If dr.Item("NodeID") Is Nothing Then
-                        '        .NodeID = -1
-                        '    Else
-                        '        .NodeID = dr.Item("NodeID")
-                        '    End If
-                        'Catch ex As Exception
-                        '    .NodeID = -1
-                        'End Try
-
-                        'Try
-                        '    If dr.Item("CellID") Is Nothing Then
-                        '        .CellID = -1
-                        '    Else
-                        '        .CellID = dr.Item("CellID")
-                        '    End If
-                        'Catch ex As Exception
-                        '    .CellID = -1
-                        'End Try
-
-                        'Try
-                        '    If dr.Item("Hostname") Is Nothing Then
-                        '        .HostName = ""
-                        '    Else
-                        '        .HostName = dr.Item("Hostname")
-                        '    End If
-                        'Catch ex As Exception
-                        '    .HostName = ""
-                        'End Try
-
-                        'Try
-                        '    If dr.Item("NodeName") Is Nothing Then
-                        '        .NodeName = ""
-                        '    Else
-                        '        .NodeName = dr.Item("NodeName")
-                        '    End If
-                        'Catch ex As Exception
-                        '    .NodeName = ""
-                        'End Try
-
-                        'Try
-                        '    If dr.Item("CellName") Is Nothing Then
-                        '        .CellName = ""
-                        '    Else
-                        '        .CellName = dr.Item("CellName")
-                        '    End If
-                        'Catch ex As Exception
-                        '    .CellName = ""
-                        'End Try
-
-                        'Try
-                        '    If dr.Item("CellHostName") Is Nothing Then
-                        '        .CellHostName = "RMI"
-                        '    Else
-                        '        .CellHostName = dr.Item("CellHostName")
-                        '    End If
-                        'Catch ex As Exception
-                        '    .CellHostName = "RMI"
-                        'End Try
-
-                        'Try
-                        '    If dr.Item("ConnectionType") Is Nothing Then
-                        '        .ConnectionType = "RMI"
-                        '    Else
-                        '        .ConnectionType = dr.Item("ConnectionType")
-                        '    End If
-                        'Catch ex As Exception
-                        '    .ConnectionType = "RMI"
-                        'End Try
-
-                        'Try
-                        '    If dr.Item("PortNo") Is Nothing Then
-                        '        .Port = 1099
-                        '    Else
-                        '        .Port = dr.Item("PortNo")
-                        '    End If
-                        'Catch ex As Exception
-                        '    .Port = 1099
-                        'End Try
-
-                        'Try
-                        '    If dr.Item("GlobalSecurity") Is Nothing Then
-                        '        .GlobalSecurity = False
-                        '    Else
-                        '        .GlobalSecurity = dr.Item("GlobalSecurity")
-                        '    End If
-                        'Catch ex As Exception
-                        '    .GlobalSecurity = False
-                        'End Try
-
-                        'Try
-                        '    If dr.Item("SametimeId") Is Nothing Then
-                        '        .SametimeID = -1
-                        '    Else
-                        '        .SametimeID = dr.Item("SametimeId")
-                        '    End If
-                        'Catch ex As Exception
-                        '    .SametimeID = -1
-                        'End Try
-
-                        'Try
-                        '    If dr.Item("Realm") Is Nothing Then
-                        '        .Realm = ""
-                        '    Else
-                        '        .Realm = dr.Item("Realm")
-                        '    End If
-                        'Catch ex As Exception
-                        '    .Realm = ""
-                        'End Try
-
-                        'Try
-                        '    If dr.Item("ServerType") Is Nothing Then
-                        '        .ServerType = "IBM Connect"
-                        '    Else
-                        '        .ServerType = dr.Item("ServerType")
-                        '    End If
-                        'Catch ex As Exception
-                        '    .ServerType = "WebSphere"
-                        'End Try
-                    End If
-
-
                     Try
                         WriteAuditEntry(Now.ToString & " Getting server credentials.", LogLevel.Verbose)
                         If entity.CredentialsId Is Nothing Then
@@ -3681,6 +3541,17 @@ Partial Public Class VitalSignsPlusCore
                     Catch ex As Exception
 
                     End Try
+
+                    Try
+                        If entity.ObjectsToGather Is Nothing Then
+                            .ObjectsToGather = Nothing
+                        Else
+                            .ObjectsToGather = entity.ObjectsToGather
+                        End If
+                    Catch ex As Exception
+                        .ObjectsToGather = Nothing
+                    End Try
+
 
                     Try
 

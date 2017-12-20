@@ -1042,6 +1042,11 @@ namespace VSNext.Mongo.Entities
         [BsonElement("simulation_tests")]
         public List<NameValuePair> SimulationTests { get; set; }
 
+        [DataMember]
+        [BsonIgnoreIfNull]
+        [BsonElement("objects_to_gather")]
+        public List<string> ObjectsToGather { get; set; }
+
         #endregion
 
         #region DominoLogScanning
