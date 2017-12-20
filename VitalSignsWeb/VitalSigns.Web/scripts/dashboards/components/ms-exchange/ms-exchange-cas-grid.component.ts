@@ -28,7 +28,8 @@ export class MSCASGrid implements WidgetComponent, OnInit {
     errorMessage: string;
     currentPageSize: any = 20;
 
-    constructor(private service: RESTService, protected toolTip: helpers.GridTooltip, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) { }
+    constructor(private service: RESTService, protected toolTip: helpers.GridTooltip,
+        protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -56,7 +57,7 @@ export class MSCASGrid implements WidgetComponent, OnInit {
 
     ngOnInit() {
 
-        this.service.get('/services/status_list?type=Exchange')
+        this.service.get('/dashboard/exchange_cas_details')
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));

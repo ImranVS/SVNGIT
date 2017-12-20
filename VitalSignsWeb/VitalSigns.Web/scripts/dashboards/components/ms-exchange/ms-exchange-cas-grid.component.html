@@ -2,22 +2,78 @@
 <wj-flex-grid [itemsSource]="data" control="flex" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" headersVisibility="Column" (itemsSourceChanged)="onItemsSourceChanged()" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'Server Name'" [binding]="'device_name'" [width]="280"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'RPC'" [binding]="'rpc'"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'IMAP'" [binding]="'imap'" [width]="180" align="center">
+    <wj-flex-grid-column [header]="'RPC'" [binding]="'rpc'">
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
             <div [ngSwitch]="cell.item.status">
-                <span *ngSwitchCase="'Passed'" class="label label-pill label-success">{{cell.item.imap}}</span>
-                <span *ngSwitchCase="'Fail'" class="label label-pill label-warning">{{cell.item.imap}}</span>
+                <span *ngSwitchCase="'Pass'" class="label label-pill label-success">{{cell.item.rpc}}</span>
+                <span *ngSwitchCase="'Fail'" class="label label-pill label-danger">{{cell.item.rpc}}</span>
             </div>
         </template>
     </wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'OWA	'" [binding]="'owa'"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'POP'" [binding]="'pop3'" ></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Active Sync'" [binding]="'active_sync'" align="right"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'SMTP'" [binding]="'smtp'"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Outlook Anywhere'" [binding]="'outlook_anywhere'"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Auto Discovery'" [binding]="'auto_discovery'"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Services'" [binding]="'services'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'IMAP'" [binding]="'imap'" [width]="180" align="center">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            <div [ngSwitch]="cell.item.imap">
+                <span *ngSwitchCase="'Pass'" class="label label-pill label-success">{{cell.item.imap}}</span>
+                <span *ngSwitchCase="'Fail'" class="label label-pill label-danger">{{cell.item.imap}}</span>
+            </div>
+        </template>
+    </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'OWA	'" [binding]="'owa'">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            <div [ngSwitch]="cell.item.owa">
+                <span *ngSwitchCase="'Pass'" class="label label-pill label-success">{{cell.item.owa}}</span>
+                <span *ngSwitchCase="'Fail'" class="label label-pill label-danger">{{cell.item.owa}}</span>
+            </div>
+        </template>
+    </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'POP3'" [binding]="'pop3'" >
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            <div [ngSwitch]="cell.item.pop3">
+                <span *ngSwitchCase="'Passed'" class="label label-pill label-success">{{cell.item.pop3}}</span>
+                <span *ngSwitchCase="'Fail'" class="label label-pill label-warning">{{cell.item.pop3}}</span>
+            </div>
+        </template>
+    </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Active Sync'" [binding]="'active_sync'" align="right">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            <div [ngSwitch]="cell.item.active_sync">
+                <span *ngSwitchCase="'Pass'" class="label label-pill label-success">{{cell.item.active_sync}}</span>
+                <span *ngSwitchCase="'Fail'" class="label label-pill label-danger">{{cell.item.active_sync}}</span>
+            </div>
+        </template>
+    </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'SMTP'" [binding]="'smtp'">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            <div [ngSwitch]="cell.item.smtp">
+                <span *ngSwitchCase="'Pass'" class="label label-pill label-success">{{cell.item.smtp}}</span>
+                <span *ngSwitchCase="'Fail'" class="label label-pill label-danger">{{cell.item.smtp}}</span>
+            </div>
+        </template>
+    </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Outlook Anywhere'" [binding]="'outlook_anywhere'">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            <div [ngSwitch]="cell.item.outlook_anywhere">
+                <span *ngSwitchCase="'Pass'" class="label label-pill label-success">{{cell.item.outlook_anywhere}}</span>
+                <span *ngSwitchCase="'Fail'" class="label label-pill label-danger">{{cell.item.outlook_anywhere}}</span>
+            </div>
+        </template>
+    </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Auto Discovery'" [binding]="'auto_discovery'">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            <div [ngSwitch]="cell.item.auto_discovery">
+                <span *ngSwitchCase="'Pass'" class="label label-pill label-success">{{cell.item.auto_discovery}}</span>
+                <span *ngSwitchCase="'Fail'" class="label label-pill label-danger">{{cell.item.auto_discovery}}</span>
+            </div>
+        </template>
+    </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Services'" [binding]="'services'">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            <div [ngSwitch]="cell.item.services">
+                <span *ngSwitchCase="'Pass'" class="label label-pill label-success">{{cell.item.services}}</span>
+                <span *ngSwitchCase="'Fail'" class="label label-pill label-danger">{{cell.item.services}}</span>
+            </div>
+        </template>
+    </wj-flex-grid-column>
 </wj-flex-grid>
 <div class="btn-group" *ngIf="data != null">
     <button type="button" class="btn btn-default"
