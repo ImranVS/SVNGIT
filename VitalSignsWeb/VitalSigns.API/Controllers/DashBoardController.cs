@@ -2985,6 +2985,73 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+
+
+
+        [HttpGet("exchange_cas_details")]
+        public APIResponse GetExchangeCasDetails()
+        {
+            try
+            {
+                statusdetailsRepository = new Repository<StatusDetails>(ConnectionString);
+                statusRepository = new Repository<Status>(ConnectionString);
+                var exchangeservers = statusRepository.Find(x => x.DeviceType == VSNext.Mongo.Entities.Enums.ServerType.Exchange.ToDescription()).ToList();
+                List<string> deviceids = exchangeservers.Select(x => x.DeviceId).ToList();
+                FilterDefinition<StatusDetails> statusdetailsfilter = statusdetailsRepository.Filter.In(x => x.DeviceId, deviceids);
+                var statusdetailslist = statusdetailsRepository.Find(statusdetailsfilter).ToList();
+                var result = new List<ExchangeCASModel>();
+                foreach(var server in exchangeservers)
+                {
+                    ExchangeCASModel TemCasmodel = new ExchangeCASModel();
+                    TemCasmodel.DeviceName = server.DeviceName;
+                    if(statusdetailslist.Exists(x => x.DeviceId == server.DeviceId && x.TestName == "RPC") )
+                    {
+                      TemCasmodel.RPC = statusdetailslist.Where(x => x.DeviceId == server.DeviceId && x.TestName == "RPC").First().Result;
+                    }
+                    if (statusdetailslist.Exists(x => x.DeviceId == server.DeviceId && x.TestName == "IMAP"))
+                    {
+                        TemCasmodel.IMAP = statusdetailslist.Where(x => x.DeviceId == server.DeviceId && x.TestName == "IMAP").First().Result;
+                    }
+                    if (statusdetailslist.Exists(x => x.DeviceId == server.DeviceId && x.TestName == "OWA"))
+                    {
+                        TemCasmodel.OWA = statusdetailslist.Where(x => x.DeviceId == server.DeviceId && x.TestName == "OWA").First().Result;
+                    }
+                    if (statusdetailslist.Exists(x => x.DeviceId == server.DeviceId && x.TestName == "POP3"))
+                    {
+                        TemCasmodel.POP3 = statusdetailslist.Where(x => x.DeviceId == server.DeviceId && x.TestName == "POP3").First().Result;
+                    }
+                    if (statusdetailslist.Exists(x => x.DeviceId == server.DeviceId && x.TestName == "Active Sync"))
+                    {
+                        TemCasmodel.ActiveSync = statusdetailslist.Where(x => x.DeviceId == server.DeviceId && x.TestName == "Active Sync").First().Result;
+                    }
+                    if (statusdetailslist.Exists(x => x.DeviceId == server.DeviceId && x.TestName == "SMTP"))
+                    {
+                        TemCasmodel.SMTP = statusdetailslist.Where(x => x.DeviceId == server.DeviceId && x.TestName == "SMTP").First().Result;
+                    }
+                    if (statusdetailslist.Exists(x => x.DeviceId == server.DeviceId && x.TestName == "OutlookAnywhere"))
+                    {
+                        TemCasmodel.OutlookAnywhere = statusdetailslist.Where(x => x.DeviceId == server.DeviceId && x.TestName == "OutlookAnywhere").First().Result;
+                    }
+                    if (statusdetailslist.Exists(x => x.DeviceId == server.DeviceId && x.TestName == "AutoDiscovery"))
+                    {
+                        TemCasmodel.AutoDiscovery = statusdetailslist.Where(x => x.DeviceId == server.DeviceId && x.TestName == "AutoDiscovery").First().Result;
+                    }
+                    if (statusdetailslist.Exists(x => x.DeviceId == server.DeviceId && x.TestName == "Services"))
+                    {
+                        TemCasmodel.Services = statusdetailslist.Where(x => x.DeviceId == server.DeviceId && x.TestName == "Services").First().Result;
+                    }
+                    result.Add(TemCasmodel);
+                }
+                     
+                Response = Common.CreateResponse(result);
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Server Inastance not set to the Object .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
     }
 }
 
