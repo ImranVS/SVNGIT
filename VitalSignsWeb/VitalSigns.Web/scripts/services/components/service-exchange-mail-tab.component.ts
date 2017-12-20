@@ -32,7 +32,7 @@ export class ServiceExchangeMailTab extends WidgetController implements OnInit, 
     ngOnInit() {
         this.route.params.subscribe(params => {
             //IMPORTANT: the # symbol must be escaped in the URL, otherwise query string gets cut off at the first occurrence
-            this.dataProvider.get(`/services/statistics?deviceId=${this.serviceId}&statName=[Hub@Unreachable%23Queues,Hub@Submission%23Queues,Hub@Shadow%23Queues]&operation=AVG`)
+            this.dataProvider.get(`/services/statistics?deviceId=${this.serviceId}&statName=[CAS@Unreachable%23Queues,CAS@Submission%23Queues,CAS@Shadow%23Queues]&operation=AVG`)
                 .subscribe(
                 data => {
                     this.service = data.data;
@@ -49,7 +49,7 @@ export class ServiceExchangeMailTab extends WidgetController implements OnInit, 
                 name: 'ChartComponent',
                 css: 'col-xs-12 col-sm-12 col-md-12 col-lg-12',
                 settings: {
-                    url: `/services/statistics?deviceId=${this.serviceId}&statName=[Hub@Unreachable%23Queues,Hub@Submission%23Queues,Hub@Shadow%23Queues]&operation=HOURLY&isChart=true`,
+                    url: `/services/statistics?deviceId=${this.serviceId}&statName=[CAS@Unreachable%23Queues,CAS@Submission%23Queues,CAS@Shadow%23Queues]&operation=HOURLY&isChart=true`,
                     dateformat: 'time',
                     chart: {
                         chart: {
