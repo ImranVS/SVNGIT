@@ -27,6 +27,7 @@ export class MSExchangeGrid implements WidgetComponent, OnInit {
     data: wijmo.collections.CollectionView;
     errorMessage: string;
     currentPageSize: any = 20;
+    Mailobj: any;
 
     constructor(private service: RESTService, protected toolTip: helpers.GridTooltip, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) { }
 
@@ -55,16 +56,37 @@ export class MSExchangeGrid implements WidgetComponent, OnInit {
     
 
     ngOnInit() {
-
         this.service.get('/services/status_list?type=Exchange')
+
             .subscribe(
             (data) => {
+                for (var x = 0; x < data.data.length; x++) {
+                    if (data.data[x].server_roles && data.data[x].server_roles.indexOf("CAS") > -1) {
+                        data.data[x]["CAS"] = true;
+                    }
+                    else { data.data[x]["CAS"] = false; }
+
+                    if (data.data[x].server_roles && data.data[x].server_roles.indexOf("Mailbox") > -1) {
+                        data.data[x]["Mailbox"] = true;
+                    }
+                    else { data.data[x]["Mailbox"] = false; }
+
+                    if (data.data[x].server_roles && data.data[x].server_roles.indexOf("EDGE") > -1) {
+                        data.data[x]["EDGE"] = true;
+                    }
+                    else { data.data[x]["EDGE"] = false; }
+
+                    if (data.data[x].server_roles && data.data[x].server_roles.indexOf("HUB") > -1) {
+                        data.data[x]["HUB"] = true;
+                    }
+                    else { data.data[x]["HUB"] = false; }
+                }
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
                 this.data.pageSize = this.currentPageSize;
                 this.data.refresh();
             },
             (error) => this.errorMessage = <any>error
-        );
+            );
         this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("MSExchangeGrid", this.authService.CurrentUser.email)}`)
             .subscribe(
             (data) => {
@@ -74,7 +96,7 @@ export class MSExchangeGrid implements WidgetComponent, OnInit {
             },
             (error) => this.errorMessage = <any>error
             );
-      
+
         this.toolTip.getTooltip(this.flex, 0, 8);
     }
     
