@@ -9929,9 +9929,9 @@ CleanUp:
         Try
             Dim serverName As String = myServer.Name
             Dim serverId As String = myServer.ServerObjectID
-            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
-            Dim repoUsers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
-            Dim filterdef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Eq(Function(j) j.DeviceId, serverId) And repo.Filter.Eq(Function(j) j.Type, type)
+            Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp)(connectionString)
+            Dim repoUsers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp)(connectionString)
+            Dim filterdef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp) = repo.Filter.Eq(Function(j) j.DeviceId, serverId) And repo.Filter.Eq(Function(j) j.Type, type)
             If type = "Bookmark" Then
                 filterdef = filterdef And (repo.Filter.Exists(Function(x) x.ParentGUID, False) Or repo.Filter.Ne(Function(x) x.ParentGUID, Nothing))
             ElseIf type = "Community" Then
