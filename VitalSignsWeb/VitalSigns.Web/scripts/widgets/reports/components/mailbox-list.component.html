@@ -2,25 +2,25 @@
     <thead>
         <tr>
             <th>Display Name</th>
-            <th>Issue Warning Quota</th>
-            <th>Prohibit Send Quota</th>
-            <th>Prohibit Send Receive Quota</th>
-            <th>Active</th>
-            <th align="right">Total Item Size (MB)</th>
-            <th align="right">Item Count</th>
-            <th>Last Logon Time</th>
+            <th style='text-align:right'>Issue Warning Quota</th>
+            <th style='text-align:right'>Prohibit Send Quota</th>
+            <th style='text-align:right'>Prohibit Send Receive Quota</th>
+            <th style='text-align:center'>Active</th>
+            <th style='text-align:right'>Total Item Size (MB)</th>
+            <th style='text-align:right'>Item Count</th>
+            <th style='text-align:right'>Last Logon Time</th>
         </tr>
     </thead>
     <tbody *ngIf="data">
         <tr *ngFor="let entry of data">
             <td>{{entry.display_name}}</td>
-            <td>{{entry.issue_warning_quota}}</td>
-            <td>{{entry.prohibit_send_quota}}</td>
-            <td>{{entry.prohibit_send_receive_quota}}</td>
-            <td>{{entry.is_active}}</td>
-            <td align="right">{{entry.total_item_size_mb}}</td>
-            <td align="right">{{entry.item_count}}</td>
-            <td>{{entry.last_logon_time | date: 'shortDate'}}</td>
+            <td style='text-align:right'>{{entry.issue_warning_quota}}</td>
+            <td style='text-align:right'>{{entry.prohibit_send_quota}}</td>
+            <td style='text-align:right'>{{entry.prohibit_send_receive_quota}}</td>
+            <td style='text-align:center'>{{entry.is_active}}</td>
+            <td style='text-align:right'>{{entry.total_item_size_mb}}</td>
+            <td style='text-align:right'>{{entry.item_count}}</td>
+            <td style='text-align:right'>{{entry.last_logon_time | date: 'shortDate'}}</td>
         </tr>
     </tbody>
 </table>
