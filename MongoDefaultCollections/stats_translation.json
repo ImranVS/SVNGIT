@@ -121,3 +121,6 @@
 {"_id":{"$oid":"59cc0132e6082201f647f2ce"},"stat_name":"Mail_ReceivedSizeMB","translated_name":"Received Size MB"}
 {"_id":{"$oid":"59cc013ce6082201f647f2cf"},"stat_name":"Mail_SentCount","translated_name":"Sent Count"}
 {"_id":{"$oid":"59cc0145e6082201f647f2d0"},"stat_name":"Mail_SentSizeMB","translated_name":"Sent Size MB"}
+{"_id":{"$oid":"5a4685f42ad78520c87229a8"},"stat_name":"CAS@Shadow#Queues","translated_name":"Shadow Queue"}
+{"_id":{"$oid":"5a4686262ad78520c87229a9"},"stat_name":"CAS@Unreachable#Queues","translated_name":"Unreachable Queue"}
+{"_id":{"$oid":"5a4686302ad78520c87229aa"},"stat_name":"CAS@Submission#Queues","translated_name":"Submission Queue"}
