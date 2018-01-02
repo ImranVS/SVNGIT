@@ -219,6 +219,7 @@ namespace VitalSignsMicrosoftClasses
                     string PrimarySmtpAddress = ps.Properties["PrimarySmtpAddress"].Value == null ? "" : ps.Properties["PrimarySmtpAddress"].Value.ToString();
                     string Company = ps.Properties["Company"].Value == null ? "" : ps.Properties["Company"].Value.ToString();
                     string Department = ps.Properties["Department"].Value == null ? "" : ps.Properties["Department"].Value.ToString();
+                    string LastLogonTime = ps.Properties["LastLogonTime"].Value == null ? "" : ps.Properties["LastLogonTime"].Value.ToString();
 
                     List<VSNext.Mongo.Entities.Mailbox.Folder> listOfFolders = new List<VSNext.Mongo.Entities.Mailbox.Folder>();
                     try
@@ -282,7 +283,8 @@ namespace VitalSignsMicrosoftClasses
                         .Set(i => i.PrimarySmtpAddress, PrimarySmtpAddress)
                         .Set(i => i.Company, Company)
                         .Set(i => i.Department, Department)
-                        .Set(i => i.Folders, listOfFolders);
+                        .Set(i => i.Folders, listOfFolders)
+                        .Set(i => i.LastLogonTime, LastLogonTime == null ? null : Convert.ToDateTime(LastLogonTime) as DateTime?);
                         
                     AllTestResults.MongoEntity.Add(mongoStatement);
                     
