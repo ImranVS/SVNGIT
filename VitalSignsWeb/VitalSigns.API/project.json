@@ -1,4 +1,5 @@
 {
+  "webroot": "wwwroot",
   "version": "1.0.0-*",
   "compilationOptions": {
     "emitEntryPoint": true
@@ -19,7 +20,8 @@
     "Microsoft.AspNet.Authentication.JwtBearer": "1.0.0-rc1-final",
     "System.IdentityModel.Tokens": "5.0.0-rc1-211161024",
     "System.IdentityModel.Tokens.Jwt": "5.0.0-rc1-211161024",
-    "Microsoft.AspNet.Diagnostics": "1.0.0-rc1-final"
+    "Microsoft.AspNet.Diagnostics": "1.0.0-rc1-final",
+    "Microsoft.PowerShell.5.ReferenceAssemblies": "1.1.0"
   },
 
   "commands": {

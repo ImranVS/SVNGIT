@@ -1,0 +1,68 @@
+﻿<!--<form [formGroup]="advancedSettingsForm">-->
+    <!--<div class="form-group" *ngIf="deviceType=='Domino'  || deviceType == 'SharePoint' || deviceType == 'Exchange'|| deviceType == 'IBM FileNet'">-->
+        <div class="panel panel-default">
+            <div class="panel-heading">PowerShell Scripts</div>
+            <div class="panel-body">
+                <!--<div class="form-group">-->
+                
+                <div class="col-sm-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Script Selection</div>
+                        <div class="panel-body">
+
+                            <div class="col-sm-12">
+                                <div class="col-sm-6">
+                                    <div [ngStyle]="{'display': deviceId == null || deviceId == '' ? 'block' : 'none'}">
+                                        <label class="col-sm-6">Device Type:</label>
+                                        <wj-combo-box class="col-sm-6" name="type_selector" [itemsSource]="deviceTypes"
+                                                      placeholder="Select Type" [isEditable]="true" [(selectedItem)]="selectedType" (selectedIndexChanged)="deviceTypeChanged($event)">
+                                        </wj-combo-box>
+
+                                        <label class="col-sm-6">Device:</label>
+                                        <wj-combo-box class="col-sm-6" name="device_selector" [itemsSource]="devicesFromType" displayMemberPath="device_name" selectedValuePath="id"
+                                                      placeholder="Select Server" [isEditable]="true" [(selectedItem)]="selectedDevice" (selectedIndexChanged)="deviceChanged($event)">
+                                        </wj-combo-box>
+                                    </div>
+                                    <label class="col-sm-6">Script:</label>
+                                    <wj-combo-box class="col-sm-6" name="script_selector" [itemsSource]="scriptsFromType" displayMemberPath="name" selectedValuePath="path"
+                                                  placeholder="Select Script" [isEditable]="true" [(selectedItem)]="selectedScript" (selectedIndexChanged)="scriptChanged($event)">
+                                    </wj-combo-box>
+                                    
+                                </div>
+                                <div class="alert alert-info col-lg-12" *ngIf="selectedScript != null && selectedScript.description != null && selectedScript.description != ''">
+                                    <p [innerHTML]="selectedScript.description"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Parameters</div>
+                        <div class="panel-body">
+                            <!--<div class="form-group">-->
+                                <div *ngIf="parameterForm != null" class="col-sm-6">
+                                    
+                                    <form [formGroup]="parameterForm" (ngSubmit)="onSubmit()">
+                                        <div formArrayName="parameters" *ngFor="let item of parameterForm.get('parameters').controls; let i = index;">
+                                            <div [formGroupName]="i">
+                                                <label class="col-sm-6" style="clear:left">{{item.get('name').value}}</label>
+                                                <input class="col-sm-6" formControlName="value" style="padding-left: unset; padding-right: unset">
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            <!--</div>-->
+                        </div>
+
+                    </div>
+                    <!--</div>-->
+                </div>
+            </div>
+        </div>
+<button type="submit" class="btn btn-primary" (click)="onSubmit()">Execute</button>
+
+<div *ngIf="response != ''">
+    <label class="col-sm-12" [innerHTML]="response"></label>
+</div>
+    <!--</div>-->
+    <!--<button type="submit" class="btn btn-primary" (click)="onSubmit(advancedSettingsForm.value)">Save</button>-->
+<!--</form>-->

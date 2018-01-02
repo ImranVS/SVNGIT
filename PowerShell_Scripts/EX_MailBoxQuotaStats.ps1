@@ -19,7 +19,7 @@ ForEach ($DAGServer in (Get-DatabaseAvailabilityGroup).Servers) {
 
 
 foreach ($Mailbox in $Mailboxes){ 
-    $MailboxStats = "" |Select  DisplayName,Database,IssueWarningQuota,ProhibitSendQuota,ProhibitSendReceiveQuota,TotalItemSize,ItemCount,StorageLimitStatus,ServerName, SAMAccountName, PrimarySmtpAddress,Company, Department, Folders
+    $MailboxStats = "" |Select  DisplayName,Database,IssueWarningQuota,ProhibitSendQuota,ProhibitSendReceiveQuota,TotalItemSize,ItemCount,StorageLimitStatus,ServerName, SAMAccountName, PrimarySmtpAddress,Company, Department, Folders,LastLogonTime
     $Stats = ($MailboxStatistics | ? {$_.MailboxGUID -eq $Mailbox.ExchangeGuid})[0]
     $User = ($Users | ? {$_.SAMAccountName -eq $Mailbox.SAMAccountName})[0]
     $MailboxStats.DisplayName = $Mailbox.DisplayName
@@ -31,6 +31,7 @@ foreach ($Mailbox in $Mailboxes){
     $MailboxStats.ItemCount = $Stats.ItemCount
     $MailboxStats.StorageLimitStatus = $Stats.StorageLimitStatus
     $MailboxStats.ServerName = $stats.ServerName
+    $MailboxStats.LastLogonTime = $stats.LastLogonTime
 
     $folders = Get-MailboxFolderStatistics $Mailbox.Alias | select Name, ItemsInFolder, DeletedItemsInFolder, FolderSize, ItemsInFolderAndSubFolders, FolderAndSubFolderSize
     $MailboxStats.Folders = $folders

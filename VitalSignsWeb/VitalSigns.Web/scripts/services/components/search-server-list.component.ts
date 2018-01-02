@@ -56,8 +56,11 @@ export class SearchServerList implements OnInit  {
         let paramName = null;
         let module = null;
         //Get a query parameter if the page is called from the main dashboard via a link in a status component
-        this.route.queryParams.subscribe(params => [paramstatus = params['status'] || '-All-',
-        paramtype = params['type'] || '-All-', paramName = params['devicename'] || '']);
+        this.route.queryParams.subscribe(params => [
+            paramstatus = params['status'] || this.deviceStatus,
+            paramtype = params['type'] || this.deviceType,
+            paramName = params['devicename'] || this.deviceName
+        ]);
         this.name.emit('');
         this.type.emit(paramtype);
         this.status.emit(paramstatus);

@@ -159,6 +159,7 @@ import { ExchnageStatisticReport } from './reports/components/ms-exchange/ms-exc
 import { ExchangeMailboxReport } from './reports/components/ms-exchange/ms-exchange-mailbox-report.component';
 import { exchnagemaillistreport } from './reports/components/ms-exchange/ms-exchange-mailbox.component';
 
+import { MicrosoftPowerShellScripts } from './services/components/microsoft-powershell-scripts.component';
 
 @NgModule({
     imports: [
@@ -524,6 +525,7 @@ import { exchnagemaillistreport } from './reports/components/ms-exchange/ms-exch
         tabs.Office365MailStatsTab,
         tabs.Office365ActiveDirectorySyncTab,
         tabs.Office365PasswordSettingsTab,
+        tabs.MicrosoftPowerShellScripts,
         wjFlexGrid.WjFlexGrid,
         wjFlexGrid.WjFlexGridColumn,
         wjFlexGrid.WjFlexGridCellTemplate,
@@ -722,7 +724,8 @@ import { exchnagemaillistreport } from './reports/components/ms-exchange/ms-exch
         tabs.Office365MailStatsTab,
         tabs.Office365ActiveDirectorySyncTab,
         tabs.Office365UserScenarioTestsTab,
-        tabs.Office365PasswordSettingsTab
+        tabs.Office365PasswordSettingsTab,
+        tabs.MicrosoftPowerShellScripts
     ],
     bootstrap: [
         AppComponent
