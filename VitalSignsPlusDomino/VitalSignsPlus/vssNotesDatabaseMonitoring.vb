@@ -884,20 +884,6 @@ Partial Public Class VitalSignsPlusDomino
 
     Private Sub UpdateNDBStatisticsTable(ByVal DeviceId As String, ByVal ResponseTime As Long)
         WriteAuditEntry(Now.ToString & " Updating Notes Database statistics table")
-        'COMMENTED BY MUKUND 28Feb12
-        'Dim myConnection As New Data.OleDb.OleDbConnection
-        'myConnection.ConnectionString = Me.OleDbConnectionStatistics.ConnectionString
-        '' WriteAuditEntry(Now.ToString & " myConnection string is " & myConnection.ConnectionString)
-
-        'Do While myConnection.State <> ConnectionState.Open
-        '    myConnection.Open()
-        'Loop
-
-        ''   WriteAuditEntry(Now.ToString & " myConnection state is " & myConnection.State.ToString)
-        'Dim myCommand As New OleDb.OleDbCommand
-        'myCommand.Connection = myConnection
-
-        'WRITTEN BY MUKUND 28Feb12
 
         Try
             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.DailyStatistics)(connectionString)
@@ -910,10 +896,7 @@ Partial Public Class VitalSignsPlusDomino
 
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Notes Database Stats table insert failed becase: " & ex.Message)
-        Finally
-            'myConnection.Close()
-            'myConnection.Dispose()
-            'myCommand.Dispose()
+
         End Try
 
         GC.Collect()
@@ -921,10 +904,9 @@ Partial Public Class VitalSignsPlusDomino
     End Sub
 
 	Private Sub UpdateStatusTableNotesDB(ByRef MyNotesDatabase As MonitoredItems.NotesDatabase, ByVal Percent As Double)
-		Dim strSQL As String
 
-		'Update the status table
-		If MyNotesDatabase.Enabled = False Then
+        'Update the status table
+        If MyNotesDatabase.Enabled = False Then
 			Percent = 0
 			MyNotesDatabase.ResponseThreshold = 0
 		End If
@@ -983,67 +965,6 @@ Partial Public Class VitalSignsPlusDomino
             repository.Upsert(filterDef, updateDef)
 
         End With
-
-        ' WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & "*****  Updating NotesDatabase with " & strSQL)
-        'Save it to the Access database
-
-        'WRITTEN BY MUKUND 28Feb12
-        'Dim objVSAdaptor As New VSAdaptor
-        'objVSAdaptor.ExecuteNonQueryAny("VitalSigns", "Status", strSQL)
-        'COMMENTED BY MUKUND 28Feb12
-
-        'Using SQL Server
-        'If boolUseSQLServer = True Then
-        '    Try
-        '        WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " Updating the Status Table on the SQL Server")
-        '        Dim myCommand As New Data.SqlClient.SqlCommand
-        '        myCommand.Connection = SqlConnectionVitalSigns
-        '        myCommand.CommandText = strSQL
-        '        myCommand.ExecuteNonQuery()
-        '        myCommand.Dispose()
-        '    Catch ex As Exception
-        '        WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " Error updating Notes DB status table in SQL Server: " & ex.ToString)
-        '    End Try
-
-        'Else
-        '    Dim myCommand As New OleDb.OleDbCommand
-        '    Dim myConnection As New OleDb.OleDbConnection
-        '    Try
-        '        With myConnection
-        '            .ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & myPath
-        '            .Open()
-        '        End With
-
-        '        Do Until myConnection.State = ConnectionState.Open
-        '            myConnection.Open()
-        '        Loop
-
-        '    Catch ex As Exception
-        '        WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " Error: exception connecting to  Status table with Notes Database info: " & ex.Message)
-        '    End Try
-
-        '    '***
-
-
-        '    Try
-        '        If myConnection.State = ConnectionState.Open Then
-        '            myCommand.CommandText = strSQL
-        '            myCommand.Connection = myConnection
-        '            myCommand.ExecuteNonQuery()
-        '        End If
-        '    Catch ex As Exception
-        '        WriteDeviceHistoryEntry("Notes_Database", MyNotesDatabase.Name, Now.ToString & " Error updating Status table with Notes Database info: " & ex.Message & vbCrLf & strSQL)
-        '    Finally
-        '        strSQL = Nothing
-        '        myConnection.Close()
-        '        myCommand.Dispose()
-        '        myConnection.Dispose()
-        '        '  MyNotesDatabase.LastScan = Now.ToString
-        '        ' WriteAuditEntry(Now.ToString & " Next scan for " & MyNotesDatabase.Name & " scheduled : " & MyNotesDatabase.NextScan)
-        '        ' Me.OleDbConnectionStatus.Close()
-        '    End Try
-
-        'End If
 
     End Sub
 #End Region
