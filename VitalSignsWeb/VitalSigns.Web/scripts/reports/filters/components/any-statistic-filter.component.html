@@ -11,7 +11,7 @@
                 <option *ngFor="let optionData of statisticTypeData" [ngValue]="optionData">{{optionData.name}}</option>
             </select>
         </div>
-        <div id="dtServer" style="display:inline-block">
+        <div id="dtServer" style="display:inline-block" *ngIf="statisticTypeDropdown != null && statisticTypeDropdown.value !=null && statisticTypeDropdown.value !=''">
             <span class="headerBlock">Statistic : </span> <select name="statisticDropdown" [(ngModel)]="statisticDropdown">
                 <option *ngFor="let optionData of statisticData" [ngValue]="optionData">{{optionData.name}}</option>
             </select>
