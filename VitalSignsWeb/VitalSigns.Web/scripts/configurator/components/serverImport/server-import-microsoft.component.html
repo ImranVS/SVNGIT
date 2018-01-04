@@ -77,15 +77,15 @@
                     </div>
                     <div class="panel-body">
                         <div class="row">
-                            <div class="form-group">
-                                <label for="location">Locations&nbsp;&nbsp;</label>
+                            <div class="form-group col-sm-6">
+                                <label class="control-label col-sm-4">Locations&nbsp;&nbsp;</label>
                                 <wj-combo-box displayMemberPath="text" selectedValuePath="value" name="location" [itemsSource]="deviceLocationData"
                                               [(ngModel)]="exchangeServerImportData.location" placeholder="Select Location" #location>
 
                                 </wj-combo-box>
                             </div>
-                            <div class="form-group">
-                                <label for="protocol" class="control-label col-sm-2">Protocol</label>
+                            <div class="form-group col-sm-6">
+                                <label for="protocol" class="control-label col-sm-1">Protocol</label>
                                 <div>
                                     <select name="protocol" [(ngModel)]="exchangeServerImportData.protocol">
                                         <option Value="http://">http</option>

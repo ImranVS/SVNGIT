@@ -127,6 +127,10 @@ export class MicrosoftServerImport implements OnInit{
     }
 
     step3Click(): void {
+        this.errorMessage = "";
+        this.exchangeServerImportData.servers = [];
+        this.deviceLocationData = [];
+        this.exchangeServerImportData.device_attributes = [];
           this.currentStep = "1"; 
      }
      selectAll() {
