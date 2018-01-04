@@ -152,28 +152,28 @@ namespace VitalSignsMicrosoftClasses
 				serverThreadCount = maxThreadCount;
 			//serverThreadCount = 1;
 			startThreads = initialServerThreadCount;
-			if (initialServerThreadCount > serverThreadCount)
-			{
-				//remove the extra threads
-				int j = initialServerThreadCount - serverThreadCount;
-				//if inital threads are 5 and current threads are 3
-				//5-3=2: //remove 2 threads
-				foreach (Thread th in AliveServerMainThreads)
-				{
-					if (j > 0)
-					{
-						if (th.IsAlive)
-							th.Abort();
-						j -= 1;
-					}
-				}
-			}
+			//if (initialServerThreadCount > serverThreadCount)
+			//{
+			//	//remove the extra threads
+			//	int j = initialServerThreadCount - serverThreadCount;
+			//	//if inital threads are 5 and current threads are 3
+			//	//5-3=2: //remove 2 threads
+			//	foreach (Thread th in AliveServerMainThreads)
+			//	{
+			//		if (j > 0)
+			//		{
+			//			if (th.IsAlive)
+			//				th.Abort();
+			//			j -= 1;
+			//		}
+			//	}
+			//}
 			initialServerThreadCount = serverThreadCount;
 
-			Common.WriteDeviceHistoryEntry("All", serverType, "There are " + serverThreadCount + " threads open", Common.LogLevel.Normal);
+			Common.WriteDeviceHistoryEntry("All", serverType, "There are " + serverThreadCount + " threads already open", Common.LogLevel.Normal);
 			if (c == null)
 				c = new CultureInfo("en-US");
-			for (int i = startThreads; i < serverThreadCount; i++)
+			for (int i = AliveServerMainThreads.Count; i < serverThreadCount; i++)
 			{
 				//workingThread = new Thread(() => RoleMonitoring(ClassName, results, AllTestResults, thisServer, ref AlivePSO));
 				Thread monitorAD = new Thread(() => MonitorSP(i));
@@ -185,9 +185,9 @@ namespace VitalSignsMicrosoftClasses
 				monitorAD.Start();
 				Thread.Sleep(2000);
 			}
+            Common.WriteDeviceHistoryEntry("All", serverType, "There are now " + serverThreadCount + " threads open", Common.LogLevel.Normal);
 
-
-		}
+        }
 		public MonitoredItems.SharepointServer SelectServerToMonitor()
 		{
 
@@ -458,9 +458,9 @@ namespace VitalSignsMicrosoftClasses
 						{
 							if (!notResponding)
 							{
-								//if(thisServer.Name == "sp-app1.jnittech.com")
-								//if (thisServer.Role == null || thisServer.Role == "")
-
+                                //if(thisServer.Name == "sp-app1.jnittech.com")
+                                //if (thisServer.Role == null || thisServer.Role == "")
+                                Common.WriteDeviceHistoryEntry(thisServer.ServerType, thisServer.Name, "Doing windows related scanning", Common.LogLevel.Normal);
                                 MicrosoftCommon MSCommon = new MicrosoftCommon();
                                 MSCommon.PrereqForWindows(thisServer, AllTestResults, PSO);
 
@@ -472,9 +472,9 @@ namespace VitalSignsMicrosoftClasses
 									SPCommon.checkServer(thisServer, ref AllTestResults, PSO);
 
 								}
-								
 
-								DB.UpdateAllTests(AllTestResults, thisServer, thisServer.ServerType);
+                                Common.WriteDeviceHistoryEntry(thisServer.ServerType, thisServer.Name, "Finished scanning. Updating DB", Common.LogLevel.Normal);
+                                DB.UpdateAllTests(AllTestResults, thisServer, thisServer.ServerType);
 							}
 							else
 							{
@@ -798,9 +798,9 @@ namespace VitalSignsMicrosoftClasses
 
 			//This function does status inserts for insufficent licenses, removes those servers from the collection and raises/resets system message accordingly
 			Common.InsertInsufficentLicenses(mySharepointServers);
-
-			//At this point we have all Servers with ALL the information(including Threshold settings)
-		}
+            Common.WriteDeviceHistoryEntry("All", serverType, "There are " + mySharepointServers.Count + " servers in the collection after license check.");
+            //At this point we have all Servers with ALL the information(including Threshold settings)
+        }
 
 		private MonitoredItems.SharepointServer SetSPServerSettings(MonitoredItems.SharepointServer MySPServer, DataRow DR)
 		{

@@ -112,7 +112,8 @@ namespace VitalSignsMicrosoftClasses
 		{
 			try
 			{
-				switch (Server.Role)
+                Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "Doing tests for " + Server.Role, Common.LogLevel.Normal);
+                switch (Server.Role)
 				{
 
 					case "Database":
@@ -150,7 +151,8 @@ namespace VitalSignsMicrosoftClasses
 		{
 			try
 			{
-				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "In doSharepointTests", Common.LogLevel.Normal);
+                System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				//Change the Path to the Script to suit your needs
 				System.IO.StreamReader sr = new System.IO.StreamReader(AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\SP_GatherSites.ps1");
 				String str = "Invoke-Command -Session $ra -ScriptBlock {Add-PSSnapin Microsoft.SharePoint.Powershell; " + sr.ReadToEnd() + "}";
@@ -197,7 +199,8 @@ namespace VitalSignsMicrosoftClasses
 		{
 			try
 			{
-				Dictionary<string, string> cmdList;
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "In doSpStats", Common.LogLevel.Normal);
+                Dictionary<string, string> cmdList;
 				cmdList = getSpStatsList();
 				string cmds = String.Join("','", cmdList.Keys);
 				string tableVals = String.Join(",", cmdList.Values);
@@ -283,7 +286,8 @@ namespace VitalSignsMicrosoftClasses
 		{
 			try
 			{
-				Dictionary<string, string> cmdList;
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "In doSpStatsForDB", Common.LogLevel.Normal);
+                Dictionary<string, string> cmdList;
 				//if (myServer.Role == "Database")
 				cmdList = getSpStatsListForDatabase();
 				//else
@@ -326,7 +330,8 @@ namespace VitalSignsMicrosoftClasses
 		{
 			try
 			{
-				Dictionary<string, string> cmdList;
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "In doSpStatsWithNoTotal", Common.LogLevel.Normal);
+                Dictionary<string, string> cmdList;
 				cmdList = getSpStatsForTotalSum();
 				string[] cmds = cmdList.Keys.ToArray();
 				//string cmds = String.Join("','", cmdList.Keys);
@@ -410,7 +415,8 @@ namespace VitalSignsMicrosoftClasses
 		{
 			try
 			{
-				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "In GetVersion", Common.LogLevel.Normal);
+                System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				System.IO.StreamReader sr = new System.IO.StreamReader(AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\SP_GetVersion.ps1");
 				String str = "Invoke-Command -Session $ra -ScriptBlock {Add-PSSnapin Microsoft.SharePoint.Powershell; " + sr.ReadToEnd() + "}";
 				powershellobj.PS.Commands.Clear();
@@ -438,7 +444,8 @@ namespace VitalSignsMicrosoftClasses
 		{
 			try
 			{
-				bool failedAlert = false;
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "In TestSiteCollections", Common.LogLevel.Normal);
+                bool failedAlert = false;
 
 				System.Collections.ArrayList siteList = new System.Collections.ArrayList();
 				System.Collections.ArrayList ruleList = new System.Collections.ArrayList();
@@ -514,7 +521,8 @@ namespace VitalSignsMicrosoftClasses
 		{
 			try
 			{
-				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "In GetSPConfigurationStats", Common.LogLevel.Normal);
+                System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				String sr = AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\SP_IssAndAspNetStats.ps1";
 				String str = "Invoke-Command -Session $ra -FilePath '" + sr + "'";
 				powershellobj.PS.Commands.Clear();
