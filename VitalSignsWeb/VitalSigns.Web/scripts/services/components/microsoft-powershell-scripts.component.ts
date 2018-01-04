@@ -56,8 +56,6 @@ export class MicrosoftPowerShellScripts extends WidgetController implements OnIn
 
                 this.devices = response.data.devices;
                 this.scripts = response.data.scripts;
-                console.log("wes" + this.selectedDevice)
-                console.log(this.deviceId)
                 if (this.deviceId != null || this.deviceId != "") {
                     this.devices = this.devices.filter(x => x.device_id == this.deviceId);
                     this.selectedType = this.devices.find(x => x.device_id == this.deviceId).device_type
@@ -66,9 +64,7 @@ export class MicrosoftPowerShellScripts extends WidgetController implements OnIn
                 this.deviceTypes = this.devices.map(x => x.device_type).filter(function (e, i, a) {
                     return i === a.indexOf(e);
                 });
-
-                console.log("wes2 ");
-                console.log(this.selectedDevice)
+                
             },
             (error) => this.errorMessage = <any>error
             );
@@ -77,33 +73,23 @@ export class MicrosoftPowerShellScripts extends WidgetController implements OnIn
     
 
     deviceTypeChanged(event: wijmo.EventArgs) {
-        console.log(this.selectedType);
         this.devicesFromType = this.devices.filter(x => x.device_type == this.selectedType);
         this.scriptsFromType = this.scripts.filter(x => x.device_type == this.selectedType);
     }
 
     deviceChanged(event: wijmo.EventArgs) {
-        console.log('seclected device ' + event);
-        console.log(this.selectedDevice)
     }
 
     scriptChanged(event: wijmo.EventArgs) {
         var mainThis = this;
-        console.log("Before");
-        console.log(this.selectedScript);
-        console.log(this.parameterForm);
         this.parameterForm = this.formBuilder.group({
             path: mainThis.selectedScript.path,
             parameters: mainThis.formBuilder.array(mainThis.selectedScript.parameters.map(function (x) { return mainThis.formBuilder.group({ name: x.name, value: x.value }); })),
             device_id: mainThis.selectedDevice.device_id
         });
-        console.log(mainThis.parameterForm)
     }
     onSubmit(): void {
-        console.log("Click")
         var obj = this.parameterForm.getRawValue()
-        console.log(obj)
-        console.log(JSON.stringify(obj))
         this.appComponentService.showProgressBar();
         this.service.put("/services/execute_powershell_script", obj)
             .subscribe((response) => {
