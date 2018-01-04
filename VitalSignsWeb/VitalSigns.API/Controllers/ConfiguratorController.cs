@@ -31,7 +31,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<BusinessHours> businessHoursRepository;
         private IRepository<Credentials> credentialsRepository;
         private IRepository<Location> locationRepository;
-
+        private IRepository<Server> serverRepository;
         private IRepository<ValidLocation> validLocationsRepository;
 
         private IRepository<Maintenance> maintenanceRepository;
@@ -1334,8 +1334,10 @@ namespace VitalSigns.API.Controllers
                     FieldName = x.FieldName,
                     DataType = x.DataType,
                     Unitofmeasurement = x.Unitofmeasurement,
+                    Category = x.Category,
                     IsSelected = false,
-                    IsPercentage = x.IsPercentage
+                    IsPercentage = x.IsPercentage,
+                    Type = x.Type
                 }).OrderBy(x => x.AttributeName).ToList();
                 Response = Common.CreateResponse(result);
             }
@@ -7447,6 +7449,370 @@ namespace VitalSigns.API.Controllers
         }
         #endregion
 
+        #region Microsoft Servers
+        [HttpGet("get_microsoft_import")]
+        public APIResponse GetMicrosoftImportData( string device_type="")
+        {
+           MicrosoftServerImportModel model = new MicrosoftServerImportModel();
+            //if (Common.GetNameValue("Primary Server") != null)
+            //{
+            //    model.Servers = Common.GetNameValue("Primary Server").Value;
+
+            //}
+            //model.Location = null;
+
+            deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
+            model.DeviceAttributes = deviceAttributesRepository.All().Where(x => (x.DeviceType == "device_type") && (x.Category == "Scan Settings" || x.Category == "Mail Settings")).Select(x => new DeviceAttributesModel
+            {
+                Id = x.Id,
+                AttributeName = x.AttributeName,
+                DefaultValue = x.DefaultValue,
+                DeviceType = x.DeviceType,
+                FieldName = x.FieldName,
+                Category = x.Category,
+                DataType = x.DataType,
+                Type = x.Type,
+                Unitofmeasurement = x.Unitofmeasurement,
+                IsSelected = false
+            }).OrderBy(x => x.AttributeName).ToList();
+            model.CpuThreshold = 90;
+            model.MemoryThreshold = 90;
+            foreach (var attri in model.DeviceAttributes)
+            {
+                if (attri.DataType == "bool" && (attri.DefaultValue == "false" || attri.DefaultValue == "0"))
+                {
+                    attri.DefaultboolValues = false;
+                }
+                else
+                {
+                    attri.DefaultboolValues = true;
+                }
+            }
+            return Common.CreateResponse(model);
+        }
+
+        [HttpPut("save_microsoft_servers")]
+        public APIResponse SaveMicrosoftServers([FromBody]MicrosoftServerImportModel serverImport,string device_type= "")
+        {
+
+            try
+            {
+                serversRepository = new Repository<Server>(ConnectionString);
+                foreach (var serverModel in serverImport.Servers)
+                {
+                    if (serverModel.IsSelected)
+                    {
+                        Server server = new Server();
+                        server.Id = ObjectId.GenerateNewId().ToString();
+                        server.DeviceName = serverModel.DeviceName;
+                        server.DeviceType = device_type;
+                        server.LocationId = serverImport.Location;
+                        server.IsEnabled = true;
+                        server.IPAddress = serverImport.Protocol+ serverModel.IpAddress;
+                        server.AuthenticationType = serverImport.AuthenticationType;
+                        server.MemoryThreshold = serverImport.MemoryThreshold != null ? Math.Round(Convert.ToDouble(serverImport.MemoryThreshold) / 100, 1) : 0.9;
+                        server.CpuThreshold = serverImport.CpuThreshold != null ? Math.Round(Convert.ToDouble(serverImport.CpuThreshold) / 100, 1) : 0.9;
+                        server.ScanInterval = serverImport.ScanInterval;
+                        server.RetryInterval = serverImport.RetryInterval;
+                        server.OffHoursScanInterval = serverImport.OffHoursScanInterval;
+                        server.ResponseTime = serverImport.ResponseTime;
+                        serversRepository.Insert(server);
+                        Repository repository = new Repository(Startup.ConnectionString, Startup.DataBaseName, "server");
+                        var updateBuilder = Builders<BsonDocument>.Update;
+                        var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(server.Id));
+                        UpdateDefinition<BsonDocument> updateDefinition = updateBuilder.Set("is_enabled", true);
+                        foreach (var attribute in serverImport.DeviceAttributes)
+                        {
+                            if (!string.IsNullOrEmpty(attribute.FieldName))
+                            {
+                                string field = attribute.FieldName;
+                                string value = attribute.DefaultValue;
+                                string datatype = attribute.DataType;
+                                if (datatype == "int")
+                                {
+                                    int outputvalue = Convert.ToInt32(value);
+                                    updateDefinition = updateDefinition == null ? updateBuilder.Set(field, outputvalue) : updateDefinition.Set(field, outputvalue);
+                                }
+                                if (datatype == "double")
+                                {
+                                    double outputvalue = Convert.ToDouble(value);
+                                    updateDefinition = updateDefinition == null ? updateBuilder.Set(field, outputvalue) : updateDefinition.Set(field, outputvalue);
+                                }
+                                if (datatype == "bool")
+                                {
+                                    bool booloutput;
+                                    if (value == "0")
+                                    {
+                                        booloutput = false;
+                                    }
+                                    else
+                                    {
+                                        booloutput = true;
+                                    }
+                                    updateDefinition = updateDefinition == null ? updateBuilder.Set(field, booloutput) : updateDefinition.Set(field, booloutput);
+                                }
+                                if (datatype == "string")
+                                {
+                                    updateDefinition = updateDefinition == null ? updateBuilder.Set(field, value) : updateDefinition.Set(field, value);
+                                }
+                            }
+                        }
+
+                        repository.Collection.UpdateMany(filter, updateDefinition);
+                    }
+                }
+                Licensing licensing = new Licensing();
+                licensing.refreshServerCollectionWrapper();
+                Response = Common.CreateResponse("Success", Common.ResponseStatus.Success.ToDescription(), "Servers imported successfully");
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Server import has failed. \n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+
+        [HttpPut("load_microsoft_servers")]
+        public APIResponse LoadMicrosoftServers([FromBody]MicrosoftServerImportModel serverImport)
+        {
+            //define ps object
+            System.Management.Automation.PowerShell ps = null;
+            try
+            {
+                //decrept the credentilas
+                //Server server = new Server();
+                serverRepository = new Repository<Server>(ConnectionString);
+                FilterDefinition<Server> filterDefServer = serverRepository.Filter.Eq(x => x.DeviceType, serverImport.DeviceType);
+                List<Server> listOfServers = serverRepository.Find(filterDefServer).ToList();
+                var devicename = listOfServers.Select(x => x.DeviceName).ToList();
+                credentialsRepository = new Repository<Credentials>(ConnectionString);
+                FilterDefinition<Credentials> filterDefCredentials = credentialsRepository.Filter.Eq(x => x.Id, serverImport.CredentialId);
+                List<Credentials> listOfCredentials = credentialsRepository.Find(filterDefCredentials).ToList();
+                Credentials creds = listOfCredentials.First();
+                VSFramework.TripleDES tripleDes = new VSFramework.TripleDES();
+                string cmd = "";
+                if (serverImport.DeviceType == Enums.ServerType.Exchange.ToDescription().ToString())
+                {
+                    ps = ConnectToExchange(serverImport.IpAddress, creds.UserId, tripleDes.Decrypt(creds.Password), serverImport.IpAddress, serverImport.AuthenticationType);
+                    cmd = "Get-ExchangeServer | select Name, Fqdn | sort name";
+                }
+                else
+                {
+                    throw new Exception("Device Type is not supported");
+                }
+
+                //depending on server type call appropriate function
+
+                //refre back to vs web 365(make logic here)
+                
+                ps.AddScript(cmd);
+                var results = ps.Invoke();
+                //loop through and add it to new array {temserverlist array}
+                var templist = new List<ServersModel>();
+
+                foreach (System.Management.Automation.PSObject psobject in results)
+                {
+                    try
+                    {
+                        string name = psobject.Properties["Name"].Value.ToString();
+                        string Fqdn = psobject.Properties["Fqdn"].Value.ToString();
+                        var exchnageservers = new ServersModel();
+                        exchnageservers.DeviceName = name;
+                        exchnageservers.IpAddress = Fqdn;
+                        if (devicename.Contains(name))
+                            continue;
+                        templist.Add(exchnageservers);
+                    }
+
+                    catch (Exception ex)
+                    {
+                        throw ex;
+
+                    }
+
+                }
+          
+                locationRepository = new Repository<Location>(ConnectionString);
+                var locationList2 = locationRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.LocationName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText).ToList();
+                var defaultattributes = GetDeviceAttributes("Exchange").Data;
+                Response = Common.CreateResponse(new { locationList = locationList2, serverList = templist, defaultattributes = defaultattributes });
+
+                return Response;
+            }
+           
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Server import has failed. \n Error Message :" + exception.Message);
+            }
+            finally
+            {
+
+            }
+            return Response;
+            
+        }
+
+        //var TempServerList = new List<ServersModel>()
+        //{
+        //    new ServersModel(){ DeviceName = "text1", IpAddress ="dummy@dummy.com" },
+        //    new ServersModel(){ DeviceName = "text2", IpAddress ="dummy@dummy.com" },
+        //       new ServersModel(){ DeviceName = "text3", IpAddress ="dummy@dummy.com" },
+        //          new ServersModel(){ DeviceName = "text4", IpAddress ="dummy@dummy.com" },
+        //             new ServersModel(){ DeviceName = "text5", IpAddress ="dummy@dummy.com" }
+
+
+        //};
+        public static System.Security.SecureString String2SecureString(string password)
+        {
+            System.Security.SecureString remotePassword = new System.Security.SecureString();
+            for (int i = 0; i < password.Length; i++)
+                remotePassword.AppendChar(password[i]);
+
+            return remotePassword;
+        }
+
+        public System.Management.Automation.PowerShell ConnectToExchange(string ServerName, string UserName, string Password, string IPAddress, string AuthenticationType)
+        {
+            try
+            {
+                var targetFw = System.Reflection.Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(System.Runtime.Versioning.TargetFrameworkAttribute), false);
+                System.Uri uri = new Uri(IPAddress + "/powershell?serializationLevel=Full");
+                System.Security.SecureString securePassword = String2SecureString(Password);
+
+                System.Management.Automation.PSCredential creds = new System.Management.Automation.PSCredential(UserName, securePassword);
+                System.Management.Automation.Runspaces.PowerShellProcessInstance instance = new System.Management.Automation.Runspaces.PowerShellProcessInstance(new Version(5, 0), null, null, true);
+                System.Management.Automation.Runspaces.Runspace runspace = System.Management.Automation.Runspaces.RunspaceFactory.CreateOutOfProcessRunspace(new System.Management.Automation.Runspaces.TypeTable(new string[0]), instance);
+                //System.Management.Automation.Runspaces.Runspace runspace = System.Management.Automation.Runspaces.RunspaceFactory.CreateRunspace();
+
+                System.Management.Automation.PowerShell powershell = System.Management.Automation.PowerShell.Create();
+
+                System.Management.Automation.PSCommand command = new System.Management.Automation.PSCommand();
+                command.AddCommand("New-PSSession");
+                command.AddParameter("ConfigurationName", "Microsoft.Exchange");
+                command.AddParameter("ConnectionUri", uri);
+                command.AddParameter("Credential", creds);
+                command.AddParameter("Authentication", AuthenticationType);
+                System.Collections.ObjectModel.Collection<System.Management.Automation.PSObject> results = new System.Collections.ObjectModel.Collection<System.Management.Automation.PSObject>();
+
+                System.Management.Automation.Remoting.PSSessionOption sessionOption = new System.Management.Automation.Remoting.PSSessionOption();
+                sessionOption.SkipCACheck = true;
+                sessionOption.SkipCNCheck = true;
+                sessionOption.SkipRevocationCheck = true;
+
+                command.AddParameter("SessionOption", sessionOption);
+                powershell.Commands = command;
+
+                powershell.Runspace = runspace;
+                powershell.Runspace.Open();
+
+                System.Collections.ObjectModel.Collection<System.Management.Automation.PSObject> result = powershell.Invoke();
+
+
+                foreach (System.Management.Automation.ErrorRecord current in powershell.Streams.Error)
+                {
+                    string strError = "Exception: " + current.Exception.ToString() + ",\r\nInner Exception: " + current.Exception.InnerException;
+                    //WriteDeviceHistoryEntry("Exchange", ServerName, "Error in StartProcessForServer: " + strError, role, LogLevel.Normal);
+
+                    //CheckForPowerShellConnectionErrors(PSObj, powershell.Streams.Error);
+                }
+
+                if (result.Count != 1)
+                {
+                    //WriteDeviceHistoryEntry("Exchange", ServerName, "Could not connect via the FQDN.  Will try to get IPAddress and use that.", role, LogLevel.Normal);
+
+                    powershell.Streams.Error.Clear();
+
+                    string script = @"$computerName = '" + ServerName + @"'
+
+									$ipconfigSet = [System.Net.Dns]::GetHostAddresses($computerName) | where {$_.IsIPv6LinkLocal -eq $false } |  select IPAddressToString
+									#get-wmiObject Win32_NetworkAdapterConfiguration -ComputerName $computerName -Credential $cred | select IPAdd
+
+									foreach($ipObj in $ipconfigSet )
+									{
+
+										$ip = $ipObj.IPAddressToString
+
+										$tempSession = New-PSSession -ConfigurationName Microsoft.Exchange -Credential $cred -ConnectionUri $('https://' + $ip + '/powershell') -Authentication " + AuthenticationType + @" -SessionOption $so
+										if($tempSession.State.toString() -eq 'Opened')
+										{
+											$tempSession
+											Return
+            
+										}
+
+									}";
+
+
+                    command = new System.Management.Automation.PSCommand();
+                    command.AddCommand("Set-Variable");
+                    command.AddParameter("Name", "cred");
+                    command.AddParameter("Value", creds);
+
+                    command.AddScript(script);
+                    powershell.Commands = command;
+
+                    result = powershell.Invoke();
+
+                    foreach (System.Management.Automation.ErrorRecord current in powershell.Streams.Error)
+                    {
+                        string strError = "Exception: " + current.Exception.ToString() + ",\r\nInner Exception: " + current.Exception.InnerException;
+                        //WriteDeviceHistoryEntry("Exchange", ServerName, "Error in StartProcessForServer: " + strError, role, LogLevel.Normal);
+                    }
+
+
+                    if (result.Count != 1)
+                        throw new Exception("Unexpected number of Remote Runspace connections returned.");
+                }
+
+                //WriteDeviceHistoryEntry("Exchange", ServerName, "Connection established.", role, LogLevel.Normal);
+
+                // Set the runspace as a local variable on the runspace
+                command = new System.Management.Automation.PSCommand();
+                command.AddScript("$ra = $(Get-PSSession)[0]");
+                powershell.Commands = command; ;
+                powershell.Invoke();
+
+                //WriteDeviceHistoryEntry("Exchange", ServerName, "Set the local variable for the runspace.", role, LogLevel.Normal);
+
+
+                command = new System.Management.Automation.PSCommand();
+                command.AddScript("$PID");
+                powershell.Commands = command; ;
+                results = powershell.Invoke();
+
+                //WriteDeviceHistoryEntry("All", "Microsoft_", "EX: $PID = " + results[0].BaseObject, commonEnums.ServerRoles.Empty, LogLevel.Normal);
+
+                // First import the cmdlets in the current runspace (using Import-PSSession)
+
+                command = new System.Management.Automation.PSCommand();
+                command.AddScript("Import-PSSession -Session $ra");
+                powershell.Commands = command;
+                powershell.Invoke();
+
+                string searchMsg = "Running the Get-Command command in a remote session returned no results";
+                if (powershell.Streams.Error.Where(record => record.Exception.ToString().Contains(searchMsg)).ToArray().Length > 0)
+                {
+                    //PSObj.ErrorMessage = "The Exchange Module was not able to be located";
+                }
+
+                //WriteDeviceHistoryEntry("Exchange", ServerName, "Imported the PSSession.", role, LogLevel.Normal);
+
+
+
+                //PSObj.PS = powershell;
+                //PSObj.runspace = runspace;
+                //PSObj.Connected = true;
+                return powershell;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+
+        }
+        #endregion
 
         #region WebSphere
         /// <summary>

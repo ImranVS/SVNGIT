@@ -19,7 +19,6 @@ namespace VitalSigns.API.Models
         [JsonProperty("description")]
         public string Description { get; set; }
 
-
         [JsonProperty("device_id")]
         public string DeviceId { get; set; }
 
@@ -28,6 +27,9 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("is_selected")]
         public bool IsSelected { get; set; }
+
+        [JsonProperty("authentication_type")]
+        public string AuthenticationType { get; set; }
 
 
     }
