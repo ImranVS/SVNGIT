@@ -153,6 +153,7 @@ export * from './reports/components/mobile-users/mobile-users-report-grid.compon
 //Server Import
 export * from './configurator/components/serverImport/server-import-domino.component'
 export * from './configurator/components/serverImport/server-import-websphere.component'
+export * from './configurator/components/serverImport/server-import-microsoft.component'
 
 export * from './reports/components/ibm-sametime/sametime-statistics-grid-report-grid.component'
 export * from './reports/filters/components/server-filter.component'

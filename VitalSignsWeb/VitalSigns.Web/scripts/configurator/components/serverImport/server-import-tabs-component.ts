@@ -47,6 +47,12 @@ export class ServerImports implements OnInit {
                 "path": "/app/configurator/components/serverimport/server-import-websphere.component",
                 "active": false
             },
+            {
+                "title": "Microsoft Servers",
+                "component": "MicrosoftServerImport",
+                "path": "/app/configurator/components/serverimport/server-import-microsoft.component",
+                "active": false
+            }
            
         ];
         this.selectTab(this.tabsData[0]);
