@@ -2,12 +2,12 @@
 <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
 <wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" headersVisibility="Column" #flex>
     <wj-flex-grid-filter #filter></wj-flex-grid-filter>
-    <wj-flex-grid-column [header]="'Key User'" [width]="80" align="center">
+    <wj-flex-grid-column [header]="'User Name'" [binding]="'user_name'" [width]="240"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Key User'" [width]="80" align="center" [wordWrap]="'true'">
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
             <span *ngIf="cell.item.threshold_sync_time != -1 && cell.item.threshold_sync_time != null" class="glyphicon glyphicon-star-empty"></span>
         </template>
     </wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'User Name'" [binding]="'user_name'" [width]="240"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Device Name'" [binding]="'device'" [width]="200"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'OS Type'" [binding]="'os_type'"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Last Sync Time'" [binding]="'last_sync_time'" [width]="180"></wj-flex-grid-column>
@@ -17,7 +17,7 @@
             <span *ngIf="cell.item.access == 'Blocked'" class="label label-pill label-danger">Blocked</span>
         </template>
     </wj-flex-grid-column>
-      <wj-flex-grid-column [header]="'Num of Devices'" [binding]="'device_user_count'" [width]="140"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Num of Devices'" [binding]="'device_user_count'" [width]="140" [wordWrap]="'true'"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'OS'" [binding]="'os'"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Mins since sync'" [binding]="'last_sync_ago'" [width]="135"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Device ID'" [binding]="'device_id'" [width]="240"></wj-flex-grid-column>
