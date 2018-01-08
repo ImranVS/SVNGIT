@@ -1,5 +1,7 @@
-﻿<!--<form [formGroup]="advancedSettingsForm">-->
-    <!--<div class="form-group" *ngIf="deviceType=='Domino'  || deviceType == 'SharePoint' || deviceType == 'Exchange'|| deviceType == 'IBM FileNet'">-->
+﻿<div class="alert alert-info col-lg-12">
+    PowerScripts are PowerShell scripts which can be run against Microsoft servers directly from VitalSigns.  The scripts are run using the stored credentials associated with the server.   All you need to do is provide values for the required parameters, if any, and press the run button.
+</div>
+
         <div class="panel panel-default">
             <div class="panel-heading">PowerShell Scripts</div>
             <div class="panel-body">
@@ -29,6 +31,7 @@
                                     </wj-combo-box>
                                     
                                 </div>
+                                <p *ngIf="selectedScript != null && selectedScript.description != null && selectedScript.description != ''"><br/><br/></p>
                                 <div class="alert alert-info col-lg-12" *ngIf="selectedScript != null && selectedScript.description != null && selectedScript.description != ''">
                                     <p [innerHTML]="selectedScript.description"></p>
                                 </div>
