@@ -11242,7 +11242,6 @@ CleanUp:
                 If (ds.Tables.Count = 0) Then
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Could not get " & Category & " stats.", LogUtilities.LogUtils.LogLevel.Normal)
                 Else
-                    ClearConnectionObjectTables(myServer, "Users")
                     Dim adapter As New VSAdaptor()
 
                     Try
