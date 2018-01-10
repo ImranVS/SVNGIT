@@ -1324,22 +1324,8 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-                deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
-                var result = deviceAttributesRepository.Find(x => x.DeviceType == type).Select(x => new DeviceAttributesModel
-                {
-                    Id = x.Id,
-                    AttributeName = x.AttributeName,
-                    DefaultValue = x.DefaultValue,
-                    DeviceType = x.DeviceType,
-                    FieldName = x.FieldName,
-                    DataType = x.DataType,
-                    Unitofmeasurement = x.Unitofmeasurement,
-                    Category = x.Category,
-                    IsSelected = false,
-                    IsPercentage = x.IsPercentage,
-                    Type = x.Type
-                }).OrderBy(x => x.AttributeName).ToList();
-                Response = Common.CreateResponse(result);
+               
+                Response = Common.CreateResponse(GetDeviceAttributeList(type));
             }
 
             catch (Exception exception)
@@ -1347,6 +1333,25 @@ namespace VitalSigns.API.Controllers
                 Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Getting device attributes has failed .\n Error Message :" + exception.Message);
             }
             return Response;
+        }
+        public List<DeviceAttributesModel> GetDeviceAttributeList( string type)
+        {
+            deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
+            var result = deviceAttributesRepository.Find(x => x.DeviceType == type).Select(x => new DeviceAttributesModel
+            {
+                Id = x.Id,
+                AttributeName = x.AttributeName,
+                DefaultValue = x.DefaultValue,
+                DeviceType = x.DeviceType,
+                FieldName = x.FieldName,
+                DataType = x.DataType,
+                Unitofmeasurement = x.Unitofmeasurement,
+                Category = x.Category,
+                IsSelected = false,
+                IsPercentage = x.IsPercentage,
+                Type = x.Type
+            }).OrderBy(x => x.AttributeName).ToList();
+            return result;
         }
         /// <summary>
         ///saves the device attributes data
@@ -7454,12 +7459,6 @@ namespace VitalSigns.API.Controllers
         public APIResponse GetMicrosoftImportData( string device_type="")
         {
            MicrosoftServerImportModel model = new MicrosoftServerImportModel();
-            //if (Common.GetNameValue("Primary Server") != null)
-            //{
-            //    model.Servers = Common.GetNameValue("Primary Server").Value;
-
-            //}
-            //model.Location = null;
 
             deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
             model.DeviceAttributes = deviceAttributesRepository.All().Where(x => (x.DeviceType == "device_type") && (x.Category == "Scan Settings" || x.Category == "Mail Settings")).Select(x => new DeviceAttributesModel
@@ -7477,6 +7476,8 @@ namespace VitalSigns.API.Controllers
             }).OrderBy(x => x.AttributeName).ToList();
             model.CpuThreshold = 90;
             model.MemoryThreshold = 90;
+            model.ReplyQueueThreshold = 2;
+            model.CopyQueueThreshold = 2;
             foreach (var attri in model.DeviceAttributes)
             {
                 if (attri.DataType == "bool" && (attri.DefaultValue == "false" || attri.DefaultValue == "0"))
@@ -7509,19 +7510,26 @@ namespace VitalSigns.API.Controllers
                         server.LocationId = serverImport.Location;
                         server.IsEnabled = true;
                         server.IPAddress = serverImport.Protocol+ serverModel.IpAddress;
-                        server.AuthenticationType = serverImport.AuthenticationType;
-                        server.MemoryThreshold = serverImport.MemoryThreshold != null ? Math.Round(Convert.ToDouble(serverImport.MemoryThreshold) / 100, 1) : 0.9;
-                        server.CpuThreshold = serverImport.CpuThreshold != null ? Math.Round(Convert.ToDouble(serverImport.CpuThreshold) / 100, 1) : 0.9;
-                        server.ScanInterval = serverImport.ScanInterval;
-                        server.RetryInterval = serverImport.RetryInterval;
-                        server.OffHoursScanInterval = serverImport.OffHoursScanInterval;
-                        server.ResponseTime = serverImport.ResponseTime;
+                        if (server.DeviceType == Enums.ServerType.Exchange.ToDescription().ToString())
+                        { server.AuthenticationType = serverImport.AuthenticationType; }
+                        if (server.DeviceType != Enums.ServerType.DatabaseAvailabilityGroup.ToDescription().ToString())
+                        {
+                            server.MemoryThreshold = serverImport.MemoryThreshold != null ? Math.Round(Convert.ToDouble(serverImport.MemoryThreshold) / 100, 1) : 0.9;
+                            server.CpuThreshold = serverImport.CpuThreshold != null ? Math.Round(Convert.ToDouble(serverImport.CpuThreshold) / 100, 1) : 0.9;
+                        }
+                        if (server.DeviceType == Enums.ServerType.DatabaseAvailabilityGroup.ToDescription().ToString())
+                        {
+                            server.ReplyQueueThreshold = serverImport.ReplyQueueThreshold;
+                            server.CopyQueueThreshold = serverImport.CopyQueueThreshold;
+                            server.PrimaryServerId = serverImport.PrimaryServer;
+                            server.BackupServerId = serverImport.BackupServer;
+                        }
                         serversRepository.Insert(server);
                         Repository repository = new Repository(Startup.ConnectionString, Startup.DataBaseName, "server");
                         var updateBuilder = Builders<BsonDocument>.Update;
                         var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(server.Id));
                         UpdateDefinition<BsonDocument> updateDefinition = updateBuilder.Set("is_enabled", true);
-                        foreach (var attribute in serverImport.DeviceAttributes)
+                        foreach (var attribute in serverImport.DeviceAttributes.Where(x => new string[] { "Scan Settings" }.Contains(x.Category)))
                         {
                             if (!string.IsNullOrEmpty(attribute.FieldName))
                             {
@@ -7582,6 +7590,7 @@ namespace VitalSigns.API.Controllers
             {
                 //decrept the credentilas
                 //Server server = new Server();
+                MicrosoftServerImportModel returnobject = new MicrosoftServerImportModel();
                 serverRepository = new Repository<Server>(ConnectionString);
                 FilterDefinition<Server> filterDefServer = serverRepository.Filter.Eq(x => x.DeviceType, serverImport.DeviceType);
                 List<Server> listOfServers = serverRepository.Find(filterDefServer).ToList();
@@ -7597,6 +7606,14 @@ namespace VitalSigns.API.Controllers
                     ps = MicrosoftConnections.ConnectToExchange(serverImport.IpAddress, creds.UserId, tripleDes.Decrypt(creds.Password), serverImport.IpAddress, serverImport.AuthenticationType);
                     cmd = "Get-ExchangeServer | select Name, Fqdn | sort name";
                 }
+                else if (serverImport.DeviceType == Enums.ServerType.DatabaseAvailabilityGroup.ToDescription().ToString())
+                {
+
+                    ps = MicrosoftConnections.ConnectToExchange(serverImport.IpAddress, creds.UserId, tripleDes.Decrypt(creds.Password), serverImport.IpAddress, serverImport.AuthenticationType);
+                    //cmd = "Get-ExchangeServer | select Name, Fqdn | sort name";
+                    cmd = "Get-DatabaseAvailabilityGroup | Select @{ Name = 'Name'; Expression ={$_.Name} },@{ Name = 'Fqdn'; Expression ={$_.WitnessServer} } | Sort Name";
+
+                }
                 else
                 {
                     throw new Exception("Device Type is not supported");
@@ -7609,7 +7626,7 @@ namespace VitalSigns.API.Controllers
                 ps.AddScript(cmd);
                 var results = ps.Invoke();
                 //loop through and add it to new array {temserverlist array}
-                var templist = new List<ServersModel>();
+                returnobject.Servers = new List<ServersModel>();
 
                 foreach (System.Management.Automation.PSObject psobject in results)
                 {
@@ -7622,7 +7639,8 @@ namespace VitalSigns.API.Controllers
                         exchnageservers.IpAddress = Fqdn;
                         if (devicename.Contains(name))
                             continue;
-                        templist.Add(exchnageservers);
+                        returnobject.Servers.Add(exchnageservers);
+                       
                     }
 
                     catch (Exception ex)
@@ -7632,11 +7650,17 @@ namespace VitalSigns.API.Controllers
                     }
 
                 }
-          
                 locationRepository = new Repository<Location>(ConnectionString);
-                var locationList2 = locationRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.LocationName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText).ToList();
-                var defaultattributes = GetDeviceAttributes("Exchange").Data;
-                Response = Common.CreateResponse(new { locationList = locationList2, serverList = templist, defaultattributes = defaultattributes });
+                returnobject.LocationList = locationRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.LocationName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText).ToList();
+                if (serverImport.DeviceType == Enums.ServerType.DatabaseAvailabilityGroup.ToDescription())
+                {
+                    serversRepository = new Repository<Server>(ConnectionString);
+                    returnobject.Exchangelist = serversRepository.Find(x => x.DeviceType == Enums.ServerType.Exchange.ToDescription()).ToList()
+                        .Select(x => new ComboBoxListItem {Value = x.Id, DisplayText = x.DeviceName }).ToList();
+                }
+
+                returnobject.DeviceAttributes = GetDeviceAttributeList(serverImport.DeviceType);
+                Response = Common.CreateResponse(returnobject);
 
                 return Response;
             }
