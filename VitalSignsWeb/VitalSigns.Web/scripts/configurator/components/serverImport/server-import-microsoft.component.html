@@ -11,16 +11,16 @@
                     <div class="col-sm-8">
                         <select name="exchangeServer" [(ngModel)]="device_type">
                             <option Value="Exchange" selected>Exchange</option>
+                            <option Value="Database Availability Group">Database Availability Group</option>
                             <!--<option Value="Active Directory">Active Directory</option>
-                        <option Value="Data Availablity Group">Data Availablity Group</option>
-                        <option Value="Exchange">Exchange</option>
+                           <option Value="Exchange">Exchange</option>
                         <option Value="Skype for Business">Skype for Business</option>
                         <option Value="SharePoint">SharePoint</option>
                         <option Value="Windows">Windows</option>-->
                         </select>
                     </div>
                 </div>
-                <div *ngIf="device_type=='Exchange'">
+                <div *ngIf="device_type=='Exchange' || device_type == 'Database Availability Group'">
                     <div class="form-group col-sm-6">
                         <label for="exchangeServer" class="control-label col-sm-4">Authentication Type</label>
                         <div class="col-sm-8">
@@ -70,7 +70,8 @@
                     Please enter the Exchange Server's URL, including HTTP/HTTPS. The credentials should be an administrative account with the format of USERNAME@DOMAIN.com
                 </div>
             </div>
-            <div *ngIf="exchangeServerImportData.servers.length>0">
+       
+            <div *ngIf="exchangeServerImportData.servers != null && exchangeServerImportData.servers.length>0">
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         Select Servers and Assign Locations
@@ -84,9 +85,9 @@
 
                                 </wj-combo-box>
                             </div>
-                            <div class="form-group col-sm-6">
-                                <label for="protocol" class="control-label col-sm-1">Protocol</label>
-                                <div>
+                            <div *ngIf="device_type=='Exchange'" class="form-group col-sm-6">
+                                <label for="protocol" class="control-label col-sm-2">Protocol</label>
+                                <div class="col-sm-8">
                                     <select name="protocol" [(ngModel)]="exchangeServerImportData.protocol">
                                         <option Value="http://">http</option>
                                         <option Value="https://">https</option>
@@ -94,30 +95,35 @@
                                 </div>
                             </div>
                         </div>
-                            <div class="alert alert-info col-lg-12">Any server not on the list has already been imported.</div>
-                            <div class="row">
-                                <div class="col-sm-3">
-                                    <button class="btn btn-primary" type="button" name="selectall" (click)="selectAll()">Select All</button>
-                                    <button class="btn btn-primary" type="button" name="deselectall" (click)="deselectAll()">Deselect All</button>
-                                </div>
-                            </div>
-                            <div class="row">
-                                &nbsp;
-                            </div>
-                            <div class="row">
-                                <div class="col-sm-3" *ngFor="let server of exchangeServerImportData.servers; let i=index">
-                                    <label>
-                                        <input type="checkbox" class="checkbox-inline" name="{{server.device_name}}" [(ngModel)]="server.is_selected">
-                                        {{server.device_name}}
-                                    </label>
-                                </div>
+                        <div class="alert alert-info col-lg-12">Any server not on the list has already been imported.</div>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <button class="btn btn-primary" type="button" name="selectall" (click)="selectAll()">Select All</button>
+                                <button class="btn btn-primary" type="button" name="deselectall" (click)="deselectAll()">Deselect All</button>
                             </div>
                         </div>
+                        <div class="row">
+                            &nbsp;
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-3" *ngFor="let server of exchangeServerImportData.servers; let i=index">
+                                <label>
+                                    <input type="checkbox" class="checkbox-inline" name="{{server.device_name}}" [(ngModel)]="server.is_selected">
+                                    {{server.device_name}}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
                     <div class="panel-footer">
                         <button class="btn btn-primary" type="button" name="next" (click)="step1Click()">Next</button>
                     </div>
                 </div>
             </div>
+        <div *ngIf="exchangeServerImportData.servers == null">
+            <div class="alert alert-info col-lg-12">
+                There is no servers to Import
+            </div>
+        </div>
 
         </div>
     
@@ -148,7 +154,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="panel panel-default">
+                <div *ngIf="device_type=='Exchange'" class="panel panel-default">
                     <div class="panel-heading">Memory and CPU</div>
                     <div class="panel-body">
                         <div class="row">
@@ -167,23 +173,54 @@
                         </div>
                     </div>
                 </div>
-                <div class="panel panel-default">
-                    <div class="panel-heading">Selected Servers</div>
-                    <div class="panel-body">
+                <div *ngIf="device_type=='Database Availability Group'" class="panel panel-default">
+                    <div class="panel-heading">Copy and Reply Queues</div>
+                    <div class="row">
                         <div class="form-group col-sm-12">
-                            <div *ngFor="let server of exchangeServerImportData.servers; let i=index">
-                                <label *ngIf="server.is_selected" class="col-sm-3">{{server.device_name}}</label>
+                            <label class="control-label col-sm-3">Reply Queue Threshold</label>
+                            <div class="col-sm-1">
+                                <input type="text" [(ngModel)]="exchangeServerImportData.reply_queue_threshold" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label class="control-label col-sm-3">Copy Queue Threshold</label>
+                            <div class="col-sm-1">
+                                <input type="text" [(ngModel)]="exchangeServerImportData.copy_queue_threshold" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-6">
+                            <label class="control-label col-sm-4">Primary Exchange Server&nbsp;&nbsp;</label>
+                            <wj-combo-box displayMemberPath="text" selectedValuePath="value" [itemsSource]="exchangeservers"
+                                          [(ngModel)]="exchangeServerImportData.primary_server_id" placeholder="Select Primary Server" #primaryExchangeServer>
+
+                            </wj-combo-box>
+                        </div>
+                        <div class="form-group col-sm-6">
+                            <label class="control-label col-sm-4">BackUp Exchnage Server&nbsp;&nbsp;</label>
+                            <wj-combo-box displayMemberPath="text" selectedValuePath="value" [itemsSource]="exchangeservers2"
+                                          [(ngModel)]="exchangeServerImportData.backup_server_id" placeholder="Select Backup Server" #backupExchangeServer>
+
+                            </wj-combo-box>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Selected Servers</div>
+                        <div class="panel-body">
+                            <div class="form-group col-sm-12">
+                                <div *ngFor="let server of exchangeServerImportData.servers; let i=index">
+                                    <label *ngIf="server.is_selected" class="col-sm-3">{{server.device_name}}</label>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>            
-            </div>
-            <div class="panel-footer">
+                </div>
+                <div class="panel-footer">
                     <button class="btn btn-primary" type="button" name="next" (click)="step2Click()">Next</button>
                 </div>
-        </div>       
+            </div>
+        </div>
     </div>
-
     <!--Step 3-->
     <div *ngIf="currentStep=='3'">
         <div class="panel panel-default">
@@ -207,7 +244,7 @@
             </div>
         </div>
     </div>
-    </div>
+   
 <wj-popup style="border: 0px; width: 40%" #frmDialog>
     <div class="modal-content">
         <div class="modal-header">

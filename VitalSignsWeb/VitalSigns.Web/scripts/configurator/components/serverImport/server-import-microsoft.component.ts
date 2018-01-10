@@ -16,15 +16,20 @@ import { AppComponentService } from '../../../core/services';
 })
 export class MicrosoftServerImport implements OnInit{
     @ViewChild('location') location: wijmo.input.ComboBox;
+    @ViewChild('primaryExchangeServer') primaryExchangeServer: wijmo.input.ComboBox;
+    @ViewChild('backupExchangeServer') backupExchangeServer: wijmo.input.ComboBox;
     exchangeServerImportData: any;
     errorMessage: any;
     authentication_type: any;
     protocol: any;
     deviceLocationData: any;
+    exchangeservers: any;
+    exchangeservers2: any;
     device_type: any;
     addCredentialForm: FormGroup;
     scanSettings: string = "Scan Settings";
     mailSettings: string = "Mail Settings";
+    dagSettings: string = "DAG Settings";
     currentStep: string = "1";
     public formData = new FormData();
     isSelected: any;
@@ -87,9 +92,11 @@ export class MicrosoftServerImport implements OnInit{
                     this.loading = false;
                 }
                 else {
-                    this.exchangeServerImportData.servers = response.data.serverList;
+                    this.exchangeServerImportData.servers = response.data.servers;
                     this.deviceLocationData = response.data.locationList;
-                    this.exchangeServerImportData.device_attributes = response.data.defaultattributes;
+                    this.exchangeServerImportData.device_attributes = response.data.device_attributes;
+                    this.exchangeservers = response.data.exchange_List;
+                    this.exchangeservers2 = response.data.exchange_List.slice(0);
                     for (let server of this.exchangeServerImportData.servers) {
                         server.is_selected = false;
                     }
@@ -105,12 +112,15 @@ export class MicrosoftServerImport implements OnInit{
             );
       
     }
+    
     step1Click(): void {
         this.currentStep = "2";
         this.exchangeServerImportData.location = this.location.selectedItem.value;
     }
 
     step2Click(): void {
+        this.exchangeServerImportData.primary_server_id = this.primaryExchangeServer.selectedValue;
+        this.exchangeServerImportData.backup_server_id = this.backupExchangeServer.selectedValue;
         this.dataProvider.put(`/configurator/save_microsoft_servers?device_type=${this.device_type}`, this.exchangeServerImportData)
             .subscribe(
             response => {
@@ -127,11 +137,14 @@ export class MicrosoftServerImport implements OnInit{
     }
 
     step3Click(): void {
+        
         this.errorMessage = "";
-        this.exchangeServerImportData.servers = [];
+        this.exchangeServerImportData.servers = null;
         this.deviceLocationData = [];
         this.exchangeServerImportData.device_attributes = [];
-          this.currentStep = "1"; 
+        this.exchangeservers = [];
+        this.exchangeservers2 = [];
+        this.currentStep = "1"; 
      }
      selectAll() {
          for (let server of this.exchangeServerImportData.servers) {
