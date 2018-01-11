@@ -38,11 +38,11 @@
                             </div>
                         </div>
                     </div>
-                    <div class="panel panel-default">
+                    <div class="panel panel-default" *ngIf="parameterForm != null && parameterForm.get('parameters').length > 0">
                         <div class="panel-heading">Parameters</div>
                         <div class="panel-body">
                             <!--<div class="form-group">-->
-                                <div *ngIf="parameterForm != null" class="col-sm-6">
+                                <div class="col-sm-6">
                                     
                                     <form [formGroup]="parameterForm" (ngSubmit)="onSubmit()">
                                         <div formArrayName="parameters" *ngFor="let item of parameterForm.get('parameters').controls; let i = index;">
