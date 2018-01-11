@@ -2035,6 +2035,18 @@ namespace VitalSigns.API.Controllers
                 {
                     ps = MicrosoftConnections.ConnectToExchange(server.DeviceName, creds.UserId, tripleDes.Decrypt(creds.Password), server.IPAddress, server.AuthenticationType);
                 }
+                else if (server.DeviceType == Enums.ServerType.SharePoint.ToDescription().ToString())
+                {
+                    ps = MicrosoftConnections.ConnectToSharePoint(server.DeviceName, creds.UserId, tripleDes.Decrypt(creds.Password), server.IPAddress);
+                }
+                else if (server.DeviceType == Enums.ServerType.Office365.ToDescription().ToString())
+                {
+                    ps = MicrosoftConnections.ConnectToOffice365(server.DeviceName, creds.UserId, tripleDes.Decrypt(creds.Password), server.IPAddress);
+                }
+                else if (server.DeviceType == Enums.ServerType.ActiveDirectory.ToDescription().ToString())
+                {
+                    ps = MicrosoftConnections.ConnectToActiveDirectory(server.DeviceName, creds.UserId, tripleDes.Decrypt(creds.Password), server.IPAddress);
+                }
                 else
                 {
                     throw new Exception("Device Type is not supported");

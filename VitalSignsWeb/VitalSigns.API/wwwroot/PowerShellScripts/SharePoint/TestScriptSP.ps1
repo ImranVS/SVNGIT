@@ -8,4 +8,4 @@
 		[ValidateNotNullOrEmpty()]
         [string]$NameSp3
     )
-	Get-Mailbox $NameSp
+	Get-SPServer

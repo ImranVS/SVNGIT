@@ -78,10 +78,17 @@ export class ExchangemailstatisticsviewGrid implements WidgetComponent, OnInit {
             },
             (error) => this.errorMessage = <any>error
             );
-        this.toolTip.getTooltip(this.flex, 0, 3);
+        //this.toolTip.getTooltip(this.flex, 0, 3);
     }
 
     ngAfterViewChecked() {
         injectSVG();
+    }
+
+    gridSourceChanged() {
+        this.flex.autoSizeColumns();
+        if (this.flex.columns.getColumn("primary_smtp_address").width > 300)
+            this.flex.columns.getColumn("primary_smtp_address").width = 300;
+            //s.columns[e.col].width = 400;
     }
 }

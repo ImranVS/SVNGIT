@@ -3229,7 +3229,7 @@ CleanUp:
 
             actualVal = .AverageThreadPool
             thresholdVal = .AverageThreadPoolThreshold
-            statName = "Average Thread Count"
+            statName = "Average Thread Pool Count"
             SendWebSphereAlert(server, actualVal, thresholdVal, statName)
             InsertIntoWebSphereDailyStats(server.Name, statName.Replace(" ", ""), actualVal, "", server.ServerObjectID)
             WriteAuditEntryWebSphere(Now.ToString & " " & statName & " " & thresholdVal & " " & actualVal)
@@ -9821,16 +9821,16 @@ CleanUp:
     Public Sub ConsolidateConnectionObjects(ByRef myServer As MonitoredItems.IBMConnect)
 
         Try
-            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjects)(connectionString)
-            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repository.Filter.Eq(Function(x) x.DeviceId, myServer.ServerObjectID)
-            Dim entities As List(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repository.Find(filterDef).ToList()
-            Dim parentEntity As VSNext.Mongo.Entities.IbmConnectionsObjects
+            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp)(connectionString)
+            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp) = repository.Filter.Eq(Function(x) x.DeviceId, myServer.ServerObjectID)
+            Dim entities As List(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp) = repository.Find(filterDef).ToList()
+            Dim parentEntity As VSNext.Mongo.Entities.IbmConnectionsObjectsTemp
             Dim childrenList As List(Of VSNext.Mongo.Entities.IbmConnectionChildren)
 
-            For Each entity As VSNext.Mongo.Entities.IbmConnectionsObjects In entities
+            For Each entity As VSNext.Mongo.Entities.IbmConnectionsObjectsTemp In entities
                 Try
 
-                    Dim currEntity As VSNext.Mongo.Entities.IbmConnectionsObjects = entity
+                    Dim currEntity As VSNext.Mongo.Entities.IbmConnectionsObjectsTemp = entity
                     While currEntity.ParentGUID IsNot Nothing AndAlso entities.Exists(Function(x) x.Id = currEntity.ParentGUID)
                         Try
                             parentEntity = entities.Where(Function(x) x.Id = currEntity.ParentGUID).First()

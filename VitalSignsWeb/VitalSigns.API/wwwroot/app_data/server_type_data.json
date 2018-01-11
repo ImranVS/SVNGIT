@@ -656,6 +656,13 @@
         "component": "ServerEvents",
         "path": "/app/configurator/components/server/server-events.component"
       },
+      //{
+      //  "tab_id": 5,
+      //  "title": "PowerShell Scripts",
+      //  "type": "Configurator",
+      //  "component": "MicrosoftPowerShellScripts",
+      //  "path": "/app/services/components/microsoft-powershell-scripts.component"
+      //},
       {
         "tab_id": 1,
         "title": "Overall",
@@ -798,13 +805,13 @@
         "component": "ServerAdvancedSettings",
         "path": "/app/configurator/components/server/server-advanced-settings.component"
       },
-      {
-        "tab_id": 6,
-        "title": "PowerShell Scripts",
-        "type": "Configurator",
-        "component": "MicrosoftPowerShellScripts",
-        "path": "/app/services/components/microsoft-powershell-scripts.component"
-      },
+      //{
+      //  "tab_id": 6,
+      //  "title": "PowerShell Scripts",
+      //  "type": "Configurator",
+      //  "component": "MicrosoftPowerShellScripts",
+      //  "path": "/app/services/components/microsoft-powershell-scripts.component"
+      //},
       {
         "tab_id": 1,
         "title": "Overall",

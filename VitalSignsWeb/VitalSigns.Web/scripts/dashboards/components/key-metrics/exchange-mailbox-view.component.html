@@ -21,7 +21,8 @@
             <div class="tab-content">
                 <button class="btn btn-primary" (click)="ExportExcel()">Export to Excel</button>
                 <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
-                <wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" headersVisibility="Column" #flex>
+                <wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" headersVisibility="Column" #flex (itemsSourceChanged)="gridSourceChanged()">
+                    <wj-flex-grid-filter></wj-flex-grid-filter>
                     <wj-flex-grid-column [header]="'Display Name'" [binding]="'display_name'"></wj-flex-grid-column>
                     <wj-flex-grid-column [header]="'Sam Account Name'" [binding]="'sam_account_name'"></wj-flex-grid-column>
                     <wj-flex-grid-column [header]="'Email address'" [binding]="'primary_smtp_address'"></wj-flex-grid-column>
