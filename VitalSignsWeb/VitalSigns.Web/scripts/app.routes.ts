@@ -126,10 +126,11 @@ import { WebSphereResponseTimes } from './reports/components/ibm-websphere/websp
 import { WebSphereActiveThreads } from './reports/components/ibm-websphere/websphere-active-threads.component';
 import { WebSphereCurrentHeapSize } from './reports/components/ibm-websphere/websphere-heap-size.component';
 import { Office365UptimeReport } from './reports/components/office365/office365-uptime.component';
-
 import { Office365MailLatencyReport } from './reports/components/office365/office365-mail-latency.component';
 import { Office365OneDriveReport } from './reports/components/office365/office365-onedrive.component';
-import { Office365MailboxReport} from './reports/components/office365/office365-mailbox.component';
+import { Office365MailboxReport } from './reports/components/office365/office365-mailbox.component';
+import { Office365UserTypeReport } from './reports/components/office365/office365-usertype.component';
+
 import { MobileDevicesSummaryOS } from './reports/components/mobile-users/mobile-users-os-summary.component';
 import { MobileUsersReport } from './reports/components/mobile-users/mobile-users-report.component';
 import { Office365DisabledUsersReport } from './reports/components/office365/office365-disabled-users.component';
@@ -624,6 +625,10 @@ const appRoutes: Routes = [
                     {
                         path: 'office365mailbox',
                         component: Office365MailboxReport
+                    },
+                    {
+                        path: 'office365usertype',
+                        component: Office365UserTypeReport
                     },
                     {
                         path: 'mobiledevicessummaryos',

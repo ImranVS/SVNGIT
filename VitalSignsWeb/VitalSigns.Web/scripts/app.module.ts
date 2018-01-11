@@ -139,6 +139,8 @@ import { Office365UptimeReport } from './reports/components/office365/office365-
 import { Office365MailLatencyReport } from './reports/components/office365/office365-mail-latency.component';
 import { Office365OneDriveReport } from './reports/components/office365/office365-onedrive.component';
 import { Office365MailboxReport } from './reports/components/office365/office365-mailbox.component';
+import { Office365UserTypeReport } from './reports/components/office365/office365-usertype.component';
+
 import { Office365DisabledUsersReport } from './reports/components/office365/office365-disabled-users.component';
 import { Office365ActiveDirectorySyncReport } from './reports/components/office365/office365-active-directory-sync.component';
 
@@ -279,6 +281,7 @@ import { MicrosoftPowerShellScripts } from './services/components/microsoft-powe
         Office365MailLatencyReport,
         Office365OneDriveReport,
         Office365MailboxReport,
+        Office365UserTypeReport,
         MobileDevicesSummaryOS,
         MobileUsersReport,
         ConnectionsExecutiveOverviewReport,
@@ -371,6 +374,7 @@ import { MicrosoftPowerShellScripts } from './services/components/microsoft-powe
         widgets.Office365PasswordsGrid,
         widgets.DatabaseReplicationGrid,
         widgets.DatabaseProblemsGrid,
+        widgets.UserTypeList,
         widgets.OverallDatabaseGrid,
         widgets.KeyMetricsStatisticsGrid,
         widgets.HardwareStatisticsGrid,
@@ -571,6 +575,7 @@ import { MicrosoftPowerShellScripts } from './services/components/microsoft-powe
         widgets.Office365PasswordsGrid,
         widgets.DatabaseReplicationGrid,
         widgets.DatabaseProblemsGrid,
+        widgets.UserTypeList,
         widgets.OverallDatabaseGrid,
         widgets.KeyMetricsStatisticsGrid,
         widgets.HardwareStatisticsGrid,

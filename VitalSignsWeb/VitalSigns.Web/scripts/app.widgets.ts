@@ -59,10 +59,10 @@ export * from './widgets/file-upload/components/file-upload.component';
 export * from './widgets/reports/components/console-commands-list.component';
 export * from './widgets/sample/sample-widget.component';
 export * from './widgets/reports/components/mailbox-list.component';
+export * from './widgets/reports/components/usertype-list.component';
 export * from './widgets/reports/components/exchange-mailbox-list.component';
 export * from './widgets/reports/components/o365-disabled-users-list.component';
 export * from './widgets/reports/components/o365-active-directory-sync-list.component';
-
 export * from './widgets/reports/components/ibm-connections-inctive-users-list.component';
 export * from './widgets/reports/components/inactive-community-list.component';
 export * from './configurator/components/applicationSettings/application-settings-businesshours.component';
