@@ -10,7 +10,6 @@ using VitalSigns.API.Models.Charts;
 using VSNext.Mongo.Repository;
 using VSNext.Mongo.Entities;
 using System.Linq.Expressions;
-using MongoDB.Bson;
 using System.Globalization;
 using System.Dynamic;
 using Microsoft.AspNet.Authorization;
@@ -2330,6 +2329,42 @@ namespace VitalSigns.API.Controllers
                     ProhibitSendReceiveQuota = x.ProhibitSendReceiveQuota,
                     TotalItemSizeMb = x.TotalItemSizeMb
 
+                }).ToList().OrderBy(x => x.DisplayName);
+                Response = Common.CreateResponse(results);
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
+        [HttpGet("usertype")]
+        public APIResponse UserTypes(bool inactive = false)
+        {
+            try
+            {
+                o365MsolUsersRepository = new Repository<Office365MSOLUsers>(ConnectionString);
+                serverRepository = new Repository<Server>(ConnectionString);
+                var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription())).ToList().Select(x => x.Id).ToList();
+                var filterDef = o365MsolUsersRepository.Filter.In(x => x.DeviceId, listOfDevices);
+                   // o365MsolUsersRepository.Filter.Eq(x => x.IsLicensed, true);
+                    if (inactive) {
+                    
+                   filterDef=filterDef & o365MsolUsersRepository.Filter.Lt(x => x.AccountLastModified, DateTime.UtcNow.AddDays(-14));
+                }
+                
+            
+                var results = o365MsolUsersRepository.Find(filterDef).ToList().Select(x => new MsolUser()
+                {
+                    DisplayName = x.DisplayName,
+                    UserPrincipalName = x.UserPrincipalName,
+                    UserType = x.UserType,
+                    Title = x.Title,
+                    Licensed = x.License,
+                    Department=x.Department,
+                    AccountLastModified  = x.AccountLastModified
                 }).ToList().OrderBy(x => x.DisplayName);
                 Response = Common.CreateResponse(results);
                 return Response;
