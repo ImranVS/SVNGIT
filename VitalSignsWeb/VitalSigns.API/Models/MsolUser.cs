@@ -26,6 +26,9 @@ namespace VitalSigns.API.Models
         [JsonProperty("title", NullValueHandling = NullValueHandling.Ignore)]
         public string Title { get; set; }
 
+        [JsonProperty("license", NullValueHandling = NullValueHandling.Ignore)]
+        public string Licensed { get; set; }
+
         [JsonProperty("is_licensed", NullValueHandling = NullValueHandling.Ignore)]
         public bool? IsLicensed { get; set; }
 

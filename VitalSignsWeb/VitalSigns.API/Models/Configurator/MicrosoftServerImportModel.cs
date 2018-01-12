@@ -21,7 +21,11 @@ namespace VitalSigns.API.Models.Configurator
         [JsonProperty("servers")]
         public List<ServersModel> Servers { get; set; }
 
+        [JsonProperty("locationList")]
+        public List<ComboBoxListItem> LocationList { get; set; }
 
+        [JsonProperty("exchange_List")]
+        public List<ComboBoxListItem> Exchangelist { get; set; }
 
         //Step2
         [JsonProperty("device_attributes")]
@@ -33,6 +37,11 @@ namespace VitalSigns.API.Models.Configurator
         [JsonProperty("cpu_threshold")]
         public double? CpuThreshold { get; set; }
 
+        [JsonProperty("reply_queue_threshold")]
+        public int? ReplyQueueThreshold { get; set; }
+
+        [JsonProperty("copy_queue_threshold")]
+        public int? CopyQueueThreshold { get; set; }
 
         [JsonProperty("scan_interval")]
         public int? ScanInterval { get; set; }
@@ -64,5 +73,12 @@ namespace VitalSigns.API.Models.Configurator
         [JsonProperty("credential_id")]
         public string CredentialId { get; set; }
 
+        [JsonProperty("primary_server_id")]
+        public string PrimaryServer { get; set; }
+
+        [JsonProperty("backup_server_id")]
+        public string BackupServer { get; set; }
+
+      
     }
 }
