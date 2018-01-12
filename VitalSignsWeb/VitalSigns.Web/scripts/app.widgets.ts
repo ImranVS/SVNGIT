@@ -59,6 +59,7 @@ export * from './widgets/file-upload/components/file-upload.component';
 export * from './widgets/reports/components/console-commands-list.component';
 export * from './widgets/sample/sample-widget.component';
 export * from './widgets/reports/components/mailbox-list.component';
+export * from './widgets/reports/components/o365-group-list.component';
 export * from './widgets/reports/components/usertype-list.component';
 export * from './widgets/reports/components/exchange-mailbox-list.component';
 export * from './widgets/reports/components/o365-disabled-users-list.component';

@@ -129,7 +129,10 @@ import { Office365UptimeReport } from './reports/components/office365/office365-
 import { Office365MailLatencyReport } from './reports/components/office365/office365-mail-latency.component';
 import { Office365OneDriveReport } from './reports/components/office365/office365-onedrive.component';
 import { Office365MailboxReport } from './reports/components/office365/office365-mailbox.component';
+import { O365GroupCollectionReport } from './reports/components/office365/office365-group-collection.component';
+
 import { Office365UserTypeReport } from './reports/components/office365/office365-usertype.component';
+
 
 import { MobileDevicesSummaryOS } from './reports/components/mobile-users/mobile-users-os-summary.component';
 import { MobileUsersReport } from './reports/components/mobile-users/mobile-users-report.component';
@@ -629,6 +632,10 @@ const appRoutes: Routes = [
                     {
                         path: 'office365usertype',
                         component: Office365UserTypeReport
+                    },
+                    {
+                        path: '0365Groups',
+                        component: O365GroupCollectionReport
                     },
                     {
                         path: 'mobiledevicessummaryos',
