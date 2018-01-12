@@ -31,7 +31,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<IbmConnectionsObjects> connectionsObjectsRepository;
         private IRepository<Mailbox> mailboxRepository;
         private IRepository<Office365MSOLUsers> o365MsolUsersRepository;
-
+        private IRepository<Office365Groups> o365GroupsRepository;
         //private string DateFormat = "yyyy-MM-dd";
         private string DateFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
         private IRepository<DominoServerTasks> doimoServerTasksRepository;
@@ -2366,6 +2366,34 @@ namespace VitalSigns.API.Controllers
                     Department=x.Department,
                     AccountLastModified  = x.AccountLastModified
                 }).ToList().OrderBy(x => x.DisplayName);
+                Response = Common.CreateResponse(results);
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
+
+
+        [HttpGet("group_collections")]
+        public APIResponse o365GroupCollection()
+        {
+            try
+            {
+                o365GroupsRepository = new Repository<Office365Groups>(ConnectionString);
+                serverRepository = new Repository<Server>(ConnectionString);
+                var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription())).ToList();
+                var filterDef = o365GroupsRepository.Filter.In(x => x.DeviceId, listOfDevices.Select(x => x.Id));
+                var results = o365GroupsRepository.Find(filterDef).ToList().Select(x => new O365Groups()
+                {
+                    //DeviceName = listOfDevices.Where(y => x.DeviceId == y.Id).First().DeviceName,
+                    GroupName = x.GroupName,
+                    GroupType = x.GroupType,
+                    Members = Convert.ToString(x.Members != null ? x.Members.Count() : 0)
+            }).ToList().OrderBy(x => x.DeviceName);
                 Response = Common.CreateResponse(results);
                 return Response;
             }
