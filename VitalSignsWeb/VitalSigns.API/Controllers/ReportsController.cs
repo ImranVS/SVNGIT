@@ -2393,7 +2393,7 @@ namespace VitalSigns.API.Controllers
                     GroupName = x.GroupName,
                     GroupType = x.GroupType,
                     Members = Convert.ToString(x.Members != null ? x.Members.Count() : 0)
-            }).ToList().OrderBy(x => x.DeviceName);
+            }).ToList().OrderBy(x => x.GroupName);
                 Response = Common.CreateResponse(results);
                 return Response;
             }
