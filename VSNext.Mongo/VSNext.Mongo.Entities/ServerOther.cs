@@ -63,6 +63,11 @@ namespace VSNext.Mongo.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         public List<string> NotificationList { get; set; }
 
+        [DataMember]
+        [BsonElement("scan_now")]
+        [BsonIgnoreIfNull]
+        public Boolean? ScanNow { get; set; }
+
         //Notes Database
         [DataMember]
         [BsonElement("domino_server_id")]

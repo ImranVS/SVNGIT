@@ -67,6 +67,7 @@ namespace VSNext.Mongo.Entities
             [Description("Network Device")]
             NetworkDevice,
             [LicenseCost(0)]
+            [ServerOtherCollection(true)]
             [Description("Notes Database")]
             NotesDatabase,
             [LicenseCost(0)]
@@ -118,6 +119,7 @@ namespace VSNext.Mongo.Entities
             [Description("Network Latency")]
             NetworkLatency,
             [LicenseCost(0)]
+            [ServerOtherCollection(true)]
             [Description("Notes Database Replica")]
             NotesDatabaseReplica,
             [LicenseCost(0)]
@@ -222,9 +224,13 @@ namespace VSNext.Mongo.Entities
             return attribute == null ? false : attribute.boolCrossNodeScanning;
         }
 
+        public static bool getServerOther(this Enum value)
+        {
+            var attribute = value.GetAttribute<ServerOtherCollection>();
+            return attribute == null ? false : attribute.boolServerOther;
+        }
+        
     }
-
-
     /// <summary>
     /// Attribute used to set the base server type for the servertype enum. By default, when this attribute
     /// is not specified, the empty string will be set.
@@ -285,6 +291,23 @@ namespace VSNext.Mongo.Entities
         }
 
         public virtual bool boolCrossNodeScanning { get; private set; }
+    }
+
+    /// <summary>
+    /// Attribute used to set the cost
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field, Inherited = true)]
+    public class ServerOtherCollection : Attribute
+    {
+        /// <summary>
+        /// Determines if the server is in the server_other collection.  Defaults to false (not in server other)
+        /// </summary>
+        public ServerOtherCollection(bool value)
+        {
+            boolServerOther = value;
+        }
+        
+        public virtual bool boolServerOther { get; private set; }
     }
 
 

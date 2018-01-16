@@ -3764,9 +3764,6 @@ namespace VitalSigns.API.Controllers
                             //DominoServerId = notesDatabase.DominoServerId
                         };
                         string id = serverOtherRepository.Insert(notesDatabases);
-                        //2/24/2017 NS added for VSPLUS-3506
-                        Licensing licensing = new Licensing();
-                        licensing.refreshServerCollectionWrapper();
                         Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Notes database inserted successfully");
                     }
                     else
@@ -3784,8 +3781,12 @@ namespace VitalSigns.API.Controllers
                             .Set(p => p.InitiateReplication, notesDatabase.InitiateReplication)
                             .Set(p => p.ReplicationDestination, notesDatabase.ReplicationDestination);
                         var result = serverOtherRepository.Update(filterDefination, updateDefination);
+                        
                         Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Notes database updated successfully");
                     }
+
+                    Licensing licensing = new Licensing();
+                    licensing.refreshServerCollectionWrapper();
                 }
                 else
                 {
@@ -8862,13 +8863,15 @@ namespace VitalSigns.API.Controllers
 
                 FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == id);
                 serversRepository = new Repository<Server>(ConnectionString);
-
-
                 var updateDefination = serversRepository.Updater.Set(p => p.ScanNow, true);
+                var serverResult = serversRepository.Update(filterDefination, updateDefination);
 
-                var result = serversRepository.Update(filterDefination, updateDefination);
+                FilterDefinition<ServerOther> serverOtherFilterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == id);
+                serverOtherRepository = new Repository<ServerOther>(ConnectionString);
+                var serverOtherUpdateDefination = serverOtherRepository.Updater.Set(p => p.ScanNow, true);
+                var serverOtherResult = serverOtherRepository.Update(serverOtherFilterDefination, serverOtherUpdateDefination);
 
-                Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Server scan queued up successfully");
+                Response = Common.CreateResponse(new { server = serverResult, server_other = serverOtherResult }, Common.ResponseStatus.Success.ToDescription(), "Server scan queued up successfully");
 
 
 
