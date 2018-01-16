@@ -49,9 +49,11 @@ namespace VitalSigns.API.Controllers
             {
                 year = DateTime.Today.Year;
             }
-            DateTime dtStart = DateTime.Parse("01/01/" + year.ToString());
+            //DateTime dtStart = DateTime.Parse("01/01/" + year.ToString());
+            DateTime dtStart = DateTime.UtcNow.AddYears(-1);
             year += 1;
-            DateTime dtEnd = DateTime.Parse("01/01/" + year.ToString());
+            //DateTime dtEnd = DateTime.Parse("01/01/" + year.ToString());
+            DateTime dtEnd = DateTime.UtcNow;
 
             dtStart = DateTime.SpecifyKind(dtStart, DateTimeKind.Utc);
             dtEnd = DateTime.SpecifyKind(dtEnd, DateTimeKind.Utc);
