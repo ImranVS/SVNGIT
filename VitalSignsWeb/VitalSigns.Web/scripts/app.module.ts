@@ -135,6 +135,8 @@ import { TravelerCPUUtilReport } from './reports/components/ibm-traveler/travele
 import { WebSphereResponseTimes } from './reports/components/ibm-websphere/websphere-response-times.component';
 import { WebSphereActiveThreads } from './reports/components/ibm-websphere/websphere-active-threads.component';
 import { WebSphereCurrentHeapSize } from './reports/components/ibm-websphere/websphere-heap-size.component';
+import { WebsphereThresholdReport } from './reports/components/ibm-websphere/websphere-threshold-report.component';
+
 import { Office365UptimeReport } from './reports/components/office365/office365-uptime.component';
 import { Office365MailLatencyReport } from './reports/components/office365/office365-mail-latency.component';
 import { Office365OneDriveReport } from './reports/components/office365/office365-onedrive.component';
@@ -277,6 +279,7 @@ import { MicrosoftPowerShellScripts } from './services/components/microsoft-powe
         WebSphereResponseTimes,
         WebSphereActiveThreads,
         WebSphereCurrentHeapSize,
+        WebsphereThresholdReport,
         Office365UptimeReport,
         Office365MailLatencyReport,
         Office365OneDriveReport,
@@ -455,6 +458,7 @@ import { MicrosoftPowerShellScripts } from './services/components/microsoft-powe
         widgets.DominoServerImport,
         widgets.MicrosoftServerImport,
         widgets.WebSphereServerImport,
+        widgets.WebsphereThresholdList,
         widgets.CommunityUsersList,
         widgets.InactiveCommunityList,
         widgets.FileUpload,
@@ -657,6 +661,7 @@ import { MicrosoftPowerShellScripts } from './services/components/microsoft-powe
         widgets.DominoServerImport,
         widgets.MicrosoftServerImport,
         widgets.WebSphereServerImport,
+        widgets.WebsphereThresholdList,
         widgets.CommunityUsersList,
         widgets.InactiveCommunityList,
         widgets.FileUpload,

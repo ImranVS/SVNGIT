@@ -49,6 +49,7 @@ export * from './widgets/reports/components/mail-file-statistics-list.component'
 export * from './widgets/reports/components/database-inventory-list.component';
 export * from './widgets/reports/components/log-file-list.component';
 export * from './widgets/reports/components/mail-threshold-list.component';
+export * from './widgets/reports/components/websphere-threshold-list.component';
 export * from './widgets/reports/components/notes-database-list.component';
 export * from './widgets/reports/components/domino-server-tasks-list.component';
 export * from './widgets/reports/components/community-users-list.component';

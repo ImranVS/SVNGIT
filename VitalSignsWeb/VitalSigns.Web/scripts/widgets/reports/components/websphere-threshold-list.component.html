@@ -1,0 +1,25 @@
+﻿<table class="table table-condensed small table-striped" id="htmlTable">
+    <thead>
+        <tr>
+            <th>Server Name</th>
+            <th style="text-align:center">Scan <br/> Interval</th>
+            <th>Response<br /> Time</th>
+            <th>Hung Thread Count</th>
+            <th>Average Thread Pool</th>
+        </tr>
+    </thead>
+    <tbody *ngIf="websphereThreshold">
+        <tr *ngFor="let data of websphereThreshold">
+            <td style="width:25px"> {{ (data.device_name}} </td>
+            <td>{{data.scan_interval}}</td>
+            <td>{{data.response_time}}</td>
+            <td>{{data.hung_thread_count}}</td>
+            <td>{{data.average_thread_pool}}</td>
+        </tr>
+    </tbody>
+</table>
+
+
+
+
+
