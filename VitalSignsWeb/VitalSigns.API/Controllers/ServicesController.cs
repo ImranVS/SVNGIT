@@ -2030,7 +2030,7 @@ namespace VitalSigns.API.Controllers
 
                 //Calls the connect to server
                 VSFramework.TripleDES tripleDes = new VSFramework.TripleDES();
-                
+
                 if (server.DeviceType == Enums.ServerType.Exchange.ToDescription().ToString())
                 {
                     ps = MicrosoftConnections.ConnectToExchange(server.DeviceName, creds.UserId, tripleDes.Decrypt(creds.Password), server.IPAddress, server.AuthenticationType);
@@ -2080,7 +2080,7 @@ namespace VitalSigns.API.Controllers
                 }
                 response = response.Replace("\n", "<br />");
                 Response = Common.CreateResponse(response);
-                
+
 
             }
             catch (Exception exception)
@@ -2090,13 +2090,7 @@ namespace VitalSigns.API.Controllers
             }
             finally
             {
-                if(ps != null && ps.Runspace != null)
-                {
-                    if (ps.Runspace.RunspaceStateInfo.State == System.Management.Automation.Runspaces.RunspaceState.Opened)
-                    {
-                        ps.Runspace.Close();
-                    }
-                }
+                MicrosoftConnections.ClosePowerShell( ref ps);
             }
             return Response;
         }

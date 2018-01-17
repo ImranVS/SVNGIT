@@ -7479,6 +7479,7 @@ namespace VitalSigns.API.Controllers
             model.MemoryThreshold = 90;
             model.ReplyQueueThreshold = 2;
             model.CopyQueueThreshold = 2;
+            model.ResponseTime = 200;
             foreach (var attri in model.DeviceAttributes)
             {
                 if (attri.DataType == "bool" && (attri.DefaultValue == "false" || attri.DefaultValue == "0"))
@@ -7509,14 +7510,17 @@ namespace VitalSigns.API.Controllers
                         server.DeviceName = serverModel.DeviceName;
                         server.DeviceType = device_type;
                         server.LocationId = serverImport.Location;
+                        server.CredentialsId = serverImport.CredentialId;
                         server.IsEnabled = true;
-                        server.IPAddress = serverImport.Protocol+ serverModel.IpAddress;
+                        
+                        server.IPAddress = (serverImport.Protocol==null?"":serverImport.Protocol) + serverModel.IpAddress;
                         if (server.DeviceType == Enums.ServerType.Exchange.ToDescription().ToString())
                         { server.AuthenticationType = serverImport.AuthenticationType; }
-                        if (server.DeviceType != Enums.ServerType.DatabaseAvailabilityGroup.ToDescription().ToString())
+                        if (server.DeviceType != Enums.ServerType.DatabaseAvailabilityGroup.ToDescription().ToString() )
                         {
                             server.MemoryThreshold = serverImport.MemoryThreshold != null ? Math.Round(Convert.ToDouble(serverImport.MemoryThreshold) / 100, 1) : 0.9;
                             server.CpuThreshold = serverImport.CpuThreshold != null ? Math.Round(Convert.ToDouble(serverImport.CpuThreshold) / 100, 1) : 0.9;
+                            server.ResponseTime = serverImport.ResponseTime; 
                         }
                         if (server.DeviceType == Enums.ServerType.DatabaseAvailabilityGroup.ToDescription().ToString())
                         {
@@ -7526,7 +7530,7 @@ namespace VitalSigns.API.Controllers
                             server.BackupServerId = serverImport.BackupServer;
                         }
                         serversRepository.Insert(server);
-                        Repository repository = new Repository(Startup.ConnectionString, Startup.DataBaseName, "server");
+                        Repository repository = new Repository(Startup.ConnectionString, Startup.DataBaseName, "server_copy");
                         var updateBuilder = Builders<BsonDocument>.Update;
                         var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(server.Id));
                         UpdateDefinition<BsonDocument> updateDefinition = updateBuilder.Set("is_enabled", true);
@@ -7615,6 +7619,17 @@ namespace VitalSigns.API.Controllers
                     cmd = "Get-DatabaseAvailabilityGroup | Select @{ Name = 'Name'; Expression ={$_.Name} },@{ Name = 'Fqdn'; Expression ={$_.WitnessServer} } | Sort Name";
 
                 }
+                else if (serverImport.DeviceType == Enums.ServerType.SharePoint.ToDescription().ToString())
+                {
+                    ps = MicrosoftConnections.ConnectToSharePoint(serverImport.IpAddress, creds.UserId, tripleDes.Decrypt(creds.Password), serverImport.IpAddress);
+                    cmd = " invoke-command -session $ra -scriptblock {Get-SPServer | Select @{ Name = 'Name'; Expression ={$_.Name} },@{ Name = 'Fqdn'; Expression ={[System.Net.Dns]::GetHostByName($_.Address).HostName} } | Sort Name}";
+                }
+                //else if (serverImport.DeviceType == Enums.ServerType.ActiveDirectory.ToDescription().ToString())
+                //{
+                //    ps = MicrosoftConnections.ConnectToActiveDirectory(serverImport.IpAddress, creds.UserId, tripleDes.Decrypt(creds.Password), serverImport.IpAddress);
+                //    cmd = "Get-ADDomainController -filter * | select @{ Name='Name'; Expression ={$_.HostName} }, @{Name = 'Fqdn'; Expression ={$_.HostName} }  | Sort Name ";
+ 
+                //}
                 else
                 {
                     throw new Exception("Device Type is not supported");
@@ -7672,7 +7687,7 @@ namespace VitalSigns.API.Controllers
             }
             finally
             {
-
+                MicrosoftConnections.ClosePowerShell(ref ps);
             }
             return Response;
             
