@@ -43,6 +43,8 @@ namespace VitalSigns.API.Models.Configurator
         [JsonProperty("copy_queue_threshold")]
         public int? CopyQueueThreshold { get; set; }
 
+       
+
         [JsonProperty("scan_interval")]
         public int? ScanInterval { get; set; }
 
@@ -54,9 +56,10 @@ namespace VitalSigns.API.Models.Configurator
         [JsonProperty("off_hours_scan_interval")]
         public int? OffHoursScanInterval { get; set; }
 
-
         [JsonProperty("response_time")]
         public int? ResponseTime { get; set; }
+
+       
 
         [JsonProperty("authentication_type")]
         public string AuthenticationType { get; set; }
@@ -70,7 +73,7 @@ namespace VitalSigns.API.Models.Configurator
         [JsonProperty("ip_address")]
         public string IpAddress { get; set; }
 
-        [JsonProperty("credential_id")]
+        [JsonProperty("credentials_id")]
         public string CredentialId { get; set; }
 
         [JsonProperty("primary_server_id")]
@@ -79,6 +82,9 @@ namespace VitalSigns.API.Models.Configurator
         [JsonProperty("backup_server_id")]
         public string BackupServer { get; set; }
 
-      
+
+    
+
+
     }
 }
