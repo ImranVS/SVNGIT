@@ -1,0 +1,1 @@
+﻿[Environment]::Is64BitProcess | % {New-Object PSObject -Property @{Value = $_}}

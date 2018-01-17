@@ -289,10 +289,21 @@ namespace RPRWyatt.VitalSigns.Services
             try
             {
                 if(String.IsNullOrWhiteSpace(connectionString)) connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["VitalSignsMongo"].ToString();
-                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(connectionString);
-                FilterDefinition<VSNext.Mongo.Entities.Server> filterDef = repository.Filter.Eq(x => x.ScanNow, true) &
-                    repository.Filter.Eq(x => x.DeviceType, collection.get_Item(0).ServerType);
-                List<VSNext.Mongo.Entities.Server> list = repository.Find(filterDef).ToList();
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> serverRepository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(connectionString);
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.ServerOther> serverOtherRepository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.ServerOther>(connectionString);
+                List<VSNext.Mongo.Entities.Server> list = new List<Server>();
+                if (Enums.Utility.getEnumFromDescription<Enums.ServerType>(collection.get_Item(0).ServerType).getServerOther())
+                {
+                    FilterDefinition<VSNext.Mongo.Entities.ServerOther> filterDef = serverOtherRepository.Filter.Eq(x => x.ScanNow, true) &
+                        serverOtherRepository.Filter.Eq(x => x.Type, collection.get_Item(0).ServerType);
+                    list = serverOtherRepository.Find(filterDef).ToList().Select(x => new Server() { Id = x.Id, DeviceType = x.Type }).ToList() ;
+                }
+                else
+                {
+                    FilterDefinition<VSNext.Mongo.Entities.Server> filterDef = serverRepository.Filter.Eq(x => x.ScanNow, true) &
+                        serverRepository.Filter.Eq(x => x.DeviceType, collection.get_Item(0).ServerType);
+                    list = serverRepository.Find(filterDef).ToList();
+                }
                 if (list.Count > 0)
                 {
                     for (int i = 0; i < list.Count(); i++)
@@ -303,9 +314,19 @@ namespace RPRWyatt.VitalSigns.Services
                     }
                     if (SelectedServer != null)
                     {
-                        filterDef = repository.Filter.Eq(x => x.Id, list[0].Id);
-                        UpdateDefinition<VSNext.Mongo.Entities.Server> updateDef = repository.Updater.Set(x => x.ScanNow, false);
-                        repository.Update(filterDef, updateDef);
+                        if (Enums.Utility.getEnumFromDescription<Enums.ServerType>(collection.get_Item(0).ServerType).getServerOther())
+                        {
+                            FilterDefinition<VSNext.Mongo.Entities.ServerOther> filterDef = serverOtherRepository.Filter.Eq(x => x.Id, SelectedServer.ServerObjectID);
+                            UpdateDefinition<VSNext.Mongo.Entities.ServerOther> updateDef = serverOtherRepository.Updater.Set(x => x.ScanNow, false);
+                            serverOtherRepository.Update(filterDef, updateDef);
+                        }
+                        else
+                        {
+                            FilterDefinition<VSNext.Mongo.Entities.Server> filterDef = serverRepository.Filter.Eq(x => x.Id, SelectedServer.ServerObjectID);
+                            UpdateDefinition<VSNext.Mongo.Entities.Server> updateDef = serverRepository.Updater.Set(x => x.ScanNow, false);
+                            serverRepository.Update(filterDef, updateDef);
+                        }
+
                         LogUtils.WriteDeviceHistoryEntry("All", "SelectServer", tNow.ToString() + " >>> Selecting " + SelectedServer.Name + " because the status is " + SelectedServer.Status, LogUtils.LogLevel.Verbose);
                         return SelectedServer;
                     }
