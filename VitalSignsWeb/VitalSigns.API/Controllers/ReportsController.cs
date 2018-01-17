@@ -987,6 +987,31 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+
+        [HttpGet("websphere_threshold")]
+        public APIResponse GetWebsphereThreshold()
+        {
+     
+            serverRepository = new Repository<Server>(ConnectionString);
+            List<WebsphereThresholdList> result = null;
+            FilterDefinition<Server> filterDef = serverRepository.Filter.Eq(x => x.DeviceType, "WebSphere");
+            result = serverRepository.Find(filterDef)
+                             .AsQueryable()
+                             .Select(x => new WebsphereThresholdList
+                             {
+                                 ServerName = x.DeviceName,
+                                 ScanInterval = x.ScanInterval,
+                                 ResponseTime = x.ResponseTime,
+                                 HungThreadCount = x.HungThreadCount,
+                                 MemoryUsed = x.MemoryUsed,
+                                 AverageThreadPoolCount = x.AverageThreadPool,
+                                 ActiveThreadCount = x.ActiveThreadCount
+                             }).ToList();
+
+            Response = Common.CreateResponse(result.OrderBy(x => x.ServerName));
+            return Response;
+        }
+
         [HttpGet("domino_mail_threshold")]
         public APIResponse GetMailThreshold()
         {
@@ -2684,5 +2709,6 @@ namespace VitalSigns.API.Controllers
             }
         }
     }
+
 
 }
