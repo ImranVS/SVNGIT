@@ -968,6 +968,34 @@ namespace VitalSigns.API
 
         }
 
+        public static void ClosePowerShell( ref System.Management.Automation.PowerShell ps)
+        {
+            try
+            {
+                ps.Commands.Clear();
+                string script = "Get-PSSession | Remove-PSSession;  $PID";
+                ps.Commands = new System.Management.Automation.PSCommand();
+                ps.Commands.AddScript(script);
+               var v = ps.Invoke();
+            }
+            catch (Exception ex)
+            { }
+            if (ps != null && ps.Runspace != null)
+            {
+                if (ps.Runspace.RunspaceStateInfo.State == System.Management.Automation.Runspaces.RunspaceState.Opened)
+                {
+                    ps.Runspace.Close();
+                }
+                ps.Runspace.Close();
+                ps.Runspace.Dispose();
+                ps.Runspace = null;
+
+            }
+            if (ps != null)
+            {
+                ps.Dispose();
+            }
+        }
     }
 }
 
