@@ -7,6 +7,9 @@
             <th  style="text-align:right">Hung Thread <br /> Count</th>
             <th  style="text-align:right">Active Thread <br /> Count</th>
             <th  style="text-align:right">Average  <br />  Thread Pool</th>
+            <th style="text-align:right">Current Heapsize</th>
+            <th style="text-align:right">Maximum Heapsize</th>
+            <th style="text-align:right">CPU</th>
         </tr>
     </thead>
     <tbody *ngIf="websphereThreshold">
@@ -17,6 +20,9 @@
             <td style="text-align:right">{{data.hung_thread_count}}</td>
             <td style="text-align:right">{{data.active_thread_count}}</td>
             <td style="text-align:right">{{data.average_thread_pool}}</td>
+            <td style="text-align:right">{{data.heap_current}}</td>
+            <td style="text-align:right">{{data.maximum_heap}}</td>
+            <td style="text-align:right">{{data.process_cpu}}</td>
         </tr>
     </tbody>
 </table>
