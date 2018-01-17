@@ -1005,7 +1005,10 @@ namespace VitalSigns.API.Controllers
                                  HungThreadCount = x.HungThreadCount,
                                  MemoryUsed = x.MemoryUsed,
                                  AverageThreadPoolCount = x.AverageThreadPool,
-                                 ActiveThreadCount = x.ActiveThreadCount
+                                 ActiveThreadCount = x.ActiveThreadCount,
+                                 CPU = x.ProcessCPU,
+                                 HeapCurrent = x.HeapCurrent,
+                                 HeapMaximum = x.MaximumHeap
                              }).ToList();
 
             Response = Common.CreateResponse(result.OrderBy(x => x.ServerName));
