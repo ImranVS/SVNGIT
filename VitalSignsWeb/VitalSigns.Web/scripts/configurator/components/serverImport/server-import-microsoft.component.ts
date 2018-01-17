@@ -95,8 +95,10 @@ export class MicrosoftServerImport implements OnInit{
                     this.exchangeServerImportData.servers = response.data.servers;
                     this.deviceLocationData = response.data.locationList;
                     this.exchangeServerImportData.device_attributes = response.data.device_attributes;
-                    this.exchangeservers = response.data.exchange_List;
-                    this.exchangeservers2 = response.data.exchange_List.slice(0);
+                    if (this.device_type == "Database Availability Group") {
+                        this.exchangeservers = response.data.exchange_List;
+                        this.exchangeservers2 = response.data.exchange_List.slice(0);
+                    }
                     for (let server of this.exchangeServerImportData.servers) {
                         server.is_selected = false;
                     }
@@ -119,8 +121,7 @@ export class MicrosoftServerImport implements OnInit{
     }
 
     step2Click(): void {
-        this.exchangeServerImportData.primary_server_id = this.primaryExchangeServer.selectedValue;
-        this.exchangeServerImportData.backup_server_id = this.backupExchangeServer.selectedValue;
+       
         this.dataProvider.put(`/configurator/save_microsoft_servers?device_type=${this.device_type}`, this.exchangeServerImportData)
             .subscribe(
             response => {
@@ -134,6 +135,8 @@ export class MicrosoftServerImport implements OnInit{
             (error) => this.errorMessage = <any>error
 
             );
+        this.exchangeServerImportData.primary_server_id = this.primaryExchangeServer.selectedValue;
+        this.exchangeServerImportData.backup_server_id = this.backupExchangeServer.selectedValue;
     }
 
     step3Click(): void {
@@ -203,16 +206,15 @@ export class MicrosoftServerImport implements OnInit{
 
                      this.appComponentService.showErrorMessage(response.message);
                  }
+                 this.Attribute.get('/configurator/get_credentials')
+                     .subscribe(
+                     response => {
+                         this.deviceCredentialData = response.data;
+                     },
+                     error => this.errorMessage = <any>error
+                     );
              });
-         this.Attribute.get('/configurator/get_credentials')
-             .subscribe(
-             response => {
-                 this.deviceCredentialData = response.data.credentialsData;
-             },
-             error => this.errorMessage = <any>error
-
-
-             );
+        
 
          dialog.hide();
 

@@ -1,21 +1,34 @@
 ﻿<div class="widgetWrapper" *ngIf="exchangeServerImportData">
     <!--Step 1-->
     <div *ngIf="currentStep=='1'">
-        <div class="panel panel-default">
+        <div class="panel panel-default" >
             <div class="alert alert-info col-lg-12">
-                Enter the Exchange  Directory Server value and click 'Load Servers'
+                <div *ngIf="device_type=='Exchange' || device_type == 'Database Availability Group'">
+                    Enter the Exchange  Directory Server value and click 'Load Servers'
+                </div> 
+                <div *ngIf="device_type=='SharePoint'">
+                    Please enter the SharePoint Server Name. The credentials should be a SharePoint account with administrative access.
+                </div> 
+
+                <div *ngIf="device_type=='Active Directory'">
+                    Please enter the Active Direcotry's FQDN. The credentials should be an administrative account on the domain.
+                </div> 
+                  
             </div>
             <div class="row">
                 <div class="form-group col-sm-6">
                     <label for="exchangeServer" class="control-label col-sm-4">Server Type</label>
                     <div class="col-sm-8">
                         <select name="exchangeServer" [(ngModel)]="device_type">
+                           
                             <option Value="Exchange" selected>Exchange</option>
                             <option Value="Database Availability Group">Database Availability Group</option>
-                            <!--<option Value="Active Directory">Active Directory</option>
-                           <option Value="Exchange">Exchange</option>
+                            <option Value="SharePoint">SharePoint</option>
+                           
+                            <!--
+                            <option Value="Active Directory">Active Directory</option>
                         <option Value="Skype for Business">Skype for Business</option>
-                        <option Value="SharePoint">SharePoint</option>
+                    
                         <option Value="Windows">Windows</option>-->
                         </select>
                     </div>
@@ -44,11 +57,11 @@
                 <div class="form-group col-sm-6">
                     <label class="control-label col-sm-4">Credentials&nbsp;&nbsp;&nbsp;</label>
                     <wj-combo-box displayMemberPath="alias" selectedValuePath="id" name="credentials" [itemsSource]="deviceCredentialData"
-                                  placeholder="Select Credentials" [(selectedValue)] ="exchangeServerImportData.credential_id">
+                                  placeholder="Select Credentials" [(selectedValue)] ="exchangeServerImportData.credentials_id">
                     </wj-combo-box>
                 </div>
                     <div>
-                        <button class="btn btn-primary" (click)="addCrdential(frmDialog)">
+                        <button class="btn btn-primary"  [disabled]="device_type == null || device_type ==''" (click)="addCrdential(frmDialog)">
                             Add Credentials
                         </button>
                     </div>
@@ -119,11 +132,11 @@
                     </div>
                 </div>
             </div>
-        <div *ngIf="exchangeServerImportData.servers == null">
+        <!--<div *ngIf="exchangeServerImportData.servers == null">
             <div class="alert alert-info col-lg-12">
                 There is no servers to Import
             </div>
-        </div>
+        </div>-->
 
         </div>
     
@@ -149,12 +162,15 @@
                                             <input type="checkbox" [(ngModel)]="attribute.default_value">
                                         </div>
                                     </div>
+                                    <div class="col-sm-4">
+                                        {{attribute.unit_of_measurement}}
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div *ngIf="device_type=='Exchange'" class="panel panel-default">
+                <div *ngIf="device_type=='Exchange' || device_type == 'SharePoint' || device_type=='Active Directory'" class="panel panel-default">
                     <div class="panel-heading">Memory and CPU</div>
                     <div class="panel-body">
                         <div class="row">
@@ -204,13 +220,14 @@
                             </wj-combo-box>
                         </div>
                     </div>
-                    <div class="panel panel-default">
-                        <div class="panel-heading">Selected Servers</div>
-                        <div class="panel-body">
-                            <div class="form-group col-sm-12">
-                                <div *ngFor="let server of exchangeServerImportData.servers; let i=index">
-                                    <label *ngIf="server.is_selected" class="col-sm-3">{{server.device_name}}</label>
-                                </div>
+                   
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">Selected Servers</div>
+                    <div class="panel-body">
+                        <div class="form-group col-sm-12">
+                            <div *ngFor="let server of exchangeServerImportData.servers; let i=index">
+                                <label *ngIf="server.is_selected" class="col-sm-3">{{server.device_name}}</label>
                             </div>
                         </div>
                     </div>
@@ -282,3 +299,4 @@
         </form>
     </div>
 </wj-popup>
+</div>
