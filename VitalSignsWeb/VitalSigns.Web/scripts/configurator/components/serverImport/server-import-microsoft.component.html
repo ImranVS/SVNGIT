@@ -2,7 +2,7 @@
     <!--Step 1-->
     <div *ngIf="currentStep=='1'">
         <div class="panel panel-default" >
-            <div class="alert alert-info col-lg-12">
+            <div *ngIf="device_type != null && device_type != ''" class="alert alert-info col-lg-12" >
                 <div *ngIf="device_type=='Exchange' || device_type == 'Database Availability Group'">
                     Enter the Exchange  Directory Server value and click 'Load Servers'
                 </div> 
@@ -20,13 +20,13 @@
                     <label for="exchangeServer" class="control-label col-sm-4">Server Type</label>
                     <div class="col-sm-8">
                         <select name="exchangeServer" [(ngModel)]="device_type">
-                           
+                            <option Value="Active Directory">Active Directory</option>
                             <option Value="Exchange" selected>Exchange</option>
                             <option Value="Database Availability Group">Database Availability Group</option>
                             <option Value="SharePoint">SharePoint</option>
                            
                             <!--
-                            <option Value="Active Directory">Active Directory</option>
+                           
                         <option Value="Skype for Business">Skype for Business</option>
                     
                         <option Value="Windows">Windows</option>-->
