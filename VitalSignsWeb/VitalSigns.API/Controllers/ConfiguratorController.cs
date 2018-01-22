@@ -7624,12 +7624,12 @@ namespace VitalSigns.API.Controllers
                     ps = MicrosoftConnections.ConnectToSharePoint(serverImport.IpAddress, creds.UserId, tripleDes.Decrypt(creds.Password), serverImport.IpAddress);
                     cmd = " invoke-command -session $ra -scriptblock {Get-SPServer | Select @{ Name = 'Name'; Expression ={$_.Name} },@{ Name = 'Fqdn'; Expression ={[System.Net.Dns]::GetHostByName($_.Address).HostName} } | Sort Name}";
                 }
-                //else if (serverImport.DeviceType == Enums.ServerType.ActiveDirectory.ToDescription().ToString())
-                //{
-                //    ps = MicrosoftConnections.ConnectToActiveDirectory(serverImport.IpAddress, creds.UserId, tripleDes.Decrypt(creds.Password), serverImport.IpAddress);
-                //    cmd = "Get-ADDomainController -filter * | select @{ Name='Name'; Expression ={$_.HostName} }, @{Name = 'Fqdn'; Expression ={$_.HostName} }  | Sort Name ";
- 
-                //}
+                else if (serverImport.DeviceType == Enums.ServerType.ActiveDirectory.ToDescription().ToString())
+                {
+                    ps = MicrosoftConnections.ConnectToActiveDirectory(serverImport.IpAddress, creds.UserId, tripleDes.Decrypt(creds.Password), serverImport.IpAddress);
+                    cmd = "Get-ADDomainController -filter * | select @{ Name='Name'; Expression ={$_.HostName} }, @{Name = 'Fqdn'; Expression ={$_.HostName} }  | Sort Name";
+
+                }
                 else
                 {
                     throw new Exception("Device Type is not supported");
