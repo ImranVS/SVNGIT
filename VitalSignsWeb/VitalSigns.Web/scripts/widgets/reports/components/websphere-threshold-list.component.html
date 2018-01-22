@@ -1,12 +1,12 @@
-﻿<table class="table table-condensed small table-striped" id="htmlTable">
+﻿<table class="table table-condensed small table-striped" style="table-layout:fixed" id="htmlTable">
     <thead>
         <tr>
-            <th>Server Name</th>
-            <th style="text-align:right">Scan <br/> Interval</th>
-            <th  style="text-align:right">Response<br /> Time</th>
-            <th  style="text-align:right">Hung Thread <br /> Count</th>
-            <th  style="text-align:right">Active Thread <br /> Count</th>
-            <th  style="text-align:right">Average  <br />  Thread Pool</th>
+            <th style="text-align:right">Server Name</th>
+            <th style="text-align:right">Scan <br /> Interval</th>
+            <th style="text-align:right">Response<br /> Time</th>
+            <th style="text-align:right">Hung Thread <br /> Count</th>
+            <th style="text-align:right">Active Thread <br /> Count</th>
+            <th style="text-align:right">Average  <br />  Thread Pool</th>
             <th style="text-align:right">Current Heapsize</th>
             <th style="text-align:right">Maximum Heapsize</th>
             <th style="text-align:right">CPU</th>
@@ -14,9 +14,9 @@
     </thead>
     <tbody *ngIf="websphereThreshold">
         <tr *ngFor="let data of websphereThreshold">
-            <td style="width:25px"> {{ data.device_name}} </td>
+            <td style="text-align:right"> {{ data.device_name}} </td>
             <td style="text-align:right">{{data.scan_interval}}</td>
-            <td  style="text-align:right">{{data.response_time}}</td>
+            <td style="text-align:right">{{data.response_time}}</td>
             <td style="text-align:right">{{data.hung_thread_count}}</td>
             <td style="text-align:right">{{data.active_thread_count}}</td>
             <td style="text-align:right">{{data.average_thread_pool}}</td>
