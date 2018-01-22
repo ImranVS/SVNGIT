@@ -7530,7 +7530,7 @@ namespace VitalSigns.API.Controllers
                             server.BackupServerId = serverImport.BackupServer;
                         }
                         serversRepository.Insert(server);
-                        Repository repository = new Repository(Startup.ConnectionString, Startup.DataBaseName, "server_copy");
+                        Repository repository = new Repository(Startup.ConnectionString, Startup.DataBaseName, "server");
                         var updateBuilder = Builders<BsonDocument>.Update;
                         var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(server.Id));
                         UpdateDefinition<BsonDocument> updateDefinition = updateBuilder.Set("is_enabled", true);
