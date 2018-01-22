@@ -958,6 +958,11 @@ namespace VitalSigns.API
                 powershell.Commands = command;
                 powershell.Invoke();
 
+                command = new System.Management.Automation.PSCommand();
+                command.AddScript("Import-PSSession -session $ra -module ActiveDirectory ");
+                powershell.Commands = command;
+                powershell.Invoke();
+
                 return powershell;
             }
             catch (Exception ex)
