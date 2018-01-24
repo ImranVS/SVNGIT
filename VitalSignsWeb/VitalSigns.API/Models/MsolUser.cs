@@ -49,5 +49,11 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("ad_last_sync", NullValueHandling = NullValueHandling.Ignore)]
         public DateTime? ADLastSync { get; set; }
+
+        [JsonProperty("old_sync", NullValueHandling = NullValueHandling.Ignore)]
+        public bool?  OldSync { get; set; }
+
+        [JsonProperty("old_disabled", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? olddisabled { get; set; }
     }
 }

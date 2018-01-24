@@ -2444,13 +2444,14 @@ namespace VitalSigns.API.Controllers
                 serverRepository = new Repository<Server>(ConnectionString);
                 var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription())).ToList().Select(x => x.Id).ToList();
                 var filterDef = o365MsolUsersRepository.Filter.In(x => x.DeviceId, listOfDevices) &
-                    o365MsolUsersRepository.Filter.Eq(x => x.IsLicensed, true) & 
-                    o365MsolUsersRepository.Filter.Eq(x => x.AccountDisabled, true);
+                    o365MsolUsersRepository.Filter.Eq(x => x.IsLicensed, true); 
+                    //o365MsolUsersRepository.Filter.Eq(x => x.AccountDisabled, true)
                 var results = o365MsolUsersRepository.Find(filterDef).ToList().Select(x => new MsolUser()
                 {
                     DisplayName = x.DisplayName,
                     AccountLastModified = x.AccountLastModified,
-                    UserPrincipalName = x.UserPrincipalName
+                    UserPrincipalName = x.UserPrincipalName,
+                    olddisabled = x.AccountDisabled.HasValue && x.AccountDisabled.Value
                 }).ToList().OrderBy(x => x.DisplayName);
                 Response = Common.CreateResponse(results);
                 return Response;
@@ -2471,13 +2472,13 @@ namespace VitalSigns.API.Controllers
                 o365MsolUsersRepository = new Repository<Office365MSOLUsers>(ConnectionString);
                 serverRepository = new Repository<Server>(ConnectionString);
                 var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription())).ToList().Select(x => x.Id).ToList();
-                var filterDef = o365MsolUsersRepository.Filter.In(x => x.DeviceId, listOfDevices) &
-                     o365MsolUsersRepository.Filter.Lt(x => x.ADLastSync, DateTime.UtcNow.AddHours(-24) );
+                var filterDef = o365MsolUsersRepository.Filter.In(x => x.DeviceId, listOfDevices);
                 var results = o365MsolUsersRepository.Find(filterDef).ToList().Select(x => new MsolUser()
                 {
                     DisplayName = x.DisplayName,
                     ADLastSync = x.ADLastSync,
-                    UserPrincipalName = x.UserPrincipalName
+                    UserPrincipalName = x.UserPrincipalName,
+                    OldSync = x.ADLastSync.HasValue && x.ADLastSync.Value.AddHours(-24).CompareTo(DateTime.UtcNow) > 0
                 }).ToList().OrderBy(x => x.DisplayName);
                 Response = Common.CreateResponse(results);
                 return Response;
