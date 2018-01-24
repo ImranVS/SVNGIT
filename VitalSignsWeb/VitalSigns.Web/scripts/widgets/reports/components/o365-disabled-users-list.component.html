@@ -8,9 +8,9 @@
     </thead>
     <tbody *ngIf="data">
         <tr *ngFor="let entry of data">
-            <td>{{entry.display_name}}</td>
-            <td>{{entry.user_principal_name}}</td>
-            <td>{{entry.account_last_modified |date: 'shortDate'}}</td>
+            <td [style.color]="entry.old_disabled  ? 'red' : null">{{entry.display_name}}</td>
+            <td [style.color]="entry.old_disabled  ? 'red' : null">{{entry.user_principal_name}}</td>
+            <td [style.color]="entry.old_disabled  ? 'red' : null">{{entry.account_last_modified |date: 'shortDate'}}</td>
         </tr>
     </tbody>
 </table>
