@@ -1,4 +1,4 @@
-﻿<table class="table table-condensed small table-striped" id="htmlTable">
+﻿<table *ngIf ="data && data.length > 0" class="table table-condensed small table-striped" id="htmlTable">
     <thead>
         <tr>
             <th>Display Name</th>
@@ -8,9 +8,12 @@
     </thead>
     <tbody *ngIf="data">
         <tr *ngFor="let entry of data">
-            <td [style.color]="entry.old_disabled  ? 'red' : null">{{entry.display_name}}</td>
-            <td [style.color]="entry.old_disabled  ? 'red' : null">{{entry.user_principal_name}}</td>
-            <td [style.color]="entry.old_disabled  ? 'red' : null">{{entry.account_last_modified |date: 'shortDate'}}</td>
+            <td>{{entry.display_name}}</td>
+            <td>{{entry.user_principal_name}}</td>
+            <td>{{entry.account_last_modified |date: 'shortDate'}}</td>
         </tr>
     </tbody>
 </table>
+<div *ngIf="data && data.length == 0">
+    <p> No Licenses are currently being consumed by disabled users</p>
+</div>
