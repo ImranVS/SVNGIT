@@ -2444,14 +2444,14 @@ namespace VitalSigns.API.Controllers
                 serverRepository = new Repository<Server>(ConnectionString);
                 var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription())).ToList().Select(x => x.Id).ToList();
                 var filterDef = o365MsolUsersRepository.Filter.In(x => x.DeviceId, listOfDevices) &
-                    o365MsolUsersRepository.Filter.Eq(x => x.IsLicensed, true); 
-                    //o365MsolUsersRepository.Filter.Eq(x => x.AccountDisabled, true)
+                    o365MsolUsersRepository.Filter.Eq(x => x.IsLicensed, true) &
+                    o365MsolUsersRepository.Filter.Eq(x => x.AccountDisabled, true);
                 var results = o365MsolUsersRepository.Find(filterDef).ToList().Select(x => new MsolUser()
                 {
                     DisplayName = x.DisplayName,
                     AccountLastModified = x.AccountLastModified,
                     UserPrincipalName = x.UserPrincipalName,
-                    olddisabled = x.AccountDisabled.HasValue && x.AccountDisabled.Value
+                    //olddisabled = x.AccountDisabled.HasValue && x.AccountDisabled.Value
                 }).ToList().OrderBy(x => x.DisplayName);
                 Response = Common.CreateResponse(results);
                 return Response;

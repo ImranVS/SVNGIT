@@ -52,8 +52,5 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("old_sync", NullValueHandling = NullValueHandling.Ignore)]
         public bool?  OldSync { get; set; }
-
-        [JsonProperty("old_disabled", NullValueHandling = NullValueHandling.Ignore)]
-        public bool? olddisabled { get; set; }
     }
 }
