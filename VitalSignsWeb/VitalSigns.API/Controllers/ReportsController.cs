@@ -2451,7 +2451,6 @@ namespace VitalSigns.API.Controllers
                     DisplayName = x.DisplayName,
                     AccountLastModified = x.AccountLastModified,
                     UserPrincipalName = x.UserPrincipalName,
-                    //olddisabled = x.AccountDisabled.HasValue && x.AccountDisabled.Value
                 }).ToList().OrderBy(x => x.DisplayName);
                 Response = Common.CreateResponse(results);
                 return Response;
