@@ -2371,6 +2371,11 @@ namespace VitalSignsMicrosoftClasses
 
         }
 
+        public MongoStatementsWrapper(VSNext.Mongo.Repository.Repository<T> Repository)
+        {
+            repo = Repository;
+        }
+
         public virtual BsonDocument RenderToBsonDocument<T>(FilterDefinition<T> filter)
         {
             var serializerRegistry = BsonSerializer.SerializerRegistry;
@@ -2473,6 +2478,16 @@ namespace VitalSignsMicrosoftClasses
         {
             return "Update. FilterDef " + base.RenderToBsonDocument(filterDef) + "\n. UpdateDef " + base.RenderToBsonDocument(updateDef) + "\n . Embeded Doc " + embeddedDocument.ToString();
         }
+
+        public MongoStatementsUpdate() : base()
+        {
+
+        }
+
+        public MongoStatementsUpdate(VSNext.Mongo.Repository.Repository<T> Repository) : base(Repository)
+        {
+
+        }
     }
 
     public class MongoStatementsReplace<T> : MongoStatementsWrapper<T> where T : IEntity
@@ -2502,14 +2517,33 @@ namespace VitalSignsMicrosoftClasses
 
     public class MongoStatementsUpsert<T> : MongoStatementsWrapper<T> where T : IEntity
     {
-        public FilterDefinition<T> filterDef;
-        public UpdateDefinition<T> updateDef;
+        public FilterDefinition<T> filterDef = null;
+        public UpdateDefinition<T> updateDef = null;
+
+        public List<DefinitionContainer<T>> listOfDefinitions = new List<DefinitionContainer<T>>();
+
+        public MongoStatementsUpsert() : base()
+        {
+
+        }
+
+        public MongoStatementsUpsert(VSNext.Mongo.Repository.Repository<T> Repository) : base(Repository)
+        {
+
+        }
 
         public override bool Execute()
         {
             try
             {
-                repo.Upsert(filterDef, updateDef);
+                if (filterDef != null && updateDef != null)
+                {
+                    repo.Upsert(filterDef, updateDef);
+                } else if(listOfDefinitions.Count != 0)
+                {
+                    foreach (DefinitionContainer<T> def in listOfDefinitions)
+                        repo.Upsert(def.filterDef, def.updateDef);
+                }
                 return true;
             }
             catch (Exception ex)
@@ -2521,6 +2555,8 @@ namespace VitalSignsMicrosoftClasses
 
         public override string ToString()
         {
+            if(listOfDefinitions.Count != 0)
+                return "Upsert: Large array of upserts. First Element: FilterDef " + base.RenderToBsonDocument(listOfDefinitions.First().filterDef) + "\n.UpdateDef " + base.RenderToBsonDocument(listOfDefinitions.First().updateDef);
             return "Upsert. FilterDef " + base.RenderToBsonDocument(filterDef) + "\n. UpdateDef " + base.RenderToBsonDocument(updateDef);
         }
     }
@@ -2575,6 +2611,11 @@ namespace VitalSignsMicrosoftClasses
 
     }
 
+    public class DefinitionContainer<T> where T : IEntity
+    {
+        public FilterDefinition<T> filterDef;
+        public UpdateDefinition<T> updateDef;
+    }
 
 
     

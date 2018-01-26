@@ -123,6 +123,22 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public List<Folder> Folders { get; set; }
 
+        [DataMember]
+        [BsonElement("last_permission_check")]
+        [BsonIgnoreIfNullAttribute]
+        public DateTime? LastPermissionCheck { get; set; }
+
+        [DataMember]
+        [BsonElement("identity")]
+        [BsonIgnoreIfNullAttribute]
+        public string Identity { get; set; }
+
+        [DataMember]
+        [BsonElement("users_with_permission")]
+        [BsonIgnoreIfNullAttribute]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public List<string> UsersWithPermission { get; set; }
+
         public class Folder
         {
 

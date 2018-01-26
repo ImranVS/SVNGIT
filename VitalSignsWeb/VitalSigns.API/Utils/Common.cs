@@ -985,6 +985,16 @@ namespace VitalSigns.API
             }
             catch (Exception ex)
             { }
+            try
+            {
+                ps.Commands.Clear();
+                string script = "Stop-process -Id $PID";
+                ps.Commands = new System.Management.Automation.PSCommand();
+                ps.Commands.AddScript(script);
+                var v = ps.Invoke();
+            }
+            catch (Exception ex)
+            { }
             if (ps != null && ps.Runspace != null)
             {
                 if (ps.Runspace.RunspaceStateInfo.State == System.Management.Automation.Runspaces.RunspaceState.Opened)

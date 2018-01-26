@@ -2054,7 +2054,7 @@ namespace VitalSignsMicrosoftClasses
 
                     string cmdlets = "-CommandName Get-ExchangeServer, Get-MailboxDatabase, Get-MailboxStatistics, Get-Mailbox, Get-MessageTrackingLog, ";
                     cmdlets += "Get-OWAVirtualDirectory, Get-ECPVirtualDirectory, Get-OABVirtualDirectory, Get-WebServicesVirtualDirectory, Get-MAPIVirtualDirectory, Get-ActiveSyncVirtualDirectory, ";
-                    cmdlets += "Get-OutlookAnywhere, Get-ClientAccessServer, Get-TransportServer, Get-MailboxRepairRequest, New-MailboxRepairRequest, Get-MailboxFolderStatistics, Get-DatabaseAvailabilityGroup, Get-User";
+                    cmdlets += "Get-OutlookAnywhere, Get-ClientAccessServer, Get-TransportServer, Get-MailboxRepairRequest, New-MailboxRepairRequest, Get-MailboxFolderStatistics, Get-DatabaseAvailabilityGroup, Get-User, Get-Group";
 
                     using (ReturnPowerShellObjects results = Common.PrereqForExchangeWithCmdlets(testServer.Name, testServer.UserName, testServer.Password, "Exchange", testServer.IPAddress, commonEnums.ServerRoles.Empty, cmdlets, testServer.AuthenticationType))
                     {
@@ -2084,7 +2084,31 @@ namespace VitalSignsMicrosoftClasses
                 Common.WriteDeviceHistoryEntry("All", "Exchange", "Finished Daily Tasks.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 				Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs.Name, "Finished Daily Tasks.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
-			}
+                Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs.Name, "Starting Mailbox Permission loop.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+                try
+                {
+                    if (testServer != null)
+                    {
+                        ExchangeMB EMB = new ExchangeMB();
+
+                        string cmdlets = "-CommandName Get-Mailbox, Get-MailboxPermission, Get-User, Get-Group";
+
+                        using (ReturnPowerShellObjects results = Common.PrereqForExchangeWithCmdlets(testServer.Name, testServer.UserName, testServer.Password, "Exchange", testServer.IPAddress, commonEnums.ServerRoles.Empty, cmdlets, testServer.AuthenticationType))
+                        {
+                            // Collection<PSObject> DBCorruptionTest = TestDatabaseCorruptionQueue(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS);
+                            EMB.getMailboxPermissions(testServer, results.PS, ref AllTestResults, DummyServerForLogs.Name, myExchangeServers);
+                        }
+                    }
+                }
+                catch(Exception ex)
+                {
+
+                }
+
+                GC.Collect();
+
+            }
 			catch (Exception ex)
 			{
 				Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs.Name, "Error in Daily Tasks.  Error: " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);

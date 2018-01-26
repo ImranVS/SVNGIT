@@ -173,6 +173,8 @@ namespace VitalSignsMicrosoftClasses
 		{
 			getIndividualMailboxes(results.PS, ref AllTestsList, DummyServernameForLogs, MyExchangeServers);
 			getMailStats(Server, results.PS, ref AllTestsList, DummyServernameForLogs, MyExchangeServers);
+            getUsersAndGroups(Server, results.PS, ref AllTestsList, DummyServernameForLogs, MyExchangeServers);
+            //getMailboxPermissions(Server, results.PS, ref AllTestsList, DummyServernameForLogs, MyExchangeServers);
 			results.PS.Commands.Clear();
 		}
 		
@@ -219,7 +221,8 @@ namespace VitalSignsMicrosoftClasses
                     string PrimarySmtpAddress = ps.Properties["PrimarySmtpAddress"].Value == null ? "" : ps.Properties["PrimarySmtpAddress"].Value.ToString();
                     string Company = ps.Properties["Company"].Value == null ? "" : ps.Properties["Company"].Value.ToString();
                     string Department = ps.Properties["Department"].Value == null ? "" : ps.Properties["Department"].Value.ToString();
-                    string LastLogonTime = ps.Properties["LastLogonTime"].Value == null ? "" : ps.Properties["LastLogonTime"].Value.ToString();
+                    string LastLogonTime = ps.Properties["LastLogonTime"] == null || ps.Properties["LastLogonTime"].Value == null ? null : ps.Properties["LastLogonTime"].Value.ToString();
+                    string Identity = ps.Properties["Identity"].Value == null ? "" : ps.Properties["Identity"].Value.ToString();
 
                     List<VSNext.Mongo.Entities.Mailbox.Folder> listOfFolders = new List<VSNext.Mongo.Entities.Mailbox.Folder>();
                     try
@@ -284,7 +287,8 @@ namespace VitalSignsMicrosoftClasses
                         .Set(i => i.Company, Company)
                         .Set(i => i.Department, Department)
                         .Set(i => i.Folders, listOfFolders)
-                        .Set(i => i.LastLogonTime, LastLogonTime == null ? null : Convert.ToDateTime(LastLogonTime) as DateTime?);
+                        .Set(i => i.LastLogonTime, LastLogonTime == null ? null : Convert.ToDateTime(LastLogonTime) as DateTime?)
+                        .Set(i => i.Identity, Identity);
                         
                     AllTestResults.MongoEntity.Add(mongoStatement);
                     
@@ -482,9 +486,204 @@ namespace VitalSignsMicrosoftClasses
 
 		}
 
-	}
-	   
-		public class indvMailboxes
+        private void getUsersAndGroups(MonitoredItems.ExchangeServer Server, PowerShell powershell, ref TestResults AllTestResults, string DummyServerForLogs, MonitoredItems.ExchangeServersCollection MyExchangeServers)
+        {
+            try
+            {
+                List<indvMailboxes> list = new List<indvMailboxes>();
+
+                Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "In getUsersAndGroups.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+                System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
+                String str = AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\EX_UsersAndGroups.ps1";
+
+                //String str = sr.ReadToEnd();
+                powershell.Streams.Error.Clear();
+
+                System.IO.StreamReader sr = new System.IO.StreamReader(str);
+                String s = sr.ReadToEnd();
+
+                powershell.Commands.Clear();
+                powershell.AddScript(s);
+
+                results = powershell.Invoke();
+
+
+                Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "getUsersAndGroups output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+                foreach (ErrorRecord err in powershell.Streams.Error)
+                {
+                    Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "getUsersAndGroups PS errors: " + err.Exception, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                    Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "getUsersAndGroups PS errors: " + err.ErrorDetails, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                }
+                MongoStatementsUpsert<VSNext.Mongo.Entities.UsersAndGroups> mongoUpsert = new MongoStatementsUpsert<VSNext.Mongo.Entities.UsersAndGroups>();
+                List<VSNext.Mongo.Entities.UsersAndGroups> userAndGroupList = mongoUpsert.repo.Find(mongoUpsert.repo.Filter.Where(x => true)).ToList();
+                Dictionary<string, string> dictOfNameIds = new Dictionary<string, string>();
+                foreach (PSObject ps in results)
+                {
+                    MongoStatementsUpsert<VSNext.Mongo.Entities.UsersAndGroups> upsert = new MongoStatementsUpsert<VSNext.Mongo.Entities.UsersAndGroups>();
+                    VSNext.Mongo.Entities.UsersAndGroups obj = new VSNext.Mongo.Entities.UsersAndGroups();
+
+
+                    string Identity = ps.Properties["Id"].Value == null ? "" : ps.Properties["Id"].Value.ToString();
+                    string objectId = MongoDB.Bson.ObjectId.GenerateNewId().ToString();
+
+                    DefinitionContainer<VSNext.Mongo.Entities.UsersAndGroups> defContainer = new DefinitionContainer<VSNext.Mongo.Entities.UsersAndGroups>();
+                    defContainer.filterDef = mongoUpsert.repo.Filter.Eq(x => x.Identity, Identity);
+                    
+                    defContainer.updateDef = mongoUpsert.repo.Updater.Set(x => x.Type, ps.Properties["Type"].Value == null ? "" : ps.Properties["Type"].Value.ToString())
+                        .Set(x => x.DistinguishedName, ps.Properties["DistinguishedName"].Value == null ? "" : ps.Properties["DistinguishedName"].Value.ToString())
+                        .Set(x => x.Name, ps.Properties["Name"].Value == null ? "" : ps.Properties["Name"].Value.ToString())
+                        .Set(x => x.IsValid, ps.Properties["IsValid"].Value == null ? "" : ps.Properties["IsValid"].Value.ToString())
+                        .Set(x => x.DisplayName, ps.Properties["DisplayName"].Value == null ? "" : ps.Properties["DisplayName"].Value.ToString())
+                        .Set(x => x.SamAccountName, ps.Properties["SamAccountName"].Value == null ? "" : ps.Properties["SamAccountName"].Value.ToString())
+                        .SetOnInsert(x => x.Id, objectId );
+
+                    dictOfNameIds.Add(Identity, objectId);
+
+                    if (obj.Type == "User")
+                    {
+                        defContainer.updateDef = defContainer.updateDef.Set(x => x.UserPrincipalName, ps.Properties["UserPrincipalName"].Value == null ? "" : ps.Properties["UserPrincipalName"].Value.ToString());
+                    }
+                    else if (obj.Type == "Group")
+                    {
+                        object members =  ps.Properties["Members"].Value == null ? null : ps.Properties["Members"].Value;
+                        if (members != null)
+                        {
+                            foreach (string member in (System.Collections.ArrayList)((PSObject)members).BaseObject)
+                            {
+                                if(userAndGroupList.Exists(x => x.Identity == member))
+                                {
+                                    defContainer.updateDef = defContainer.updateDef.AddToSet(x => x.Members, userAndGroupList.Find(x => x.Identity == member).Id);
+                                }
+                            }
+                        }
+                    }
+                    mongoUpsert.listOfDefinitions.Add(defContainer);
+                }
+
+                AllTestResults.MongoEntity.Add(mongoUpsert);
+                
+            }
+            catch (Exception ex)
+            {
+                Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "Error in getUsersAndGroups : " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+            }
+        }
+
+        public void getMailboxPermissions(MonitoredItems.ExchangeServer Server, PowerShell powershell, ref TestResults AllTestResults, string DummyServerForLogs, MonitoredItems.ExchangeServersCollection MyExchangeServers)
+        {
+
+            string str1 = "";
+
+            try
+            {
+                List<indvMailboxes> list = new List<indvMailboxes>();
+
+                Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "In getMailboxPermissions.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+                System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
+                String str = AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\EX_GetMailboxPermissions.ps1";
+
+                //String str = sr.ReadToEnd();
+                powershell.Streams.Error.Clear();
+
+                System.IO.StreamReader sr = new System.IO.StreamReader(str);
+                String s = sr.ReadToEnd();
+
+                CommonDB db = new CommonDB();
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Mailbox> mailboxRepo = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Mailbox>(db.GetMongoConnectionString());
+                MongoStatementsUpdate<VSNext.Mongo.Entities.Mailbox> mongoMailboxUpdate;
+
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.UsersAndGroups> usersGroupRepo = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.UsersAndGroups>(db.GetMongoConnectionString());
+                MongoStatementsUpdate<VSNext.Mongo.Entities.UsersAndGroups> mongoUserGroupUpdate;
+
+                List<VSNext.Mongo.Entities.Mailbox> listOfMailboxes = mailboxRepo.Find(x => x.DeviceName == "Exchange").ToList().OrderBy(x => x.LastPermissionCheck == null).OrderBy(x => x.LastPermissionCheck).ToList();
+                Dictionary<string, string> mailboxesDict = listOfMailboxes.Where(x => x.Identity != null).ToDictionary(x => x.Identity, x => x.Id);
+                Dictionary<string, string> usersAndGroupsDict = usersGroupRepo.Find(x => true).ToList().Where(x => x.Identity != null).ToDictionary(x => x.Identity, x => x.Id);
+                
+                foreach (VSNext.Mongo.Entities.Mailbox mailbox in listOfMailboxes)
+                {
+                    powershell.Commands.Clear();
+                    powershell.AddScript(s);
+                    powershell.AddParameter("MailboxName", mailbox.SAMAccountName);
+
+                    results = powershell.Invoke();
+
+                    Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "getMailStats output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+                    foreach (ErrorRecord err in powershell.Streams.Error)
+                    {
+                        Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "getMailStats PS errors: " + err.Exception, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                        Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "getMailStats PS errors: " + err.ErrorDetails, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                    }
+
+                    if (results.Count > 0)
+                    {
+                        mongoMailboxUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Mailbox>(mailboxRepo);
+                        mongoMailboxUpdate.filterDef = mailboxRepo.Filter.Eq(x => x.Identity, mailbox.Identity);
+                        mongoMailboxUpdate.updateDef = mailboxRepo.Updater.Unset(x => x.UsersWithPermission);
+                        mongoMailboxUpdate.Execute();
+
+                        mongoUserGroupUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.UsersAndGroups>(usersGroupRepo);
+                        mongoUserGroupUpdate.filterDef = usersGroupRepo.Filter.Empty;
+                        mongoUserGroupUpdate.updateDef = usersGroupRepo.Updater.PullFilter(x => x.Mailboxes, new FilterDefinitionBuilder<VSNext.Mongo.Entities.UsersAndGroups.MailboxInfo>().Eq(y => y.MailboxId, mailbox.Id));
+                        mongoUserGroupUpdate.Execute();
+                    }
+
+                    foreach (PSObject ps in results)
+                    {
+                        
+                        string User = ps.Properties["User"].Value == null ? "" : ps.Properties["User"].Value.ToString();
+                        string Identity = ps.Properties["Identity"].Value == null ? "" : ps.Properties["Identity"].Value.ToString();
+                        str1 += "Mailbox: " + Identity + "...User: " + User + '\n';
+                        string userGroupObjectId = usersAndGroupsDict[User];
+                        string mailboxObjectId = mailboxesDict[Identity];
+
+                        mongoMailboxUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Mailbox>(mailboxRepo);
+                        mongoMailboxUpdate.filterDef = mailboxRepo.Filter.Eq(x => x.Identity, Identity);
+                        mongoMailboxUpdate.updateDef = mailboxRepo.Updater.AddToSet(x => x.UsersWithPermission, userGroupObjectId);
+                        mongoMailboxUpdate.Execute();
+                        
+                        mongoUserGroupUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.UsersAndGroups>(usersGroupRepo);
+                        mongoUserGroupUpdate.filterDef = usersGroupRepo.Filter.Eq(x => x.Identity, User);
+                        mongoUserGroupUpdate.updateDef = usersGroupRepo.Updater.AddToSet(x => x.Mailboxes, new VSNext.Mongo.Entities.UsersAndGroups.MailboxInfo() { DisplayName = mailbox.DisplayName, MailboxId = mailbox.Id, MailboxSizeMb = mailbox.TotalItemSizeMb } );
+                        mongoUserGroupUpdate.Execute();
+                    }
+
+                    mongoMailboxUpdate = new MongoStatementsUpdate<VSNext.Mongo.Entities.Mailbox>(mailboxRepo);
+                    mongoMailboxUpdate.filterDef = mailboxRepo.Filter.Eq(x => x.Id, mailbox.Id);
+                    mongoMailboxUpdate.updateDef = mailboxRepo.Updater.Set(x => x.LastPermissionCheck, DateTime.Now);
+                    mongoMailboxUpdate.Execute();
+
+                }
+                //= new MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox>(mailboxRepo);
+                
+                
+
+
+                
+
+                
+
+            }
+            catch (Exception ex)
+            {
+
+                Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "Error in getMailStats : " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+            }
+
+
+
+
+
+        }
+
+
+    }
+
+    public class indvMailboxes
 		{
 			public String ServerName, TypeOfAlert;
 			public indvMailboxes(String serverName, String typeOfAlert)
