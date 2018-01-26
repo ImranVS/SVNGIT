@@ -30,6 +30,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<DailyStatistics> dailyRepository;
         private IRepository<IbmConnectionsObjects> connectionsObjectsRepository;
         private IRepository<Mailbox> mailboxRepository;
+        private IRepository<UsersAndGroups> UserGroupRepository;
         private IRepository<Office365MSOLUsers> o365MsolUsersRepository;
         private IRepository<Office365Groups> o365GroupsRepository;
         //private string DateFormat = "yyyy-MM-dd";
@@ -2360,6 +2361,44 @@ namespace VitalSigns.API.Controllers
                     TotalItemSizeMb = x.TotalItemSizeMb
 
                 }).ToList().OrderBy(x => x.DisplayName);
+                Response = Common.CreateResponse(results);
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
+
+        [HttpGet("usergroup")]
+        public APIResponse UsersGroup(string deviceType, string type)
+        {
+            try
+            {
+
+                UserGroupRepository = new Repository<UsersAndGroups>(ConnectionString);
+
+                var results = UserGroupRepository.Collection.Aggregate()
+                                          .Match(x => x.Type == type)
+                                          .Unwind(x => x.Mailboxes)
+                                          .Group(new BsonDocument
+                                          {
+                                                   {
+                                                       "_id", new BsonDocument{{ "identity" , "$identity"}, { "display_name", "$display_name" } }
+                                                   },
+
+                                                   {
+                                                       "sum", new BsonDocument("$sum","$mailboxes.mailbox_size_mb")
+                                                   }
+                                          })
+                                          .ToList().Select(x => new UserGroupModel()
+                                          {
+                                              DisplayName = x["_id"]["display_name"].IsString ? x["_id"]["display_name"].AsString : "N/A",
+                                              Identity =x["_id"]["identity"].IsString ? x["_id"]["identity"].AsString : "N/A",
+                                              TotalMailBoxesSizes = x["sum"].IsDouble ? x["sum"].AsDouble : 0
+                                          }).OrderByDescending(x => x.TotalMailBoxesSizes);
                 Response = Common.CreateResponse(results);
                 return Response;
             }
