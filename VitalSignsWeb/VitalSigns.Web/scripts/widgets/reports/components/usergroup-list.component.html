@@ -1,0 +1,16 @@
+﻿<table class="table table-condensed small table-striped" style="table-layout:fixed" id="htmlTable">
+    <thead>
+        <tr>
+            <th style='text-align:left'>Display Name</th>
+            <th style='text-align:center'>Identity</th>
+            <th style='text-align:right'>Sum Of Mailboxes (MB)</th>
+        </tr>
+    </thead>
+    <tbody *ngIf="data">
+        <tr *ngFor="let entry of data">
+            <td style='text-align:left'>{{entry.display_name}}</td>
+            <td style='text-align:center'>{{entry.identity}}</td>
+            <td style='text-align:right'>{{entry.total_mailboxes_sizes_mb}}</td>  
+        </tr>
+    </tbody>
+</table>

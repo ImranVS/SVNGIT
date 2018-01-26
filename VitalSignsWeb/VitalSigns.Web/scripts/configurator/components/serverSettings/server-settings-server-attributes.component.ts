@@ -73,12 +73,19 @@ export class DeviceAttributes implements OnInit {
     
         //let isPercent: boolean = grid.selectedRows[0].dataItem.unit_of_measurement === 'Percentage Used (eg:- for 90% = 0.90)';
         let isPercent: boolean = grid.selectedRows[0].dataItem.is_percentage === true;
-        let newValue: number = parseFloat(grid.activeEditor.value);
-        
+        let newValue: number = parseFloat(grid.selectedRows[0].dataItem.default_value);
+        console.log(grid.selectedRows[0].dataItem.default_value)
+        console.log(newValue)
+        console.log(isPercent)
+        console.log(isNaN(newValue))
+        console.log(newValue < 0)
+        console.log(newValue > 100)
         if (isPercent && (isNaN(newValue) || newValue < 0 || newValue > 100)) {
             e.cancel = true;
             e.stayInEditMode = true;
+            console.log("in if")
         }
+        console.log("done")
             
     }
 

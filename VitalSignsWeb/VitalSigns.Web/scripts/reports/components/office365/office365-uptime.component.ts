@@ -76,7 +76,7 @@ export class Office365UptimeReport extends WidgetController {
                             categories: []
                         },
                         yAxis: {
-                            min: 0,
+                            min: 80,
                             endOnTick: false,
                             allowDecimals: false,
                             title: {

@@ -8,11 +8,7 @@
     <div class="panel-heading">Device Attributes</div>
     <div class="panel-body">
         <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" headersVisibility="Column" [frozenColumns]="1" (cellEditEnding)="onCellEditEnding(flex, $event)">
-            <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" contenteditable="true">
-                <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
-                    <input type="checkbox" [ngModel]="cell.item.is_selected" (change)="serverCheck(cell.item.id,$event)" />
-                </template>
-            </wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" contenteditable="true"></wj-flex-grid-column>
             <wj-flex-grid-column [header]="'Attribute Name'" [binding]="'attribute_name'" [width]="350" [isReadOnly]="true"></wj-flex-grid-column>
             <wj-flex-grid-column [header]="'Default Value'" [binding]="'default_value'" [width]="150"></wj-flex-grid-column>
             <wj-flex-grid-column [header]="'Unit of Measurement'" [binding]="'unit_of_measurement'" [width]="250" [isReadOnly]="true"></wj-flex-grid-column>

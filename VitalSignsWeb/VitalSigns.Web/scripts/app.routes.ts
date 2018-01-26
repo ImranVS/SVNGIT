@@ -147,6 +147,7 @@ import { Office365StatisticsReport } from './reports/components/office365/office
 import { exchangequeuereport } from './reports/components/ms-exchange/ms-exchange-queue.component';
 import { exchangeresponsetimereport } from './reports/components/ms-exchange/ms-exchange-responsetime.component';
 import { exchangeuptimereport } from './reports/components/ms-exchange/ms-exchange-uptime.component';
+import { exchangeusersgroupreport } from './reports/components/ms-exchange/ms-exchange-users-group.component';
 import { exchangecpuutilreport } from './reports/components/ms-exchange/ms-exchange-cpuutil.component';
 import { memorypercentagereport } from './reports/components/ms-exchange/ms-exchange-memory-percentage.component';
 import { ExchnageStatisticReport } from './reports/components/ms-exchange/ms-exchange-statistic-report.component';
@@ -677,6 +678,10 @@ const appRoutes: Routes = [
                     {
                         path: 'exchangeuptime',
                         component: exchangeuptimereport
+                    },
+                    {
+                        path: 'exchangeusers',
+                        component: exchangeusersgroupreport
                     },
                     {
                         path: 'exchangecpuutil',

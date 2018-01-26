@@ -157,6 +157,8 @@ import { ExecutiveSummaryWidget } from './dashboards/components/executive-summar
 import { exchangequeuereport } from './reports/components/ms-exchange/ms-exchange-queue.component';
 import { exchangeresponsetimereport } from './reports/components/ms-exchange/ms-exchange-responsetime.component';
 import { exchangeuptimereport } from './reports/components/ms-exchange/ms-exchange-uptime.component';
+import { exchangeusersgroupreport } from './reports/components/ms-exchange/ms-exchange-users-group.component';
+
 import { exchangecpuutilreport } from './reports/components/ms-exchange/ms-exchange-cpuutil.component';
 import { memorypercentagereport } from './reports/components/ms-exchange/ms-exchange-memory-percentage.component';
 import { ExchnageStatisticReport } from './reports/components/ms-exchange/ms-exchange-statistic-report.component';
@@ -300,6 +302,7 @@ import { MicrosoftPowerShellScripts } from './services/components/microsoft-powe
         exchangequeuereport,
         exchangeresponsetimereport,
         exchangeuptimereport,
+        exchangeusersgroupreport,
         memorypercentagereport,
         exchangecpuutilreport,
         ExchangeMailboxReport,
@@ -379,6 +382,7 @@ import { MicrosoftPowerShellScripts } from './services/components/microsoft-powe
         widgets.DatabaseReplicationGrid,
         widgets.DatabaseProblemsGrid,
         widgets.UserTypeList,
+        widgets.UserGroupList,
         widgets.OverallDatabaseGrid,
         widgets.KeyMetricsStatisticsGrid,
         widgets.HardwareStatisticsGrid,
@@ -582,6 +586,7 @@ import { MicrosoftPowerShellScripts } from './services/components/microsoft-powe
         widgets.DatabaseReplicationGrid,
         widgets.DatabaseProblemsGrid,
         widgets.UserTypeList,
+        widgets.UserGroupList,
         widgets.OverallDatabaseGrid,
         widgets.KeyMetricsStatisticsGrid,
         widgets.HardwareStatisticsGrid,
