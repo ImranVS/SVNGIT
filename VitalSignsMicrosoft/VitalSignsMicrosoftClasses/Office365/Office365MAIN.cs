@@ -1220,7 +1220,6 @@ repo.Upsert(filterdef, updatedef);
 					Common.WriteDeviceHistoryEntry(testServer.ServerType, testServer.Name, " Daily Task Ended.", Common.LogLevel.Normal);
 					AllTestResults = new TestResults();
 					
-					Office365Common.Deletesummarystatsdata(testServer, ref AllTestResults, testServer.ServerType);
 					Office365Common.doSummaryStats(testServer, ref AllTestResults, results);
                     Common.CommonDailyTasks(testServer, ref AllTestResults, testServer.ServerType);
 					DB.UpdateSQLStatements(AllTestResults, DummyServerForLogs);

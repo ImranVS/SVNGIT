@@ -298,10 +298,10 @@
       },
       {
         "tab_id": 6,
-        "title": "PowerShell Scripts",
+        "title": "PowerScripts",
         "type": "Configurator",
-        "component": "MicrosoftPowerShellScripts",
-        "path": "/app/services/components/microsoft-powershell-scripts.component"
+        "component": "MicrosoftPowerShellScriptsTab",
+        "path": "/app/services/components/microsoft-powershell-scripts-tab.component"
       },
       {
         "tab_id": 1,
@@ -656,13 +656,13 @@
         "component": "ServerEvents",
         "path": "/app/configurator/components/server/server-events.component"
       },
-      //{
-      //  "tab_id": 5,
-      //  "title": "PowerShell Scripts",
-      //  "type": "Configurator",
-      //  "component": "MicrosoftPowerShellScripts",
-      //  "path": "/app/services/components/microsoft-powershell-scripts.component"
-      //},
+      {
+        "tab_id": 5,
+        "title": "PowerScripts",
+        "type": "Configurator",
+        "component": "MicrosoftPowerShellScriptsTab",
+        "path": "/app/services/components/microsoft-powershell-scripts-tab.component"
+      }
       {
         "tab_id": 1,
         "title": "Overall",
@@ -807,7 +807,7 @@
       },
       //{
       //  "tab_id": 6,
-      //  "title": "PowerShell Scripts",
+      //  "title": "PowerScripts",
       //  "type": "Configurator",
       //  "component": "MicrosoftPowerShellScripts",
       //  "path": "/app/services/components/microsoft-powershell-scripts.component"

@@ -20,6 +20,7 @@
         <div class="widgetContent">
             <div class="tab-content">
                 <button class="btn btn-primary" (click)="ExportExcel()">Export to Excel</button>
+                <button class="btn btn-primary" (click)="PowerShellScripts()">PowerShell Scripts</button>
                 <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
                 <wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" headersVisibility="Column" #flex (itemsSourceChanged)="gridSourceChanged()">
                     <wj-flex-grid-filter></wj-flex-grid-filter>
@@ -69,6 +70,20 @@
                         <wj-menu-item [value]="200">200</wj-menu-item>
                     </wj-menu>
                 </div>
+
+                <wj-popup style="border: 0px; width: 820px" #powershellPopup>
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            PowerScripts
+                            <button type="button" tabindex="-1" class="close wj-hide" (click)="closePopup()" name="cancel">&times;</button>
+                        </div>
+                        <div class="modal-body">
+
+                            <powershell-scripts></powershell-scripts>
+
+                        </div>
+                    </div>
+                </wj-popup>
             </div>
         </div>
     </div>

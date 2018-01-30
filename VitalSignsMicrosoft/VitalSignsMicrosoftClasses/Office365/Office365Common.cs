@@ -2934,16 +2934,6 @@ $msolUsers
 		}
 
 		#endregion
-		#region Deletesummarystatsdata
-		public void Deletesummarystatsdata(MonitoredItems.Office365Server myServer, ref TestResults AllTestsList, string ServerType)
-		{
-			if (myServer.ServerType == "Office365")
-			{
-				string sql = "delete from MicrosoftSummaryStats where servername='" + myServer.Name + "'and ServerTypeId= " + myServer.ServerTypeId + " and CAST(Date AS DATE)  = CAST( getdate() AS DATE)";
-				AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sql, DatabaseName = "VSS_Statistics" });
-			}
-		}
-		#endregion
 		public void doSummaryStats(MonitoredItems.Office365Server myServer, ref TestResults AllTestsList, ReturnPowerShellObjects powershellobj)
 		{
 			try

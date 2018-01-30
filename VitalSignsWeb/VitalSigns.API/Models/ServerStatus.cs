@@ -80,5 +80,8 @@ namespace VitalSigns.API.Models
         [JsonProperty("category")]
         public string Category { get; set; }
 
+        [JsonProperty("server_roles")]
+        public List<string> ServerRoles { get; set; }
+
     }
 }

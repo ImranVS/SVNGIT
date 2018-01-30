@@ -379,7 +379,8 @@ namespace VitalSignsMicrosoftClasses
                     .Set(i => i.SoftwareVersion, Server.VersionNo)
                     .Set(i => i.OperatingSystem, Server.OperatingSystem)
                     .Set(i => i.Details, Details)
-                    .Set(i => i.TypeAndName, Server.TypeANDName);
+                    .Set(i => i.TypeAndName, Server.TypeANDName)
+                    .Set(i => i.ServerRoles, Server.Role.ToList());
 
                 Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "Executing Status: " + mongoStatement.ToString(), Common.LogLevel.Verbose);
                 mongoStatement.Execute();

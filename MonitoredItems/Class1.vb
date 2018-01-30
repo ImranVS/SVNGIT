@@ -766,6 +766,7 @@ Public Class MicrosoftServer
     Public Property IsPrereqsDone As Boolean
     Public Property FastScan As Boolean
     Public Property HourlyAlerts As System.Collections.Generic.List(Of HourlyAlert)
+    Public Property Role As String()
 
     Public Property TypeANDName As String
         Get
@@ -807,7 +808,7 @@ Public Class ExchangeServer
     'Public Property IsEdgeTransportServer As Boolean
     'Public Property IsMailBoxServer As Boolean
     'Public Property IsUnifiedMessagingServer As Boolean
-    Public Property Role As String()
+
     Public Property VersionExchange As String
 	'Public Property UserCount As Long
     Public Property Domain As String

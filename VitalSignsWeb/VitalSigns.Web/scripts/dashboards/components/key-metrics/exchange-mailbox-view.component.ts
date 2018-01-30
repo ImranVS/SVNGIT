@@ -1,5 +1,10 @@
-﻿import { Component, Input, OnInit, ViewChild} from '@angular/core';
-import {HttpModule}    from '@angular/http';
+﻿import { Component, Input, OnInit, ViewChild, ComponentFactoryResolver } from '@angular/core';
+import { WidgetController, WidgetContainer, WidgetContract } from '../../../core/widgets';
+import { WidgetService } from '../../../core/widgets/services/widget.service';
+
+import { MicrosoftPowerShellScripts, initSettings } from '../../../services/components/microsoft-powershell-scripts.component';
+
+import {HttpModule} from '@angular/http';
 import {WidgetComponent} from '../../../core/widgets';
 import {RESTService} from '../../../core/services';
 import { AuthenticationService } from '../../../profiles/services/authentication.service';
@@ -15,6 +20,7 @@ declare var injectSVG: any;
 @Component({
     templateUrl: './app/dashboards/components/key-metrics/exchange-mailbox-view.component.html',
     providers: [
+        WidgetService,
         HttpModule,
         RESTService,
         helpers.GridTooltip,
@@ -22,14 +28,19 @@ declare var injectSVG: any;
         helpers.DateTimeHelper,
     ]
 })
-export class ExchangemailstatisticsviewGrid implements WidgetComponent, OnInit {
+export class ExchangemailstatisticsviewGrid extends WidgetController implements WidgetComponent, OnInit {
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
+    @ViewChild('powershellPopup') dlg: wijmo.input.Popup
+    @ViewChild(MicrosoftPowerShellScripts) powershellWindow: MicrosoftPowerShellScripts
     @Input() settings: any;
     data: wijmo.collections.CollectionView;
     errorMessage: string;
     currentPageSize: any = 20;
-    constructor(private service: RESTService, protected toolTip: helpers.GridTooltip,
-        protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService, protected datetimeHelpers: helpers.DateTimeHelper) { }
+    widgets: WidgetContract[];
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, protected toolTip: helpers.GridTooltip,
+        protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService, protected datetimeHelpers: helpers.DateTimeHelper) {
+        super(resolver, widgetService);
+    }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -90,5 +101,33 @@ export class ExchangemailstatisticsviewGrid implements WidgetComponent, OnInit {
         if (this.flex.columns.getColumn("primary_smtp_address").width > 300)
             this.flex.columns.getColumn("primary_smtp_address").width = 300;
             //s.columns[e.col].width = 400;
+    }
+
+    PowerShellScripts() {
+    //    this.widgets = [
+    //        {
+    //            id: 'MicrosoftPowerShellScripts',
+    //            title: '',
+    //            name: 'MicrosoftPowerShellScripts',
+    //            css: 'col-xs-12',
+    //        }
+    //    ]
+
+    //    injectSVG();
+
+        //super.ReloadSidgets();
+        var currRow = this.flex.collectionView.currentItem;
+
+        var initParams: initSettings = {
+            DeviceType: 'Exchange',
+            DefaultValues: new Map([['SamAccountName', currRow.sam_account_name]]),
+            SubTypes: ["Mailbox"]
+        }
+        this.powershellWindow.initValues(initParams);
+        this.dlg.show();
+    }
+
+    closePopup() {
+        this.dlg.hide();
     }
 }

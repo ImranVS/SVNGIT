@@ -1421,7 +1421,7 @@ namespace VitalSigns.API.Controllers
                         if (type != "IBM Connections" && type != "Office365")
                         {
                             foreach (Status status in list)
-                            {
+                            { 
                                 var x = new ExpandoObject() as IDictionary<string, Object>;
                                 foreach (var field in status.ToBsonDocument())
                                 {
@@ -1981,12 +1981,25 @@ namespace VitalSigns.API.Controllers
 
                     }
 
+                    List<string> subTypes = null;
+                    try
+                    {
+                        System.Text.RegularExpressions.Regex regex = new System.Text.RegularExpressions.Regex("(?<=\\.SUBTYPES\r\n).*\r\n");
+
+                        subTypes = regex.Match(script).Value.Replace("[", "").Replace("]", "").Trim().Split(',').ToList();
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+
                     results.Add(new PowerShellScriptModel {
                         Name = filePath.Substring(filePath.LastIndexOf("\\")).Replace("\\", ""),
                         ParametersList = parameterList.Select(x => new PowerShellScriptModel.Parameters() { Name = x }).ToList(),
                         Path = filePath,
                         DeviceType = currDeviceType,
-                        Description = description
+                        Description = description,
+                        SubTypes = subTypes
                     });
                 }
                 serverRepository = new Repository<Server>(ConnectionString);
@@ -2030,7 +2043,7 @@ namespace VitalSigns.API.Controllers
 
                 //Calls the connect to server
                 VSFramework.TripleDES tripleDes = new VSFramework.TripleDES();
-
+                
                 if (server.DeviceType == Enums.ServerType.Exchange.ToDescription().ToString())
                 {
                     ps = MicrosoftConnections.ConnectToExchange(server.DeviceName, creds.UserId, tripleDes.Decrypt(creds.Password), server.IPAddress, server.AuthenticationType);
@@ -2057,11 +2070,13 @@ namespace VitalSigns.API.Controllers
                 foreach (PowerShellScriptModel.Parameters parameter in obj.ParametersList)
                     ps.AddParameter(parameter.Name, parameter.Value);
 
+                string response = "Output from PowerShell:\n";
 
                 System.Collections.ObjectModel.Collection<System.Management.Automation.PSObject> psOutput = ps.Invoke();
+                
 
 
-                string response = "Output from PowerShell:\n";
+                
 
                 foreach (System.Management.Automation.PSObject psObject in psOutput)
                 {
@@ -2078,9 +2093,15 @@ namespace VitalSigns.API.Controllers
                     foreach (System.Management.Automation.ErrorRecord error in ps.Streams.Error)
                         response += error.ToString() + "\n";
                 }
+
+                
+                
+
+
+
                 response = response.Replace("\n", "<br />");
                 Response = Common.CreateResponse(response);
-
+                
 
             }
             catch (Exception exception)
@@ -2091,10 +2112,10 @@ namespace VitalSigns.API.Controllers
             finally
             {
                 MicrosoftConnections.ClosePowerShell( ref ps);
+                    
             }
             return Response;
         }
-
         
 
         #endregion

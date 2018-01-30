@@ -166,6 +166,7 @@ import { ExchangeMailboxReport } from './reports/components/ms-exchange/ms-excha
 import { exchnagemaillistreport } from './reports/components/ms-exchange/ms-exchange-mailbox.component';
 
 import { MicrosoftPowerShellScripts } from './services/components/microsoft-powershell-scripts.component';
+import { MicrosoftPowerShellScriptsTab } from './services/components/microsoft-powershell-scripts-tab.component';
 
 @NgModule({
     imports: [
@@ -490,6 +491,7 @@ import { MicrosoftPowerShellScripts } from './services/components/microsoft-powe
         widgets.Office365ActiveDirectorySyncList,
         widgets.ibmdominoinactiveUsersList,
         widgets.ExecutiveSummaryWidget,
+        widgets.MicrosoftPowerShellScripts,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsCommunitiesDetailTab,
@@ -540,7 +542,7 @@ import { MicrosoftPowerShellScripts } from './services/components/microsoft-powe
         tabs.Office365MailStatsTab,
         tabs.Office365ActiveDirectorySyncTab,
         tabs.Office365PasswordSettingsTab,
-        tabs.MicrosoftPowerShellScripts,
+        tabs.MicrosoftPowerShellScriptsTab,
         wjFlexGrid.WjFlexGrid,
         wjFlexGrid.WjFlexGridColumn,
         wjFlexGrid.WjFlexGridCellTemplate,
@@ -697,6 +699,7 @@ import { MicrosoftPowerShellScripts } from './services/components/microsoft-powe
         widgets.Office365ActiveDirectorySyncList,
         widgets.ibmdominoinactiveUsersList,
         widgets.ExecutiveSummaryWidget,
+        widgets.MicrosoftPowerShellScripts,
         tabs.DominoHealthTab,
         tabs.IBMConnectionsCommunitiesTab,
         tabs.IBMConnectionsCommunitiesDetailTab,
@@ -745,7 +748,7 @@ import { MicrosoftPowerShellScripts } from './services/components/microsoft-powe
         tabs.Office365ActiveDirectorySyncTab,
         tabs.Office365UserScenarioTestsTab,
         tabs.Office365PasswordSettingsTab,
-        tabs.MicrosoftPowerShellScripts
+        tabs.MicrosoftPowerShellScriptsTab
     ],
     bootstrap: [
         AppComponent

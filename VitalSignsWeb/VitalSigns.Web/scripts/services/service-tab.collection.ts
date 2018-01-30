@@ -73,6 +73,6 @@ export * from '../configurator/components/server/server-exchange-services.compon
 export * from '../configurator/components/server/server-events.component'
 export * from '../configurator/components/server/server-o365-nodes.component'
 
-export * from '../services/components/microsoft-powershell-scripts.component';
+export * from '../services/components/microsoft-powershell-scripts-tab.component';
 
 

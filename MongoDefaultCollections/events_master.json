@@ -123,3 +123,10 @@
 {"_id":{"$oid":"5a38122fbf46715e101958f4"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"MailBox Assistants Service Test","device_type":"Exchange"}
 {"_id":{"$oid":"5a38122fbf46715e101958f5"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Mailbox Replication Service Test","device_type":"Exchange"}
 {"_id":{"$oid":"5a38122fbf46715e101958f6"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Database Corruption","device_type":"Exchange"}
+{"_id":{"$oid":"5a6f4b84bf46713a609dbfd8"},"created_on":{"$date":"2018-01-29T16:27:48.000Z"},"event_type":"DAG Member Health","device_type":"Database Availability Group"}
+{"_id":{"$oid":"5a6f4b85bf46713a609dbfd9"},"created_on":{"$date":"2018-01-29T16:27:49.000Z"},"event_type":"DAG Database Health","device_type":"Database Availability Group"}
+{"_id":{"$oid":"5a6f4b85bf46713a609dbfda"},"created_on":{"$date":"2018-01-29T16:27:49.000Z"},"event_type":"DAG Activation Preference","device_type":"Database Availability Group"}
+{"_id":{"$oid":"5a6f4b85bf46713a609dbfdb"},"created_on":{"$date":"2018-01-29T16:27:49.000Z"},"event_type":"DAG Copy Queue","device_type":"Database Availability Group"}
+{"_id":{"$oid":"5a6f4b85bf46713a609dbfdc"},"created_on":{"$date":"2018-01-29T16:27:49.000Z"},"event_type":"DAG Replay Queue","device_type":"Database Availability Group"}
+{"_id":{"$oid":"5a6f4b85bf46713a609dbfdd"},"created_on":{"$date":"2018-01-29T16:27:49.000Z"},"event_type":"Auto Discovery","device_type":"Database Availability Group"}
+{"_id":{"$oid":"5a6f4b85bf46713a609dbfde"},"created_on":{"$date":"2018-01-29T16:27:49.000Z"},"event_type":"Not Responding","device_type":"Database Availability Group"}
