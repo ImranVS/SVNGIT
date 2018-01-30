@@ -48,18 +48,19 @@ export class WidgetController implements AfterViewInit, OnInit, OnDestroy {
     ngAfterViewInit() {
 
         this.widgetService.loadController(this);
+        if (this.containers) {
+            this.containers.forEach(container => {
 
-        this.containers.forEach(container => {
+                let factory = this.factoryResolver.resolveComponentFactory(widgets[container.name]);
+                let component = container.viewContainerRef.createComponent(factory);
+                let widget = <WidgetComponent>(component.instance);
 
-            let factory = this.factoryResolver.resolveComponentFactory(widgets[container.name]);
-            let component = container.viewContainerRef.createComponent(factory);
-            let widget = <WidgetComponent>(component.instance);
+                widget.settings = container.settings;
 
-            widget.settings = container.settings;
+                this.widgetService.registerWidget(this, container, widget);
 
-            this.widgetService.registerWidget(this, container, widget);
-
-        });
+            });
+        }
 
     }
 
