@@ -1,0 +1,34 @@
+﻿<div id="zeusContext">
+    <div id="zeusContextNavigation">
+        <div id="zeusContextNavigationIcon">
+            <img class="svgInject" src="/img/menu/configurator.svg" title="Alerts" alt="Alerts" />
+        </div>
+        <div id="zeusContextNavigationText">
+            <h2>
+                Exchange Mailbox statistics view
+            </h2>
+            <p>Exchange On-Premise User Mail Statistics</p>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+<div id="zeusContent">
+    <div class="widgetWrapper">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" [class.active]="tab.active" (click)="selectTab(tab)" *ngFor="let tab of tabsData">
+                <a href="javascript:void(0);">{{tab.title}}</a>
+            </li>
+        </ul>
+        <div class="widgetContent">
+            <div class="tab-content">
+
+                <div #tab></div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+

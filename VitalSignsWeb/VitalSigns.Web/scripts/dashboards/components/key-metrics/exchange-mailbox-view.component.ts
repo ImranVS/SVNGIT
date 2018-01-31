@@ -28,7 +28,7 @@ declare var injectSVG: any;
         helpers.DateTimeHelper,
     ]
 })
-export class ExchangemailstatisticsviewGrid extends WidgetController implements WidgetComponent, OnInit {
+export class ExchangemailstatisticsviewGrid implements OnInit {
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     @ViewChild('powershellPopup') dlg: wijmo.input.Popup
     @ViewChild(MicrosoftPowerShellScripts) powershellWindow: MicrosoftPowerShellScripts
@@ -39,7 +39,7 @@ export class ExchangemailstatisticsviewGrid extends WidgetController implements 
     widgets: WidgetContract[];
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, protected toolTip: helpers.GridTooltip,
         protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService, protected datetimeHelpers: helpers.DateTimeHelper) {
-        super(resolver, widgetService);
+        //super(resolver, widgetService);
     }
 
     get pageSize(): number {

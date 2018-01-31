@@ -1,20 +1,10 @@
 ﻿
-
                 <button class="btn btn-primary" (click)="ExportExcel()">Export to Excel</button>
-                <button class="btn btn-primary" (click)="PowerShellScripts()">PowerShell Scripts</button>
-                <wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
-                <wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" headersVisibility="Column" #flex (itemsSourceChanged)="gridSourceChanged()">
+                <wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" headersVisibility="Column" #flex>
                     <wj-flex-grid-filter></wj-flex-grid-filter>
-                    <wj-flex-grid-column [header]="'Display Name'" [binding]="'display_name'"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Sam Account Name'" [binding]="'sam_account_name'"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Email address'" [binding]="'primary_smtp_address'"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Company'" [binding]="'company'"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Department'" [binding]="'department'"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Mailbox Size'" [binding]="'total_item_size_mb'"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Total Item Count'" [binding]="'item_count'"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Folder Count'" [binding]="'folder_count'"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Mailbox Database'" [binding]="'database_name'"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Last Logon'" [binding]="'last_logon_time'"></wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Display Name'" [binding]="'display_name'" [width]="250"></wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Identity'" [binding]="'identity'"[width]="250"></wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Sum Of Mailboxes (MB)'" [binding]="'total_mailboxes_sizes_mb'"[width]="250"></wj-flex-grid-column>
                 </wj-flex-grid>
                 <div class="btn-group" *ngIf="data != null">
                     <button type="button" class="btn btn-default"
@@ -51,18 +41,4 @@
                         <wj-menu-item [value]="200">200</wj-menu-item>
                     </wj-menu>
                 </div>
-
-                <wj-popup style="border: 0px; width: 820px" #powershellPopup>
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            PowerScripts
-                            <button type="button" tabindex="-1" class="close wj-hide" (click)="closePopup()" name="cancel">&times;</button>
-                        </div>
-                        <div class="modal-body">
-
-                            <powershell-scripts></powershell-scripts>
-
-                        </div>
-                    </div>
-                </wj-popup>
-      
+          

@@ -18,7 +18,8 @@ export * from './dashboards/components/ms-database-availablity-group/ms-database
 export * from './dashboards/components/ms-database-availablity-group/ms-database-availablity-group-databases-grid.component';
 export * from './dashboards/components/ms-database-availablity-group/ms-database-availablity-group-members-grid.component';
 
-
+export * from './dashboards/components/key-metrics/exchange-mailbox-view.component';
+export * from './dashboards/components/key-metrics/exchange-mail-access-view.component';
 export * from './dashboards/components/key-metrics/key-metrics-statistics-grid.component';
 export * from './dashboards/components/key-metrics/overall-database-grid.component';
 export * from './dashboards/components/key-metrics/hardware-stats-grid.component';
