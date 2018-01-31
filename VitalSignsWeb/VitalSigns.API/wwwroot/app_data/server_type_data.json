@@ -662,7 +662,7 @@
         "type": "Configurator",
         "component": "MicrosoftPowerShellScriptsTab",
         "path": "/app/services/components/microsoft-powershell-scripts-tab.component"
-      }
+      },
       {
         "tab_id": 1,
         "title": "Overall",
