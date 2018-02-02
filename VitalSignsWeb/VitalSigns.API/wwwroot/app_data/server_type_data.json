@@ -301,7 +301,8 @@
         "title": "PowerScripts",
         "type": "Configurator",
         "component": "MicrosoftPowerShellScriptsTab",
-        "path": "/app/services/components/microsoft-powershell-scripts-tab.component"
+        "path": "/app/services/components/microsoft-powershell-scripts-tab.component",
+        "roles":  ["PowerScripts"]
       },
       {
         "tab_id": 1,

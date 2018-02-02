@@ -95,8 +95,12 @@ export class MembersGrid implements WidgetComponent, OnInit {
 
     }
 
-
+    itemsSourceChangedHandler() {
+        this.flex.autoSizeColumns();
     }
+
+
+}
 
 
     

@@ -1,5 +1,6 @@
 ﻿
-<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" headersVisibility="Column" (selectionChanged)="onSelectionChanged($event)" #flex>
+<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" headersVisibility="Column" (selectionChanged)="onSelectionChanged($event)"
+               (itemsSourceChanged)="itemsSourceChangedHandler()" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'DAG Name'" [binding]="'device_name'" [width]="150"></wj-flex-grid-column>
@@ -12,7 +13,7 @@
         </template>
     </wj-flex-grid-column>
     <wj-flex-grid-column [header]="'File Witness Server Name'" [binding]="'file_witness_server_name'" [width]="200"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'File Witness Server Status'" [binding]="'file_witness_server_status'" [width]="200">
+    <wj-flex-grid-column [header]="'File Witness Server Status'" [binding]="'file_witness_server_status'" [width]="200" align="center">
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
             <span *ngIf="cell.item.file_witness_server_status == 'OK'" class="label label-pill label-success">OK</span>
             <span *ngIf="cell.item.file_witness_server_status == 'Not Responding'" class="label label-pill label-danger">Not Responding</span>

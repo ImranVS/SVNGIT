@@ -110,5 +110,9 @@ export class DAGHealthGrid implements WidgetComponent, OnInit {
     onSelectionChanged(event: wijmo.grid.CellRangeEventArgs) {
         this.serviceId = event.panel.grid.selectedItems[0].device_id;
     }
+
+    itemsSourceChangedHandler() {
+        this.flex.autoSizeColumns();
+    }
      
 }

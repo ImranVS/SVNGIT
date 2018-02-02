@@ -94,4 +94,8 @@ export class DatabaseGrid implements WidgetComponent, OnInit {
         }
 
     }
+
+    itemsSourceChangedHandler() {
+        this.flex.autoSizeColumns();
+    }
 }

@@ -1,6 +1,6 @@
 ﻿import {Component, ComponentFactoryResolver, OnInit, Input, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-
+import { AuthenticationService } from '../../profiles/services/authentication.service';
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser'
@@ -39,14 +39,18 @@ export class MicrosoftPowerShellScripts implements WidgetComponent, OnInit  {
 
     response: string = "";
 
+    showPowerScripts: boolean = false;
+
     subTypes:Array<string> = [];
     defaultValues: Map<string, string>;
     disabledFields: Array<string> = [];
 
+    access: boolean = false;
+    
     public parameterForm: FormGroup;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private route: ActivatedRoute, private service: RESTService, private formBuilder: FormBuilder,
-        private appComponentService: AppComponentService) {
+        private appComponentService: AppComponentService, private authService: AuthenticationService) {
     }
 
     ngOnInit() {
@@ -55,6 +59,13 @@ export class MicrosoftPowerShellScripts implements WidgetComponent, OnInit  {
             if (params['service'])
                 this.deviceId = params['service'];
         });
+
+        if (this.authService.isCurrentUserInRole("PowerScripts")) {
+            this.access = true
+        } else {
+            return;
+        }
+
         this.service.get('/services/get_powershell_scripts')
             .subscribe(
             (response) => {
@@ -129,6 +140,10 @@ export class MicrosoftPowerShellScripts implements WidgetComponent, OnInit  {
                 } else {
                     this.response = response.message;
                 }
+            },
+            (error) => {
+                this.appComponentService.hideProgressBar();
+                this.errorMessage = <any>error
             });
 
     }

@@ -29,7 +29,8 @@ $ProhibitSendReceiveQuotaAfter = ''
 if($IssueWarningQuotaBefore -ne $Unlimited) {
     #"Before: " + $("{0:f2}" -f ($mb.IssueWarningQuota.ToString().Split("(")[1].Split(" ")[0].Replace(",","")/1MB),2) + " MB"
     $IssueWarningQuotaBefore = [double] $("{0:f2}" -f ($mb.IssueWarningQuota.ToString().Split("(")[1].Split(" ")[0].Replace(",","")/1MB),2)
-    $IssueWarningQuotaAfter = $IssueWarningQuotaBefore * 1.1
+    $IssueWarningQuotaAfter = "$($IssueWarningQuotaBefore * 1.1)MB"
+    $IssueWarningQuotaBefore = "$($IssueWarningQuotaBefore)MB"
 } else { 
     $IssueWarningQuotaAfter = $Unlimited
 }
@@ -37,7 +38,8 @@ if($IssueWarningQuotaBefore -ne $Unlimited) {
 if($ProhibitSendQuotaBefore -ne $Unlimited) {
     #"Before: " + $("{0:f2}" -f ($mb.ProhibitSendQuota.ToString().Split("(")[1].Split(" ")[0].Replace(",","")/1MB),2) + " MB"
     $ProhibitSendQuotaBefore = [double] $("{0:f2}" -f ($mb.ProhibitSendQuota.ToString().Split("(")[1].Split(" ")[0].Replace(",","")/1MB),2)
-    $ProhibitSendQuotaAfter = $ProhibitSendQuotaBefore * 1.1
+    $ProhibitSendQuotaAfter = "$($ProhibitSendQuotaBefore * 1.1)MB"
+    $ProhibitSendQuotaBefore = "$($ProhibitSendQuotaBefore)MB"
 } else { 
     $ProhibitSendQuotaAfter = $Unlimited
 }
@@ -45,18 +47,19 @@ if($ProhibitSendQuotaBefore -ne $Unlimited) {
 if($ProhibitSendReceiveQuotaBefore -ne $Unlimited) {
     #"Before: " + $("{0:f2}" -f ($mb.ProhibitSendReceiveQuota.ToString().Split("(")[1].Split(" ")[0].Replace(",","")/1MB),2) + " MB"
     $ProhibitSendReceiveQuotaBefore = [double] $("{0:f2}" -f ($mb.ProhibitSendReceiveQuota.ToString().Split("(")[1].Split(" ")[0].Replace(",","")/1MB),2)
-    $ProhibitSendReceiveQuotaAfter = $ProhibitSendReceiveQuotaBefore * 1.1
+    $ProhibitSendReceiveQuotaAfter = "$($ProhibitSendReceiveQuotaBefore * 1.1)MB"
+    $ProhibitSendReceiveQuotaBefore = "$($ProhibitSendReceiveQuotaBefore)MB"
 } else { 
     $ProhibitSendReceiveQuotaAfter = $Unlimited
 }
 
-set-mailbox -Identity $SamAccountName -UseDatabaseQuotaDefaults $false -ProhibitSendReceiveQuota "$($ProhibitSendReceiveQuotaAfter)MB" -ProhibitSendQuota "$($ProhibitSendQuotaAfter)MB" -IssueWarningQuota "$($IssueWarningQuotaAfter)MB"
+set-mailbox -Identity $SamAccountName -UseDatabaseQuotaDefaults $false -ProhibitSendReceiveQuota $ProhibitSendReceiveQuotaAfter -ProhibitSendQuota $ProhibitSendQuotaAfter -IssueWarningQuota $IssueWarningQuotaAfter
 
 $obj = [ordered] @{}
 $obj.IssueWarningQuotaBefore = $IssueWarningQuotaBefore;
 $obj.IssueWarningQuotaAfter = $IssueWarningQuotaAfter;
 $obj.ProhibitSendQuotaBefore = $ProhibitSendQuotaBefore;
-$obj.ProhibitSendQuotaAfter = $IssueWarningQuotaAfter;
+$obj.ProhibitSendQuotaAfter = $ProhibitSendQuotaAfter;
 $obj.ProhibitSendReceiveQuotaBefore = $ProhibitSendReceiveQuotaBefore;
 $obj.ProhibitSendReceiveQuotaAfter = $ProhibitSendReceiveQuotaAfter;
 

@@ -37,6 +37,8 @@ export class ExchangemailstatisticsviewGrid implements OnInit {
     errorMessage: string;
     currentPageSize: any = 20;
     widgets: WidgetContract[];
+    showPowerScripts: boolean = false;
+
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, protected toolTip: helpers.GridTooltip,
         protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService, protected datetimeHelpers: helpers.DateTimeHelper) {
         //super(resolver, widgetService);
@@ -89,7 +91,7 @@ export class ExchangemailstatisticsviewGrid implements OnInit {
             },
             (error) => this.errorMessage = <any>error
             );
-        //this.toolTip.getTooltip(this.flex, 0, 3);
+        this.showPowerScripts = this.authService.isCurrentUserInRole("PowerScripts");
     }
 
     ngAfterViewChecked() {

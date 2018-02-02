@@ -62,7 +62,7 @@ export class MaintainUser extends GridBase implements OnInit {
         //    (error) => this.errorMessage = <any>error
         //    );
         this.initialGridBind('/configurator/get_maintain_users');
-        this.maintainRoles = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(["Configurator", "UserManager", "RemoteConsole"]));
+        this.maintainRoles = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(["Configurator", "UserManager", "RemoteConsole", "PowerScripts"]));
         this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("MaintainUser", this.authService.CurrentUser.email)}`)
             .subscribe(
             (data) => {

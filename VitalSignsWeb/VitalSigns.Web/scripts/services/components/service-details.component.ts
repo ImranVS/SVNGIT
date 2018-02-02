@@ -15,6 +15,7 @@ import * as ServiceTabs from '../service-tab.collection';
 import { WidgetService } from '../../core/widgets/services/widget.service';
 import {AppComponentService} from '../../core/services';
 import { ServicesViewService } from '../services/services-view.service';
+import { AuthenticationService } from '../../profiles/services/authentication.service';
 
 declare var injectSVG: any;
 declare var jQuery: any;
@@ -47,7 +48,7 @@ export class ServiceDetails implements OnInit {
     protected appComponentService: AppComponentService;
     public servicesViewService: ServicesViewService;
     constructor(private formBuilder: FormBuilder,private dataProvider: RESTService, private resolver: ComponentFactoryResolver, private elementRef: ElementRef, private router: Router, private route: ActivatedRoute,
-        private datetimeHelpers: helpers.DateTimeHelper, appComponentService: AppComponentService, servicesViewService: ServicesViewService) {
+        private datetimeHelpers: helpers.DateTimeHelper, appComponentService: AppComponentService, servicesViewService: ServicesViewService, private authService: AuthenticationService ) {
         //.map(routeParams => routeParams.id);
 
         this.suspendTemporarilyForm = this.formBuilder.group({
@@ -90,11 +91,16 @@ export class ServiceDetails implements OnInit {
      
         this.route.params.subscribe(params => {
             this.deviceId = params['service'];
+            var outerThis = this;
             // Get tabs associated with selected service
             this.dataProvider.get(`/services/device_details?device_id=${this.deviceId}&destination=${this.module}`)
                 .subscribe(
                 response => {
                     this.service = this.datetimeHelpers.toLocalDateTime(response.data);
+                    this.service.tabs = this.service.tabs.filter(x => !x.roles || x.roles.length == 0 || x.roles.some(function (y) {
+                        return outerThis.authService.CurrentUser.role.indexOf(y) !== -1;
+                    }));
+
                     this.data = response.data
                     this.selectTab(this.service.tabs[0]);
                     this.deviceName = response.data.name;

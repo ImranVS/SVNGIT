@@ -1,37 +1,40 @@
 ﻿<div class="panel panel-default">
     <div class="panel-heading">PowerScripts</div>
     <div class="panel-body">
-        <div class="alert alert-info col-lg-12">
+        <div *ngIf="access" class="alert alert-info col-lg-12">
             PowerScripts are PowerShell scripts which can be run against Microsoft servers directly from VitalSigns.  The scripts are run using the stored credentials associated with the server.   All you need to do is provide values for the required parameters, if any, and press the run button.
         </div>
-                
+        <div *ngIf="!access" class="alert alert-danger col-lg-12">
+            You do not have access to use this page
+        </div>
+
         <div class="col-sm-12">
             <div class="panel panel-default">
                 <div class="panel-heading">Script Selection</div>
                 <div class="panel-body">
 
                     <div class="col-sm-12">
-                        <div class="col-sm-6">
+                        <div class="col-sm-9">
                             <div [ngStyle]="{'display': deviceId == null || deviceId == '' ? 'block' : 'none'}">
                                 <label class="col-sm-6">Device Type:</label>
                                 <wj-combo-box class="col-sm-6" name="type_selector" [itemsSource]="deviceTypes"
-                                                placeholder="Select Type" [isEditable]="true" [(selectedItem)]="selectedType" (selectedIndexChanged)="deviceTypeChanged($event)"  [isDisabled]="disabledFields.indexOf('DeviceType') !== -1">
+                                              placeholder="Select Type" [isEditable]="true" [(selectedItem)]="selectedType" (selectedIndexChanged)="deviceTypeChanged($event)" [isDisabled]="disabledFields.indexOf('DeviceType') !== -1">
 
                                     <!--[disable]="disabledFields."-->
                                 </wj-combo-box>
 
                                 <label class="col-sm-6">Device:</label>
                                 <wj-combo-box class="col-sm-6" name="device_selector" [itemsSource]="devicesFromType" displayMemberPath="device_name" selectedValuePath="id"
-                                                placeholder="Select Server" [isEditable]="true" [(selectedItem)]="selectedDevice" (selectedIndexChanged)="deviceChanged($event)">
+                                              placeholder="Select Server" [isEditable]="true" [(selectedItem)]="selectedDevice" (selectedIndexChanged)="deviceChanged($event)">
                                 </wj-combo-box>
                             </div>
                             <label class="col-sm-6">Script:</label>
                             <wj-combo-box class="col-sm-6" name="script_selector" [itemsSource]="scriptsFromType" displayMemberPath="name" selectedValuePath="path"
-                                            placeholder="Select Script" [isEditable]="true" [(selectedItem)]="selectedScript" (selectedIndexChanged)="scriptChanged($event)">
+                                          placeholder="Select Script" [isEditable]="true" [(selectedItem)]="selectedScript" (selectedIndexChanged)="scriptChanged($event)">
                             </wj-combo-box>
-                                    
+
                         </div>
-                        <p *ngIf="selectedScript != null && selectedScript.description != null && selectedScript.description != ''"><br/><br/></p>
+                        <p *ngIf="selectedScript != null && selectedScript.description != null && selectedScript.description != ''"><br /><br /></p>
                         <div class="alert alert-info col-lg-12" *ngIf="selectedScript != null && selectedScript.description != null && selectedScript.description != ''">
                             <p [innerHTML]="selectedScript.description"></p>
                         </div>
@@ -42,17 +45,17 @@
                 <div class="panel-heading">Parameters</div>
                 <div class="panel-body">
                     <!--<div class="form-group">-->
-                        <div class="col-sm-6">
-                                    
-                            <form [formGroup]="parameterForm" (ngSubmit)="onSubmit()">
-                                <div formArrayName="parameters" *ngFor="let item of parameterForm.get('parameters').controls; let i = index;">
-                                    <div [formGroupName]="i">
-                                        <label class="col-sm-6" style="clear:left">{{item.get('name').value}}</label>
-                                        <input class="col-sm-6" formControlName="value" style="padding-left: unset; padding-right: unset">
-                                    </div>
+                    <div class="col-sm-9">
+
+                        <form [formGroup]="parameterForm" (ngSubmit)="onSubmit()">
+                            <div formArrayName="parameters" *ngFor="let item of parameterForm.get('parameters').controls; let i = index;">
+                                <div [formGroupName]="i">
+                                    <label class="col-sm-6" style="clear:left">{{item.get('name').value}}</label>
+                                    <input class="col-sm-6" formControlName="value" style="padding-left: unset; padding-right: unset">
                                 </div>
-                            </form>
-                        </div>
+                            </div>
+                        </form>
+                    </div>
                     <!--</div>-->
                 </div>
 
