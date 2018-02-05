@@ -46,7 +46,8 @@
           <wj-popup style="border: 0px; width: 820px" #moredetailsPopup>
     <div class="modal-content">
         <div class="modal-header">
-             Selected Row Display
+            <table *ngIf="selectedrow!=null">{{selectedrow.display_name}} has access to the following mailboxes</table>
+            
             <button type="button" tabindex="-1" class="close wj-hide" (click)="closePopup()" name="cancel">&times;</button>
         </div>
             <wj-flex-grid [itemsSource]="detailsdata" selectionMode="Row" [isReadOnly]="true" headersVisibility="Column" #flex1>

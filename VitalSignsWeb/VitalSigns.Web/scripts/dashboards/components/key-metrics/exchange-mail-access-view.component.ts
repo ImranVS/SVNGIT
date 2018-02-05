@@ -29,6 +29,7 @@ export class ExchangemailAccessviewGrid implements WidgetComponent, OnInit {
     @ViewChild('flex1') flex1: wijmo.grid.FlexGrid;
     @ViewChild('moredetailsPopup') dlg: wijmo.input.Popup
     @Input() settings: any;
+    selectedrow: any = null;
     data: wijmo.collections.CollectionView;
     detailsdata: wijmo.collections.CollectionView;
     currentDeviceType: string = "Exchange";
@@ -89,9 +90,9 @@ export class ExchangemailAccessviewGrid implements WidgetComponent, OnInit {
         
     }
     moredetails() {
-        var currRow = this.flex.collectionView.currentItem;
-        currRow.mailbox_size_mb;
-        this.detailsdata = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(currRow.mailboxes)));
+        this.selectedrow = this.flex.collectionView.currentItem;
+        this.selectedrow.mailbox_size_mb;
+        this.detailsdata = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(this.selectedrow.mailboxes)));
         this.dlg.show();
     }
     closePopup() {
