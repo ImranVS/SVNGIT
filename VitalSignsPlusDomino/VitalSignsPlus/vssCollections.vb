@@ -2219,7 +2219,7 @@ Partial Public Class VitalSignsPlusDomino
                         Next
 
                     Catch ex As Exception
-                        WriteAuditEntry(Now.ToString & " Error Configuring Domino custom statistics: " & ex.Message)
+                        WriteAuditEntry(Now.ToString & " Error Configuring Domino custom statistics: " & ex.Message, LogLevel.Verbose)
                     End Try
 
                     Try
@@ -2900,11 +2900,11 @@ Partial Public Class VitalSignsPlusDomino
                             'added Server Name'
                             myKeywords.Add(MyKeyword)
                             If MyKeyword.ScanAgentLog = True Then
-                                WriteAuditEntry(Now.ToString & "  Watching Domino agent log file for " & MyKeyword.Keyword)
+                                WriteAuditEntry(Now.ToString & "  Watching Domino agent log file for " & MyKeyword.Keyword, LogLevel.Verbose)
                             End If
 
                             If MyKeyword.ScanLog = True Then
-                                WriteAuditEntry(Now.ToString & "  Watching Domino log file for " & MyKeyword.Keyword)
+                                WriteAuditEntry(Now.ToString & "  Watching Domino log file for " & MyKeyword.Keyword, LogLevel.Verbose)
                             End If
                         Catch ex As Exception
                             WriteAuditEntry(Now.ToString & " Exception creating Domino log file collection: " & ex.Message)

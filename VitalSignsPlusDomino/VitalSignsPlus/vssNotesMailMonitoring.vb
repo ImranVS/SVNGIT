@@ -759,7 +759,7 @@ Cleanup:
                         WriteDeviceHistoryEntry("All", "NotesMail Probes", Now.ToString & " Deadline expired, mail has not arrived")
                         MyNotesMailProbe.IncrementDownCount()
                         MyNotesMailProbe.Status = "Failed"
-                        MyNotesMailProbe.ResponseDetails = "The test message was not found in the target database, and the deadline has passed.  Sending another test message at " & MyNotesMailProbe.NextScan & "."
+                        MyNotesMailProbe.ResponseDetails = "The test message was not found in the target database."
                         myAlert.QueueAlert(MyNotesMailProbe.ServerType, MyNotesMailProbe.Name, "Failure", MyNotesMailProbe.ResponseDetails, MyNotesMailProbe.Location)
 
                         entity.Status = "Failed"

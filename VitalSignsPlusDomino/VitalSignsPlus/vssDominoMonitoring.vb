@@ -137,7 +137,7 @@ Partial Public Class VitalSignsPlusDomino
                         WriteAuditEntry(Now.ToString & " Refreshing configuration of Domino clusters, on requst.", LogLevel.Verbose)
                         CreateDominoClusterCollection()
                         WriteAuditEntry(Now.ToString & " Refreshing Status Table for clusters.", LogLevel.Verbose)
-                        UpdateStatusTableWithDominoClusters()
+                        ' UpdateStatusTableWithDominoClusters()
                     Catch ex As Exception
                         WriteAuditEntry(Now.ToString & " Error Refreshing Domino cluster settings on demand: " & ex.Message)
                     End Try
@@ -432,43 +432,43 @@ Partial Public Class VitalSignsPlusDomino
     Protected Sub UpdateSettings()
         Do While boolTimeToStop <> True
             Try
-                WriteAuditEntry(Now.ToString & " Will now attempt to update the Settings table in SQL.")
+                WriteAuditEntry(Now.ToString & " Will now attempt to update the Settings collection in Mongo.")
                 If MailStatsDict.Count > 0 Then
                     WriteAuditEntry(Now.ToString & " Found statistics, trying to update SQL.")
                     Dim key As Dictionary(Of String, Integer).KeyCollection = MailStatsDict.Keys
                     For i As Integer = 0 To key.Count - 1
-                        WriteAuditEntry(Now.ToString & " Updating the name/value collection with " & key(i).ToString() & "   " & MailStatsDict.Item(key(i)).ToString())
+                        ' WriteAuditEntry(Now.ToString & " Updating the name/value collection with " & key(i).ToString() & "   " & MailStatsDict.Item(key(i)).ToString())
                         WriteSettingsValue(key(i), MailStatsDict.Item(key(i)))
                     Next
                 Else
                     WriteAuditEntry(Now.ToString & " No statistics found.")
                 End If
 
-                If ConsecutiveTelnetDict.Count > 0 Then
-                    WriteAuditEntry(Now.ToString & " Found consecutive telnet values, trying to update SQL.")
-                    Dim key As Dictionary(Of String, Integer).KeyCollection = ConsecutiveTelnetDict.Keys
-                    For i As Integer = 0 To key.Count - 1
-                        WriteAuditEntry(Now.ToString & " Updating the SQL Settings table with " & key(i).ToString() & "   " & ConsecutiveTelnetDict.Item(key(i)).ToString())
-                        WriteSettingsValue(key(i), ConsecutiveTelnetDict.Item(key(i)))
-                    Next
-                Else
-                    WriteAuditEntry(Now.ToString & " No consecutive telnet values found. Will now try to get the previous values from SQL.")
-                    Dim strSQL As String = "SELECT sname,svalue FROM Settings WHERE sname LIKE '%-ConsecutiveTelnet' "
-                    WriteAuditEntry(Now.ToString & " Get Consecutive Telnet SQL= " & strSQL)
-                    Dim dbAdapter As New VSAdaptor
-                    Dim dsTelnet As New DataSet
-                    Dim dt As New DataTable
-                    dsTelnet.Tables.Add("Telnet")
-                    dbAdapter.FillDatasetAny("VitalSigns", "vs", strSQL, dsTelnet, "Telnet")
-                    dt = dsTelnet.Tables(0)
-                    For Each row As DataRow In dt.Rows
-                        If ConsecutiveTelnetDict.ContainsKey(row.Item(0).ToString()) Then
-                            ConsecutiveTelnetDict(row.Item(0).ToString()) = row.Item(1)
-                        Else
-                            ConsecutiveTelnetDict.Add(row.Item(0).ToString(), row.Item(1))
-                        End If
-                    Next
-                End If
+                'If ConsecutiveTelnetDict.Count > 0 Then
+                '    WriteAuditEntry(Now.ToString & " Found consecutive telnet values, trying to update settings.")
+                '    Dim key As Dictionary(Of String, Integer).KeyCollection = ConsecutiveTelnetDict.Keys
+                '    For i As Integer = 0 To key.Count - 1
+                '        WriteAuditEntry(Now.ToString & " Updating the Settings collection with " & key(i).ToString() & "   " & ConsecutiveTelnetDict.Item(key(i)).ToString())
+                '        WriteSettingsValue(key(i), ConsecutiveTelnetDict.Item(key(i)))
+                '    Next
+                'Else
+                '    WriteAuditEntry(Now.ToString & " No consecutive telnet values found. Will now try to get the previous values from SQL.")
+                '    Dim strSQL As String = "SELECT sname,svalue FROM Settings WHERE sname LIKE '%-ConsecutiveTelnet' "
+                '    ' WriteAuditEntry(Now.ToString & " Get Consecutive Telnet SQL= " & strSQL)
+                '    Dim dbAdapter As New VSAdaptor
+                '    Dim dsTelnet As New DataSet
+                '    Dim dt As New DataTable
+                '    dsTelnet.Tables.Add("Telnet")
+                '    dbAdapter.FillDatasetAny("VitalSigns", "vs", strSQL, dsTelnet, "Telnet")
+                '    dt = dsTelnet.Tables(0)
+                '    For Each row As DataRow In dt.Rows
+                '        If ConsecutiveTelnetDict.ContainsKey(row.Item(0).ToString()) Then
+                '            ConsecutiveTelnetDict(row.Item(0).ToString()) = row.Item(1)
+                '        Else
+                '            ConsecutiveTelnetDict.Add(row.Item(0).ToString(), row.Item(1))
+                '        End If
+                '    Next
+                'End If
 
                 '8/30/2016 NS added for VSPLUS-3176
                 If ConsecutiveCustomStatsDict.Count > 0 Then
@@ -478,28 +478,28 @@ Partial Public Class VitalSignsPlusDomino
                         WriteAuditEntry(Now.ToString & " Updating the SQL Settings table with " & key(i).ToString() & "   " & ConsecutiveCustomStatsDict.Item(key(i)).ToString())
                         WriteSettingsValue(key(i), ConsecutiveCustomStatsDict.Item(key(i)))
                     Next
-                Else
-                    WriteAuditEntry(Now.ToString & " No consecutive custom stat values found. Will now try to get the previous values from SQL.")
-                    Dim strSQL As String = "SELECT sname,svalue FROM Settings WHERE sname LIKE '%-CustomStats-%' "
-                    WriteAuditEntry(Now.ToString & " Get Custom Stats SQL= " & strSQL)
-                    Dim dbAdapter As New VSAdaptor
-                    Dim dsTelnet As New DataSet
-                    Dim dt As New DataTable
-                    dsTelnet.Tables.Add("CustomStats")
-                    dbAdapter.FillDatasetAny("VitalSigns", "vs", strSQL, dsTelnet, "CustomStats")
-                    dt = dsTelnet.Tables(0)
-                    For Each row As DataRow In dt.Rows
-                        If ConsecutiveCustomStatsDict.ContainsKey(row.Item(0).ToString()) Then
-                            ConsecutiveCustomStatsDict(row.Item(0).ToString()) = row.Item(1)
-                        Else
-                            ConsecutiveCustomStatsDict.Add(row.Item(0).ToString(), row.Item(1))
-                        End If
-                        WriteAuditEntry(Now.ToString & " ConsecutiveCustomStatsDict: " & row.Item(0).ToString() & ", " & row.Item(1))
-                    Next
+                    'Else
+                    '    WriteAuditEntry(Now.ToString & " No consecutive custom stat values found. Will now try to get the previous values from SQL.")
+                    '    Dim strSQL As String = "SELECT sname,svalue FROM Settings WHERE sname LIKE '%-CustomStats-%' "
+                    '    WriteAuditEntry(Now.ToString & " Get Custom Stats SQL= " & strSQL)
+                    '    Dim dbAdapter As New VSAdaptor
+                    '    Dim dsTelnet As New DataSet
+                    '    Dim dt As New DataTable
+                    '    dsTelnet.Tables.Add("CustomStats")
+                    '    dbAdapter.FillDatasetAny("VitalSigns", "vs", strSQL, dsTelnet, "CustomStats")
+                    '    dt = dsTelnet.Tables(0)
+                    '    For Each row As DataRow In dt.Rows
+                    '        If ConsecutiveCustomStatsDict.ContainsKey(row.Item(0).ToString()) Then
+                    '            ConsecutiveCustomStatsDict(row.Item(0).ToString()) = row.Item(1)
+                    '        Else
+                    '            ConsecutiveCustomStatsDict.Add(row.Item(0).ToString(), row.Item(1))
+                    '        End If
+                    '        WriteAuditEntry(Now.ToString & " ConsecutiveCustomStatsDict: " & row.Item(0).ToString() & ", " & row.Item(1))
+                    '    Next
                 End If
                 Thread.Sleep(300000) '5 minutes
             Catch ex As Exception
-                WriteAuditEntry(Now.ToString & " Error Updating the SQL Settings table with. Exception " + ex.Message.ToString())
+                WriteAuditEntry(Now.ToString & " Error Updating the settings collection with. Exception " + ex.Message.ToString())
             End Try
         Loop
     End Sub

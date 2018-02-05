@@ -86,15 +86,6 @@ Partial Public Class VitalSignsPlusDomino
 
         End Try
 
-        '5/3/2016 NS uncommented for VSPLUS-2921
-        Try
-            If myDominoClusters.Count > 0 Then
-                UpdateStatusTableWithDominoClusters()
-            End If
-        Catch ex As Exception
-
-        End Try
-
 
         Try
             If MyNotesMailProbes.Count > 0 Then
