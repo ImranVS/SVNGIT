@@ -1,6 +1,7 @@
-﻿import { Component, Input, OnInit, ViewChild} from '@angular/core';
+﻿import { Component, Input, OnInit, ViewChild, ComponentFactoryResolver} from '@angular/core';
 import {HttpModule}    from '@angular/http';
-import {WidgetComponent} from '../../../core/widgets';
+import { WidgetComponent } from '../../../core/widgets';
+import { WidgetService } from '../../../core/widgets/services/widget.service';
 import {RESTService} from '../../../core/services';
 import { AuthenticationService } from '../../../profiles/services/authentication.service';
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
@@ -15,6 +16,7 @@ declare var injectSVG: any;
 @Component({
     templateUrl: './app/dashboards/components/key-metrics/exchange-mail-access-view.component.html',
     providers: [
+        WidgetService,
         HttpModule,
         RESTService,
         helpers.GridTooltip,
@@ -24,14 +26,18 @@ declare var injectSVG: any;
 })
 export class ExchangemailAccessviewGrid implements WidgetComponent, OnInit {
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
+    @ViewChild('flex1') flex1: wijmo.grid.FlexGrid;
+    @ViewChild('moredetailsPopup') dlg: wijmo.input.Popup
     @Input() settings: any;
     data: wijmo.collections.CollectionView;
+    detailsdata: wijmo.collections.CollectionView;
     currentDeviceType: string = "Exchange";
     errorMessage: string;
-    currentPageSize: any = 20;
-    constructor(private service: RESTService, protected toolTip: helpers.GridTooltip,
-        protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService, protected datetimeHelpers: helpers.DateTimeHelper) { }
-
+    currentPageSize: any = 10;
+    DefaultValues?: Map<string, string>;
+    constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, protected toolTip: helpers.GridTooltip,
+        protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService, protected datetimeHelpers: helpers.DateTimeHelper) {
+    }
     get pageSize(): number {
         return this.data.pageSize;
     }
@@ -58,12 +64,11 @@ export class ExchangemailAccessviewGrid implements WidgetComponent, OnInit {
         this.gridHelpers.ExportExcel(this.flex, "Exchang Mail Access View.xlsx")
     }
     loadData() {
-        //let deviceType = this.settings.deviceType;
-        //let type = this.settings.type;
         this.service.get(`/reports/usergroup?deviceType=Exchange&type=User`)
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
+               
                 this.data.pageSize = this.currentPageSize;
             },
             (error) => this.errorMessage = <any>error
@@ -82,5 +87,14 @@ export class ExchangemailAccessviewGrid implements WidgetComponent, OnInit {
             (error) => this.errorMessage = <any>error
             );
         
+    }
+    moredetails() {
+        var currRow = this.flex.collectionView.currentItem;
+        currRow.mailbox_size_mb;
+        this.detailsdata = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(currRow.mailboxes)));
+        this.dlg.show();
+    }
+    closePopup() {
+        this.dlg.hide();
     }
 }
