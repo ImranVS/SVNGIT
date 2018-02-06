@@ -444,6 +444,26 @@ namespace RPRWyatt.VitalSigns.Services
             return false;
         }
 
+        public static void SetAllScanNow(VSNext.Mongo.Entities.Enums.ServerType serverType)
+        {
+            
+            
+            if (serverType.getServerOther())
+            {
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.ServerOther> serverOtherRepository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.ServerOther>(connectionString);
+                FilterDefinition<VSNext.Mongo.Entities.ServerOther> filterDef = serverOtherRepository.Filter.Eq(x => x.Type, serverType.ToDescription());
+                UpdateDefinition<VSNext.Mongo.Entities.ServerOther> updateDef = serverOtherRepository.Updater.Set(x => x.ScanNow, true);
+                serverOtherRepository.Update(filterDef, updateDef);
+            }
+            else
+            {
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> serverRepository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(connectionString);
+                FilterDefinition<VSNext.Mongo.Entities.Server> filterDef = serverRepository.Filter.Eq(x => x.DeviceType, serverType.ToDescription());
+                UpdateDefinition<VSNext.Mongo.Entities.Server> updateDef = serverRepository.Updater.Set(x => x.ScanNow, true);
+                serverRepository.Update(filterDef, updateDef);
+            }
+        }
+
         public class MicrosoftHelperObject
 		{
 			
