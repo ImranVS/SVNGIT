@@ -84,7 +84,10 @@ export class ActivationPreferencesGrid implements WidgetComponent, OnInit {
                         dataObj = {};
                     }
                     dataObj["Database Name"] = dagServerDatabases[i].database_name;
-                    dataObj["Activation Preference " + dagServerDatabases[i].action_preference] = dagServerDatabases[i].server_name;
+                    dataObj["Activation Preference " + dagServerDatabases[i].action_preference] = {
+                        server_name: dagServerDatabases[i].server_name,
+                        is_active: dagServerDatabases[i].is_active
+                    };
                     if (i === (dagServerDatabases.length - 1)) {
                         dataToDisplay.push(dataObj);
                     }

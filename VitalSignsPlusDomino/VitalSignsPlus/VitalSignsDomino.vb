@@ -399,6 +399,14 @@ Public Class VitalSignsPlusDomino
 
         End Try
 
+        Try
+            For Each serverType As VSNext.Mongo.Entities.Enums.ServerType In {VSNext.Mongo.Entities.Enums.ServerType.Domino}
+                SetAllScanNow(serverType)
+            Next
+        Catch ex As Exception
+
+        End Try
+
         WriteAuditEntry(Now.ToString & " Startup process is complete. ")
 
     End Sub
