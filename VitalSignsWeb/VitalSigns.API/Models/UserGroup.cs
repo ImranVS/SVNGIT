@@ -26,8 +26,8 @@ namespace VitalSigns.API.Models
             [JsonProperty("display_name")]
             public string DisplayName { get; set; }
 
-            [JsonProperty("mailbox_size_mb")]
-            public double? MailboxSizeMb { get; set; }
+            [JsonProperty("mailbox_size_gb")]
+            public double? MailboxSizeGb { get; set; }
         }
     }
 }

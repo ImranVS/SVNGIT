@@ -2402,7 +2402,7 @@ namespace VitalSigns.API.Controllers
                                               DisplayName = x["_id"]["display_name"].IsString ? x["_id"]["display_name"].AsString : "N/A",
                                               Identity =x["_id"]["identity"].IsString ? x["_id"]["identity"].AsString : "N/A",
                                               TotalMailBoxesSizes = Math.Round((x["sum"].IsDouble ? x["sum"].AsDouble : 0)/1024,2),
-                                              Mailboxes = x["mailboxes"].IsBsonArray ? x["mailboxes"].AsBsonArray.Select(y => new UserGroupModel.MailBoxes() { DisplayName = y["display_name"].AsString, MailboxSizeMb = y["size_mb"].AsDouble }).ToList() : new List<UserGroupModel.MailBoxes>()
+                                              Mailboxes = x["mailboxes"].IsBsonArray ? x["mailboxes"].AsBsonArray.Select(y => new UserGroupModel.MailBoxes() { DisplayName = y["display_name"].AsString, MailboxSizeGb = Math.Round((y["size_mb"].IsDouble ? y["size_mb"].AsDouble : 0) / 1024, 2)}).ToList() : new List<UserGroupModel.MailBoxes>()
                                           }).OrderByDescending(x => x.TotalMailBoxesSizes);
                 Response = Common.CreateResponse(results);
                 return Response;

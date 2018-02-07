@@ -1,12 +1,13 @@
 ﻿    
                 <button class="btn btn-primary" (click)="ExportExcel()">Export to Excel</button>
-                <button class="btn btn-primary" (click)="moredetails()">more details</button>
+                <button class="btn btn-primary" (click)="moredetails()">Mailbox Access</button>
                 <wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" headersVisibility="Column" #flex>
                     
                     <wj-flex-grid-filter></wj-flex-grid-filter>
                     <wj-flex-grid-column [header]="'Display Name'" [binding]="'display_name'" [width]="250"></wj-flex-grid-column>
                     <wj-flex-grid-column [header]="'Identity'" [binding]="'identity'"[width]="250"></wj-flex-grid-column>
                     <wj-flex-grid-column [header]="'Sum Of Mailboxes (GB)'" [binding]="'total_mailboxes_sizes_mb'"[width]="250"></wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Mailbox Count'" [binding]="'mailboxes.length'" [width]="250"></wj-flex-grid-column>
                 </wj-flex-grid>
                 <div class="btn-group" *ngIf="data != null">
                     <button type="button" class="btn btn-default"
@@ -46,16 +47,15 @@
           <wj-popup style="border: 0px; width: 820px" #moredetailsPopup>
     <div class="modal-content">
         <div class="modal-header">
-            <table *ngIf="selectedrow!=null">{{selectedrow.display_name}} has access to the following mailboxes</table>
-            
+            <span *ngIf="selectedrow!=null">{{selectedrow.display_name}} has access to the following mailboxes:</span>
             <button type="button" tabindex="-1" class="close wj-hide" (click)="closePopup()" name="cancel">&times;</button>
         </div>
+        <div class="modal-body">
             <wj-flex-grid [itemsSource]="detailsdata" selectionMode="Row" [isReadOnly]="true" headersVisibility="Column" #flex1>
                 <wj-flex-grid-filter></wj-flex-grid-filter>
                 <wj-flex-grid-column [header]="'Display Name'" [binding]="'display_name'" [width]="200"></wj-flex-grid-column>
-                <wj-flex-grid-column [header]="' Mailboxes Sizes (MB)'" [binding]="'mailbox_size_mb'" [width]="250"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="' Mailbox Size (GB)'" [binding]="'mailbox_size_gb'" [width]="250"></wj-flex-grid-column>
             </wj-flex-grid>
-           
-       
+        </div>
     </div>
 </wj-popup>
