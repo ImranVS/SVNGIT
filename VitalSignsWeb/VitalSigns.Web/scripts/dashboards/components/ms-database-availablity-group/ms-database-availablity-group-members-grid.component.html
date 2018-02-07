@@ -21,13 +21,13 @@
             <span *ngIf="cell.item.active_manager_test == 'Fail'" class="label label-pill label-danger">Fail</span>
         </template>
     </wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Tasks RPC Listenerr'" [binding]="'tasks_rpc_listener_test'" [width]="120" align="center">
+    <wj-flex-grid-column [header]="'Tasks RPC Listener'" [binding]="'tasks_rpc_listener_test'" [width]="120" align="center">
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
         <span *ngIf="cell.item.active_manager_test == 'Passed'" class="label label-pill label-success">Passed</span>
         <span *ngIf="cell.item.active_manager_test == 'Fail'" class="label label-pill label-danger">Fail</span>
         </template>
     </wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'TCP Listnerr'" [binding]="'tcp_listener_test'" [width]="120" align="center">
+    <wj-flex-grid-column [header]="'TCP Listner'" [binding]="'tcp_listener_test'" [width]="120" align="center">
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
             <span *ngIf="cell.item.tasks_rpc_listener_test == 'Passed'" class="label label-pill label-success">Passed</span>
             <span *ngIf="cell.item.tasks_rpc_listener_test == 'Fail'" class="label label-pill label-danger">Fail</span>
