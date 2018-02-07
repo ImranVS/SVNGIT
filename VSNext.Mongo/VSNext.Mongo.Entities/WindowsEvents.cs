@@ -26,18 +26,18 @@ namespace VSNext.Mongo.Entities
         //Windows Log File Scanning
 
         [DataMember]
-        [BsonElement("event_file_keywords")]
+        [BsonElement("event_keywords")]
         [BsonIgnoreIfNull]
-        public List<EventFileKeyword> EventFileKeywords { get; set; }
+        public List<EventKeyword> EventKeywords { get; set; }
 
         [DataMember]
-        [BsonElement("device_file_servers")]
+        [BsonElement("device_ids")]
         [BsonIgnoreIfNullAttribute]
         [BsonRepresentation(BsonType.ObjectId)]
-        public List<string> DeviceFileServers { get; set; }
+        public List<string> DeviceIds { get; set; }
 
 
-        public class EventFileKeyword
+        public class EventKeyword
         {
             [DataMember]
             [BsonIgnoreIfNull]
@@ -46,13 +46,13 @@ namespace VSNext.Mongo.Entities
 
             [DataMember]
             [BsonIgnoreIfNull]
-            [BsonElement("event_key")]
-            public String Eventkey { get; set; }
+            [BsonElement("message")]
+            public String Message { get; set; }
 
             [DataMember]
             [BsonIgnoreIfNull]
             [BsonElement("event_id")]
-            public String EventId { get; set; }
+            public int EventId { get; set; }
 
             [DataMember]
             [BsonIgnoreIfNull]
