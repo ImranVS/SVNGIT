@@ -38,7 +38,59 @@ namespace RPRWyatt.VitalSigns.Services
             LogUtils utils = new LogUtils();
 			ServiceOnStart(args);
 
-            
+            try
+            {
+                string serviceName = System.AppDomain.CurrentDomain.FriendlyName.ToString();
+                List<VSNext.Mongo.Entities.Enums.ServerType> serverTypes;
+                switch (serviceName)
+                {
+                    case "VitalSignsMicrosoft.exe":
+                        serverTypes = new List<Enums.ServerType>() {
+                            Enums.ServerType.ActiveDirectory,
+                            Enums.ServerType.DatabaseAvailabilityGroup,
+                            Enums.ServerType.Exchange,
+                            Enums.ServerType.Office365,
+                            Enums.ServerType.SharePoint,
+                            Enums.ServerType.SkypeForBusiness,
+                            Enums.ServerType.Windows
+                        };
+                        break;
+
+                    case "VitalSignsPlusDomino.exe":
+                        serverTypes = new List<Enums.ServerType>() {
+                            Enums.ServerType.Domino,
+                            Enums.ServerType.NotesDatabase,
+                            Enums.ServerType.NotesDatabaseReplica,
+                            Enums.ServerType.NotesMailProbe
+                        };
+                        break;
+
+                    case "VitalSignsPlusCore.exe":
+                        serverTypes = new List<Enums.ServerType>() {
+                            Enums.ServerType.Cloud,
+                            Enums.ServerType.IBMConnections,
+                            Enums.ServerType.IBMFileNet,
+                            Enums.ServerType.Mail,
+                            Enums.ServerType.URL,
+                            Enums.ServerType.WebSphere,
+                            Enums.ServerType.Sametime
+                        };
+                        break;
+                        
+
+                    default:
+                        serverTypes = new List<Enums.ServerType>();
+                        break;
+
+                }
+                LogUtils.WriteHistoryEntry(DateTime.Now.ToString() + " Setting the following devices to ScanNow for " + serviceName + ": " + String.Join(",", serverTypes.Select(x => x.ToDescription())), "VSServices.txt", LogUtils.LogLevel.Normal);
+                SetAllScanNow(serverTypes);
+            }
+            catch (Exception ex)
+            {
+                LogUtils.WriteHistoryEntry(DateTime.Now.ToString() + " Error setting ScanNows. Error : " + ex.Message, "VSServices.txt", LogUtils.LogLevel.Normal);
+            }            
+
 
         }
 
@@ -462,6 +514,20 @@ namespace RPRWyatt.VitalSigns.Services
                 UpdateDefinition<VSNext.Mongo.Entities.Server> updateDef = serverRepository.Updater.Set(x => x.ScanNow, true);
                 serverRepository.Update(filterDef, updateDef);
             }
+        }
+
+        public static void SetAllScanNow(List<VSNext.Mongo.Entities.Enums.ServerType> serverTypes)
+        {
+            VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.ServerOther> serverOtherRepository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.ServerOther>(connectionString);
+            FilterDefinition<VSNext.Mongo.Entities.ServerOther> serverOtherFilterDef = serverOtherRepository.Filter.In(x => x.Type, serverTypes.Where(serverType => serverType.getServerOther()).Select(serverType => serverType.ToDescription()));
+            UpdateDefinition<VSNext.Mongo.Entities.ServerOther> serverOtherUpdateDef = serverOtherRepository.Updater.Set(x => x.ScanNow, true);
+            serverOtherRepository.Update(serverOtherFilterDef, serverOtherUpdateDef);
+            
+            VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> serverRepository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(connectionString);
+            FilterDefinition<VSNext.Mongo.Entities.Server> serverFilterDef = serverRepository.Filter.In(x => x.DeviceType, serverTypes.Where(serverType => !serverType.getServerOther()).Select(serverType => serverType.ToDescription()));
+            UpdateDefinition<VSNext.Mongo.Entities.Server> serverUpdateDef = serverRepository.Updater.Set(x => x.ScanNow, true);
+            serverRepository.Update(serverFilterDef, serverUpdateDef);
+            
         }
 
         public class MicrosoftHelperObject
