@@ -8505,6 +8505,8 @@ CleanUp:
                                 If listOfUsers.Exists(Function(x) x.GUID = row("EXTID").ToString()) Then
                                     Dim IbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsObjectsTemp = listOfUsers.Where(Function(x) x.GUID = row("EXTID").ToString()).First()
                                     connectionsUserId = IbmConnectionsUsers.Id
+                                Else
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " GetBlogObjects. Couldnt find user. Count: " & listOfUsers.Count.ToString() & ". ID: " & row("EXTID").ToString(), LogUtilities.LogUtils.LogLevel.Verbose)
                                 End If
 
                             Catch ex As Exception
@@ -8530,7 +8532,7 @@ CleanUp:
                                 If (ds.Tables(3).Select("WEBSITEID = '" + row("ID").ToString() + "'").Count > 0) Then
                                     Try
                                         'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Num of entries as a parent : " & ds.Tables(21).Select("WEBSITEID = '" + row("ID").ToString() + "'").Count(), LogUtilities.LogUtils.LogLevel.Verbose)
-                                        Dim parentGUID As String = ds.Tables(21).Select("WEBSITEID = '" + row("ID").ToString() + "'").First()("ASSOCID").ToString()
+                                        Dim parentGUID As String = ds.Tables(3).Select("WEBSITEID = '" + row("ID").ToString() + "'").First()("ASSOCID").ToString()
 
                                         IbmConnectionsObjectsTemp2.ParentGUID = dictOfCommunityIds(parentGUID)
                                     Catch ex As Exception
@@ -9301,6 +9303,12 @@ CleanUp:
                     Try
 
                         Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp)(connectionString)
+                        Dim allUsers As List(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp) = repo.Find(
+                            repo.Filter.Eq(Function(x) x.Type, "Users") And
+                            repo.Filter.Eq(Function(x) x.DeviceName, myServer.Name)
+                        ).ToList()
+
+
                         For Each row As DataRow In ds.Tables(0).Rows()
                             Try
                                 Dim type As String = ""
@@ -9341,6 +9349,13 @@ CleanUp:
                                     parentObjectId = Nothing
                                 End Try
 
+                                Dim ownerId As String = Nothing
+                                Try
+                                    ownerId = allUsers.Where(Function(x) x.GUID = row("EXID").ToString()).First().Id
+                                Catch ex As Exception
+
+                                End Try
+
                                 'com.COMMUNITYUUID, node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD
                                 Dim entity As New VSNext.Mongo.Entities.IbmConnectionsObjectsTemp() With {
                                     .Name = row("NAME").ToString(),
@@ -9348,7 +9363,7 @@ CleanUp:
                                     .ObjectModifiedDate = Convert.ToDateTime(row("LASTMOD").ToString()),
                                     .DeviceId = myServer.ServerObjectID,
                                     .DeviceName = myServer.Name,
-                                    .OwnerId = getObjectUser(myServer.Name, row("EXID").ToString()),
+                                    .OwnerId = ownerId,
                                     .GUID = row("NODEUUID").ToString(),
                                     .Type = type,
                                     .ParentGUID = parentObjectId,
@@ -9587,7 +9602,7 @@ CleanUp:
 
                                 Dim ownerId As String = Nothing
                                 Try
-                                    ownerId = allUsers.Where(Function(x) x.GUID = HexToGUID(row("DIRECTORY_ID").ToString())).First().Id
+                                    ownerId = allUsers.Where(Function(x) x.GUID = row("DIRECTORY_ID").ToString()).First().Id
                                 Catch ex As Exception
 
                                 End Try
