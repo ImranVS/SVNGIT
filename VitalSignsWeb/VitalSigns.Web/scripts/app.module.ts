@@ -167,6 +167,7 @@ import { exchnagemaillistreport } from './reports/components/ms-exchange/ms-exch
 
 import { MicrosoftPowerShellScripts } from './services/components/microsoft-powershell-scripts.component';
 import { MicrosoftPowerShellScriptsTab } from './services/components/microsoft-powershell-scripts-tab.component';
+import { LoadingIndicator } from './core/services/loading-indicator'
 
 @NgModule({
     imports: [
@@ -308,6 +309,7 @@ import { MicrosoftPowerShellScriptsTab } from './services/components/microsoft-p
         exchangecpuutilreport,
         ExchangeMailboxReport,
         exchnagemaillistreport,
+        LoadingIndicator,
         dashboards.SampleDashboard,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
