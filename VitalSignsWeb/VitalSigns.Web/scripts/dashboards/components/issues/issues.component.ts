@@ -37,8 +37,9 @@ export class Issues implements OnInit {
     errorMessage: string;
     currentPageSize: any = 20;
     private isResized = false;
-
+    isLoading: boolean = true;
     
+
 
     constructor(private service: RESTService, private route: ActivatedRoute, protected toolTip: helpers.GridTooltip, protected datetimeHelpers: helpers.DateTimeHelper,
         protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) { }
@@ -74,8 +75,9 @@ export class Issues implements OnInit {
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
                 this.data.pageSize = this.currentPageSize;
+                this.isLoading = false;
             },
-            (error) => this.errorMessage = <any>error
+            (error) => { this.errorMessage = <any>error; this.isLoading = false; }
             );
         this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("Issues", this.authService.CurrentUser.email)}`)
             .subscribe(

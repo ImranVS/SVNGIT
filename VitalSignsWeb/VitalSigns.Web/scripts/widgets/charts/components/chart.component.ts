@@ -14,7 +14,7 @@ import { ChartSeries } from '../models/chart-series';
 declare var Highcharts: any;
 
 @Component({
-    template: '',
+    template: `<loading-indicator [isLoading]="isLoading"></loading-indicator>`,
     providers: [
         HttpModule,
         RESTService,
@@ -27,6 +27,8 @@ export class ChartComponent implements WidgetComponent, OnInit {
     errorMessage: string;
     chart: any;
     subseries: any;
+
+    private isLoading: boolean = true;
 
     constructor(private service: RESTService, private widgetService: WidgetService, protected datetimeHelpers: helpers.DateTimeHelper) { }
 
@@ -43,7 +45,7 @@ export class ChartComponent implements WidgetComponent, OnInit {
     }
 
     private loadData(serviceUrl?: string) {
-
+        this.isLoading = true;
         this.service.get(serviceUrl || this.settings.url)
             .subscribe(data => {
                 if (this.settings.overrideName) {
@@ -176,9 +178,9 @@ export class ChartComponent implements WidgetComponent, OnInit {
 
                 if (this.settings.callback)
                     this.settings.callback(this.settings.chart);
-
+                this.isLoading = false;
             },
-            error => this.errorMessage = <any>error);
+            error => { this.errorMessage = <any>error; this.isLoading = false; });
 
     }
 }
