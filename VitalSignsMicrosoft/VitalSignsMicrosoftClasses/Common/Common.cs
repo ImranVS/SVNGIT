@@ -2347,6 +2347,25 @@ namespace VitalSignsMicrosoftClasses
 
     }
 
+
+    public static class RepositoryHanddler<T> where T : IEntity
+    {
+        static Dictionary<string, VSNext.Mongo.Repository.Repository<T>> dictOfRepos = new Dictionary<string, VSNext.Mongo.Repository.Repository<T>>();
+
+        public static VSNext.Mongo.Repository.Repository<T> GetRepository()
+        {
+            string type = typeof(T).Name;
+            if (!dictOfRepos.ContainsKey(type))
+            {
+                CommonDB db = new CommonDB();
+                string connString = db.GetMongoConnectionString();
+                dictOfRepos.Add(type, new VSNext.Mongo.Repository.Repository<T>(connString));
+            }
+
+            return dictOfRepos[type];
+        }
+    }
+
     public class MongoStatements
     {
 
@@ -2358,16 +2377,15 @@ namespace VitalSignsMicrosoftClasses
 
     public class MongoStatementsWrapper<T> : MongoStatements where T : IEntity
     {
-        CommonDB db = new CommonDB();
-        string connString;
-
         public VSNext.Mongo.Repository.Repository<T> repo;// = new Repository<T>();
 
         public MongoStatementsWrapper()
         {
-            CommonDB db = new CommonDB();
-            connString = db.GetMongoConnectionString();
-            repo = new VSNext.Mongo.Repository.Repository<T>(connString);
+            //CommonDB db = new CommonDB();
+            //connString = db.GetMongoConnectionString();
+            //repo = new VSNext.Mongo.Repository.Repository<T>(connString);
+
+            repo = RepositoryHanddler<T>.GetRepository();
 
         }
 

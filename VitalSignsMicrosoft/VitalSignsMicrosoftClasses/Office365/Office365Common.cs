@@ -1061,7 +1061,9 @@ $msolUsers
 				string strSQLValues = "";
 				if (results.Count > 0)
 				{
-					foreach (PSObject ps in results)
+                    MongoStatementsUpsert<VSNext.Mongo.Entities.MobileDevices> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.MobileDevices>();
+
+                    foreach (PSObject ps in results)
 					{
 						ActiveSyncDevice myDevice = new ActiveSyncDevice();
 						myDevice.User = ps.Properties["UserDisplayName"].Value == null ? "" : ps.Properties["UserDisplayName"].Value.ToString();
@@ -1186,9 +1188,10 @@ $msolUsers
                             DateTime lastSync = DateTime.Parse(myDevice.LastSuccessSync);
                             lastSync = DateTime.SpecifyKind(lastSync, DateTimeKind.Utc);
 
-                            MongoStatementsUpsert<VSNext.Mongo.Entities.MobileDevices> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.MobileDevices>();
-                            mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DeviceID == myDevice.DeviceID && i.ServerName == myServer.Name);
-                            mongoStatement.updateDef = mongoStatement.repo.Updater
+                            DefinitionContainer<VSNext.Mongo.Entities.MobileDevices> defContainer = new DefinitionContainer<VSNext.Mongo.Entities.MobileDevices>();
+
+                            defContainer.filterDef = mongoStatement.repo.Filter.Where(i => i.DeviceID == myDevice.DeviceID && i.ServerName == myServer.Name);
+                            defContainer.updateDef = mongoStatement.repo.Updater
                                 .Set(i => i.UserName, myDevice.User)
                                 .Set(i => i.ServerName, myServer.Name)
                                 .Set(i => i.DeviceID, myDevice.DeviceID)
@@ -1205,7 +1208,7 @@ $msolUsers
                                 .Set(i => i.SyncType, "ActiveSync")
                                 .Set(i => i.OS, OS);
 
-                            AllTestsList.MongoEntity.Add(mongoStatement);
+                            mongoStatement.listOfDefinitions.Add(defContainer);
 
 						}
 						catch (Exception ex)
@@ -1214,8 +1217,9 @@ $msolUsers
                         }
 
 					}
+                    AllTestsList.MongoEntity.Add(mongoStatement);
 
-				}
+                }
 
 			}
 			catch (Exception ex)
