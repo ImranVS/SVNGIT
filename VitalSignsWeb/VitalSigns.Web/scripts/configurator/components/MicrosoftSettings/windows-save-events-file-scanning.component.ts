@@ -30,16 +30,13 @@ export class AddEventFile extends GridBase implements OnInit {
     devices: string = "";
     lastbuttonclick: string;
     currentDeviceTypes: any =  "Exchange,Skype For Business,Windows,Active Directory";
-
     constructor(service: RESTService, private route: ActivatedRoute, private router: Router, private formBuilder: FormBuilder, appComponentService: AppComponentService
         , protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) {
         super(service, appComponentService);
         this.formName = "Events";
        
         this.EventDefentions = this.formBuilder.group({
-            
-            'events': ['']
-
+          'events': ['']
         });
 
         this.serverLog = this.formBuilder.group({
@@ -47,11 +44,7 @@ export class AddEventFile extends GridBase implements OnInit {
             'setting': [''],
             'value': [''],
             'devices': ['']
-
-
-        });
-      
-
+        });  
     }
     get pageSize(): number {
         return this.data.pageSize;
@@ -75,7 +68,6 @@ export class AddEventFile extends GridBase implements OnInit {
 
         }
     }
-
     ngOnInit() {
         this.route.params.subscribe(params => {
             this.id = params['id'];
@@ -83,8 +75,6 @@ export class AddEventFile extends GridBase implements OnInit {
             if (!this.id)
                 this.id = "-1";
             this.loadData();
-           
-
         });
         this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("AddEventFile", this.authService.CurrentUser.email)}`)
             .subscribe(
@@ -96,9 +86,7 @@ export class AddEventFile extends GridBase implements OnInit {
             (error) => this.errorMessage = <any>error
             );
     }
-
     loadData() {
-
         this.service.get('/configurator/get_windows_event_scaning/' + this.id)
             .subscribe(
             response => {
