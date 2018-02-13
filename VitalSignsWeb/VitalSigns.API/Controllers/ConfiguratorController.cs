@@ -61,6 +61,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<License> LicenseRepository;
 
         private IRepository<ServerOther> serverOtherRepository;
+        private IRepository<WindowsEvents> windowseventsRepository;
         private IRepository<EventsMaster> eventsMasterRepository;
         private IRepository<MobileDevices> mobileDevicesRepository;
         private IRepository<Notifications> notificationsRepository;
@@ -4390,6 +4391,229 @@ namespace VitalSigns.API.Controllers
             catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, "Error", "Deletion of event log file has failed.\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+        #endregion
+
+        #region Windows Events
+
+        [HttpGet("get_windows_events")]
+        public APIResponse GetAllWindowsEvents()
+        {
+            try
+            {
+                windowseventsRepository = new Repository<WindowsEvents>(ConnectionString);
+                var result = windowseventsRepository.Collection.AsQueryable().Select(x => new WindowsScanning
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                  }).ToList().OrderBy(x => x.Name);
+                Response = Common.CreateResponse(result);
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Getting  Windows Event Defention  information has failed.\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpGet("get_windows_event_scaning/{id}")]
+        public APIResponse GetWindowsEventScanning(string id)
+        {
+            try
+            {
+                windowseventsRepository = new Repository<WindowsEvents>(ConnectionString);
+                List<Models.Configurator.Events> service = new List<Models.Configurator.Events>();
+                if (id != "-1")
+                {
+                    var serverOther = windowseventsRepository.Collection.AsQueryable().FirstOrDefault(x => x.Id == id);
+                    if (serverOther != null)
+                    {
+                        var devicename = serverOther.Name;
+                        var result = serverOther.EventKeywords;
+                        var servers = serverOther.DeviceIds;
+
+                        service = new List<Models.Configurator.Events>();
+                        foreach (WindowsEvents.EventKeyword task in result)
+                        {
+                            service.Add(new Models.Configurator.Events
+                            {
+                                AliasName = task.AliasName,
+                                Message = task.Message,
+                                EventId = task.EventId,
+                                Source = task.Source,
+                                EventName =task.EventName,
+                                EventLevel = task.EventLevel
+                                
+
+                            });
+
+                        }
+
+                        Response = Common.CreateResponse(new { devicename = devicename, result = service, servers = servers });
+                    }
+
+                }
+                else
+                {
+                    Response = Common.CreateResponse(new { devicename = string.Empty, result = service, servers = new List<string>() });
+                }
+
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", "Getting event log file scanning information has failed.\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpPut("save_windows_event_servers/{id}")]
+        public APIResponse UpdateWindowsEventServers([FromBody] DeviceSettings devicesettings, [FromBody] VitalSigns.API.Models.Configurator.Events eventlog, string id)
+        {
+            try
+            {
+                if (devicesettings.Setting == null && devicesettings.Devices == null && devicesettings.Value == null)
+                {
+                    Response = Common.CreateResponse(false, Common.ResponseStatus.Success.ToDescription(), "Events created successfully");
+                }
+                else
+                {
+                    windowseventsRepository = new Repository<WindowsEvents>(ConnectionString);
+
+                    string settingValue = Convert.ToString(devicesettings.Value);
+                    if (string.IsNullOrEmpty(settingValue))
+                    {
+                        Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "Please enter a Windows event definition");
+
+                    }
+                    else
+                    {
+                        var devicesList = ((Newtonsoft.Json.Linq.JArray)devicesettings.Devices).ToObject<List<string>>();
+                        var logfiles = ((Newtonsoft.Json.Linq.JArray)devicesettings.Setting).ToObject<List<Models.Configurator.Events>>();
+
+                        Expression<Func<WindowsEvents, bool>> filterExpression;
+                        if (id == ("-1"))
+                        {
+                            filterExpression = (p => p.Name == settingValue);
+
+                        }
+                        else
+                        {
+                            filterExpression = (p => p.Name == settingValue && p.Id != id);
+
+                        }
+                        var existsData = windowseventsRepository.Find(filterExpression).Select(x => x.Name).FirstOrDefault();
+                        // var existEventlog = serverOtherRepository.Collection.AsQueryable().Where(x => x.Name == settingValue).FirstOrDefault();
+                        if (existsData != settingValue)
+                        {
+
+                            UpdateDefinition<WindowsEvents> updateDefinition = null;
+                            List<WindowsEvents.EventKeyword> eventscannings = new List<WindowsEvents.EventKeyword>();
+                            if (id == ("-1"))
+                            {
+                                foreach (var logfile in logfiles)
+                                {
+                                    if (logfile.Id != "-1")
+                                    {
+                                        eventscannings.Add(new WindowsEvents.EventKeyword
+                                        {
+                                            AliasName = logfile.AliasName,
+                                            Message = logfile.Message,
+                                            EventId = logfile.EventId,
+                                            Source = logfile.Source,
+                                            EventName = logfile.EventName,
+                                            EventLevel = logfile.EventLevel
+
+
+                                        });
+                                    }
+                                }
+
+                                    WindowsEvents logscanserver = new WindowsEvents { Name = settingValue, EventKeywords = eventscannings, DeviceIds = devicesList };
+                                    string newid = windowseventsRepository.Insert(logscanserver);
+                                    Licensing licensing = new Licensing();
+                                    licensing.refreshServerCollectionWrapper();
+                                    Response = Common.CreateResponse(newid, Common.ResponseStatus.Success.ToDescription(), "Event definition inserted successfully");
+                                }
+                                if (id != ("-1"))
+                                {
+                                    if (devicesList.Count() > 0)
+                                    {
+                                        if (!string.IsNullOrEmpty(settingValue))
+                                        {
+
+                                            foreach (var logfile in logfiles)
+                                            {
+
+                                                eventscannings.Add(new WindowsEvents.EventKeyword
+                                                {
+                                                    
+                                                    AliasName = logfile.AliasName,
+                                                    Message = logfile.Message,
+                                                    EventId = logfile.EventId,
+                                                    Source = logfile.Source,
+                                                    EventName = logfile.EventName,
+                                                    EventLevel = logfile.EventLevel
+
+                                                });
+                                            }
+                                            FilterDefinition<WindowsEvents> filterDefination = Builders<WindowsEvents>.Filter.Where(p => p.Id == id);
+                                            var updateDefination = windowseventsRepository.Updater.Set(p => p.Name, settingValue)
+                                                                                     .Set(p => p.DeviceIds, devicesList)
+                                                                                     .Set(p => p.EventKeywords, eventscannings);
+
+                                            var result = windowseventsRepository.Collection.UpdateMany(filterDefination, updateDefination);
+                                            //2/24/2017 NS added for VSPLUS-3506
+                                            Licensing licensing = new Licensing();
+                                            licensing.refreshServerCollectionWrapper();
+                                            Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Event definition updated successfully");
+
+                                        }
+
+                                    }
+                                }
+                            
+                            else if (existsData == settingValue)
+                            {
+                                Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "The event definition " + "" + existsData + " " + "already exists. Please enter a different one.");
+                            }
+
+                            if (logfiles.Count == 0)
+                            {
+                                Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "Please create at least one Windows event log entry.");
+                            }
+                        }
+
+                    }
+                }
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Domino event definition creation has failed.\n Error Message :" + exception.Message);
+            }
+            return Response;
+
+        }
+
+        [HttpDelete("delete_windows_events/{Id}")]
+        public APIResponse DeleteWindowsEvents(string Id)
+        {
+            try
+            {
+                windowseventsRepository = new Repository<WindowsEvents>(ConnectionString);
+                Expression<Func<WindowsEvents, bool>> expression = (p => p.Id == Id);
+                windowseventsRepository.Delete(expression);
+                Licensing licensing = new Licensing();
+                licensing.refreshServerCollectionWrapper();
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Windows event deleted successfully");
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Deletion of windows event has failed.\n Error Message :" + exception.Message);
             }
             return Response;
         }
