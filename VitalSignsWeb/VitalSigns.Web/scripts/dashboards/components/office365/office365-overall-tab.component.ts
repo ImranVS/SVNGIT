@@ -384,15 +384,15 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
 
             let obj = this.processUrls();
 
-            this.widgetService.refreshWidget('upTimeHourly', obj.url)
+            this.widgetService.refreshWidget('upTimeHourly', obj.urluptimehourly)
                 .catch(error => console.log(error));
             this.widgetService.refreshWidget('mailServices', obj.url)
                 .catch(error => console.log(error));
-            this.widgetService.refreshWidget('upTimeDaily', obj.url)
+            this.widgetService.refreshWidget('upTimeDaily', obj.urluptimedaily)
                 .catch(error => console.log(error));
-            this.widgetService.refreshWidget('dailyUserLogins', obj.url)
+            this.widgetService.refreshWidget('dailyUserLogins', obj.userLogins)
                 .catch(error => console.log(error));
-            this.widgetService.refreshWidget('lastLogon', obj.url)
+            this.widgetService.refreshWidget('lastLogon', obj.lastLogin)
                 .catch(error => console.log(error));
 
         //this.customizeGraphs;
