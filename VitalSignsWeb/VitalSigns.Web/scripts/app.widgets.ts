@@ -141,6 +141,9 @@ export * from './configurator/components/ibmDomino/Ibm-custom-statistics.compone
 
 export * from './configurator/components/ibmDomino/Ibm-domino-log-file-scanning.component'
 export * from './configurator/components/ibmDomino/Ibm-save-domino-log-file-scanning.component'
+//windows
+export * from './configurator/components/MicrosoftSettings/windows-events-file-scanning.component'
+export * from './configurator/components/MicrosoftSettings/windows-save-events-file-scanning.component'
 
 //mail
 export * from './configurator/components/ibmDomino/notesmail-probes.component'

@@ -1,0 +1,184 @@
+﻿<div id="zeusContext">
+    <div id="zeusContextNavigation">
+        <div id="zeusContextNavigationIcon">
+            <img class="svgInject" src="/img/servers/MSExchange.svg" title="Windows Event Log Scanning" alt="Windows Event Log Scanning" />
+        </div>
+        <div id="zeusContextNavigationText">
+            <h2>
+                Windows Event Log Scanning
+            </h2>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+<div id="zeusContent">
+    <div class="widgetWrapper">
+        <div class="widgetContent">
+            <div class="form-group">
+                <label class="control-label col-sm-2">Event Definition Name</label>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" [(ngModel)]="EventsName" required />
+                </div>
+            </div>
+            <div class="form-group">&nbsp;</div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Events
+                </div>
+                <div class="panel-body">
+                    <div class="grid-sort-group" *ngIf="results">
+                        <div class="text-danger" *ngIf="results.length==0"><b>* Please create at least one Event</b></div>
+                        <div *ngIf="results.length==0">&nbsp;</div>
+                    </div>
+                    <div class="grid-sort-group" *ngIf="results">
+                        {{results.itemCount}}
+                        <!-- edit details in a popup -->
+                        <button class="btn btn-success" (click)="editeventlog(frmDialog)" [disabled]="results.length==0">
+                            Edit
+                        </button>
+                        <button class="btn btn-success" (click)="addWindowsEvent(frmDialog)">
+                            Add
+                        </button>
+                        <button class="btn btn-success" (click)="deleteWindowsEvent();" [disabled]="results.length==0">
+                            Delete
+                        </button>
+                    </div>
+                    <div>&nbsp;</div>
+                    <wj-flex-grid #flex [itemsSource]="results" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
+                        <wj-flex-grid-filter></wj-flex-grid-filter>
+                        <wj-flex-grid-column [header]="'Alias Name'" [binding]="'alias_name'" [width]="180"></wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Event Data'" [binding]="'message'" [width]="200"></wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Event Id'" [binding]="'event_id'" [width]="250"></wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Source'" [binding]="'source'" [width]="150"></wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Event Name'" [binding]="'event_name'" [width]="150"></wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Event Level'" [binding]="'event_level'" [width]="150"></wj-flex-grid-column>
+                    </wj-flex-grid>
+                    <div class="btn-group" *ngIf="data != null">
+                        <button type="button" class="btn btn-default"
+                                (click)="data.moveToFirstPage()"
+                                [disabled]="data.pageIndex <= 0">
+                            <span class="glyphicon glyphicon-fast-backward"></span>
+                        </button>
+                        <button type="button" class="btn btn-default"
+                                (click)="data.moveToPreviousPage()"
+                                [disabled]="data.pageIndex <= 0">
+                            <span class="glyphicon glyphicon-step-backward">
+                            </span>
+                        </button>
+                        <button type="button" class="btn btn-default" disabled style="width:100px">
+                            {{
+data.pageIndex + 1 | number
+                            }} / {{data.pageCount | number}}
+                        </button>
+                        <button type="button" class="btn btn-default"
+                                (click)="data.moveToNextPage()"
+                                [disabled]="data.pageIndex >= data.pageCount - 1">
+                            <span class="glyphicon glyphicon-step-forward"></span>
+                        </button>
+                        <button type="button" class="btn btn-default"
+                                (click)="data.moveToLastPage()"
+                                [disabled]="data.pageIndex >= data.pageCount - 1">
+                            <span class="glyphicon glyphicon-fast-forward"></span>
+                        </button>
+                    </div>
+                    <div class="pull-right" *ngIf="data != null">
+                        <wj-menu [(value)]="pageSize" [header]="'Page size'">
+                            <wj-menu-item [value]="10">10</wj-menu-item>
+                            <wj-menu-item [value]="20">20</wj-menu-item>
+                            <wj-menu-item [value]="50">50</wj-menu-item>
+                        </wj-menu>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Servers
+                </div>
+                <div class="panel-body">
+                    <div>
+                        <div class="text-danger" *ngIf="devices.length==0"><b>* Please select at least one server</b></div>
+                        <div *ngIf="devices.length==0">&nbsp;</div>
+                        <server-location-list (checkedDevices)="changeInDevices($event)" [(deviceList)]="checkedDevices" [(deviceTypes)]="currentDeviceTypes"></server-location-list>
+                    </div>
+                </div>
+            </div>           
+            <div>
+                <button type="button" class="btn btn-primary" (click)="applySetting()" [disabled]="!(devices.length>0)">Save</button>
+                <button type="button" class="btn btn-primary" (click)="CancelSettings()">Cancel</button>
+            </div>
+            <wj-popup class="modal-content col-sm-10" #frmDialog>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        {{formTitle}}
+                        <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+                    </div>
+                    <form (ngSubmit)="saveEventLog(frmDialog,frmUser)" #frmUser="ngForm" class="form-horizontal">
+                        <div class="panel panel-default">
+                            <div class="panel-body" *ngIf="currentEditItem">
+                                <div class="row">
+                                    <div class="form-group col-sm-6">
+                                        <label for="keyword" class="control-label col-sm-5">Alias Name</label>
+                                        <div class="col-sm-7">
+                                            <input type="text" class="form-control" id="alias_name" required name="alias_name" [(ngModel)]="currentEditItem.alias_name" #alias="ngModel"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-6">
+                                        <label for="message" class="control-label col-sm-5">Message</label>
+                                        <div class="col-sm-7">
+                                            <input type="text"  id="message" name="message" [(ngModel)]="currentEditItem.message" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-sm-6">
+                                        <label for="event_id" class="control-label col-sm-5">Event ID</label>
+                                        <div class="col-sm-7">
+                                            <input type="number" id="event_id" name="event_id" [(ngModel)]="currentEditItem.event_id" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-6">
+                                        <label for="source" class="control-label col-sm-5">Source</label>
+                                        <div class="col-sm-7">
+                                            <input type="text" class="form-control" id="source" name="source" [(ngModel)]="currentEditItem.source" />
+                                        </div>
+                                    </div>
+                                </div>
+                               
+                                <div class="row">
+                                    <div class="form-group col-sm-6">
+                                        <label for="event_name" class="control-label col-sm-5">Event Name</label>
+                                        <div class="col-sm-7">
+                                            <select id="event_name" name="event_name" [(ngModel)]="currentEditItem.event_name">
+                                                <option value="System">System</option>
+                                                <option value="Application">Appliction</option>
+                                                <option value="Security">Security</option>
+                                                <option value="Setup">Setup</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-sm-6">
+                                        <label for="event_level" class="control-label col-sm-5">Event Level</label>
+                                        <div class="col-sm-7">
+                                            <select name="event_level" [(ngModel)]="currentEditItem.event_level">
+                                                <option value="Critical">Critical</option>
+                                                <option value="Error">Error</option>
+                                                <option Value="Information">Information</option>
+                                                <option Value="Warning">Warning</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel-footer">
+                                <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+                                <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </wj-popup>
+        </div>
+    </div>
+</div>

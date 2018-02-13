@@ -166,9 +166,13 @@ import { Alerts } from './configurator/components/alert/alert-tabs-component';
 import { Nodes } from './configurator/components/security/security-assign-server-to-node.component';
 
 import { IBMDomino } from './configurator/components/ibmDomino/ibmdomino-tabs-component';
+import { WindowsLogSettings } from './configurator/components/MicrosoftSettings/windows-tabs-component';
+
 import { LogsTabs } from './configurator/components/logFiles/log-files-tabs-component';
 
 import { AddLogFile } from './configurator/components/ibmDomino/Ibm-save-domino-log-file-scanning.component';
+
+import { AddEventFile } from './configurator/components/MicrosoftSettings/windows-save-events-file-scanning.component';
 import { MobileUser } from './configurator/components/mobileusers/mobile-users.component';
 
 
@@ -234,7 +238,10 @@ export * from './configurator/components/security/security-assign-server-to-node
 
 export * from './configurator/components/logFiles/log-files-tabs-component';
 export * from './configurator/components/ibmDomino/ibmdomino-tabs-component';
+export * from './configurator/components/MicrosoftSettings/windows-tabs-component';
 export * from './configurator/components/ibmDomino/Ibm-save-domino-log-file-scanning.component';
+export * from './configurator/components/MicrosoftSettings/windows-save-events-file-scanning.component';
+
 export * from './configurator/components/mobileusers/mobile-users.component';
 export * from './configurator/components/serverImport/server-import-tabs-component';
 export * from './dashboards/components/mail-delivery-status/domino-mail-delivery-status.component';
@@ -752,6 +759,7 @@ const appRoutes: Routes = [
                 path: 'configurator/ibmDomino',
                 component: IBMDomino
             },
+            
             {
                 path: 'ibmDomino/add',
                 component: AddLogFile
@@ -759,6 +767,18 @@ const appRoutes: Routes = [
             {
                 path: 'ibmDomino/add/:id',
                 component: AddLogFile
+            },
+            {
+                path: 'configurator/windowslog',
+                component: WindowsLogSettings
+            },
+            {
+                path: 'windows/add',
+                component: AddEventFile
+            },
+            {
+                path: 'windows/add/:id',
+                component: AddEventFile
             },
             {
                 path: 'configurator/nodes',
