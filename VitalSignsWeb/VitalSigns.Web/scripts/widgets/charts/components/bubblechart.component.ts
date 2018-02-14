@@ -122,6 +122,23 @@ export class BubbleChartComponent implements WidgetComponent, OnInit {
                             });
                         }
                     });
+
+                    var outterThis = this;
+                    this.settings.chart.xAxis.tickPositioner = function () {
+                        var arr = [];
+                        for (var i = 0; i < outterThis.categoriesList.length; i++) {
+                            arr.push(i);
+                        }
+                        return arr;
+                    }
+
+                    this.settings.chart.yAxis.tickPositioner = function () {
+                        var arr = [];
+                        for (var i = 0; i < outterThis.activitiesList.length; i++) {
+                            arr.push(i);
+                        }
+                        return arr;
+                    }
                 });
                 this.chart = new Highcharts.Chart(this.settings.chart);
                 if (this.settings.callback)

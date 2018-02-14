@@ -57,13 +57,25 @@ export class ConnectionsUserActivityMonthlyChartReport extends WidgetController 
                         title: { text: '' },
                         subtitle: { text: '' },
                         xAxis: {
+                            min: null,
+                            max: null,
+                            startOnTick: false,
+                            endOnTick: false,
+                            showFirstLabel: true,
+                            showLastLabel: true,
+                            type: "category",
                             labels: {
                                 
                             }
                         },
                         yAxis: {
+                            min: null,
+                            max: null,
                             startOnTick: false,
                             endOnTick: false,
+                            showFirstLabel: true,
+                            showLastLabel: true,
+                            type: "category",
                             labels: {
                                 
                             },

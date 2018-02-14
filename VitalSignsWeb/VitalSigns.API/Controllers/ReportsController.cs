@@ -1837,7 +1837,7 @@ namespace VitalSigns.API.Controllers
                     
                 }
 
-                result = result.OrderBy(i => i.ObjectCreatedDate).ToList();
+                result = result.OrderByDescending(i => i.UserName).ToList();
                 foreach (var record in result)
                 {
                     if (!userList.Contains(record.UserName))
