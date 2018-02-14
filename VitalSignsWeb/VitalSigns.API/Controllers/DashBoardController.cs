@@ -2157,11 +2157,20 @@ namespace VitalSigns.API.Controllers
                 summaryStatisticsRepository = new Repository<SummaryStatistics>(ConnectionString);
                 serverRepository = new Repository<Server>(ConnectionString);
                 locationRepository = new Repository<Location>(ConnectionString);
+               
                 List<SummaryDataModel> summaryStats = new List<SummaryDataModel>();
+                List<String> statname = new List<string>() { "Mail.Delivered", "Mail.AverageDeliverTime", "Server.AvailabilityIndex", "HourlyDownTimeMinutes", "Mem.PercentAvailable", "Domino.Command.OpenDocument",
+                "Domino.Command.CreateDocument","Domino.Command.OpenDatabase","Domino.Command.OpenView","Domino.Command.Total","Http.CurrentConnections"};
+               
+                
                 if (statdate == DateTime.MinValue || statdate.Date == DateTime.Now.Date)
                 {
                     statdate = DateTime.Now;
-                    var result = summaryStatisticsRepository.All().Where(x => x.DeviceType == "Domino" && x.StatName != null && x.StatDate.HasValue && x.StatDate.Value.Month == statdate.Month && x.StatDate.Value.Year == statdate.Year).ToList();                   
+                    var startOfMonth = new DateTime(statdate.Year, statdate.Month, 1);
+                    FilterDefinition<SummaryStatistics> filterdef = summaryStatisticsRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Domino.ToDescription()) &
+                    summaryStatisticsRepository.Filter.Gte(x => x.StatDate, startOfMonth) & summaryStatisticsRepository.Filter.Lt(x => x.StatDate, startOfMonth.AddMonths(1))
+                    & summaryStatisticsRepository.Filter.In(x => x.StatName, statname);
+                    var result = summaryStatisticsRepository.Find(filterdef).ToList();                   
                     summaryStats = result.GroupBy(x => new { x.DeviceId, x.DeviceName, x.StatName })
                                          .Select(x => new SummaryDataModel
                                          {                                     
@@ -2174,7 +2183,11 @@ namespace VitalSigns.API.Controllers
                 }
                 else
                 {
-                    var result = summaryStatisticsRepository.All().Where(x => x.DeviceType == "Domino" && x.StatName != null && x.StatDate.HasValue && x.StatDate.Value.Month == statdate.Month && x.StatDate.Value.Year == statdate.Year).ToList();
+                    var startOfMonth = new DateTime(statdate.Year, statdate.Month, 1);
+                    FilterDefinition<SummaryStatistics> filterdef = summaryStatisticsRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Domino.ToDescription()) &
+                    summaryStatisticsRepository.Filter.Gte(x => x.StatDate, startOfMonth) & summaryStatisticsRepository.Filter.Lt(x => x.StatDate, startOfMonth.AddMonths(1))
+                    & summaryStatisticsRepository.Filter.In(x => x.StatName, statname);
+                    var result = summaryStatisticsRepository.Find(filterdef).ToList();
                     summaryStats = result.GroupBy(x => new { x.DeviceId, x.DeviceName, x.StatName })
                                          .Select(x => new SummaryDataModel
                                          {
@@ -2313,7 +2326,7 @@ namespace VitalSigns.API.Controllers
                                              DeviceID = x.Key.DeviceId,
                                              DeviceName = x.Key.DeviceName,
                                              StatName = x.Key.StatName,
-                                             Value = x.Sum(y => y.StatValue)
+                                             Value = x.Sum(y => y.StatValue)    
                                          }).ToList();
                 }
                 else
