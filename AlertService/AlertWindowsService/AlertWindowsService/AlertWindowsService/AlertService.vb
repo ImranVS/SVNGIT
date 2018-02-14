@@ -429,6 +429,7 @@ Public Class VitalSignsAlertService
             scriptsList = repoScripts.Find(filterScripts).ToList()
 
             filterURLs = repoAlertURLs.Filter.Exists(Function(k) k.Id, True)
+            URLsList = repoAlertURLs.Find(filterURLs).ToList()
 
             'Loops through each Notification and constructs a list of AlertDefinitions
             For Each notification As Notifications In notificationsList
