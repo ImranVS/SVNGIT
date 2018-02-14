@@ -3,7 +3,7 @@ import {ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 import {WidgetComponent} from '../../../core/widgets';
 import {WidgetService} from '../../../core/widgets/services/widget.service';
-import {RESTService} from '../../../core/services';
+import { RESTService, AppComponentService} from '../../../core/services';
 import { AppNavigator } from '../../../navigation/app.navigator.component';
 import { AuthenticationService } from '../../../profiles/services/authentication.service';
 import * as gridHelpers from '../../../core/services/helpers/gridutils';
@@ -28,7 +28,8 @@ export class DominoStatistics implements OnInit {
     currentPageSize: any = 20;
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     loading = false;
-    constructor(private service: RESTService, private route: ActivatedRoute, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) { }
+    constructor(private service: RESTService, private route: ActivatedRoute, protected gridHelpers: gridHelpers.CommonUtils,
+        private appComponentService: AppComponentService, private authService: AuthenticationService) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -56,14 +57,19 @@ export class DominoStatistics implements OnInit {
         this.gridHelpers.ExportExcel(this.flex, "DominoStatistics.xlsx")
     }
     ngOnInit() {
+        this.appComponentService.showProgressBar();
         this.service.get('/DashBoard/get_domino_statistics')
             .subscribe(
             (response) => {
+                this.appComponentService.hideProgressBar();
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
                 this.data.pageSize = this.currentPageSize;
             },
-            (error) => this.errorMessage = <any>error
-        );
+ 
+            (error) => {
+                this.appComponentService.hideProgressBar();
+                this.errorMessage = <any>error
+            });
         this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("DominoStatistics", this.authService.CurrentUser.email)}`)
             .subscribe(
             (data) => {
