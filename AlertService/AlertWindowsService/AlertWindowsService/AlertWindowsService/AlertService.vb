@@ -474,7 +474,7 @@ Public Class VitalSignsAlertService
                                     currDestination.PhoneNumber = destination.SendTo
 
                                 Case Destinations.SendType.Script.ToDescription()
-                                    Dim currentScript As List(Of Scripts) = scriptsList.Where(Function(x) x.ScriptName = destination.SendTo)
+                                    Dim currentScript As List(Of Scripts) = scriptsList.Where(Function(x) x.ScriptName = destination.SendTo).ToList()
                                     If currentScript.Count > 0 Then
                                         currDestination.ScriptName = destination.SendTo
                                         currDestination.ScriptLocation = currentScript(0).ScriptLocation
@@ -482,7 +482,7 @@ Public Class VitalSignsAlertService
                                     End If
 
                                 Case Destinations.SendType.URL.ToDescription()
-                                    Dim currentURL As List(Of Alert_URLs) = URLsList.Where(Function(x) x.Url = destination.SendTo)
+                                    Dim currentURL As List(Of Alert_URLs) = URLsList.Where(Function(x) x.Url = destination.SendTo).ToList()
                                     If currentURL.Count > 0 Then
                                         currDestination.URL = destination.SendTo
                                     End If
