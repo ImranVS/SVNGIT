@@ -1494,6 +1494,31 @@
           "lib/net451/Microsoft.Net.Http.Headers.dll": {}
         }
       },
+      "Microsoft.PowerShell.4.ReferenceAssemblies/1.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/net4/System.Management.Automation.dll": {}
+        },
+        "runtime": {
+          "lib/net4/Microsoft.Management.Infrastructure.dll": {},
+          "lib/net4/Microsoft.Management.Infrastructure.Native.dll": {},
+          "lib/net4/Microsoft.PowerShell.Activities.dll": {},
+          "lib/net4/Microsoft.PowerShell.Commands.Diagnostics.dll": {},
+          "lib/net4/Microsoft.PowerShell.ConsoleHost.dll": {},
+          "lib/net4/Microsoft.PowerShell.Core.Activities.dll": {},
+          "lib/net4/Microsoft.PowerShell.Diagnostics.Activities.dll": {},
+          "lib/net4/Microsoft.PowerShell.Editor.dll": {},
+          "lib/net4/Microsoft.PowerShell.GPowerShell.dll": {},
+          "lib/net4/Microsoft.PowerShell.GraphicalHost.dll": {},
+          "lib/net4/Microsoft.PowerShell.ISECommon.dll": {},
+          "lib/net4/Microsoft.PowerShell.Management.Activities.dll": {},
+          "lib/net4/Microsoft.PowerShell.Security.Activities.dll": {},
+          "lib/net4/Microsoft.PowerShell.Security.dll": {},
+          "lib/net4/Microsoft.PowerShell.Utility.Activities.dll": {},
+          "lib/net4/Microsoft.PowerShell.Workflow.ServiceCore.dll": {},
+          "lib/net4/System.Management.Automation.dll": {}
+        }
+      },
       "MongoDB.Bson/2.2.3": {
         "type": "package",
         "compile": {
@@ -3313,6 +3338,31 @@
         },
         "runtime": {
           "lib/net451/Microsoft.Net.Http.Headers.dll": {}
+        }
+      },
+      "Microsoft.PowerShell.4.ReferenceAssemblies/1.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/net4/System.Management.Automation.dll": {}
+        },
+        "runtime": {
+          "lib/net4/Microsoft.Management.Infrastructure.dll": {},
+          "lib/net4/Microsoft.Management.Infrastructure.Native.dll": {},
+          "lib/net4/Microsoft.PowerShell.Activities.dll": {},
+          "lib/net4/Microsoft.PowerShell.Commands.Diagnostics.dll": {},
+          "lib/net4/Microsoft.PowerShell.ConsoleHost.dll": {},
+          "lib/net4/Microsoft.PowerShell.Core.Activities.dll": {},
+          "lib/net4/Microsoft.PowerShell.Diagnostics.Activities.dll": {},
+          "lib/net4/Microsoft.PowerShell.Editor.dll": {},
+          "lib/net4/Microsoft.PowerShell.GPowerShell.dll": {},
+          "lib/net4/Microsoft.PowerShell.GraphicalHost.dll": {},
+          "lib/net4/Microsoft.PowerShell.ISECommon.dll": {},
+          "lib/net4/Microsoft.PowerShell.Management.Activities.dll": {},
+          "lib/net4/Microsoft.PowerShell.Security.Activities.dll": {},
+          "lib/net4/Microsoft.PowerShell.Security.dll": {},
+          "lib/net4/Microsoft.PowerShell.Utility.Activities.dll": {},
+          "lib/net4/Microsoft.PowerShell.Workflow.ServiceCore.dll": {},
+          "lib/net4/System.Management.Automation.dll": {}
         }
       },
       "MongoDB.Bson/2.2.3": {
@@ -5136,6 +5186,31 @@
           "lib/net451/Microsoft.Net.Http.Headers.dll": {}
         }
       },
+      "Microsoft.PowerShell.4.ReferenceAssemblies/1.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/net4/System.Management.Automation.dll": {}
+        },
+        "runtime": {
+          "lib/net4/Microsoft.Management.Infrastructure.dll": {},
+          "lib/net4/Microsoft.Management.Infrastructure.Native.dll": {},
+          "lib/net4/Microsoft.PowerShell.Activities.dll": {},
+          "lib/net4/Microsoft.PowerShell.Commands.Diagnostics.dll": {},
+          "lib/net4/Microsoft.PowerShell.ConsoleHost.dll": {},
+          "lib/net4/Microsoft.PowerShell.Core.Activities.dll": {},
+          "lib/net4/Microsoft.PowerShell.Diagnostics.Activities.dll": {},
+          "lib/net4/Microsoft.PowerShell.Editor.dll": {},
+          "lib/net4/Microsoft.PowerShell.GPowerShell.dll": {},
+          "lib/net4/Microsoft.PowerShell.GraphicalHost.dll": {},
+          "lib/net4/Microsoft.PowerShell.ISECommon.dll": {},
+          "lib/net4/Microsoft.PowerShell.Management.Activities.dll": {},
+          "lib/net4/Microsoft.PowerShell.Security.Activities.dll": {},
+          "lib/net4/Microsoft.PowerShell.Security.dll": {},
+          "lib/net4/Microsoft.PowerShell.Utility.Activities.dll": {},
+          "lib/net4/Microsoft.PowerShell.Workflow.ServiceCore.dll": {},
+          "lib/net4/System.Management.Automation.dll": {}
+        }
+      },
       "MongoDB.Bson/2.2.3": {
         "type": "package",
         "compile": {
@@ -6638,6 +6713,32 @@
         "Microsoft.Net.Http.Headers.nuspec"
       ]
     },
+    "Microsoft.PowerShell.4.ReferenceAssemblies/1.0.0": {
+      "type": "package",
+      "sha512": "u/6673J9ITLjdCVMLHV3rx0kiXDoPy4EIMWhI7goXPVT3ch/tdULXOWWr/gSYkvnk/Bz4vVs8ge75dnQew6K7w==",
+      "files": [
+        "lib/net4/Microsoft.Management.Infrastructure.dll",
+        "lib/net4/Microsoft.Management.Infrastructure.Native.dll",
+        "lib/net4/Microsoft.PowerShell.Activities.dll",
+        "lib/net4/Microsoft.PowerShell.Commands.Diagnostics.dll",
+        "lib/net4/Microsoft.PowerShell.ConsoleHost.dll",
+        "lib/net4/Microsoft.PowerShell.Core.Activities.dll",
+        "lib/net4/Microsoft.PowerShell.Diagnostics.Activities.dll",
+        "lib/net4/Microsoft.PowerShell.Editor.dll",
+        "lib/net4/Microsoft.PowerShell.GPowerShell.dll",
+        "lib/net4/Microsoft.PowerShell.GraphicalHost.dll",
+        "lib/net4/Microsoft.PowerShell.ISECommon.dll",
+        "lib/net4/Microsoft.PowerShell.Management.Activities.dll",
+        "lib/net4/Microsoft.PowerShell.Security.Activities.dll",
+        "lib/net4/Microsoft.PowerShell.Security.dll",
+        "lib/net4/Microsoft.PowerShell.Utility.Activities.dll",
+        "lib/net4/Microsoft.PowerShell.Workflow.ServiceCore.dll",
+        "lib/net4/System.Management.Automation.dll",
+        "Microsoft.PowerShell.4.ReferenceAssemblies.1.0.0.nupkg",
+        "Microsoft.PowerShell.4.ReferenceAssemblies.1.0.0.nupkg.sha512",
+        "Microsoft.PowerShell.4.ReferenceAssemblies.nuspec"
+      ]
+    },
     "MongoDB.Bson/2.2.3": {
       "type": "package",
       "sha512": "AwxyD8qYgy1GQkxQV2uMzymm19QwaNNAER6gf/w8f2dDjcboEve1kv9GEz7mtn2K8p6hYQjhgnvGc+xeh0KLmg==",
@@ -7516,7 +7617,8 @@
       "Microsoft.AspNet.Authentication.JwtBearer >= 1.0.0-rc1-final",
       "System.IdentityModel.Tokens >= 5.0.0-rc1-211161024",
       "System.IdentityModel.Tokens.Jwt >= 5.0.0-rc1-211161024",
-      "Microsoft.AspNet.Diagnostics >= 1.0.0-rc1-final"
+      "Microsoft.AspNet.Diagnostics >= 1.0.0-rc1-final",
+      "Microsoft.PowerShell.4.ReferenceAssemblies >= 1.0.0"
     ],
     "DNX,Version=v4.5.1": [
       "AlertLibrary >= 1.0.0-*",
