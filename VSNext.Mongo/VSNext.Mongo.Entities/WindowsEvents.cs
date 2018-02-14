@@ -52,7 +52,7 @@ namespace VSNext.Mongo.Entities
             [DataMember]
             [BsonIgnoreIfNull]
             [BsonElement("event_id")]
-            public int EventId { get; set; }
+            public int? EventId { get; set; }
 
             [DataMember]
             [BsonIgnoreIfNull]
@@ -68,11 +68,6 @@ namespace VSNext.Mongo.Entities
             [BsonIgnoreIfNull]
             [BsonElement("event_level")]
             public String EventLevel { get; set; }
-
-            [DataMember]
-            [BsonIgnoreIfNull]
-            [BsonElement("task_category")]
-            public String TaskCategory { get; set; }
         }
     }
 }
