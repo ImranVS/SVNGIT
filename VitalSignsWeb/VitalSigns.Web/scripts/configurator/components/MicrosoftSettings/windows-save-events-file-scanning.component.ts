@@ -7,7 +7,7 @@ import {AppComponentService} from '../../../core/services';
 import { ServersLocationService } from '../serverSettings/serverattributes-view.service';
 import { AuthenticationService } from '../../../profiles/services/authentication.service';
 import * as gridHelpers from '../../../core/services/helpers/gridutils';
-
+declare var injectSVG: any;
 
 @Component({
     templateUrl: '/app/configurator/components/MicrosoftSettings/windows-save-events-file-scanning.component.html',
@@ -85,6 +85,7 @@ export class AddEventFile extends GridBase implements OnInit {
             },
             (error) => this.errorMessage = <any>error
             );
+        injectSVG();
     }
     loadData() {
         this.service.get('/configurator/get_windows_event_scaning/' + this.id)
