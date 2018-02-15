@@ -3,7 +3,7 @@ import {HttpModule}    from '@angular/http';
 
 import {WidgetComponent} from '../../../core/widgets';
 import {WidgetService} from '../../../core/widgets/services/widget.service';
-import {RESTService} from '../../../core/services';
+import { RESTService, AppComponentService} from '../../../core/services';
 import { AuthenticationService } from '../../../profiles/services/authentication.service';
 import * as gridHelpers from '../../../core/services/helpers/gridutils';
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
@@ -44,7 +44,8 @@ export class IBMWebsphereGrid implements WidgetComponent, OnInit {
 
     }
 
-    constructor(private service: RESTService, private widgetService: WidgetService, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) { }
+    constructor(private service: RESTService, private widgetService: WidgetService, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService,
+        private appComponentService: AppComponentService) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -70,10 +71,11 @@ export class IBMWebsphereGrid implements WidgetComponent, OnInit {
     }
 
     ngOnInit() {
-
+        this.appComponentService.showProgressBar();
         this.service.get('/services/status_list?type=WebSphereCell')
             .subscribe(
             (data) => {
+                this.appComponentService.hideProgressBar();
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
                 this.data.pageSize = this.currentPageSize;
                 this.data.moveCurrentToPosition(0);
@@ -88,8 +90,10 @@ export class IBMWebsphereGrid implements WidgetComponent, OnInit {
                 this.data.pageSize = this.currentPageSize;
                 this.data.refresh();
             },
-            (error) => this.errorMessage = <any>error
-            );
+            (error) => {
+                this.appComponentService.hideProgressBar();
+                this.errorMessage = <any>error
+            });
 
     }
 

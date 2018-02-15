@@ -3,7 +3,7 @@ import {HttpModule}    from '@angular/http';
 
 import {WidgetComponent} from '../../../core/widgets';
 import {WidgetService} from '../../../core/widgets/services/widget.service';
-import {RESTService} from '../../../core/services';
+import { RESTService, AppComponentService} from '../../../core/services';
 import { AuthenticationService } from '../../../profiles/services/authentication.service';
 import * as gridHelpers from '../../../core/services/helpers/gridutils';
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
@@ -34,7 +34,8 @@ export class OverallDatabaseGrid implements WidgetComponent, OnInit {
     get serviceId(): string {
         return this._serviceId;
     }
-    constructor(private service: RESTService, private widgetService: WidgetService, protected toolTip: helpers.GridTooltip, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) { }
+    constructor(private service: RESTService, private widgetService: WidgetService, protected toolTip: helpers.GridTooltip, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService,
+      private appComponentService: AppComponentService) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -65,51 +66,66 @@ export class OverallDatabaseGrid implements WidgetComponent, OnInit {
     ngOnInit() {
 
         if (this.widgetService.getProperty("ismailpage") == "True") {
+            this.appComponentService.showProgressBar();
             this.service.get('/dashboard/database?filter_by=IsMailFile&filter_value=true&order_by=FileName&order_type=asc')
                 .subscribe(
                 (data) => {
+                    this.appComponentService.hideProgressBar();
                     this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
                     this.data.pageSize = this.currentPageSize;
                     var groupDesc = new wijmo.collections.PropertyGroupDescription('device_name');
                     this.data.groupDescriptions.push(groupDesc);
                 },
-                (error) => this.errorMessage = <any>error
-                );
+                (error) => {
+                    this.appComponentService.hideProgressBar();
+                    this.errorMessage = <any>error
+                });
         }
         else if (this.widgetService.getProperty("ismailpage") == "False") {
             if (this.widgetService.getProperty("exceptions") == "True") {
+                this.appComponentService.showProgressBar();
                 this.service.get('/dashboard/database?order_by=FileName&order_type=asc&exceptions=true')
                     .subscribe(
                     (data) => {
+                        this.appComponentService.hideProgressBar();
                         this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
                         this.data.pageSize = this.currentPageSize;
                         //var flex = new wijmo.grid.FlexGrid('#flex');
                     },
-                    (error) => this.errorMessage = <any>error
-                    );
+                    (error) => {
+                        this.appComponentService.hideProgressBar();
+                        this.errorMessage = <any>error
+                    });
             }
             else {
                 if (this.widgetService.getProperty("istemplate") == "True") {
+                    this.appComponentService.showProgressBar();
                     this.service.get('/dashboard/database?order_by=FileName&order_type=asc')
                         .subscribe(
                         (data) => {
+                            this.appComponentService.hideProgressBar();
                             this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
                             this.data.pageSize = this.currentPageSize;
                             var groupDesc = new wijmo.collections.PropertyGroupDescription('design_template_name');
                             this.data.groupDescriptions.push(groupDesc);
                         },
-                        (error) => this.errorMessage = <any>error
-                        );
+                        (error) => {
+                            this.appComponentService.hideProgressBar();
+                            this.errorMessage = <any>error
+                        });
                 }
                 else {
                     this.service.get('/dashboard/database?order_by=FileName&order_type=asc')
                         .subscribe(
                         (data) => {
+                            this.appComponentService.hideProgressBar();
                             this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
                             this.data.pageSize = this.currentPageSize;
                         },
-                        (error) => this.errorMessage = <any>error
-                        );
+                        (error) => {
+                            this.appComponentService.hideProgressBar();
+                            this.errorMessage = <any>error
+                        });
 
                 }
             }

@@ -3,7 +3,7 @@ import {HttpModule}    from '@angular/http';
 
 import {WidgetComponent} from '../../../core/widgets';
 import {WidgetService} from '../../../core/widgets/services/widget.service';
-import {RESTService} from '../../../core/services';
+import { RESTService, AppComponentService} from '../../../core/services';
 import { AuthenticationService } from '../../../profiles/services/authentication.service';
 import * as gridHelpers from '../../../core/services/helpers/gridutils';
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
@@ -27,7 +27,8 @@ export class IBMWebsphereServerGrid implements WidgetComponent, OnInit {
     errorMessage: string;
     currentPageSize: any = 20;
     
-    constructor(private service: RESTService, protected widgetService: WidgetService, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) { }
+    constructor(private service: RESTService, protected widgetService: WidgetService, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService,
+        private appComponentService: AppComponentService) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -53,16 +54,20 @@ export class IBMWebsphereServerGrid implements WidgetComponent, OnInit {
     }
 
     ngOnInit() {
+        this.appComponentService.showProgressBar();
         this.serviceId = this.widgetService.getProperty('serviceId');
 
         this.service.get(`/services/websphere_devices?parentid=${this.serviceId}&devicetype=WebSphere`)
             .subscribe(
             (data) => {
+                this.appComponentService.hideProgressBar();
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
                 this.data.pageSize = this.currentPageSize;
             },
-            (error) => this.errorMessage = <any>error
-            );
+            (error) => {
+                this.appComponentService.hideProgressBar();
+                this.errorMessage = <any>error
+            });
         this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("IBMWebsphereServerGrid", this.authService.CurrentUser.email)}`)
             .subscribe(
             (data) => {
