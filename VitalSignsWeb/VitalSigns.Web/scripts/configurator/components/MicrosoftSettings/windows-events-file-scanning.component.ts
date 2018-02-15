@@ -6,6 +6,7 @@ import {ActivatedRoute} from '@angular/router';
 import { AppComponentService } from '../../../core/services';
 import { AuthenticationService } from '../../../profiles/services/authentication.service';
 import * as gridHelpers from '../../../core/services/helpers/gridutils';
+declare var injectSVG: any;
 
 
 
@@ -75,6 +76,7 @@ export class WindowsEventFiles extends GridBase implements OnInit {
             (error) => this.errorMessage = <any>error
             );
         this.initialGridBind('/configurator/get_windows_events');
+        injectSVG();
     }
 
     refreshGrid(event: wijmo.grid.CellRangeEventArgs) {
