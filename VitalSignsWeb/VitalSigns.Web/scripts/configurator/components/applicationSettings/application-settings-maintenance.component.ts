@@ -37,7 +37,7 @@ export class Maintenance extends GridBase implements OnInit  {
     devices: string[] = [];
     _deviceList: any;
     checkedDevices: any;
-    selDeviceTypes: string = "Domino,Sametime,URL,WebSphere,IBM Connections";
+    selDeviceTypes: string = "Domino,Sametime,URL,WebSphere,IBM Connections,Exchange,SharePoint,Active Directory,Office365,Database Availability Group";
     keyUsers: string[] = [];
     loading = false;
 
