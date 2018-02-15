@@ -220,11 +220,12 @@ namespace VitalSigns.API.Controllers
                     {
                         dt = DateTime.Now.AddDays(-30);
                         dt = DateTime.SpecifyKind(dt, DateTimeKind.Utc);
+                        FilterDefinition<MobileDevices> filterdef = mobileDevicesRepository.Filter.Exists(x => x.IsActive) & mobileDevicesRepository.Filter.Eq(x => x.IsActive, true)
+                            & mobileDevicesRepository.Filter.Lte(x => x.LastSyncTime, dt);
                         result = mobileDevicesRepository.Collection
-                        .Find(mobileDevicesRepository.Filter.Exists(x => x.IsActive) & mobileDevicesRepository.Filter.Eq(x => x.IsActive, true))
+                        .Find(filterdef)
                         .ToList()
                         .AsQueryable()
-                        .Where(x => x.LastSyncTime <= dt)
                         .Select(x => new MobileUserDevice
                         {
                             Id = x.Id,
@@ -2312,6 +2313,8 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
+                ///////////////////////////////////////////////////////////////////////////////
+                //optimize before using  summaryStatisticsRepository.All() is bad use  summaryStatisticsRepository.Find()
                 List<SametimeStatisticsModel> sametimeStatisticsData = new List<SametimeStatisticsModel>();
                 summaryStatisticsRepository = new Repository<SummaryStatistics>(ConnectionString);
                 serverRepository = new Repository<Server>(ConnectionString);
