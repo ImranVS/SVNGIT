@@ -13,6 +13,7 @@ using System.Globalization;
 using MongoDB.Bson;
 using System.Dynamic;
 using Microsoft.AspNet.Authorization;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace VitalSigns.API.Controllers
 {
@@ -2030,15 +2031,19 @@ namespace VitalSigns.API.Controllers
                 //Gets server info
                 FilterDefinition<Server> filterDefServer = serverRepository.Filter.Eq(x => x.Id, obj.DeviceId);
                 List<Server> listOfServers = serverRepository.Find(filterDefServer).ToList();
-                if (listOfServers.Count() == 0)
+                if (listOfServers.Count() == 0) {
                     Response = Common.CreateResponse(null, "Error", "Could not find the server in the database.");
+                    return Response;
+                }
                 Server server = listOfServers.First();
 
                 //Gets credential Info
                 FilterDefinition<Credentials> filterDefCredentials = credentialsRepository.Filter.Eq(x => x.Id, server.CredentialsId);
                 List<Credentials> listOfCredentials = credentialsRepository.Find(filterDefCredentials).ToList();
-                if (listOfServers.Count() == 0)
+                if (listOfServers.Count() == 0) {
                     Response = Common.CreateResponse(null, "Error", "Could not find the credentials in the database.");
+                    return Response;
+                }
                 Credentials creds = listOfCredentials.First();
 
                 //Calls the connect to server
@@ -2073,7 +2078,7 @@ namespace VitalSigns.API.Controllers
                 string response = "Output from PowerShell:\n";
 
                 System.Collections.ObjectModel.Collection<System.Management.Automation.PSObject> psOutput = ps.Invoke();
-                
+
 
 
                 
@@ -2094,10 +2099,32 @@ namespace VitalSigns.API.Controllers
                         response += error.ToString() + "\n";
                 }
 
-                
-                
+
+                string authHeader = Request.Headers["Authorization"].First();
+                JwtSecurityTokenHandler jwt = new JwtSecurityTokenHandler();
+                JwtSecurityToken token = jwt.ReadJwtToken(authHeader.Substring(authHeader.IndexOf(' ')).Trim());
+                string email = token.Claims.Where(x => x.Type == "email").First().Value;
+                Repository<Users> usersRepo = new Repository<Users>(ConnectionString);
+                Users user = usersRepo.Find(x => x.Email == email).First();
 
 
+                Repository<PowerScriptsLog> powerScriptsLogRepo = new Repository<PowerScriptsLog>(ConnectionString);
+                PowerScriptsLog psLogEntry = new PowerScriptsLog()
+                {
+                    TargetDeviceId = obj.DeviceId,
+                    TargetDeviceName = server.DeviceName,
+                    DeviceType = server.DeviceType,
+                    Parameters = obj.ParametersList.Select(x => new NameValuePair() { Name = x.Name, Value = x.Value }).ToList(),
+                    ScriptName = obj.Name,
+                    ScriptPath = obj.Path,
+                    Response = response,
+                    UserId = user.Id,
+                    UserName = user.FullName
+                };
+                powerScriptsLogRepo.Insert(psLogEntry);
+
+
+                
 
                 response = response.Replace("\n", "<br />");
                 Response = Common.CreateResponse(response);
@@ -2116,7 +2143,37 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
-        
+
+        [HttpGet("get_powerscripts_audit_log")]
+        public APIResponse GetPowerScriptsAuditLog()
+        {
+            try
+            {
+                Repository<PowerScriptsLog> repo = new Repository<PowerScriptsLog>(ConnectionString);
+                List<PowerScriptsAuditModel> powerScriptsLogList = repo.Find(x => true).ToList()
+                    .Select(x => new PowerScriptsAuditModel()
+                    {
+                        DeviceId = x.TargetDeviceId,
+                        DeviceName = x.TargetDeviceName,
+                        DeviceType = x.DeviceType,
+                        ParametersList = x.Parameters.Select(y => new PowerScriptsAuditModel.Parameters() { Name = y.Name, Value = y.Value }).ToList(),
+                        Response = x.Response != null ? x.Response.Replace("\n", "<br />") : x.Response,
+                        ScriptName = x.ScriptName,
+                        ScriptPath = x.ScriptPath,
+                        UserId = x.UserId,
+                        UserName = x.UserName,
+                        DateTimeExecuted = x.CreatedOn.ToUniversalTime()
+                    }).ToList();
+
+                Response = Common.CreateResponse(powerScriptsLogList);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+            }
+            return Response;
+
+        }
 
         #endregion
 

@@ -1,7 +1,7 @@
 ﻿    
                 <button class="btn btn-primary" (click)="ExportExcel()">Export to Excel</button>
                 <button class="btn btn-primary" (click)="moredetails()">Mailbox Access</button>
-                <wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" headersVisibility="Column" #flex>
+                <wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" headersVisibility="Column" (dblclick)="moredetails()" #flex>
                     
                     <wj-flex-grid-filter></wj-flex-grid-filter>
                     <wj-flex-grid-column [header]="'Display Name'" [binding]="'display_name'" [width]="250"></wj-flex-grid-column>

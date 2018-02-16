@@ -126,7 +126,8 @@ export class MicrosoftPowerShellScripts implements WidgetComponent, OnInit  {
         this.parameterForm = this.formBuilder.group({
             path: mainThis.selectedScript.path,
             parameters: mainThis.formBuilder.array(mainThis.selectedScript.parameters.map(function (x) { return mainThis.formBuilder.group({ name: x.name, value: x.value }); })),
-            device_id: mainThis.selectedDevice.device_id
+            device_id: mainThis.selectedDevice.device_id,
+            name: mainThis.selectedScript.name
         });
     }
     onSubmit(): void {

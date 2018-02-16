@@ -37,7 +37,13 @@ export class WindowsLogSettings implements OnInit {
                 "component": "WindowsEventFiles",
                 "path": "/app/components/WindowsSettings/windows-events-file-scanning.component",
                 "active": false
-            }       
+            },
+            {
+                "title": " PowerScripts Audit Log",
+                "component": "PowerScriptsAudit",
+                "path": "/app/configurator/components/microsoftsettings/powerscripts-audit.component",
+                "active": false
+            }      
         ];
         var tab:number = 0;
         this.route.queryParams.subscribe(params => {
