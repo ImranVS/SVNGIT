@@ -63,6 +63,7 @@
     <Compile Include="ConsolidationResults.cs" />
     <Compile Include="EventsReport.cs" />
     <Compile Include="WindowsEvents.cs" />
+    <Compile Include="PowerScriptsLog.cs" />
     <Compile Include="UsersAndGroups.cs" />
     <Compile Include="ScheduledReports.cs" />
     <Compile Include="SiteMap.cs" />
