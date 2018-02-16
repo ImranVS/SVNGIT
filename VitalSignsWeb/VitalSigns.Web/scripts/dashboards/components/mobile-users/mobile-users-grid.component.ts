@@ -2,7 +2,7 @@
 import {HttpModule}    from '@angular/http';
 
 import {WidgetComponent} from '../../../core/widgets';
-import { RESTService, AppComponentService} from '../../../core/services';
+import { RESTService} from '../../../core/services';
 
 import * as helpers from '../../../core/services/helpers/helpers';
 import * as gridHelpers from '../../../core/services/helpers/gridutils';
@@ -29,11 +29,11 @@ export class MobileUsersGrid implements WidgetComponent, OnInit {
 
     data: wijmo.collections.CollectionView;
     errorMessage: string;
-
+    isLoading: boolean = true;
     currentPageSize: any = 20;
     
     constructor(private service: RESTService, protected datetimeHelpers: helpers.DateTimeHelper, protected gridHelpers: gridHelpers.CommonUtils,
-        private appComponentService: AppComponentService,private authService: AuthenticationService) { }
+        private authService: AuthenticationService) { }
 
     get pageSize(): number {
         return this.data.pageSize;
@@ -61,18 +61,17 @@ export class MobileUsersGrid implements WidgetComponent, OnInit {
     }
 
     ngOnInit() {
-        this.appComponentService.showProgressBar();
+      
         this.service.get('/dashboard/mobile_user_devices')
             .subscribe(
             (data) => {
-                this.appComponentService.hideProgressBar();
+               
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(data.data)));
                 this.data.pageSize = this.currentPageSize;
+                this.isLoading = false;
             },
-            (error) => {
-                this.appComponentService.hideProgressBar();
-                this.errorMessage = <any>error
-            });
+            (error) => { this.errorMessage = <any>error; this.isLoading = false; }
+            );
 
         this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("MobileUsersGrid", this.authService.CurrentUser.email)}`)
             .subscribe(

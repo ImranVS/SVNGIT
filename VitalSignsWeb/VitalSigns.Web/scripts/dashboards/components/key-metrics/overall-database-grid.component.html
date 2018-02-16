@@ -27,6 +27,7 @@
         </template>
     </wj-flex-grid-column>
 </wj-flex-grid>
+<loading-indicator [isLoading]="isLoading"></loading-indicator>
 <div class="btn-group" *ngIf="data != null">
     <button type="button" class="btn btn-default"
             (click)="data.moveToFirstPage()"

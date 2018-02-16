@@ -15,6 +15,7 @@
     <wj-flex-grid-column [header]="'Total JVMs'" [binding]="'jvm_count'" align="right"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Monitored JVMs'" [binding]="'jvm_monitored_count'" wordwrap="true" [width]="180" align="right"></wj-flex-grid-column>
 </wj-flex-grid>
+<loading-indicator [isLoading]="isLoading"></loading-indicator>
 <div class="btn-group" *ngIf="data != null">
     <button type="button" class="btn btn-default"
             (click)="data.moveToFirstPage()"
