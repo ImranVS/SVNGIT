@@ -414,6 +414,7 @@ Public Class VitalSignsAlertService
             filterServersOther = repoServersOther.Filter.Exists(Function(j) j.NotificationList, True)
             serversList = repoServersOther.Find(filterServersOther).ToArray().Select(
                 Function(x) New Server() With {
+                .Id = x.Id,
                 .DeviceName = x.Name,
                 .DeviceType = x.Type
                 }
@@ -441,7 +442,7 @@ Public Class VitalSignsAlertService
 
                     currAlertDef.Servers = serversList.
                         Where(Function(x) x.NotificationList IsNot Nothing AndAlso x.NotificationList.Contains(notification.Id)).
-                        Select(Function(x) New Servers() With {.DeviceName = x.DeviceName, .DeviceType = x.DeviceType}).
+                        Select(Function(x) New Servers() With {.DeviceName = x.DeviceName, .DeviceType = x.DeviceType, .DeviceId = x.Id}).
                         ToList()
 
                     currAlertDef.Events = eventsList.
@@ -482,11 +483,11 @@ Public Class VitalSignsAlertService
                                         currDestination.ScriptCommand = currentScript(0).ScriptCommand
                                     End If
 
-                                Case Destinations.SendType.URL.ToDescription()
-                                    Dim currentURL As List(Of Alert_URLs) = URLsList.Where(Function(x) x.Url = destination.SendTo).ToList()
-                                    If currentURL.Count > 0 Then
-                                        currDestination.URL = destination.SendTo
-                                    End If
+                                     Case Destinations.SendType.URL.ToDescription()
+                                      Dim currentURL As List(Of Alert_URLs) = URLsList.Where(Function(x) x.Name = destination.SendTo).ToList()
+                                      If currentURL.Count > 0 Then
+                                    currDestination.URL = currentURL.First().Url
+                                     End If
                             End Select
 
                             currAlertDef.Destinations.Add(currDestination)
@@ -515,14 +516,17 @@ Public Class VitalSignsAlertService
             'Loops through each open event
             For Each currEvent As EventsDetected In openEventsList
                 'Loops through the AlertDefinitions which are subscribed to the events, which is determined by checking if a set exists where the device type and event type match
-
-                For Each currAlertDefinition As AlertDefinition In alertDefinitions.Where(Function(x) x.Events IsNot Nothing AndAlso x.Events.Where(Function(y) y.DeviceType = currEvent.DeviceType And y.EventType = currEvent.EventType).Count > 0)
+                'Compares the device type AND device ID for the very very slim chance there is a document in both server and server_other collections with the same id. Type will make sure it will be correct
+                For Each currAlertDefinition As AlertDefinition In alertDefinitions.Where(Function(x) _
+                        (x.Servers IsNot Nothing AndAlso x.Servers.Exists(Function(y) y.DeviceType = currEvent.DeviceType And y.DeviceId = currEvent.DeviceId)) And
+                        (x.Events IsNot Nothing AndAlso x.Events.Exists(Function(y) y.DeviceType = currEvent.DeviceType And currEvent.EventType.Contains(y.EventType)))
+                    )
 
                     'Checks if it can send via recurrence rules
                     Dim recurrencePassed As Boolean = False
 
                     Dim currEventFromDefinition As Events = currAlertDefinition.Events.
-                            Where(Function(x) x.DeviceType = currEvent.DeviceType And x.EventType = currEvent.EventType).First()
+                            Where(Function(x) x.DeviceType = currEvent.DeviceType And currEvent.EventType.Contains(x.EventType)).First()
 
                     If alertAboutRecurrences AndAlso currEventFromDefinition.NotificationOnRepeat AndAlso currEvent.EventRepeatCount + 1 >= numberOfRecurrences Then
                         recurrencePassed = True
@@ -609,29 +613,29 @@ Public Class VitalSignsAlertService
                                     WriteServiceHistoryEntry(Now.ToString & " Processing alert definition " & currAlertDefinition.NotificationId & ".", LogLevel.Normal)
                                     WriteServiceHistoryEntry(Now.ToString & " Processing alert destination " & currDestination.DestinationId & ".", LogLevel.Normal)
                                     WriteServiceHistoryEntry(Now.ToString & " SENT EMAIL. /" & currDestination.SendTo & "/" & "/" & currDestination.CopyTo & "/" & currDestination.BlindCopyTo & "", LogLevel.Normal)
-                                    alertSent = SendMailwithChilkatorNet(currDestination.SendTo, currDestination.CopyTo, currDestination.BlindCopyTo, currEvent.Device,
-                                                             currEvent.DeviceType, "", currEvent.EventType, currEvent.EventType, currEvent.Details, "", "Alert")
+                                        alertSent = SendMailwithChilkatorNet(currDestination.SendTo, currDestination.CopyTo, currDestination.BlindCopyTo, currEvent.Device,
+                                        currEvent.DeviceType, "", currEvent.EventType, currEvent.EventType, currEvent.Details, "", "Alert")
                                     'alertSent = True
                                 Case Destinations.SendType.SMS.ToDescription()
                                     WriteServiceHistoryEntry(Now.ToString & " Processing alert " & currEvent.Id & ". " & currEvent.DeviceType & " - " & currEvent.EventType & ".", LogLevel.Normal)
                                     WriteServiceHistoryEntry(Now.ToString & " Processing alert definition " & currAlertDefinition.NotificationId & ".", LogLevel.Normal)
                                     WriteServiceHistoryEntry(Now.ToString & " Processing alert destination " & currDestination.DestinationId & ".", LogLevel.Normal)
                                     WriteServiceHistoryEntry(Now.ToString & " SENT SMS. /" & currDestination.PhoneNumber & "", LogLevel.Normal)
-                                    alertSent = SendSMSwithTwilio(currDestination.PhoneNumber, currEvent.Device, currEvent.DeviceType, currEvent.EventType, currEvent.Details, "", "")
+                                        alertSent = SendSMSwithTwilio(currDestination.PhoneNumber, currEvent.Device, currEvent.DeviceType, currEvent.EventType, currEvent.Details, "", "")
                                     'alertSent = True
                                 Case Destinations.SendType.Script.ToDescription()
                                     WriteServiceHistoryEntry(Now.ToString & " Processing alert " & currEvent.Id & ". " & currEvent.DeviceType & " - " & currEvent.EventType & ".", LogLevel.Normal)
                                     WriteServiceHistoryEntry(Now.ToString & " Processing alert definition " & currAlertDefinition.NotificationId & ".", LogLevel.Normal)
                                     WriteServiceHistoryEntry(Now.ToString & " Processing alert destination " & currDestination.DestinationId & ".", LogLevel.Normal)
                                     WriteServiceHistoryEntry(Now.ToString & " SENT SCRIPT. /" & currDestination.ScriptName & "/" & "/" & currDestination.ScriptCommand & "/" & currDestination.ScriptLocation & "", LogLevel.Normal)
-                                    alertSent = SendScript(currDestination.ScriptName, currDestination.ScriptCommand, currDestination.ScriptLocation, currEvent.Device,
-                                                           currEvent.DeviceType, currEvent.EventType, currEvent.Details, "")
-                                Case Destinations.SendType.URL.ToDescription()
-                                    WriteServiceHistoryEntry(Now.ToString & " Processing alert " & currEvent.Id & ". " & currEvent.DeviceType & " - " & currEvent.EventType & ".", LogLevel.Normal)
-                                    WriteServiceHistoryEntry(Now.ToString & " Processing alert definition " & currAlertDefinition.NotificationId & ".", LogLevel.Normal)
-                                    WriteServiceHistoryEntry(Now.ToString & " Processing alert destination " & currDestination.DestinationId & ".", LogLevel.Normal)
-                                    WriteServiceHistoryEntry(Now.ToString & " Calling URL. /" & currDestination.URL, LogLevel.Normal)
-                                    alertSent = PostURL(currDestination.URL, currEvent.Device, currEvent.DeviceType, currEvent.EventType, currEvent.Details, False)
+                                     alertSent = SendScript(currDestination.ScriptName, currDestination.ScriptCommand, currDestination.ScriptLocation, currEvent.Device,
+                                    currEvent.DeviceType, currEvent.EventType, currEvent.Details, "")
+                                    Case Destinations.SendType.URL.ToDescription()
+                                        WriteServiceHistoryEntry(Now.ToString & " Processing alert " & currEvent.Id & ". " & currEvent.DeviceType & " - " & currEvent.EventType & ".", LogLevel.Normal)
+                                        WriteServiceHistoryEntry(Now.ToString & " Processing alert definition " & currAlertDefinition.NotificationId & ".", LogLevel.Normal)
+                                        WriteServiceHistoryEntry(Now.ToString & " Processing alert destination " & currDestination.DestinationId & ".", LogLevel.Normal)
+                                        WriteServiceHistoryEntry(Now.ToString & " Calling URL. /" & currDestination.URL, LogLevel.Normal)
+                                       alertSent = PostURL(currDestination.URL, currEvent.Device, currEvent.DeviceType, currEvent.EventType, currEvent.Details, False)
 
                             End Select
                         Catch ex As Exception
@@ -661,6 +665,16 @@ Public Class VitalSignsAlertService
                                 Case Destinations.SendType.URL.ToDescription()
                                     notificationSentEntity.NotificationSentTo = currDestination.URL
                             End Select
+
+                            'Handles alerts that will be cleared instantly with no cleared alert
+                            If (currEvent.Details = "This is a TEST alert.") Or InStr(currEvent.EventType, "Log File") Or InStr(currEvent.EventType, "Dead Mail Deletion") Then
+                                notificationSentEntity.EventDismissedSent = Now
+
+                                Dim filterDefForEventDismissed As FilterDefinition(Of EventsDetected) = repoEventsDetected.Filter.Eq(Function(x) x.Id, currEvent.Id)
+                                Dim updateDefForEventDismissed As UpdateDefinition(Of EventsDetected) = repoEventsDetected.Updater.Set(Function(x) x.EventDismissed, Now)
+                                bulkOps.Add(New MongoDB.Driver.UpdateOneModel(Of VSNext.Mongo.Entities.EventsDetected)(filterDefForEventDismissed, updateDefForEventDismissed))
+
+                            End If
 
                             Dim filterDefForUpdate As FilterDefinition(Of EventsDetected) = repoEventsDetected.Filter.Eq(Function(x) x.Id, currEvent.Id)
                             Dim updateDefForUpdate As UpdateDefinition(Of EventsDetected) = repoEventsDetected.Updater.Push(Function(x) x.NotificationsSent, notificationSentEntity)
