@@ -2,13 +2,15 @@
     <thead>
         <tr>
             <th>Key Word</th>
-            <th>Repeat Once</th>
+            <th>Scan Agent Log</th>
+            <th>Scan Log</th>
         </tr>
     </thead>
     <tbody *ngIf="logFile">
         <tr *ngFor="let logF of logFile">
             <td>{{logF.key_word}}</td>
-            <td>{{logF.repeat_once}}</td>
+            <td>{{logF.agent_log}}</td>
+            <td>{{logF.log}}</td>
         </tr>
     </tbody>
 </table>

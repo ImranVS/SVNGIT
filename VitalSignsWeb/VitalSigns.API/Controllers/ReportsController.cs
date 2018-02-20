@@ -25,6 +25,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<SummaryStatistics> summaryRepository;
         private IRepository<Database> databaseRepository;
         private IRepository<Server> serverRepository;
+        private IRepository<ServerOther> serverOtherRepository;
         private IRepository<Credentials> credentialsRepository;
         private IRepository<Status> statusRepository;
         private IRepository<DailyStatistics> dailyRepository;
@@ -973,16 +974,24 @@ namespace VitalSigns.API.Controllers
         [HttpGet("log_file")]
         public APIResponse GetLogFileData()
         {
-            logFileRepository = new Repository<LogFile>(ConnectionString);
-            List<LogFileList> result = null;
+            serverOtherRepository = new Repository<ServerOther>(ConnectionString);
+            FilterDefinition<ServerOther> filterDef = serverOtherRepository.Filter.Eq(x => x.Type, "Domino Log Scanning");
 
-            result = logFileRepository.Collection
-                             .AsQueryable()
-                             .Select(x => new LogFileList
-                             {
-                                 Keyword = x.KeyWord,
-                                 RepeatOnce = x.RepeateOnce
-                             }).ToList();
+            List<LogFileList> result = new List<LogFileList>();
+
+            List<List<LogFileKeyword>> LogFileKeywordsList = serverOtherRepository.Find(filterDef).ToList()
+                .Select(x => x.LogFileKeywords).ToList();
+
+            foreach(List<LogFileKeyword> currList in LogFileKeywordsList)
+            {
+                result.AddRange(currList.Select(x => new LogFileList()
+                {
+                    Keyword = x.Keyword,
+                    AgentLog = x.ScanAgentLog,
+                    Log = x.ScanLog
+                }));
+            }
+                
 
             Response = Common.CreateResponse(result.OrderBy(x => x.Keyword));
             return Response;

@@ -5128,7 +5128,7 @@ namespace VitalSigns.API.Controllers
                 businessHoursRepository = new Repository<BusinessHours>(ConnectionString);
                 string[] deviceTypesArr;
                 if (deviceTypes == "")
-                    deviceTypes = "Domino,Sametime,URL,WebSphere,IBM Connections,Office365,Notes Database Replica,Notes Database";
+                    deviceTypes = "Domino,Sametime,URL,WebSphere,IBM Connections,Office365,Notes Database Replica,Notes Database,Exchange,Active Directory,Database Availability Group,SharePoint,Office 365";
                 try
                 {
                     deviceTypesArr = deviceTypes.Split(',');
