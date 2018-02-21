@@ -1,8 +1,8 @@
-﻿import {Component, Output, EventEmitter, ViewChildren, Input} from '@angular/core';
-import {Router, ActivatedRoute} from '@angular/router';
-import {RESTService} from '../../../core/services';
-import {WidgetComponent} from '../../../core/widgets';
-import {WidgetService} from '../../../core/widgets/services/widget.service';
+﻿import { Component, Output, EventEmitter, ViewChildren, Input } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { RESTService } from '../../../core/services';
+import { WidgetComponent } from '../../../core/widgets';
+import { WidgetService } from '../../../core/widgets/services/widget.service';
 
 @Component({
     selector: 'any-statistic-filter',
@@ -15,7 +15,7 @@ export class AnyStatisticFilter {
     statisticTypeDropdown: any;
     statisticData: any;
     statisticDropdown: any;
-    aggregationDropdown: any;
+    aggregationDropdown:any;
 
 
 
@@ -26,8 +26,10 @@ export class AnyStatisticFilter {
     statName: string;
     @Input() widgetName: string;
     @Input() widgetURL: string;
+    @Input() hideAggregationControl: boolean = false;
+    @Input() hideServerControl: boolean = false;
     endDate: Date = new Date();
-    startDate: Date = new Date(this.endDate.getFullYear() ,this.endDate.getMonth(),this.endDate.getDate()-7);
+    startDate: Date = new Date(this.endDate.getFullYear(), this.endDate.getMonth(), this.endDate.getDate() - 7);
     currentDate: Date = new Date();
     deviceNameData: any;
     errorMessage: any;
@@ -54,7 +56,7 @@ export class AnyStatisticFilter {
         this.select.emit(this.widgetService.getProperty('widgetTitle'));
 
     }
-    
+
     constructor(private service: RESTService, private router: Router, private route: ActivatedRoute, private widgetService: WidgetService) { }
     ngOnInit() {
 
@@ -67,16 +69,23 @@ export class AnyStatisticFilter {
                 this.statisticTypeData = response.data;
             },
             (error) => this.errorMessage = <any>error
-        );
-        
-        
+            );
+
+        if (this.hideServerControl == true) {
+            var v1 = <HTMLDivElement>document.getElementById("dtServer");
+            v1.style.display = "none";
+        }
+        if (this.hideAggregationControl == true) {
+            var v1 = <HTMLDivElement>document.getElementById("dtAggregation");
+            v1.style.display = "none";
+        }
     }
     applyFilters() {
-      
+
         //var v = multisel1.checkedItems;
-       
+
         var selStartDate = (this.startDate.getDate()).toString();
-        var selStartMonth = (this.startDate.getMonth()+1).toString();
+        var selStartMonth = (this.startDate.getMonth() + 1).toString();
         if (selStartDate.length == 1)
             selStartDate = '0' + selStartDate;
         if (selStartMonth.length == 1)
@@ -103,34 +112,44 @@ export class AnyStatisticFilter {
         var newStartDate = new Date(this.startDate.getFullYear(), this.startDate.getMonth(), this.startDate.getDate());
         var newEndDate = new Date(this.endDate.getFullYear(), this.endDate.getMonth(), this.endDate.getDate());
         var newCurrentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), this.currentDate.getDate());
-        
+
         //var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + selectedServers + `&startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString();
         //if (this.showSingleDatePanel)
         //    URL += "&date=" + newCurrentDate.toISOString();
         //if (this.statName != "")
         //    URL += "&statName=" + this.statName;
-        var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString() + `&aggregationType=` + this.aggregationDropdown + `&statName=` + this.statisticDropdown.value + `&type=` + this.statisticTypeDropdown.value;
-  
+        var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString();
+
+        if (this.hideAggregationControl == false) {
+            URL = URL + `&aggregationType=` + this.aggregationDropdown;
+        }
+        if (this.hideServerControl == false) {
+            URL = URL + `&statName=` + this.statisticDropdown.value + `&type=` + this.statisticTypeDropdown.value;
+        }
+
+
         //});
         //this.widgetService.refreshWidget('avgcpuutilchart', `/reports/summarystats_chart?statName=Platform.System.PctCombinedCpuUtil&deviceId=` + selectedServers + `&start=` + this.startDate.toISOString() + `&end=` + this.endDate.toISOString())
         //    .catch(error => console.log(error));
         //var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + "Temp";
-      
+
         var arr = Array.from(document.getElementById(this.widgetName).childNodes)
 
-        if (arr.length > 1 && arr.some(function (x) { return (x.firstChild != null ? x.firstChild.localName.toString().includes("wj-flex-grid") : false); })) {
-            this.gridUrl = URL;
-            this.widgetTitle = this.statisticDropdown.value;
-        } else {
+        //if (arr.length > 1 && arr.some(function (x) { return (x.firstChild != null ? x.firstChild.localName.toString().includes("wj-flex-grid") : false); })) {
+        //    this.gridUrl = URL;
+        //    this.widgetTitle = this.statisticDropdown.value;
+        //    this.widgetService.refreshWidget(this.widgetName, URL)
+        //        .catch(error => console.log(error));
+        //} else {
             this.widgetService.refreshWidget(this.widgetName, URL)
                 .catch(error => console.log(error));
-        }
-        
+    //    }
+
 
     }
 
     setStatisticDropdown() {
-       
+
         this.service.get(`/reports/statistics_types_summary?type=${this.statisticTypeDropdown.value}`)
             .subscribe(
             (response) => {

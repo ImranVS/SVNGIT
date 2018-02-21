@@ -21,10 +21,12 @@ export class AnyStatisticReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
 
-    url: string = `/reports/summarystats_aggregation`;
-
+    baseUrl: string = `/reports/summarystats_aggregation`;
+    gridUrl: string = this.baseUrl + `?type = Domino & statName=[Mail.Transferred, Mail.TotalRouted, Mail.Delivered]`;
+    currentHideAggregationControl: boolean = false;
+    currentHideServerControl: boolean = false;
     currentWidgetName: string = `anyStatisticsGrid`;
-    currentWidgetURL: string = this.url;
+    currentWidgetURL: string = this.baseUrl;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
         protected urlHelpers: helpers.UrlHelperService) {
@@ -46,7 +48,7 @@ export class AnyStatisticReport extends WidgetController {
                 id: 'anyStatisticsGrid',
                 title: '',
                 name: 'AnyStatisticReportGrid',
-                settings: {}
+                settings: { url:this.gridUrl}
             }
         ];
         injectSVG();

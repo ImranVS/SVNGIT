@@ -1,7 +1,7 @@
-﻿import { Component, ComponentFactoryResolver, OnInit} from '@angular/core';
-import {WidgetController, WidgetContract} from '../../../core/widgets';
-import {WidgetService} from '../../../core/widgets/services/widget.service';
-import {RESTService} from '../../../core/services/rest.service';
+﻿import { Component, ComponentFactoryResolver, OnInit } from '@angular/core';
+import { WidgetController, WidgetContract } from '../../../core/widgets';
+import { WidgetService } from '../../../core/widgets/services/widget.service';
+import { RESTService } from '../../../core/services/rest.service';
 
 import * as helpers from '../../../core/services/helpers/helpers';
 
@@ -20,10 +20,12 @@ declare var injectSVG: any;
 export class MailVolumeReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
-    gridUrl: string = `/reports/summarystats_aggregation?type=Domino&aggregationType=sum&statName=[Mail.Transferred,Mail.TotalRouted,Mail.Delivered]`;
+    baseUrl: string = `/reports/summarystats_aggregation?type=Domino&statName=[Mail.Transferred,Mail.TotalRouted,Mail.Delivered]`
+    gridUrl: string = this.baseUrl + `&aggregationType=sum`;
     currentWidgetName: string = `anyStatisticsGrid`;
-    currentWidgetURL: string = this.gridUrl;
-
+    currentWidgetURL: string = this.baseUrl;
+    currentHideAggregationControl: boolean = false;
+    currentHideServerControl: boolean = true;
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService,
         protected urlHelpers: helpers.UrlHelperService) {
 
@@ -44,12 +46,12 @@ export class MailVolumeReport extends WidgetController {
                 id: 'anyStatisticsGrid',
                 title: '',
                 name: 'AnyStatisticReportGrid',
-                settings: {}
+                settings: { url: this.gridUrl }
             }
         ];
         injectSVG();
-        
+
 
     }
-   
+
 }

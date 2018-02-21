@@ -16,7 +16,7 @@
                 <option *ngFor="let optionData of statisticData" [ngValue]="optionData">{{optionData.name}}</option>
             </select>
         </div>
-        <div id="dtServer" style="display:inline-block">
+        <div id="dtAggregation" style="display:inline-block">
             <span class="headerBlock">Statistic Summary Type: </span> <select name="aggregationDropdown" [(ngModel)]="aggregationDropdown">
                 <option value="avg" selected>Average</option>
                 <option value="sum">Total</option>
