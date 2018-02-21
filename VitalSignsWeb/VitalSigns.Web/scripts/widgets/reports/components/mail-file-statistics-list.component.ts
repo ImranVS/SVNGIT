@@ -24,7 +24,7 @@ export class MailFileStatisticsList implements WidgetComponent, OnInit {
     constructor(private service: RESTService) { }
 
     loadData() {
-        this.service.get('/dashboard/database?filter_by=IsMailFile&filter_value=true&order_by=FileName')
+        this.service.get('/dashboard/database?filter_by=IsMailFile&filter_value=true&order_by=Title&order_type=asc')
             .subscribe(
             data => this.mailFileStats = data.data,
             error => this.errorMessage = <any>error
