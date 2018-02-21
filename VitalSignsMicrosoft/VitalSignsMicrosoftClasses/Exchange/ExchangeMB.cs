@@ -610,12 +610,12 @@ namespace VitalSignsMicrosoftClasses
 
                     results = powershell.Invoke();
 
-                    Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "getMailStats output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                    Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "getMailboxPermissions output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
                     foreach (ErrorRecord err in powershell.Streams.Error)
                     {
-                        Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "getMailStats PS errors: " + err.Exception, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-                        Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "getMailStats PS errors: " + err.ErrorDetails, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                        Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "getMailboxPermissions PS errors: " + err.Exception, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                        Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "getMailboxPermissions PS errors: " + err.ErrorDetails, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
                     }
 
                     if (results.Count > 0)
@@ -670,7 +670,7 @@ namespace VitalSignsMicrosoftClasses
             catch (Exception ex)
             {
 
-                Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "Error in getMailStats : " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "Error in getMailboxPermissions : " + ex, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
             }
 

@@ -46,6 +46,8 @@ export class MicrosoftPowerShellScripts implements WidgetComponent, OnInit  {
     disabledFields: Array<string> = [];
 
     access: boolean = false;
+
+    private isLoading: boolean = false;
     
     public parameterForm: FormGroup;
 
@@ -54,7 +56,6 @@ export class MicrosoftPowerShellScripts implements WidgetComponent, OnInit  {
     }
 
     ngOnInit() {
-        console.log(this.deviceId);
         this.route.params.subscribe(params => {
             if (params['service'])
                 this.deviceId = params['service'];
@@ -132,10 +133,10 @@ export class MicrosoftPowerShellScripts implements WidgetComponent, OnInit  {
     }
     onSubmit(): void {
         var obj = this.parameterForm.getRawValue()
-        this.appComponentService.showProgressBar();
+        this.isLoading = true;
         this.service.put("/services/execute_powershell_script", obj)
             .subscribe((response) => {
-                this.appComponentService.hideProgressBar();
+                this.isLoading = false;
                 if(response.status == "Success") {
                     this.response = response.data;
                 } else {
@@ -143,15 +144,13 @@ export class MicrosoftPowerShellScripts implements WidgetComponent, OnInit  {
                 }
             },
             (error) => {
-                this.appComponentService.hideProgressBar();
+                this.isLoading = false;
                 this.errorMessage = <any>error
             });
 
     }
 
     public initValues(settings: initSettings) {
-        console.log("in initValues")
-        console.log(settings)
         if (settings.DeviceType) {
             this.selectedType = settings.DeviceType;
             this.disabledFields.push("DeviceType");

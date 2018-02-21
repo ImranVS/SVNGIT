@@ -234,7 +234,6 @@ export class AlertDefinitions extends GridBase implements OnInit  {
         //    this.formObject.is_selected_server = this.flex.collectionView.currentItem.is_selected_server;
         //}
         //else {
-        console.log("Wes 2")
         this.formObject.business_hours_ids = [];
         this.formObject.is_selected_hour = [];
         this.formObject.event_ids = [];
@@ -256,36 +255,27 @@ export class AlertDefinitions extends GridBase implements OnInit  {
         //}
         this.devices = [];
         if (this.flex3.collectionView) {
-            console.log("Wes 5")
             if (this.flex3.collectionView.items.length > 0) {
-                console.log("Wes 6")
                 //(<wijmo.collections.CollectionView>this.flex3.collectionView.sourceCollection).moveToFirstPage();
                 for (var _i = 0; _i < this.flex3.collectionView.sourceCollection.length; _i++) {
-                    console.log("Wes 7")
                     var item = (<wijmo.collections.CollectionView>this.flex3.collectionView.sourceCollection)[_i];
                     item.is_selected_event = false;
                 }
             }
         }
         if (this.flex4.collectionView) {
-            console.log("Wes 8")
             if (this.flex4.collectionView.items.length > 0) {
-                console.log("Wes 9")
                 //(<wijmo.collections.CollectionView>this.flex4.collectionView.sourceCollection).moveToFirstPage();
                 for (var _i = 0; _i < this.flex4.collectionView.sourceCollection.length; _i++) {
-                    console.log("Wes 10")
                     var item = (<wijmo.collections.CollectionView>this.flex4.collectionView.sourceCollection)[_i];
                     item.is_selected_hour = false;
                 }
             }
         }
         if (this.flex5.collectionView) {
-            console.log("Wes 11")
             if (this.flex5.collectionView.items.length > 0) {
-                console.log("Wes 12")
                 //(<wijmo.collections.CollectionView>this.flex5.collectionView.sourceCollection).moveToFirstPage();
                 for (var _i = 0; _i < this.flex5.collectionView.sourceCollection.length; _i++) {
-                    console.log("Wes 13")
                     var item = (<wijmo.collections.CollectionView>this.flex5.collectionView.sourceCollection)[_i];
                     item.is_selected_hour = false;
                 }
@@ -293,12 +283,9 @@ export class AlertDefinitions extends GridBase implements OnInit  {
         }
 
         if (this.serverFlex.collectionView) {
-            console.log("Wes 14")
             if (this.serverFlex.collectionView.items.length > 0) {
-                console.log("Wes 15")
                 //(<wijmo.collections.CollectionView>this.flex5.collectionView.sourceCollection).moveToFirstPage();
                 for (var _i = 0; _i < this.serverFlex.collectionView.sourceCollection.length; _i++) {
-                    console.log("Wes 16")
                     var item = (<wijmo.collections.CollectionView>this.serverFlex.collectionView.sourceCollection)[_i];
                     item.is_selected = false;
                 }

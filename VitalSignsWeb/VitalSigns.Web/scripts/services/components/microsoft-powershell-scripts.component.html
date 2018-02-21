@@ -62,8 +62,8 @@
             </div>
         </div>
 
-        <button type="submit" class="btn btn-primary" (click)="onSubmit()">Execute</button>
-
+        <button type="submit" class="btn btn-primary" (click)="onSubmit()" [disabled]="isLoading">Execute</button>
+        <loading-indicator [isLoading]="isLoading"></loading-indicator>
         <div *ngIf="response != ''">
             <label class="col-sm-12" [innerHTML]="response"></label>
         </div>

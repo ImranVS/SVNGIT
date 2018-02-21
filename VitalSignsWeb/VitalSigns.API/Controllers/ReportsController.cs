@@ -1048,19 +1048,18 @@ namespace VitalSigns.API.Controllers
         [HttpGet("notes_database")]
         public APIResponse GetNotesDatabase()
         {
-            serverRepository = new Repository<Server>(ConnectionString);
+            serverOtherRepository = new Repository<ServerOther>(ConnectionString);
             List<NotesDatabaseList> result = null;
-            FilterDefinition<Server> filterDef = serverRepository.Filter.Eq(x => x.DeviceType, "Notes Database");
-            result = serverRepository.Find(filterDef)
+            FilterDefinition<ServerOther> filterDef = serverOtherRepository.Filter.Eq(x => x.Type, "Notes Database");
+            result = serverOtherRepository.Find(filterDef)
                              .AsQueryable()
                              .Select(x => new NotesDatabaseList
                              {
-                                 ServerName = x.DeviceName,
+                                 ServerName = x.Name,
                                  DatabaseFileName = x.DatabaseFileName,
                                  Category = x.Category,
                                  ScanInterval = x.ScanInterval,
                                  OffHoursScanInterval = x.OffHoursScanInterval,
-                                 ResponseTime = x.ResponseTime,
                                  RetryInterval = x.RetryInterval,
                              }).ToList();
 
