@@ -36,6 +36,7 @@ export class ExchangemailAccessviewGrid implements WidgetComponent, OnInit {
     errorMessage: string;
     currentPageSize: any = 10;
     DefaultValues?: Map<string, string>;
+    isLoading: boolean = true;
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, protected toolTip: helpers.GridTooltip,
         protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService, protected datetimeHelpers: helpers.DateTimeHelper) {
     }
@@ -65,12 +66,13 @@ export class ExchangemailAccessviewGrid implements WidgetComponent, OnInit {
         this.gridHelpers.ExportExcel(this.flex, "Exchang Mail Access View.xlsx")
     }
     loadData() {
+        this.isLoading = true;
         this.service.get(`/reports/usergroup?deviceType=Exchange&type=User`)
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
-               
                 this.data.pageSize = this.currentPageSize;
+                this.isLoading = false;
             },
             (error) => this.errorMessage = <any>error
             );

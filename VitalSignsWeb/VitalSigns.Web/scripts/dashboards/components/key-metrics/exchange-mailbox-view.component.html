@@ -16,6 +16,7 @@
                     <wj-flex-grid-column [header]="'Mailbox Database'" [binding]="'database_name'"></wj-flex-grid-column>
                     <wj-flex-grid-column [header]="'Last Logon'" [binding]="'last_logon_time'"></wj-flex-grid-column>
                 </wj-flex-grid>
+                <loading-indicator [isLoading]="isLoading"></loading-indicator>
                 <div class="btn-group" *ngIf="data != null">
                     <button type="button" class="btn btn-default"
                             (click)="data.moveToFirstPage()"

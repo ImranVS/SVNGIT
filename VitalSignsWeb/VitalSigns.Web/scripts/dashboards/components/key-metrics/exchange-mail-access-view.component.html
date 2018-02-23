@@ -9,6 +9,7 @@
                     <wj-flex-grid-column [header]="'Sum Of Mailboxes (GB)'" [binding]="'total_mailboxes_sizes_mb'"[width]="250"></wj-flex-grid-column>
                     <wj-flex-grid-column [header]="'Mailbox Count'" [binding]="'mailboxes.length'" [width]="250"></wj-flex-grid-column>
                 </wj-flex-grid>
+                <loading-indicator [isLoading]="isLoading"></loading-indicator>
                 <div class="btn-group" *ngIf="data != null">
                     <button type="button" class="btn btn-default"
                             (click)="data.moveToFirstPage()"

@@ -38,6 +38,7 @@ export class ExchangemailstatisticsviewGrid implements OnInit {
     currentPageSize: any = 20;
     widgets: WidgetContract[];
     showPowerScripts: boolean = false;
+    isLoading: boolean = false;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, protected toolTip: helpers.GridTooltip,
         protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService, protected datetimeHelpers: helpers.DateTimeHelper) {
@@ -70,11 +71,13 @@ export class ExchangemailstatisticsviewGrid implements OnInit {
         this.gridHelpers.ExportExcel(this.flex, "Exchang Mail Statistics View.xlsx")
     }
     loadData() {
+        this.isLoading = true;
         this.service.get(`/reports/exchnage_mailboxes_Statistics_View`)
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
                 this.data.pageSize = this.currentPageSize;
+                this.isLoading = false;
             },
             (error) => this.errorMessage = <any>error
             );
