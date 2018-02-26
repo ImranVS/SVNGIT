@@ -79,9 +79,7 @@ namespace VitalSigns.API.Controllers
                
                  else
                  {
-                    
-                        List<string> listofdevices  = deviceId.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
-     
+                    List<string> listofdevices  = deviceId.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
                     filterDef = summaryRepository.Filter.And(summaryRepository.Filter.Gte(p => p.StatDate, dtStart),
                     summaryRepository.Filter.Lt(p => p.StatDate, dtEnd),
                     summaryRepository.Filter.Ne(p => p.DeviceName, null),
@@ -926,21 +924,38 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("console_command_list")]
-        public APIResponse GetAllConsoleCommands()
+        public APIResponse GetAllConsoleCommands(string startDate = "", string endDate = "", string deviceId = "")
         {
-            consoleCommandsRepository = new Repository<ConsoleCommands>(ConnectionString);
-            List<ConsoleCommandList> result = null;
+           
+            if (startDate == "")
+                startDate = DateTime.UtcNow.AddDays(-7).ToUniversalTime().ToString(DateFormat);
 
-            result = consoleCommandsRepository.Collection
-                             .AsQueryable()
-                             .Select(x => new ConsoleCommandList
+            if (endDate == "")
+                endDate = DateTime.UtcNow.ToUniversalTime().ToString(DateFormat);
+            DateTime dtStart = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture);
+            DateTime dtEnd = DateTime.ParseExact(endDate, DateFormat, CultureInfo.InvariantCulture).AddDays(1);
+            dtStart = DateTime.SpecifyKind(dtStart, DateTimeKind.Utc);
+            dtEnd = DateTime.SpecifyKind(dtEnd, DateTimeKind.Utc);
+            consoleCommandsRepository = new Repository<ConsoleCommands>(ConnectionString);
+            var filterDef = consoleCommandsRepository.Filter.Empty &
+                    consoleCommandsRepository.Filter.Gte(p => p.DateTimeProcessed, dtStart) &
+                    consoleCommandsRepository.Filter.Lte(p => p.DateTimeProcessed, dtEnd);
+            if (!String.IsNullOrWhiteSpace(deviceId))
+            {
+                 var listOfDevices = deviceId.Split(',').ToList();
+                filterDef = filterDef & consoleCommandsRepository.Filter.In(x => x.DeviceId, listOfDevices);
+            }
+            List<ConsoleCommandList> result = null;
+ 
+            result = consoleCommandsRepository.Find(filterDef).ToList()
+                            .Select(x => new ConsoleCommandList
                              {
                                  ServerName = x.DeviceName,
                                  Command = x.Command,
                                  Submitter = x.Submitter,
                                  Result = x.Result,
                                  Comment = x.Comments,
-                                 SubmittedDate=x.DateTimeProcessed
+                                 ProcessedDate=x.DateTimeProcessed,
                              }).ToList();
 
             Response = Common.CreateResponse(result.OrderBy(x => x.ServerName));
@@ -948,13 +963,18 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("database_inventory")]
-        public APIResponse getDatabaseInventory(string deviceId)
+        public APIResponse getDatabaseInventory(string deviceId ="")
         {
             int charLimit = 40;
             databaseRepository = new Repository<Database>(ConnectionString);
+            var filterdef = databaseRepository.Filter.Empty;
+            if (!String.IsNullOrWhiteSpace(deviceId))
+            {
+                var listOfDevices = deviceId.Split(',').ToList();
+                filterdef = filterdef & databaseRepository.Filter.In(x => x.DeviceId, listOfDevices);
+            }
             List<DatabaseInventoryList> result = null;
-            var res = databaseRepository.Collection.Aggregate()
-                                    .Match(_ => true).ToList();
+            var res = databaseRepository.Find(filterdef).ToList();
             result = res.Select(x => new DatabaseInventoryList
             {
                 Folder = x.Folder,
@@ -965,8 +985,6 @@ namespace VitalSigns.API.Controllers
                 DesignTemplateName = x.DesignTemplateName,
                 IsMailFile = x.IsMailFile
             }).ToList();
-
-
             Response = Common.CreateResponse(result.OrderBy(x => x.Server));
             return Response;
         }

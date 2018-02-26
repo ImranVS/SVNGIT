@@ -24,6 +24,9 @@ namespace VitalSigns.API.Models
         public string Comment { get; set; }
 
         [JsonProperty("date_time_processed", NullValueHandling = NullValueHandling.Ignore)]
+        public DateTime? ProcessedDate { get; set; }
+
+        [JsonProperty("date_time_submitted", NullValueHandling = NullValueHandling.Ignore)]
         public DateTime? SubmittedDate { get; set; }
     }
 
