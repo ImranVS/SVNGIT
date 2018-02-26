@@ -11,6 +11,14 @@
                 [(ngModel)]="selectedUsers" style="width:150px;">
             </wj-multi-select>
         </div>
+        <div *ngIf="showTopX" style="display:inline-block">
+            <span class="headerBlock">Top X Users:</span>
+            <wj-combo-box #multisel1
+                             class="multiselect"
+                             [itemsSource]="topXData"
+                             [(ngModel)]="selectedTopX">
+                </wj-combo-box>
+                </div>
         <div id="dtFilter" style="display:inline-block">
             <button class="btn btn-success" (click)="applyFilters(multisel1)">Filter</button>
         </div>

@@ -23,6 +23,7 @@ export class ConnectionsUserActivityMonthlyChartReport extends WidgetController 
     widgets: WidgetContract[];
     currentWidgetName: string = `connectionsUserActivityMonthlyChartReport`;
     currentWidgetURL: string = `/reports/connections/user_activity_monthly`;
+    currentShowTopX: boolean = true;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
 

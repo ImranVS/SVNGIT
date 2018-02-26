@@ -11,7 +11,7 @@
         </ul>
     </div>
     <div id="zeusContent" class="container-fluid">
-        <user-filter [(widgetName)]="currentWidgetName" [(widgetURL)]="currentWidgetURL"></user-filter>
+        <user-filter [(widgetName)]="currentWidgetName" [(widgetURL)]="currentWidgetURL" [(showTopX)]="currentShowTopX"></user-filter>
         <div class="reportsPage">
             <h1>Internal Champions - Monthly</h1>
             <div *ngFor="let widget of widgets">

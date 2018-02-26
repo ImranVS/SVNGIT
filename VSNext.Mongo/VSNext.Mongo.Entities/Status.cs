@@ -1512,68 +1512,54 @@ namespace VSNext.Mongo.Entities
 
     [DataContract]
     [Serializable]
-    [CollectionName("o365_account_stats")]
-    public class Office365 : Entity
+    [CollectionName("o365_license_info")]
+    public class Office365LicenseInfo : Entity
     {
         [DataMember]
         [BsonElement("device_id")]
+        [BsonIgnoreIfNull]
+        [BsonRepresentation(BsonType.ObjectId)]
         public string DeviceId { get; set; }
 
         [DataMember]
-        [BsonElement("total_active_user_mailboxes")]
-        public string TotalActiveUserMailboxes { get; set; }
-
-        [DataMember]
         [BsonElement("account_name")]
+        [BsonIgnoreIfNull]
         public string AccountName { get; set; }
 
         [DataMember]
         [BsonElement("active_units")]
-        public string ActiveUnits { get; set; }
+        [BsonIgnoreIfNull]
+        public int? ActiveUnits { get; set; }
 
         [DataMember]
         [BsonElement("warning_units")]
-        public double WarningUnits { get; set; }
+        [BsonIgnoreIfNull]
+        public int? WarningUnits { get; set; }
 
         [DataMember]
         [BsonElement("consumed_units")]
-        public int ConsumedUnits { get; set; }
+        [BsonIgnoreIfNull]
+        public int? ConsumedUnits { get; set; }
 
         [DataMember]
         [BsonElement("license_type")]
+        [BsonIgnoreIfNull]
         public string LicenseType { get; set; }
 
         [DataMember]
-        [BsonElement("street")]
-        public string Street { get; set; }
+        [BsonElement("license_type_id")]
+        [BsonIgnoreIfNull]
+        public string LicenseTypeId { get; set; }
+        
+        [DataMember]
+        [BsonElement("locked_out_units")]
+        [BsonIgnoreIfNull]
+        public int? LockedOutUnits { get; set; }
 
         [DataMember]
-        [BsonElement("preferred_language")]
-        public string PreferredLanguage { get; set; }
-
-        [DataMember]
-        [BsonElement("city")]
-        public string City { get; set; }
-
-        [DataMember]
-        [BsonElement("state")]
-        public string State { get; set; }
-
-        [DataMember]
-        [BsonElement("country")]
-        public string Country { get; set; }
-
-        [DataMember]
-        [BsonElement("postal_code")]
-        public string PostalCode { get; set; }
-
-        [DataMember]
-        [BsonElement("telephone")]
-        public string Telephone { get; set; }
-
-        [DataMember]
-        [BsonElement("technical_notification_email")]
-        public string TechnicalNotificationEmails { get; set; }
+        [BsonElement("suspended_units")]
+        [BsonIgnoreIfNull]
+        public int? SuspendedUnits { get; set; }
     }
 
     [DataContract]

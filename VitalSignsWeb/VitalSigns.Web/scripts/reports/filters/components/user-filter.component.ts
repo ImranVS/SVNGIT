@@ -13,8 +13,11 @@ export class UserFilter {
     selectedUsers: any;
     @Input() widgetName: string;
     @Input() widgetURL: string;
+    @Input() showTopX: boolean = false;
     errorMessage: any;
     userData: any;
+    topXData = ["10", "25", "50", "100", "All"]
+    selectedTopX = "25"
 
     constructor(private service: RESTService, private router: Router, private route: ActivatedRoute, private widgetService: WidgetService) { }
     ngOnInit() {
@@ -26,6 +29,7 @@ export class UserFilter {
             (error) => this.errorMessage = <any>error
             ); 
     }
+
     applyFilters(multisel1: wijmo.input.MultiSelect) {
         var selectedUsers = "";
         for (var item of multisel1.checkedItems) {
@@ -35,6 +39,8 @@ export class UserFilter {
                 selectedUsers += "," + item.name;
         }
         var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `userNames=` + selectedUsers;
+        if (this.showTopX)
+            URL = URL += "&topX=" + this.selectedTopX;
         this.widgetService.refreshWidget(this.widgetName, URL )
             .catch(error => console.log(error));
 

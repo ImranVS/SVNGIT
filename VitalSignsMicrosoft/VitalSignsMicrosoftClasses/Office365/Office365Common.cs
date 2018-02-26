@@ -460,7 +460,7 @@ namespace VitalSignsMicrosoftClasses
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				//String str = " Get-Mailbox -ResultSize Unlimited | Select Name,Alais,DisplayName,StorageLimitStatus,membertype,servername,ProhibitSendQuota,LastLogonTime";
 				//string str = "Get-Command| where {$_.Name -like '*Msol*'}";
-				string str = "Get-MsolAccountSku | Select AccountName,SkuPartNumber,ConsumedUnits,WarningUnits,ActiveUnits";
+				string str = "Get-MsolAccountSku";
 
 				powershellobj.PS.Commands.Clear();
 				powershellobj.PS.Streams.ClearStreams();
@@ -476,37 +476,29 @@ namespace VitalSignsMicrosoftClasses
 				int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
 				if (results.Count > 0)
 				{
+                    MongoStatementsInsert<VSNext.Mongo.Entities.Office365LicenseInfo> mongoInsertStatement = new MongoStatementsInsert<VSNext.Mongo.Entities.Office365LicenseInfo>();
 					foreach (PSObject ps in results)
 					{
-						AccountName += ps.Properties["AccountName"].Value == null ? "" : ps.Properties["AccountName"].Value.ToString() + ";";
-						LicenseType += ps.Properties["SkuPartNumber"].Value == null ? "" : ps.Properties["SkuPartNumber"].Value.ToString() + ";";
 
-						string ConsumedUnits = ps.Properties["ConsumedUnits"].Value == null ? "" : ps.Properties["ConsumedUnits"].Value.ToString();
-						string WarningUnits = ps.Properties["WarningUnits"].Value == null ? "" : ps.Properties["WarningUnits"].Value.ToString();
-						string ActiveUnits = ps.Properties["ActiveUnits"].Value == null ? "" : ps.Properties["ActiveUnits"].Value.ToString();
-						if (ConsumedUnits != "")
-							iConsumedUnits += Convert.ToInt32(ConsumedUnits);
-						if (WarningUnits != "")
-							iWarningUnits += Convert.ToInt32(WarningUnits);
-						if (ActiveUnits != "")
-							iActiveUnits += Convert.ToInt32(ActiveUnits);
+                        VSNext.Mongo.Entities.Office365LicenseInfo o365AcctInfo = new VSNext.Mongo.Entities.Office365LicenseInfo();
+                        o365AcctInfo.AccountName = ps.Properties["AccountName"].Value == null ? "" : ps.Properties["AccountName"].Value.ToString();
+                        o365AcctInfo.ActiveUnits = Convert.ToInt32(ps.Properties["ActiveUnits"].Value == null ? "-1" : ps.Properties["ActiveUnits"].Value.ToString());
+                        o365AcctInfo.ConsumedUnits = Convert.ToInt32(ps.Properties["ConsumedUnits"].Value == null ? "-1" : ps.Properties["ConsumedUnits"].Value.ToString());
+                        o365AcctInfo.DeviceId = myServer.ServerObjectID;
+                        o365AcctInfo.LicenseType = ps.Properties["SkuPartNumber"].Value == null ? "-1" : ps.Properties["SkuPartNumber"].Value.ToString();
+                        o365AcctInfo.LicenseTypeId = ps.Properties["AccountSkuId"].Value == null ? "-1" : ps.Properties["AccountSkuId"].Value.ToString();
+                        o365AcctInfo.LockedOutUnits = Convert.ToInt32(ps.Properties["LockedOutUnits"].Value == null ? "-1" : ps.Properties["LockedOutUnits"].Value.ToString());
+                        o365AcctInfo.SuspendedUnits = Convert.ToInt32(ps.Properties["SuspendedUnits"].Value == null ? "-1" : ps.Properties["SuspendedUnits"].Value.ToString());
+                        o365AcctInfo.WarningUnits = Convert.ToInt32(ps.Properties["WarningUnits"].Value == null ? "-1" : ps.Properties["WarningUnits"].Value.ToString());
 
-						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolAccountSku Results: AccountName:" + AccountName, Common.LogLevel.Verbose);
-						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolAccountSku Results: ConsumedUnits:" + ConsumedUnits, Common.LogLevel.Verbose);
-						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolAccountSku Results: ActiveUnits:" + ActiveUnits, Common.LogLevel.Verbose);
-
-
-
+                        mongoInsertStatement.listOfEntities.Add(o365AcctInfo);
 					}
 
-                    MongoStatementsUpsert<VSNext.Mongo.Entities.Office365> updateStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Office365>();
-                    updateStatement.filterDef = updateStatement.repo.Filter.Where(i => i.AccountName == AccountName && i.DeviceId == myServer.ServerObjectID );
-                    updateStatement.updateDef = updateStatement.repo.Updater
-                        .Set(i => i.ConsumedUnits, iConsumedUnits)
-                        .Set(i => i.WarningUnits, iWarningUnits)
-                        .Set(i => i.LicenseType, LicenseType);
+                    MongoStatementsDelete<VSNext.Mongo.Entities.Office365LicenseInfo> mongoDeleteStatement = new MongoStatementsDelete<VSNext.Mongo.Entities.Office365LicenseInfo>();
+                    mongoDeleteStatement.filterDef = mongoDeleteStatement.repo.Filter.Eq(x => x.DeviceId, myServer.ServerObjectID);
 
-                    AllTestsList.MongoEntity.Add(updateStatement);
+                    AllTestsList.MongoEntity.Add(mongoDeleteStatement);
+                    AllTestsList.MongoEntity.Add(mongoInsertStatement);
 				}
 
 			}
@@ -518,93 +510,93 @@ namespace VitalSignsMicrosoftClasses
 		}
 		public void getMsolCompanyInfo(MonitoredItems.Office365Server myServer, ref TestResults AllTestsList, ReturnPowerShellObjects powershellobj)
 		{
-			try
-			{
-                List<VSNext.Mongo.Entities.Office365> list = new List<VSNext.Mongo.Entities.Office365>();
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolCompanyInfo: Starting.", Common.LogLevel.Normal);
-				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
-				//String str = " Get-Mailbox -ResultSize Unlimited | Select Name,Alais,DisplayName,StorageLimitStatus,membertype,servername,ProhibitSendQuota,LastLogonTime";
-				string str = "Get-MsolCompanyInformation";
-				//DisplayName                              : RPR VitalSigns
-				//PreferredLanguage                        : en
-				//Street                                   : 1 Pleasant Street
-				//City                                     : Reading
-				//State                                    : MA
-				//PostalCode                               : 01867
-				//Country                                  : 
-				//CountryLetterCode                        : US
-				//TelephoneNumber                          : 781-608-4060
-				//MarketingNotificationEmails              : {}
-				//TechnicalNotificationEmails              : {aforbes@rprwyatt.com}
-				//SelfServePasswordResetEnabled            : True
-				//UsersPermissionToCreateGroupsEnabled     : True
-				//UsersPermissionToCreateLOBAppsEnabled    : True
-				//UsersPermissionToReadOtherUsersEnabled   : True
-				//UsersPermissionToUserConsentToAppEnabled : True
-				//DirectorySynchronizationEnabled          : False
-				//LastDirSyncTime                          : 
-				//LastPasswordSyncTime                     : 
-				//PasswordSynchronizationEnabled           : False
+			//try
+			//{
+   //             List<VSNext.Mongo.Entities.Office365> list = new List<VSNext.Mongo.Entities.Office365>();
+			//	Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolCompanyInfo: Starting.", Common.LogLevel.Normal);
+			//	System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
+			//	//String str = " Get-Mailbox -ResultSize Unlimited | Select Name,Alais,DisplayName,StorageLimitStatus,membertype,servername,ProhibitSendQuota,LastLogonTime";
+			//	string str = "Get-MsolCompanyInformation";
+			//	//DisplayName                              : RPR VitalSigns
+			//	//PreferredLanguage                        : en
+			//	//Street                                   : 1 Pleasant Street
+			//	//City                                     : Reading
+			//	//State                                    : MA
+			//	//PostalCode                               : 01867
+			//	//Country                                  : 
+			//	//CountryLetterCode                        : US
+			//	//TelephoneNumber                          : 781-608-4060
+			//	//MarketingNotificationEmails              : {}
+			//	//TechnicalNotificationEmails              : {aforbes@rprwyatt.com}
+			//	//SelfServePasswordResetEnabled            : True
+			//	//UsersPermissionToCreateGroupsEnabled     : True
+			//	//UsersPermissionToCreateLOBAppsEnabled    : True
+			//	//UsersPermissionToReadOtherUsersEnabled   : True
+			//	//UsersPermissionToUserConsentToAppEnabled : True
+			//	//DirectorySynchronizationEnabled          : False
+			//	//LastDirSyncTime                          : 
+			//	//LastPasswordSyncTime                     : 
+			//	//PasswordSynchronizationEnabled           : False
 
-				//powershellobj.PS.Commands.Clear();
-				//powershellobj.PS.Streams.ClearStreams();
-				powershellobj.PS.AddScript(str);
+			//	//powershellobj.PS.Commands.Clear();
+			//	//powershellobj.PS.Streams.ClearStreams();
+			//	powershellobj.PS.AddScript(str);
 
-				results = powershellobj.PS.Invoke();
+			//	results = powershellobj.PS.Invoke();
 
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolCompanyInfo Results: " + results.Count.ToString(), Common.LogLevel.Normal);
-				DateTime dtNow = DateTime.Now;
-				int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
-				if (results.Count > 0)
-				{
-					foreach (PSObject ps in results)
-					{
-						string DisplayName = ps.Properties["DisplayName"].Value == null ? "" : ps.Properties["DisplayName"].Value.ToString();
-						string PreferredLanguage = ps.Properties["PreferredLanguage"].Value == null ? "" : ps.Properties["PreferredLanguage"].Value.ToString();
-						string Street = ps.Properties["Street"].Value == null ? "" : ps.Properties["Street"].Value.ToString();
-						string City = ps.Properties["City"].Value == null ? "" : ps.Properties["City"].Value.ToString();
-						string State = ps.Properties["State"].Value == null ? "" : ps.Properties["State"].Value.ToString();
-						string Country = ps.Properties["Country"].Value == null ? "" : ps.Properties["Country"].Value.ToString();
-						string PostalCode = ps.Properties["PostalCode"].Value == null ? "" : ps.Properties["PostalCode"].Value.ToString();
-						string TelephoneNumber = ps.Properties["TelephoneNumber"].Value == null ? "" : ps.Properties["TelephoneNumber"].Value.ToString();
-						//string[] email = ps.Properties["TechnicalNotificationEmails"].Value.ToString().ToArray(1);
+			//	Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolCompanyInfo Results: " + results.Count.ToString(), Common.LogLevel.Normal);
+			//	DateTime dtNow = DateTime.Now;
+			//	int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
+			//	if (results.Count > 0)
+			//	{
+			//		foreach (PSObject ps in results)
+			//		{
+			//			string DisplayName = ps.Properties["DisplayName"].Value == null ? "" : ps.Properties["DisplayName"].Value.ToString();
+			//			string PreferredLanguage = ps.Properties["PreferredLanguage"].Value == null ? "" : ps.Properties["PreferredLanguage"].Value.ToString();
+			//			string Street = ps.Properties["Street"].Value == null ? "" : ps.Properties["Street"].Value.ToString();
+			//			string City = ps.Properties["City"].Value == null ? "" : ps.Properties["City"].Value.ToString();
+			//			string State = ps.Properties["State"].Value == null ? "" : ps.Properties["State"].Value.ToString();
+			//			string Country = ps.Properties["Country"].Value == null ? "" : ps.Properties["Country"].Value.ToString();
+			//			string PostalCode = ps.Properties["PostalCode"].Value == null ? "" : ps.Properties["PostalCode"].Value.ToString();
+			//			string TelephoneNumber = ps.Properties["TelephoneNumber"].Value == null ? "" : ps.Properties["TelephoneNumber"].Value.ToString();
+			//			//string[] email = ps.Properties["TechnicalNotificationEmails"].Value.ToString().ToArray(1);
 
-						//foreach (string s in ps.Properties["TechnicalNotificationEmails"].Value)
-						//{
-						//    email += s;
+			//			//foreach (string s in ps.Properties["TechnicalNotificationEmails"].Value)
+			//			//{
+			//			//    email += s;
 
-						//}
-						//string TechnicalNotificationEmails = ps.Properties["TechnicalNotificationEmails"].Value == null ? "" : ps.Properties["TechnicalNotificationEmails"].Value.ToString();
-						string TechnicalNotificationEmails = "";
-						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolCompanyInfo Results: DisplayName:" + DisplayName, Common.LogLevel.Verbose);
-						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolCompanyInfo Results: TechnicalNotificationEmails:" + TechnicalNotificationEmails, Common.LogLevel.Verbose);
-						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolCompanyInfo Results: Street:" + Street, Common.LogLevel.Verbose);
+			//			//}
+			//			//string TechnicalNotificationEmails = ps.Properties["TechnicalNotificationEmails"].Value == null ? "" : ps.Properties["TechnicalNotificationEmails"].Value.ToString();
+			//			string TechnicalNotificationEmails = "";
+			//			Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolCompanyInfo Results: DisplayName:" + DisplayName, Common.LogLevel.Verbose);
+			//			Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolCompanyInfo Results: TechnicalNotificationEmails:" + TechnicalNotificationEmails, Common.LogLevel.Verbose);
+			//			Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolCompanyInfo Results: Street:" + Street, Common.LogLevel.Verbose);
 
 
-                        MongoStatementsUpsert<VSNext.Mongo.Entities.Office365> updateStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Office365>();
-                        updateStatement.filterDef = updateStatement.repo.Filter.Where(i => i.DeviceId == myServer.ServerObjectID);
-                        updateStatement.updateDef = updateStatement.repo.Updater
-                            .Set(i => i.PreferredLanguage, PreferredLanguage)
-                            .Set(i => i.Street, Street)
-                            .Set(i => i.City, City)
-                            .Set(i => i.State, State)
-                            .Set(i => i.PostalCode, PostalCode)
-                            .Set(i => i.Telephone, TelephoneNumber)
-                            .Set(i => i.Country, Country)
-                            .Set(i => i.TechnicalNotificationEmails, TechnicalNotificationEmails);
+   //                     MongoStatementsUpsert<VSNext.Mongo.Entities.Office365> updateStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Office365>();
+   //                     updateStatement.filterDef = updateStatement.repo.Filter.Where(i => i.DeviceId == myServer.ServerObjectID);
+   //                     //updateStatement.updateDef = updateStatement.repo.Updater
+   //                     //    .Set(i => i.PreferredLanguage, PreferredLanguage)
+   //                     //    .Set(i => i.Street, Street)
+   //                     //    .Set(i => i.City, City)
+   //                     //    .Set(i => i.State, State)
+   //                     //    .Set(i => i.PostalCode, PostalCode)
+   //                     //    .Set(i => i.Telephone, TelephoneNumber)
+   //                     //    .Set(i => i.Country, Country)
+   //                     //    .Set(i => i.TechnicalNotificationEmails, TechnicalNotificationEmails);
 
-                        AllTestsList.MongoEntity.Add(updateStatement);
+   //                     //AllTestsList.MongoEntity.Add(updateStatement);
 
-					}
+			//		}
 
-				}
+			//	}
 
-			}
-			catch (Exception ex)
-			{
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolCompanyInfo: Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
-				//myServer.ADQueryTest = "Fail";
-			}
+			//}
+			//catch (Exception ex)
+			//{
+			//	Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolCompanyInfo: Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
+			//	//myServer.ADQueryTest = "Fail";
+			//}
 		}
 		#endregion
 		#region mailBox
@@ -616,15 +608,18 @@ namespace VitalSignsMicrosoftClasses
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				//String str = " Get-Mailbox -ResultSize Unlimited | Select Name,Alais,DisplayName,StorageLimitStatus,membertype,servername,ProhibitSendQuota,LastLogonTime";
 				//string str = "Get-Mailbox -ResultSize Unlimited | Get-MailboxStatistics | Select DisplayName,Database,TotalItemSize,ItemCount,StorageLimitStatus,ServerName,LastLogonTime,LastLogoffTime";
-                string str ="$results=@() \n";
-                str +="Get-Mailbox -ResultSize unlimited| select Database,ServerName,identity | % { \n";
-                str +="$stats=Get-MailboxStatistics -Identity $_.identity |select TotalItemSize,ItemCount,StorageLimitStatus,LastLogonTime,LastLogoffTime,DisplayName \n";
-                str +="$stats |Add-Member -Type NoteProperty -Name Database -Value $_.Database    \n";
-                str +="$stats |Add-Member -Type NoteProperty -Name ServerName -Value $_.ServerName  \n";
-                str +="$results +=($stats) \n";
-                str +="} \n";
-                str +="$results \n";
-                str += "Clear-Variable 'results' -ErrorAction SilentlyContinue \n";
+                string str = @"
+$results=@()
+Get-Mailbox -ResultSize unlimited| select Database,ServerName,identity, PrimarySmtpAddress, SamAccountName | % {
+$stats=Get-MailboxStatistics -Identity $_.identity |select TotalItemSize,ItemCount,StorageLimitStatus,LastLogonTime,LastLogoffTime,DisplayName
+$stats |Add-Member -Type NoteProperty -Name Database -Value $_.Database
+$stats |Add-Member -Type NoteProperty -Name ServerName -Value $_.ServerName 
+$stats |Add-Member -Type NoteProperty -Name PrimarySmtpAddress -Value $_.PrimarySmtpAddress 
+$stats |Add-Member -Type NoteProperty -Name SamAccountName -Value $_.SamAccountName 
+$results +=($stats)
+} 
+$results
+Clear-Variable 'results' -ErrorAction SilentlyContinue";
 				//Get - Mailbox | select *
 				//Get-Mailbox | select RecipientTypeDetails,ProhibitSendQuota,ProhibitSendReceiveQuota,IssueWarningQuota,IsInactiveMailbox
 				powershellobj.PS.Commands.Clear();
@@ -672,6 +667,8 @@ namespace VitalSignsMicrosoftClasses
 							string ServerName = ps.Properties["ServerName"].Value == null ? "" : ps.Properties["ServerName"].Value.ToString();
 							string LastLogonTime = ps.Properties["LastLogonTime"].Value == null ? null : ps.Properties["LastLogonTime"].Value.ToString();
 							string LastLogoffTime = ps.Properties["LastLogoffTime"].Value == null ? null : ps.Properties["LastLogoffTime"].Value.ToString();
+                            string PrimarySmtpAddress = ps.Properties["PrimarySmtpAddress"].Value == null ? null : ps.Properties["PrimarySmtpAddress"].Value.ToString();
+                            string SamAccountName = ps.Properties["SamAccountName"].Value == null ? null : ps.Properties["SamAccountName"].Value.ToString();
 
                             MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox>();
                             mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DatabaseName == Database && i.DisplayName == DisplayName && i.DeviceId == myServer.ServerObjectID);
@@ -683,7 +680,9 @@ namespace VitalSignsMicrosoftClasses
                                 .Set(i => i.ItemCount, Convert.ToInt32(ItemCount))
                                 .Set(i => i.StorageLimitStatus, StorageLimitStatus)
                                 .Set(i => i.LastLogonTime , LastLogonTime == null ? null : Convert.ToDateTime(LastLogonTime) as DateTime?)
-                                .Set(i => i.LastLogoffTime, LastLogoffTime == null ? null : Convert.ToDateTime(LastLogoffTime) as DateTime?);
+                                .Set(i => i.LastLogoffTime, LastLogoffTime == null ? null : Convert.ToDateTime(LastLogoffTime) as DateTime?)
+                                .Set(i => i.SAMAccountName, SamAccountName)
+                                .Set(i => i.PrimarySmtpAddress, PrimarySmtpAddress);
 
                             AllTestsList.MongoEntity.Add(mongoStatement);
 						}
@@ -783,46 +782,46 @@ namespace VitalSignsMicrosoftClasses
 		}
 		public void getMailboxActivity(MonitoredItems.Office365Server myServer, ref TestResults AllTestsList, ReturnPowerShellObjects powershellobj)
 		{
-			try
-			{
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxActivity: Starting.", Common.LogLevel.Normal);
-				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
-				//String str = " Get-Mailbox -ResultSize Unlimited | Select Name,Alais,DisplayName,StorageLimitStatus,membertype,servername,ProhibitSendQuota,LastLogonTime";
-				//string str = "Get-Command| where {$_.Name -like '*Msol*'}";
-				string str = "Get-MailboxActivityReport ";
+			//try
+			//{
+			//	Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxActivity: Starting.", Common.LogLevel.Normal);
+			//	System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
+			//	//String str = " Get-Mailbox -ResultSize Unlimited | Select Name,Alais,DisplayName,StorageLimitStatus,membertype,servername,ProhibitSendQuota,LastLogonTime";
+			//	//string str = "Get-Command| where {$_.Name -like '*Msol*'}";
+			//	string str = "Get-MailboxActivityReport ";
 
-				powershellobj.PS.Commands.Clear();
-				powershellobj.PS.Streams.ClearStreams();
-				powershellobj.PS.AddScript(str);
-				results = powershellobj.PS.Invoke();
+			//	powershellobj.PS.Commands.Clear();
+			//	powershellobj.PS.Streams.ClearStreams();
+			//	powershellobj.PS.AddScript(str);
+			//	results = powershellobj.PS.Invoke();
 
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxActivity Results: " + results.Count.ToString(), Common.LogLevel.Normal);
-				DateTime dtNow = DateTime.Now;
-				int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
-				if (results.Count > 0)
-				{
-					foreach (PSObject ps in results)
-					{
-						string TotalActiveUserMailBoxes = ps.Properties["TotalNumberOfActiveMailboxes"].Value == null ? "" : ps.Properties["TotalNumberOfActiveMailboxes"].Value.ToString();
-						Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolAccountSku Results: TotalActiveUserMailBoxes:" + TotalActiveUserMailBoxes, Common.LogLevel.Normal);
-						string sqlQuery = "UPDATE Office365AccountStats set TotalActiveUserMailBoxes=" + TotalActiveUserMailBoxes + ",LastUpdatedDate='" + DateTime.Now + "' Where ServerId=" + myServer.ServerId.ToString();
-						AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
+			//	Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxActivity Results: " + results.Count.ToString(), Common.LogLevel.Normal);
+			//	DateTime dtNow = DateTime.Now;
+			//	int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
+			//	if (results.Count > 0)
+			//	{
+			//		foreach (PSObject ps in results)
+			//		{
+			//			string TotalActiveUserMailBoxes = ps.Properties["TotalNumberOfActiveMailboxes"].Value == null ? "" : ps.Properties["TotalNumberOfActiveMailboxes"].Value.ToString();
+			//			Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMsolAccountSku Results: TotalActiveUserMailBoxes:" + TotalActiveUserMailBoxes, Common.LogLevel.Normal);
+			//			string sqlQuery = "UPDATE Office365AccountStats set TotalActiveUserMailBoxes=" + TotalActiveUserMailBoxes + ",LastUpdatedDate='" + DateTime.Now + "' Where ServerId=" + myServer.ServerId.ToString();
+			//			AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sqlQuery, DatabaseName = "vitalsigns" });
 
-                        MongoStatementsUpsert<VSNext.Mongo.Entities.Office365> updateStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Office365>();
-                        updateStatement.filterDef = updateStatement.repo.Filter.Where(i =>  i.DeviceId == myServer.ServerObjectID);
-                        updateStatement.updateDef = updateStatement.repo.Updater.Set(i => i.TotalActiveUserMailboxes, TotalActiveUserMailBoxes);
-                        AllTestsList.MongoEntity.Add(updateStatement);
+   //                     MongoStatementsUpsert<VSNext.Mongo.Entities.Office365> updateStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Office365>();
+   //                     updateStatement.filterDef = updateStatement.repo.Filter.Where(i =>  i.DeviceId == myServer.ServerObjectID);
+   //                     updateStatement.updateDef = updateStatement.repo.Updater.Set(i => i.TotalActiveUserMailboxes, TotalActiveUserMailBoxes);
+   //                     AllTestsList.MongoEntity.Add(updateStatement);
 
-						break;
-					}
+			//			break;
+			//		}
 
-				}
+			//	}
 
-			}
-			catch (Exception ex)
-			{
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxActivity Results: Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
-			}
+			//}
+			//catch (Exception ex)
+			//{
+			//	Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxActivity Results: Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
+			//}
 		}
 
 		public void getMsolGroups(MonitoredItems.Office365Server myServer, ref TestResults AllTestsList, ReturnPowerShellObjects powershellobj)
@@ -1600,10 +1599,7 @@ $msolUsers
 		public void getServiceStatus(MonitoredItems.Office365Server myServer, ref TestResults AllTestsList, ReturnPowerShellObjects powershellobj)
 		{
 			try
-			{
-
-                List<VSNext.Mongo.Entities.Office365> list = new List<VSNext.Mongo.Entities.Office365>();
-				
+			{		
 				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxes: Starting.", Common.LogLevel.Normal);
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				System.Security.SecureString securePassword = Common.String2SecureString(myServer.Password);
