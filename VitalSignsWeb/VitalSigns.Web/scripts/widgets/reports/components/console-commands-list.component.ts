@@ -19,11 +19,11 @@ export class ConsoleCommands implements WidgetComponent, OnInit {
     errorMessage: string;
 
     consoleCommands: any;
-
+    gridUrl: string = `/reports/console_command_list`
     constructor(private service: RESTService) { }
 
     loadData() {
-        this.service.get('/reports/console_command_list')
+        this.service.get(this.gridUrl)
             .subscribe(
             data => this.consoleCommands = data.data,
             error => this.errorMessage = <any>error
@@ -31,6 +31,13 @@ export class ConsoleCommands implements WidgetComponent, OnInit {
     }
 
     ngOnInit() {
+        if (this.settings & this.settings.url)
+            this.gridUrl = this.settings.url;
+        var displayDate = (new Date()).toISOString().slice(0, 10);
+        this.loadData();
+    }
+    refresh(url) {
+        this.gridUrl = url;
         this.loadData();
     }
 }

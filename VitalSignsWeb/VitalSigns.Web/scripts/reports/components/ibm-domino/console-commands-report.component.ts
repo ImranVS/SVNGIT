@@ -19,7 +19,12 @@ declare var injectSVG: any;
 export class ConsoleCommands extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
-
+    gridUrl: string = `/reports/console_command_list`
+    currentDeviceType: string = "Domino";
+    currentWidgetName: string = `consoleCommandsTable`;
+    currentWidgetURL: string = this.gridUrl;
+    currentHideServerControl: boolean = false;
+    currentHideDatePanel: boolean = false;
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
 
         super(resolver, widgetService);
@@ -39,7 +44,7 @@ export class ConsoleCommands extends WidgetController {
                 id: 'consoleCommandsTable',
                 title: 'Console Commands by User',
                 name: 'ConsoleCommands',
-                settings: {}
+                settings: { url: this.gridUrl }
             }
         ];
         injectSVG();

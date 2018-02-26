@@ -19,12 +19,12 @@ declare var injectSVG: any;
 export class DatabaseInventoryReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
-
-    currentHideServerControl: boolean = false;
-    currentHideDatePanel: boolean = true;
+    gridUrl: string = `/reports/database_inventory`
     currentDeviceType: string = "Domino";
     currentWidgetName: string = `databaseInventoryReport`;
-    currentWidgetURL: string = `/reports/database_inventory`;
+    currentWidgetURL: string = this.gridUrl;
+    currentHideServerControl: boolean = false;
+    currentHideDatePanel: boolean = true;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
 
@@ -45,7 +45,7 @@ export class DatabaseInventoryReport extends WidgetController {
                     id: 'databaseInventoryReport',
                     title: 'Database Inventory',
                     name: 'DatabaseInventoryList',
-                    settings: { url: `/reports/database_inventory`}
+                    settings: { url: this.gridUrl }
                 }
             ];
             injectSVG();

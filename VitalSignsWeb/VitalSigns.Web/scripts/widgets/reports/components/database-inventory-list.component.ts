@@ -20,11 +20,11 @@ export class DatabaseInventoryList implements WidgetComponent, OnInit {
     errorMessage: string;
 
     databaseInventory: any;
-
+    gridUrl: string = `/reports/database_inventory`
     constructor(private service: RESTService) { }
 
     loadData() {
-        this.service.get(this.settings.url)
+        this.service.get(this.gridUrl)
             .subscribe(
             data => this.databaseInventory = data.data,
             error => this.errorMessage = <any>error
@@ -32,6 +32,13 @@ export class DatabaseInventoryList implements WidgetComponent, OnInit {
     }
 
     ngOnInit() {
+        if (this.settings & this.settings.url)
+            this.gridUrl = this.settings.url;
+        var displayDate = (new Date()).toISOString().slice(0, 10);
+        this.loadData();
+    }
+    refresh(url) {
+        this.gridUrl = url;
         this.loadData();
     }
 }
