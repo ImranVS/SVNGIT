@@ -75,4 +75,6 @@ export * from '../configurator/components/server/server-o365-nodes.component'
 
 export * from '../services/components/microsoft-powershell-scripts-tab.component';
 
-
+export * from '../dashboards/components/key-metrics/office-365-mailbox-tab.component';
+export * from '../dashboards/components/key-metrics/office-365-users-grid.component';
+export * from '../dashboards/components/key-metrics/office-365-licenses-tab.component';

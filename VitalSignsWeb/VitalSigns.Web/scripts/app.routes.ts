@@ -44,6 +44,7 @@ import { MailDeliveryStatus } from './dashboards/components/mail-delivery-status
 import { Issues } from './dashboards/components/issues/issues.component';
 //import { ExchangemailstatisticsviewGrid } from './dashboards/components/key-metrics/exchange-mailbox-view.component';
 import { ExchnagesTab } from './dashboards/components/key-metrics/exchange-tabs-component';
+import { Office365MailUserTabs } from './dashboards/components/key-metrics/office-365-mail-user-tabs.component';
 
 import { DominoStatistics } from './dashboards/components/overall-statistics/overall-domino-statistics.component';
 import { SametimeStatistics } from './dashboards/components/overall-statistics/overall-sametime-statistics.component';
@@ -204,6 +205,7 @@ export * from './dashboards/components/key-metrics/hardware-stats-dashboard.comp
 export * from './dashboards/components/key-metrics/users-dashboard.component';
 export * from './dashboards/components/key-metrics/server-days-up-dashboard.component';
 export * from './dashboards/components/key-metrics/database-replication-health.component';
+export * from './dashboards/components/key-metrics/office-365-mail-user-tabs.component';
 
 export * from './dashboards/components/ms-ad/ms-ad-dashboard.component';
 export * from './dashboards/components/ms-exchange/ms-exchange-dashboard.component';
@@ -377,6 +379,10 @@ const appRoutes: Routes = [
             {
                 path: 'dashboard/dbreplicationhealth',
                 component: DatabaseReplicationHealth
+            },
+            {
+                path: 'dashboard/o365usersmailboxes',
+                component: Office365MailUserTabs
             },
 
             {

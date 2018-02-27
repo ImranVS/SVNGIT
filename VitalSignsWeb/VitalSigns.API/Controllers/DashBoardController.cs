@@ -44,6 +44,8 @@ namespace VitalSigns.API.Controllers
         private IRepository<ClusterDatabaseDetails> clusterDatabaseRepository;
         private IRepository<ServerOther> serverOtherRepository;
         private IRepository<Office365MSOLUsers> o365MsolUsersRepository;
+        private IRepository<Mailbox> mailboxRepository;
+        private IRepository<Office365LicenseInfo> office365LicenseInfoRepository;
 
         private string DateFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
         /// <summary>
@@ -3000,10 +3002,7 @@ namespace VitalSigns.API.Controllers
             Response = Common.CreateResponse(chart);
             return Response;
         }
-
-
-
-
+        
         [HttpGet("exchange_cas_details")]
         public APIResponse GetExchangeCasDetails()
         {
@@ -3065,6 +3064,243 @@ namespace VitalSigns.API.Controllers
             catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Server Inastance not set to the Object .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpGet("office_365_mailboxes")]
+        public APIResponse GetOffice365Mailboxes()
+        {
+            try
+            {
+                serverRepository = new Repository<Server>(ConnectionString);
+                mailboxRepository = new Repository<Mailbox>(ConnectionString);
+
+                List<string> office365Ids = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription())).Select(x => x.Id).ToList();
+                FilterDefinition<Mailbox> mailboxFilterDef = mailboxRepository.Filter.In(x => x.DeviceId, office365Ids);
+
+                List<MailboxModel> result = mailboxRepository.Find(mailboxFilterDef).ToList()
+                    .Select(x => new MailboxModel()
+                    {
+                        DatabaseName = x.DatabaseName,
+                        DisplayName = x.DisplayName,
+                        IssueWarningQuota = x.IssueWarningQuota,
+                        ProhibitSendQuota = x.ProhibitSendQuota,
+                        ProhibitSendReceiveQuota = x.ProhibitSendReceiveQuota,
+                        IsActive = x.IsActive,
+                        MailboxType = x.MailboxType,
+                        TotalItemSizeMb = x.TotalItemSizeMb,
+                        ItemCount = x.ItemCount,
+                        LastLogonTime = x.LastLogonTime,
+                        PrimarySmtpAddress = x.PrimarySmtpAddress,
+                        SAMAccountName = x.SAMAccountName,
+                        DaysSinceLastLogon = x.LastLogonTime.HasValue ? (double?) DateTime.UtcNow.Subtract(x.LastLogonTime.Value).TotalDays : null
+                    }).ToList();
+
+                Response = Common.CreateResponse(result);
+            }
+
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Server Inastance not set to the Object .\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpGet("office_365_users")]
+        public APIResponse GetOffice365Users()
+        {
+            try
+            {
+                o365MsolUsersRepository = new Repository<Office365MSOLUsers>(ConnectionString);
+                serverRepository = new Repository<Server>(ConnectionString);
+                office365LicenseInfoRepository = new Repository<Office365LicenseInfo>(ConnectionString);
+
+                Dictionary<string, string> dictOfLicense = office365LicenseInfoRepository.All().Select(x => new { LicenseType = x.LicenseType, LicenseTypeId = x.LicenseTypeId }).Distinct().ToDictionary(x => x.LicenseTypeId, x => x.LicenseType);
+
+                var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription())).ToList().Select(x => x.Id).ToList();
+                var filterDef = o365MsolUsersRepository.Filter.In(x => x.DeviceId, listOfDevices) &
+                    o365MsolUsersRepository.Filter.Eq(x => x.IsLicensed, true) &
+                    o365MsolUsersRepository.Filter.Eq(x => x.AccountDisabled, true);
+                var results = o365MsolUsersRepository.Find(filterDef).ToList().Select(x => new MsolUser()
+                {
+                    DisplayName = x.DisplayName,
+                    AccountLastModified = x.AccountLastModified,
+                    UserPrincipalName = x.UserPrincipalName,
+                    Licensed = dictOfLicense.ContainsKey(x.License) ? dictOfLicense[x.License] : x.License,
+                    AccountDisabled = x.AccountDisabled,
+                    ADLastSync = x.ADLastSync,
+                    Department = x.Department,
+                    IsLicensed = x.IsLicensed,
+                    PasswordNeverExpires = x.PasswordNeverExpires,
+                    StrongPasswordRequired = x.StrongPasswordRequired,
+                    Title = x.Title,
+                    UserType = x.UserType                    
+                }).ToList().OrderBy(x => x.DisplayName);
+                Response = Common.CreateResponse(results);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpGet("office_365_licenses_used_available")]
+        public APIResponse GetOffice365LicensesUsedAvailable()
+        {
+            try
+            {
+                office365LicenseInfoRepository = new Repository<Office365LicenseInfo>(ConnectionString);
+
+                var groupedByTypes = office365LicenseInfoRepository.Find(office365LicenseInfoRepository.Filter.Empty)
+                    .ToList()
+                    .GroupBy(x => x.LicenseType)
+                    .Select(x => new
+                    {
+                        LicenseType = x.Key.ToString(),
+                        Used = x.Sum(y => y.ConsumedUnits),
+                        Active = x.Sum(y => y.ActiveUnits)
+                    });
+
+                Serie mainSerie = new Serie();
+                mainSerie.Title = "Licenses";
+                mainSerie.Segments = new List<Segment>()
+                {
+                    new Segment() { Label = "Used", Value = groupedByTypes.Sum(x => x.Used), DrillDownName = "Used"},
+                    new Segment() { Label = "Available", Value = groupedByTypes.Sum(x => x.Active - x.Used), DrillDownName = "Available"}
+                };
+
+                List<Serie> subSeries = new List<Serie>();
+                Serie subSerie = new Serie();
+                subSerie.Title = "Licenses";
+                subSerie.Segments = groupedByTypes.Select(x => new Segment()
+                {
+                    Label = x.LicenseType,
+                    Value = x.Used,
+                    DrillDownName = "Used"
+                }).ToList();
+                subSeries.Add(subSerie);
+
+                subSerie = new Serie();
+                subSerie.Title = "Licenses";
+                subSerie.Segments = groupedByTypes.Select(x => new Segment()
+                {
+                    Label = x.LicenseType,
+                    Value = x.Active - x.Used,
+                    DrillDownName = "Available"
+                }).ToList();
+                subSeries.Add(subSerie);
+
+
+                Chart chart = new Chart();
+                chart.Title = "OS Count";
+                chart.Series = new List<Serie>() { mainSerie };
+                chart.Series2 = subSeries;
+                Response = Common.CreateResponse(chart);
+                return Response;
+               
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpGet("office_365_licenses_distribution")]
+        public APIResponse GetOffice365LicensesDistribution()
+        {
+            try
+            {
+                office365LicenseInfoRepository = new Repository<Office365LicenseInfo>(ConnectionString);
+
+                var groupedByTypes = office365LicenseInfoRepository.Find(office365LicenseInfoRepository.Filter.Empty)
+                    .ToList()
+                    .GroupBy(x => x.LicenseType)
+                    .Select(x => new
+                    {
+                        LicenseType = x.Key.ToString(),
+                        Used = x.Sum(y => y.ConsumedUnits),
+                        Active = x.Sum(y => y.ActiveUnits)
+                    });
+
+                Serie mainSerie = new Serie();
+                mainSerie.Title = "Licenses";
+                mainSerie.Segments = groupedByTypes.Select(x => new Segment()
+                {
+                    Label = x.LicenseType,
+                    Value = x.Active,
+                    DrillDownName = x.LicenseType
+                }).ToList();
+
+
+
+                List<Serie> subSeries = groupedByTypes.Select(x => new Serie()
+                {
+                    Title = "Used vs Available",
+                    Segments = new List<Segment>()
+                    {
+                        new Segment()
+                        {
+                            Label = "Used",
+                            Value = x.Used,
+                            DrillDownName = x.LicenseType
+                        },
+                        new Segment()
+                        {
+                            Label = "Available",
+                            Value = x.Active - x.Used,
+                            DrillDownName = x.LicenseType
+                        }
+                    }
+                }).ToList();
+
+                Chart chart = new Chart();
+                chart.Title = "OS Count";
+                chart.Series = new List<Serie>() { mainSerie };
+                chart.Series2 = subSeries;
+                Response = Common.CreateResponse(chart);
+                return Response;
+
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpGet("office_365_licenses_reassignable")]
+        public APIResponse GetOffice365LicensesReassignable()
+        {
+            
+            try
+            {
+                ReportsController rc = new ReportsController();
+                var data = rc.LicensesForReassignment();
+
+                Chart chart = new Chart();
+                chart.Title = "OS Count";
+                chart.Series = new List<Serie>()
+                {
+                    new Serie()
+                    {
+                        Title = "Licenses",
+                        Segments = data.GroupBy(x => x.Licensed)
+                            .Select(x => new Segment()
+                            {
+                                Label = x.Key,
+                                Value = x.Count()
+                            })     .ToList()
+                    }
+                };
+                Response = Common.CreateResponse(chart);
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
             }
             return Response;
         }

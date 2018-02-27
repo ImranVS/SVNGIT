@@ -56,5 +56,10 @@ namespace VitalSigns.API.Models
         [JsonProperty("folder_count")]
         public double? FolderCount { get; set; }
 
+        [JsonProperty("mailbox_type", NullValueHandling=NullValueHandling.Ignore)]
+        public string MailboxType { get; set; }
+
+        [JsonProperty("days_since_last_logon", NullValueHandling = NullValueHandling.Ignore)]
+        public double? DaysSinceLastLogon { get; set; }
     }
 }

@@ -39,6 +39,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<DominoServerTasks> doimoServerTasksRepository;
         private IRepository<IbmConnectionsObjects> connectionsRepository;
         private IRepository<Location> locationRepository;
+        private IRepository<Office365LicenseInfo> office365LicenseInfoRepository;
         //private string DateFormatMonthYear = "yyyy-MM";
 
 
@@ -1782,7 +1783,7 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("connections/user_activity_monthly")]
-        public APIResponse ConnectionsUserActivityMonthly(string userNames = "")
+        public APIResponse ConnectionsUserActivityMonthly(string userNames = "", string topX = "25")
         {
             List<UserAdoptionPivot> result = new List<UserAdoptionPivot>();
             List<UserActivityBubble> resultchart = new List<UserActivityBubble>();
@@ -1866,6 +1867,13 @@ namespace VitalSigns.API.Controllers
                     };
                     result.Add(ua);
                     
+                }
+
+                if (topX != "0" || topX != "All")
+                {
+                    int intTopX = Int32.Parse(topX);
+                    var topXUserNames = result.GroupBy(y => y.UserName).Select(g => new { UserName = g.Key, Total = g.Sum(s => s.ObjectValue) }).OrderByDescending(x => x.Total).Take(intTopX).Select(x => x.UserName).ToList();
+                    result = result.Where(x => topXUserNames.Contains(x.UserName)).ToList();
                 }
 
                 result = result.OrderByDescending(i => i.UserName).ToList();
@@ -2515,19 +2523,8 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-                o365MsolUsersRepository = new Repository<Office365MSOLUsers>(ConnectionString);
-                serverRepository = new Repository<Server>(ConnectionString);
-                var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription())).ToList().Select(x => x.Id).ToList();
-                var filterDef = o365MsolUsersRepository.Filter.In(x => x.DeviceId, listOfDevices) &
-                    o365MsolUsersRepository.Filter.Eq(x => x.IsLicensed, true) &
-                    o365MsolUsersRepository.Filter.Eq(x => x.AccountDisabled, true);
-                var results = o365MsolUsersRepository.Find(filterDef).ToList().Select(x => new MsolUser()
-                {
-                    DisplayName = x.DisplayName,
-                    AccountLastModified = x.AccountLastModified,
-                    UserPrincipalName = x.UserPrincipalName,
-                }).ToList().OrderBy(x => x.DisplayName);
-                Response = Common.CreateResponse(results);
+                
+                Response = Common.CreateResponse(LicensesForReassignment());
                 return Response;
             }
             catch (Exception exception)
@@ -2536,6 +2533,28 @@ namespace VitalSigns.API.Controllers
 
                 return Response;
             }
+        }
+
+        public List<MsolUser> LicensesForReassignment()
+        {
+            o365MsolUsersRepository = new Repository<Office365MSOLUsers>(ConnectionString);
+            serverRepository = new Repository<Server>(ConnectionString);
+            office365LicenseInfoRepository = new Repository<Office365LicenseInfo>(ConnectionString);
+
+            Dictionary<string, string> dictOfLicense = office365LicenseInfoRepository.All().Select(x => new { LicenseType = x.LicenseType, LicenseTypeId = x.LicenseTypeId }).Distinct().ToDictionary(x => x.LicenseTypeId, x => x.LicenseType);
+
+            var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription())).ToList().Select(x => x.Id).ToList();
+            var filterDef = o365MsolUsersRepository.Filter.In(x => x.DeviceId, listOfDevices) &
+                o365MsolUsersRepository.Filter.Eq(x => x.IsLicensed, true) &
+                o365MsolUsersRepository.Filter.Eq(x => x.AccountDisabled, true);
+            var results = o365MsolUsersRepository.Find(filterDef).ToList().Select(x => new MsolUser()
+            {
+                DisplayName = x.DisplayName,
+                AccountLastModified = x.AccountLastModified,
+                UserPrincipalName = x.UserPrincipalName,
+                Licensed = dictOfLicense.ContainsKey(x.License) ? dictOfLicense[x.License] : x.License
+            }).ToList().OrderBy(x => x.DisplayName).ToList();
+            return results;
         }
 
         [HttpGet("active_directory_sync_report")]

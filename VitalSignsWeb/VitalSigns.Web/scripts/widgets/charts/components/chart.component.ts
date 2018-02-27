@@ -48,137 +48,143 @@ export class ChartComponent implements WidgetComponent, OnInit {
         this.isLoading = true;
         this.service.get(serviceUrl || this.settings.url)
             .subscribe(data => {
-                if (this.settings.overrideName) {
-                    data.data.series.forEach(serie => serie.title = this.settings.overrideName);
-                }
-                switch (this.settings.dateformat) {
-                    case "date":
-                        data.data = this.datetimeHelpers.toLocalDate(data.data);
-                        break;
-                    case "datetime":
-                        data.data = this.datetimeHelpers.toLocalDateTime(data.data);
-                        break;
-                    case "hour":
-                        data.data = this.datetimeHelpers.toLocalHour(data.data);
-                        break;
-                    case "time":
-                        data.data = this.datetimeHelpers.toLocalTime(data.data);
-                        break;
-                }
-                if (this.chart) {
-                    this.settings.chart.series = [];
-                    this.chart.destroy();
-                }
+                try {
 
-                let chart = <Chart>data.data;
-
-                let categories: string[] = []
-
-                chart.series.map(serie => {
-
-                    let length = this.settings.chart.series.push({
-                        name: null,
-                        data: []
-                    });
-
-                    this.settings.chart.series[length - 1].name = serie.title;
-                    //NS added the line below this.settings.chart.xAxis.categories = []; - the categories array needs 
-                    //to be cleared every time, otherwise, the chart does not redraw x axis values if the data is updated
-                    this.settings.chart.xAxis.categories = [];
-
-                    // First loop to gather all data points labels
-                    serie.segments.map(segment => {
-
-                        if (this.settings.chart.xAxis) {
-                            if (categories.indexOf(segment.label) == -1)
-                                categories.push(segment.label);
-                        }
-
-                    });
-                    
-                    this.settings.chart.xAxis.categories = categories;
-
-                    // Second loop to build data points with actual value or null if missing 
-                    categories.map(category => {
-
-                        let segment = serie.segments.find(s => s.label == category);
-
-                        if (segment)
-                            this.settings.chart.series[length - 1].data.push({
-                                name: category,
-                                y: segment.value && !isNaN(segment.value) ? segment.value : 0,
-                                color: segment.color,
-                                drilldown: segment.drilldownname
-                            });
-                        else
-                            this.settings.chart.series[length - 1].data.push({
-                                name: category,
-                                y: null
-                            });
-
-                    });
-
-                    // TODO: [OM] not obvious to hard code string value there and it introduces a strong dependency with business rules
-                    if (this.settings.chart.xAxis.categories.length > 1 && serie.title == "Available" || serie.title == "Used") {
-
-                        this.settings.chart.chart.type = 'bar';
+                    if (this.settings.overrideName) {
+                        data.data.series.forEach(serie => serie.title = this.settings.overrideName);
                     }
-                    else if (serie.title.startsWith("Disk")) {
-
-                        this.settings.chart.chart.type = 'pie';
+                    switch (this.settings.dateformat) {
+                        case "date":
+                            data.data = this.datetimeHelpers.toLocalDate(data.data);
+                            break;
+                        case "datetime":
+                            data.data = this.datetimeHelpers.toLocalDateTime(data.data);
+                            break;
+                        case "hour":
+                            data.data = this.datetimeHelpers.toLocalHour(data.data);
+                            break;
+                        case "time":
+                            data.data = this.datetimeHelpers.toLocalTime(data.data);
+                            break;
+                    }
+                    if (this.chart) {
+                        this.settings.chart.series = [];
+                        this.chart.destroy();
                     }
 
-                });
+                    let chart = <Chart>data.data;
 
-                this.subseries = [];
+                    let categories: string[] = []
 
-                //START DRILLDOWN
-                if (chart.series2 != null) {
-                    let chart2 = <Chart>data.data;
-                    this.settings.chart.xAxis.categories = null;
-                    
-                    chart2.series2.map(serie => {
-                        let categories2: string[] = []
+                    chart.series.map(serie => {
+
+                        let length = this.settings.chart.series.push({
+                            name: null,
+                            data: []
+                        });
+
+                        this.settings.chart.series[length - 1].name = serie.title;
+                        //NS added the line below this.settings.chart.xAxis.categories = []; - the categories array needs 
+                        //to be cleared every time, otherwise, the chart does not redraw x axis values if the data is updated
+                        this.settings.chart.xAxis.categories = [];
 
                         // First loop to gather all data points labels
                         serie.segments.map(segment => {
 
                             if (this.settings.chart.xAxis) {
-                                if (categories2.indexOf(segment.drilldownname) == -1)
-                                    categories2.push(segment.drilldownname);
+                                if (categories.indexOf(segment.label) == -1)
+                                    categories.push(segment.label);
                             }
 
                         });
-                        console.log(categories2)
+
+                        this.settings.chart.xAxis.categories = categories;
+
                         // Second loop to build data points with actual value or null if missing 
-                        categories2.map(category => {
-                            let segments = serie.segments.filter(s => s.drilldownname == category);
-                            if (segments) {
-                                let newSegment = {
-                                    name: chart.series[0].segments.find(x => x.drilldownname === category).label,
-                                    id: category,
-                                    data: []
-                                };
-                                segments.forEach(segment => {
-                                    newSegment.data.push({ name: segment.label, y: segment.value })
+                        categories.map(category => {
+
+                            let segment = serie.segments.find(s => s.label == category);
+
+                            if (segment)
+                                this.settings.chart.series[length - 1].data.push({
+                                    name: category,
+                                    y: segment.value && !isNaN(segment.value) ? segment.value : 0,
+                                    color: segment.color,
+                                    drilldown: segment.drilldownname
                                 });
-                                this.subseries.push(newSegment);
-                            }
+                            else
+                                this.settings.chart.series[length - 1].data.push({
+                                    name: category,
+                                    y: null
+                                });
+
                         });
+
+                        // TODO: [OM] not obvious to hard code string value there and it introduces a strong dependency with business rules
+                        if (this.settings.chart.xAxis.categories.length > 1 && serie.title == "Available" || serie.title == "Used") {
+
+                            this.settings.chart.chart.type = 'bar';
+                        }
+                        else if (serie.title.startsWith("Disk")) {
+
+                            this.settings.chart.chart.type = 'pie';
+                        }
+
                     });
-                    let chartSeries = new ChartSeries();
-                    chartSeries.series = this.subseries;
-                    chart.drilldown = chartSeries;
-                    this.settings.chart.drilldown = chart.drilldown;
-                }
-                //END DRILLDOWN
 
-                this.chart = new Highcharts.Chart(this.settings.chart);
-                var chartjson = JSON.stringify(this.settings.chart);
+                    this.subseries = [];
 
-                if (this.settings.callback)
-                    this.settings.callback(this.settings.chart);
-                this.isLoading = false;
+                    //START DRILLDOWN
+                    if (chart.series2 != null) {
+                        let chart2 = <Chart>data.data;
+                        this.settings.chart.xAxis.categories = null;
+
+                        chart2.series2.map(serie => {
+                            let categories2: string[] = []
+
+                            // First loop to gather all data points labels
+                            serie.segments.map(segment => {
+
+                                if (this.settings.chart.xAxis) {
+                                    if (categories2.indexOf(segment.drilldownname) == -1)
+                                        categories2.push(segment.drilldownname);
+                                }
+
+                            });
+                            console.log(categories2)
+                            // Second loop to build data points with actual value or null if missing 
+                            categories2.map(category => {
+                                let segments = serie.segments.filter(s => s.drilldownname == category);
+                                if (segments) {
+                                    let newSegment = {
+                                        name: chart.series[0].segments.find(x => x.drilldownname === category).label,
+                                        id: category,
+                                        data: []
+                                    };
+                                    segments.forEach(segment => {
+                                        newSegment.data.push({ name: segment.label, y: segment.value })
+                                    });
+                                    this.subseries.push(newSegment);
+                                }
+                            });
+                        });
+                        let chartSeries = new ChartSeries();
+                        chartSeries.series = this.subseries;
+                        chart.drilldown = chartSeries;
+                        this.settings.chart.drilldown = chart.drilldown;
+                    }
+                    //END DRILLDOWN
+                    Highcharts.setOptions({
+                        lang: {
+                            thousandsSep: ','
+                        }
+                    });
+                    this.chart = new Highcharts.Chart(this.settings.chart);
+                    var chartjson = JSON.stringify(this.settings.chart);
+                    if (this.settings.callback)
+                        this.settings.callback(this.settings.chart);
+                    this.isLoading = false;
+                } catch (ex) { console.log(ex) }
             },
             error => { this.errorMessage = <any>error; this.isLoading = false; });
 
