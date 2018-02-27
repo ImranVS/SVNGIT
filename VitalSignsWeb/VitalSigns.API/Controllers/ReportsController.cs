@@ -937,16 +937,20 @@ namespace VitalSigns.API.Controllers
             dtStart = DateTime.SpecifyKind(dtStart, DateTimeKind.Utc);
             dtEnd = DateTime.SpecifyKind(dtEnd, DateTimeKind.Utc);
             consoleCommandsRepository = new Repository<ConsoleCommands>(ConnectionString);
+         
             var filterDef = consoleCommandsRepository.Filter.Empty &
                     consoleCommandsRepository.Filter.Gte(p => p.DateTimeProcessed, dtStart) &
                     consoleCommandsRepository.Filter.Lte(p => p.DateTimeProcessed, dtEnd);
             if (!String.IsNullOrWhiteSpace(deviceId))
             {
                  var listOfDevices = deviceId.Split(',').ToList();
-                filterDef = filterDef & consoleCommandsRepository.Filter.In(x => x.DeviceId, listOfDevices);
+                serverRepository = new Repository<Server>(ConnectionString);
+                var serverfilterdef = serverRepository.Filter.In(x => x.Id, listOfDevices);
+                var devicenames = serverRepository.Find(serverfilterdef).ToList().Select(x=> x. DeviceName);
+                filterDef = filterDef & consoleCommandsRepository.Filter.In(x => x.DeviceName, devicenames);
             }
             List<ConsoleCommandList> result = null;
- 
+
             result = consoleCommandsRepository.Find(filterDef).ToList()
                             .Select(x => new ConsoleCommandList
                              {
@@ -983,9 +987,10 @@ namespace VitalSigns.API.Controllers
                 Title = x.Title.Length > charLimit ? x.Title.Substring(0, charLimit) + "..." : x.Title,
                 Status = x.Status,
                 DesignTemplateName = x.DesignTemplateName,
-                IsMailFile = x.IsMailFile
+                IsMailFile = x.IsMailFile,
+                FileSize = x.FileSize
             }).ToList();
-            Response = Common.CreateResponse(result.OrderBy(x => x.Server));
+            Response = Common.CreateResponse(result.OrderBy(x => x.Server).ThenBy(x => x.FileNamePath));
             return Response;
         }
 

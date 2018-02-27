@@ -53,6 +53,9 @@ namespace VitalSigns.API.Models
         [JsonProperty("is_mail_file")]
         public bool? IsMailFile { get; set; }
 
+        [JsonProperty("file_size")]
+        public double? FileSize { get; set; }
+
     }
 
     public class LogFileList
