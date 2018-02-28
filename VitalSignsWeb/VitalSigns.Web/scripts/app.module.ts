@@ -504,7 +504,7 @@ import { LoadingIndicator } from './core/services/loading-indicator'
         widgets.MicrosoftPowerShellScripts,
         widgets.PowerScriptsAudit,
         widgets.ExchangemailstatisticsviewGrid,
-        widgets.Office365Licenses,
+        widgets.Office365LicensesTabs,
         tabs.Office365MailboxViewTab,
         tabs.Office365UsersGrid,
         tabs.Office365LicensesTab,
@@ -721,7 +721,8 @@ import { LoadingIndicator } from './core/services/loading-indicator'
         widgets.ExecutiveSummaryWidget,
         widgets.MicrosoftPowerShellScripts,
         widgets.PowerScriptsAudit,
-        widgets.Office365Licenses,
+        widgets.Office365LicensesTabs,
+
         tabs.Office365MailboxViewTab,
         tabs.Office365UsersGrid,
         tabs.Office365LicensesTab,
