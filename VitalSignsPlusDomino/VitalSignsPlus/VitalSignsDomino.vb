@@ -352,7 +352,7 @@ Public Class VitalSignsPlusDomino
             WriteAuditEntry(Now.ToString & " *********** ERROR ************  Error initializing a session to Query Domino server. ")
             WriteAuditEntry(Now.ToString & " Calling stopnotescl.exe then exiting in an attempt to recover.")
             WriteAuditEntry(Now.ToString & " The VitalSigns Master service should restart the monitoring service in a few moments.")
-            KillNotes()
+            Thread.Sleep(1000 * 60)
             Exit Sub
         End Try
 
@@ -408,6 +408,9 @@ Public Class VitalSignsPlusDomino
         End Try
 
         WriteAuditEntry(Now.ToString & " Startup process is complete. ")
+
+
+
 
     End Sub
 
