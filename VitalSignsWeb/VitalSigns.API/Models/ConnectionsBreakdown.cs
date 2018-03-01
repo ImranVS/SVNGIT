@@ -18,6 +18,9 @@ namespace VitalSigns.API.Models
         [JsonProperty("end_date")]
         public DateTime EndDate { get; set; }
 
+        [JsonProperty("num_of_logins")]
+        public string NumOfLogins { get; set; }
+
         [JsonProperty("types")]
         public List<ConnectionsBreakdownType> Types { get; set; }
     }

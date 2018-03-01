@@ -2175,6 +2175,7 @@ namespace VitalSigns.API.Controllers
                 connectionsObjectsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
                 credentialsRepository = new Repository<Credentials>(ConnectionString);
                 serverRepository = new Repository<Server>(ConnectionString);
+                summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
 
                 if (date == "")
                     date = DateTime.UtcNow.AddDays(-7).ToString(DateFormat);
@@ -2259,6 +2260,12 @@ namespace VitalSigns.API.Controllers
                         CountNewNotInCommunity = x["new_objects_not_in_community"].AsInt32
                     }).ToList();
 
+                List<SummaryStatistics> summaryStats = summaryRepository.Find(
+                    summaryRepository.Filter.Eq(x => x.StatName, "NUM_OF_PROFILES_LOGIN_PAST_WEEK") &
+                    summaryRepository.Filter.Gte(x => x.StatDate, dtEnd.AddDays(-1)) &
+                    summaryRepository.Filter.Lte(x => x.StatDate, dtEnd)
+                    ).ToList();
+
                 //loops through the results and creates a return reponse
                 List<ConnectionsBreakdown> results = new List<ConnectionsBreakdown>();
                 foreach(string deviceName in resultsFromMongo.Select(x => x.DeviceName).Distinct())
@@ -2270,6 +2277,7 @@ namespace VitalSigns.API.Controllers
                     result.StartDate = dtStart;
                     result.EndDate = dtEnd;
                     result.Types = new List<ConnectionsBreakdownType>();
+                    result.NumOfLogins = summaryStats.Exists(x => x.DeviceName == deviceName) ? summaryStats.Find(x => x.DeviceName == deviceName).StatValue.ToString() : "UNKNOWN";
                     foreach(string type in types)
                     {
                         var currTypeFromMongoList = resultsFromMongo.Where(x => x.DeviceName == deviceName && x.Type == type).ToList();

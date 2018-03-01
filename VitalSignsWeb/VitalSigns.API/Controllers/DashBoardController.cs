@@ -3095,7 +3095,7 @@ namespace VitalSigns.API.Controllers
                         PrimarySmtpAddress = x.PrimarySmtpAddress,
                         SAMAccountName = x.SAMAccountName,
                         DaysSinceLastLogon = x.LastLogonTime.HasValue ? (double?) DateTime.UtcNow.Subtract(x.LastLogonTime.Value).TotalDays : null
-                    }).ToList();
+                    }).OrderBy(x => x.DisplayName).ToList();
 
                 Response = Common.CreateResponse(result);
             }
@@ -3296,6 +3296,32 @@ namespace VitalSigns.API.Controllers
                     }
                 };
                 Response = Common.CreateResponse(chart);
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpGet("office_365_account_licenses")]
+        public APIResponse GetOffice365AccountLicenses()
+        {
+
+            try
+            {
+                office365LicenseInfoRepository = new Repository<Office365LicenseInfo>(ConnectionString);
+                var results = office365LicenseInfoRepository.Find(x => true).ToList()
+                    .Select(x => new O365Licenses()
+                    {
+                        ActiveUnits = x.ActiveUnits,
+                        LicenseType = x.LicenseType,
+                        LockedOutUnits = x.LockedOutUnits,
+                        SuspendedUnits = x.SuspendedUnits,
+                        WarningUnits = x.WarningUnits
+                    }).OrderBy(x => x.LicenseType).ToList();
+                Response = Common.CreateResponse(results);
                 return Response;
             }
             catch (Exception exception)

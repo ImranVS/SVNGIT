@@ -185,9 +185,9 @@ export class Office365LicensesTab extends WidgetController implements OnInit, Se
                 }
             },
             {
-                id: 'licenseGrid',
-                title: 'Licenses Eligible for Reassignment',
-                name: 'Office365Licenses',
+                id: 'licensesGrid',
+                title: 'Licenses',
+                name: 'Office365LicensesGrid',
                 css: 'col-xs-12'
             }
         ]

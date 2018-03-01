@@ -11207,7 +11207,8 @@ CleanUp:
             "SELECT COUNT(*) NUM_OF_PROFILES_PROFILES FROM EMPINST.EMPLOYEE;" &
             "SELECT COUNT(*) NUM_OF_PROFILES_CREATED_YESTERDAY FROM EMPINST.EMP_ROLE_MAP E1 INNER JOIN EMPINST.EMPLOYEE E2 ON E1.PROF_KEY = E2.PROF_KEY WHERE DATE(E1.CREATED) = CURRENT_DATE - 1 DAY;" &
             "SELECT COUNT(*) NUM_OF_PROFILES_WITH_PICTURE FROM EMPINST.EMPLOYEE WHERE PROF_KEY IN (SELECT PROF_KEY FROM EMPINST.PHOTO);" &
-            "SELECT COUNT(*) NUM_OF_PROFILES_WITH_MANAGER FROM EMPINST.EMPLOYEE WHERE PROF_MANAGER_UID IN (SELECT PROF_UID FROM EMPINST.EMPLOYEE);"
+            "SELECT COUNT(*) NUM_OF_PROFILES_WITH_MANAGER FROM EMPINST.EMPLOYEE WHERE PROF_MANAGER_UID IN (SELECT PROF_UID FROM EMPINST.EMPLOYEE);" &
+            "SELECT COUNT(*) NUM_OF_PROFILES_LOGIN_PAST_WEEK FROM EMPINST.PROFILE_LAST_LOGIN WHERE PROF_LAST_LOGIN > CURRENT_DATE - 7 DAYS;"
 
 
 
@@ -11343,6 +11344,11 @@ CleanUp:
                         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Profile Stats. Exception at stat NUM_OF_PROFILES_WITH_MANAGER. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                     End Try
 
+                    Try
+                        dict.Add("NUM_OF_PROFILES_LOGIN_PAST_WEEK", ds.Tables(14).Rows(0)("NUM_OF_PROFILES_LOGIN_PAST_WEEK"))
+                    Catch ex As Exception
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Profile Stats. Exception at stat NUM_OF_PROFILES_LOGIN_PAST_WEEK. Exception " + ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                    End Try
 
                     Dim sqlCols As String = ""
                     Dim sqlVals As String = ""

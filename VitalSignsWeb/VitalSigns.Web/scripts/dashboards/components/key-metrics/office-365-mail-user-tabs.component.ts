@@ -63,6 +63,12 @@ export class Office365MailUserTabs implements OnInit {
                 "component": "Office365LicensesTab",
                 "path": "/app/dashboards/components/key-metrics/office-365-licenses-tab.component",
                 "active": false
+            },
+            {
+                "title": "Licenses Eligible for Reassignment",
+                "component": "Office365ReassignableLicensesTab",
+                "path": "/app/dashboards/components/key-metrics/office-365-reassignable-licenses-tab.component",
+                "active": false
             }
         ];
         this.selectTab(this.tabsData[0]);

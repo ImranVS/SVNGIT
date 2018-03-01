@@ -24,7 +24,8 @@ export * from './dashboards/components/key-metrics/key-metrics-statistics-grid.c
 export * from './dashboards/components/key-metrics/overall-database-grid.component';
 export * from './dashboards/components/key-metrics/hardware-stats-grid.component';
 export * from './dashboards/components/key-metrics/disk-health-grid.component';
-export * from './dashboards/components/key-metrics/office-365-licenses-tabs.component'
+export * from './dashboards/components/key-metrics/office-365-reassignable-licenses-grid.component'
+export * from './dashboards/components/key-metrics/office-365-licenses-grid.component'
 export * from './dashboards/components/mail-delivery-status/domino-mail-delivery-status.component';
 export * from './dashboards/components/mail-delivery-status/exchange-mail-delivery-status.component';
 export * from './dashboards/components/key-metrics/database-replication-grid.component';
