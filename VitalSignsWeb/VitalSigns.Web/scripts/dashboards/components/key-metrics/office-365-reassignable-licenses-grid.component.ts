@@ -35,6 +35,7 @@ export class Office365ReassignableLicensesGrid implements OnInit {
     errorMessage: string;
     currentPageSize: any = 20;
     showPowerScripts: boolean = false;
+    isLoading: boolean = true;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, protected toolTip: helpers.GridTooltip,
         protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService, protected datetimeHelpers: helpers.DateTimeHelper) {
@@ -67,13 +68,15 @@ export class Office365ReassignableLicensesGrid implements OnInit {
         this.gridHelpers.ExportExcel(this.flex, "Office 365 Reassignable Licenses.xlsx")
     }
     loadData() {
+        this.isLoading = true;
         this.service.get(`/reports/disabled_users_with_license`)
             .subscribe(
             (response) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
                 this.data.pageSize = this.currentPageSize;
+                this.isLoading = false;
             },
-            (error) => this.errorMessage = <any>error
+            (error) => { this.errorMessage = <any>error; this.isLoading = false; }
             );
 
         

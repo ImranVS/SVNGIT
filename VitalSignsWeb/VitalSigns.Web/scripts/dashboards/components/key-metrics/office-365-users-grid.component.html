@@ -1,58 +1,57 @@
 ﻿    
-                <button class="btn btn-primary" (click)="ExportExcel()">Export to Excel</button>
-                <!--<button class="btn btn-primary" (click)="moredetails()">Mailbox Access</button>-->
+<button class="btn btn-primary" (click)="ExportExcel()">Export to Excel</button>
+<!--<button class="btn btn-primary" (click)="moredetails()">Mailbox Access</button>-->
 <button class="btn btn-primary">PowerScripts</button>
-                <wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" headersVisibility="Column" (dblclick)="moredetails()" #flex (itemsSourceChanged)="gridSourceChanged()">
-                    
-                    <wj-flex-grid-filter></wj-flex-grid-filter>
-                    <wj-flex-grid-column [header]="'Display Name'" [binding]="'display_name'"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'User Principal Name'" [binding]="'user_principal_name'"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'License(s)'" [binding]="'license'"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Account Disabled'" [binding]="'account_disabled'"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'AD Last Sync'" [binding]="'ad_last_sync'"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Department'" [binding]="'department'"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Password Never Expires'" [binding]="'password_never_expires'"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Strong Password Required'" [binding]="'strong_password_required'"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'Title'" [binding]="'title'"></wj-flex-grid-column>
-                    <wj-flex-grid-column [header]="'User Type'" [binding]="'user_type'"></wj-flex-grid-column>
-                    
-                </wj-flex-grid>
-                <div class="btn-group" *ngIf="data != null">
-                    <button type="button" class="btn btn-default"
-                            (click)="data.moveToFirstPage()"
-                            [disabled]="data.pageIndex <= 0">
-                        <span class="glyphicon glyphicon-fast-backward"></span>
-                    </button>
-                    <button type="button" class="btn btn-default"
-                            (click)="data.moveToPreviousPage()"
-                            [disabled]="data.pageIndex <= 0">
-                        <span class="glyphicon glyphicon-step-backward">
-                        </span>
-                    </button>
-                    <button type="button" class="btn btn-default" disabled style="width:100px">
-                        {{data.pageIndex + 1 | number}} / {{data.pageCount | number}}
-                    </button>
-                    <button type="button" class="btn btn-default"
-                            (click)="data.moveToNextPage()"
-                            [disabled]="data.pageIndex >= data.pageCount - 1">
-                        <span class="glyphicon glyphicon-step-forward"></span>
-                    </button>
-                    <button type="button" class="btn btn-default"
-                            (click)="data.moveToLastPage()"
-                            [disabled]="data.pageIndex >= data.pageCount - 1">
-                        <span class="glyphicon glyphicon-fast-forward"></span>
-                    </button>
-                </div>
-                <div class="pull-right" *ngIf="data != null">
-                    <wj-menu [(value)]="pageSize" [header]="'Page size'">
-                        <wj-menu-item [value]="10">10</wj-menu-item>
-                        <wj-menu-item [value]="20">20</wj-menu-item>
-                        <wj-menu-item [value]="50">50</wj-menu-item>
-                        <wj-menu-item [value]="100">100</wj-menu-item>
-                        <wj-menu-item [value]="200">200</wj-menu-item>
-                    </wj-menu>
-                </div>
-          <wj-popup style="border: 0px; width: 820px" #moredetailsPopup>
+<wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" headersVisibility="Column" (dblclick)="moredetails()" #flex (itemsSourceChanged)="gridSourceChanged()">
+    <wj-flex-grid-filter></wj-flex-grid-filter>
+    <wj-flex-grid-column [header]="'Display Name'" [binding]="'display_name'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'User Principal Name'" [binding]="'user_principal_name'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'License(s)'" [binding]="'license'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Account Disabled'" [binding]="'account_disabled'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'AD Last Sync'" [binding]="'ad_last_sync'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Department'" [binding]="'department'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Password Never Expires'" [binding]="'password_never_expires'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Strong Password Required'" [binding]="'strong_password_required'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Title'" [binding]="'title'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'User Type'" [binding]="'user_type'"></wj-flex-grid-column>
+</wj-flex-grid>
+<loading-indicator [isLoading]="isLoading"></loading-indicator>
+<div class="btn-group" *ngIf="data != null">
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToFirstPage()"
+            [disabled]="data.pageIndex <= 0">
+        <span class="glyphicon glyphicon-fast-backward"></span>
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToPreviousPage()"
+            [disabled]="data.pageIndex <= 0">
+        <span class="glyphicon glyphicon-step-backward">
+        </span>
+    </button>
+    <button type="button" class="btn btn-default" disabled style="width:100px">
+        {{data.pageIndex + 1 | number}} / {{data.pageCount | number}}
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToNextPage()"
+            [disabled]="data.pageIndex >= data.pageCount - 1">
+        <span class="glyphicon glyphicon-step-forward"></span>
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToLastPage()"
+            [disabled]="data.pageIndex >= data.pageCount - 1">
+        <span class="glyphicon glyphicon-fast-forward"></span>
+    </button>
+</div>
+<div class="pull-right" *ngIf="data != null">
+    <wj-menu [(value)]="pageSize" [header]="'Page size'">
+        <wj-menu-item [value]="10">10</wj-menu-item>
+        <wj-menu-item [value]="20">20</wj-menu-item>
+        <wj-menu-item [value]="50">50</wj-menu-item>
+        <wj-menu-item [value]="100">100</wj-menu-item>
+        <wj-menu-item [value]="200">200</wj-menu-item>
+    </wj-menu>
+</div>
+<wj-popup style="border: 0px; width: 820px" #moredetailsPopup>
     <div class="modal-content">
         <div class="modal-header">
             <span *ngIf="selectedrow!=null">{{selectedrow.display_name}} has access to the following mailboxes:</span>
