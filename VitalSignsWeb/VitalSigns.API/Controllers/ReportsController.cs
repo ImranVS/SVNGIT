@@ -2468,6 +2468,10 @@ namespace VitalSigns.API.Controllers
             {
                 o365MsolUsersRepository = new Repository<Office365MSOLUsers>(ConnectionString);
                 serverRepository = new Repository<Server>(ConnectionString);
+                office365LicenseInfoRepository = new Repository<Office365LicenseInfo>(ConnectionString);
+
+                Dictionary<string, string> dictOfLicense = office365LicenseInfoRepository.All().Select(x => new { LicenseType = x.LicenseType, LicenseTypeId = x.LicenseTypeId }).Distinct().ToDictionary(x => x.LicenseTypeId, x => x.LicenseType);
+
                 var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription())).ToList().Select(x => x.Id).ToList();
                 var filterDef = o365MsolUsersRepository.Filter.In(x => x.DeviceId, listOfDevices);
                    // o365MsolUsersRepository.Filter.Eq(x => x.IsLicensed, true);
@@ -2483,8 +2487,8 @@ namespace VitalSigns.API.Controllers
                     UserPrincipalName = x.UserPrincipalName,
                     UserType = x.UserType,
                     Title = x.Title,
-                    Licensed = x.License,
-                    Department=x.Department,
+                    Licensed = String.Join(", ", x.License.Select(y => dictOfLicense.ContainsKey(y) ? dictOfLicense[y] : y)),
+                    Department =x.Department,
                     AccountLastModified  = x.AccountLastModified
                 }).ToList().OrderBy(x => x.DisplayName);
                 Response = Common.CreateResponse(results);
@@ -2560,7 +2564,7 @@ namespace VitalSigns.API.Controllers
                 DisplayName = x.DisplayName,
                 AccountLastModified = x.AccountLastModified,
                 UserPrincipalName = x.UserPrincipalName,
-                Licensed = dictOfLicense.ContainsKey(x.License) ? dictOfLicense[x.License] : x.License
+                Licensed = String.Join(", ", x.License.Select(y => dictOfLicense.ContainsKey(y) ? dictOfLicense[y] : y)),
             }).ToList().OrderBy(x => x.DisplayName).ToList();
             return results;
         }

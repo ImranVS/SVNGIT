@@ -1604,7 +1604,7 @@ namespace VSNext.Mongo.Entities
 
     [DataContract]
     [Serializable]
-    [CollectionName("o365_msol_users_copy")]
+    [CollectionName("o365_msol_users")]
     public class Office365MSOLUsers : Entity
     {
         [DataMember]
@@ -1645,7 +1645,8 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonElement("license")]
         [BsonIgnoreIfNull]
-        public String License { get; set; }
+        [BsonSerializer(typeof(CustomSerializers.StringToListStringSerializer))]
+        public List<String> License { get; set; }
 
         [DataMember]
         [BsonElement("department")]

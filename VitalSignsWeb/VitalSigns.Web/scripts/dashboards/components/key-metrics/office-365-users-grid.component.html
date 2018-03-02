@@ -2,7 +2,8 @@
 <button class="btn btn-primary" (click)="ExportExcel()">Export to Excel</button>
 <!--<button class="btn btn-primary" (click)="moredetails()">Mailbox Access</button>-->
 <button class="btn btn-primary">PowerScripts</button>
-<wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" headersVisibility="Column" (dblclick)="moredetails()" #flex (itemsSourceChanged)="gridSourceChanged()">
+<wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" headersVisibility="Column" (dblclick)="moredetails()" #flex
+               (itemsSourceChanged)="gridSourceChanged()" [frozenColumns]="1">
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'Display Name'" [binding]="'display_name'"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'User Principal Name'" [binding]="'user_principal_name'"></wj-flex-grid-column>

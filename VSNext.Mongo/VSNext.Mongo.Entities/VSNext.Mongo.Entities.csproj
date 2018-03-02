@@ -61,6 +61,7 @@
     <Compile Include="BusinessHours.cs" />
     <Compile Include="ConsoleCommands.cs" />
     <Compile Include="ConsolidationResults.cs" />
+    <Compile Include="CustomSerializers.cs" />
     <Compile Include="EventsReport.cs" />
     <Compile Include="WindowsEvents.cs" />
     <Compile Include="PowerScriptsLog.cs" />

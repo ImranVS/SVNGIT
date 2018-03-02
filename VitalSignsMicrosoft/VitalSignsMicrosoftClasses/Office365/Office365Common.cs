@@ -923,7 +923,7 @@ $_ | Add-Member -MemberType NoteProperty -Name WhenChanged -Value $user.WhenChan
 }
 $msolUsers
 ";
-				powershellobj.PS.Commands.Clear();
+                powershellobj.PS.Commands.Clear();
 				powershellobj.PS.Streams.ClearStreams();
 				powershellobj.PS.AddScript(str);
 				results = powershellobj.PS.Invoke();
@@ -989,7 +989,7 @@ $msolUsers
                             Office365MSOLUsers.UserType = userType;
                             Office365MSOLUsers.Title = title;
                             Office365MSOLUsers.IsLicensed = isLicensed == "0" ? false : true;
-                            Office365MSOLUsers.License = license;
+                            Office365MSOLUsers.License = license != null ? license.Split(',').Select(x => x.Trim()).ToList() : null;
                             Office365MSOLUsers.Department = department;
                             Office365MSOLUsers.AccountDisabled = AccountDisabled.ToLower() == "true";
                             DateTime dt;

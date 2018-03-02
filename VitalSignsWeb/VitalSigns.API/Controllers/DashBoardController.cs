@@ -3119,15 +3119,13 @@ namespace VitalSigns.API.Controllers
                 Dictionary<string, string> dictOfLicense = office365LicenseInfoRepository.All().Select(x => new { LicenseType = x.LicenseType, LicenseTypeId = x.LicenseTypeId }).Distinct().ToDictionary(x => x.LicenseTypeId, x => x.LicenseType);
 
                 var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription())).ToList().Select(x => x.Id).ToList();
-                var filterDef = o365MsolUsersRepository.Filter.In(x => x.DeviceId, listOfDevices) &
-                    o365MsolUsersRepository.Filter.Eq(x => x.IsLicensed, true) &
-                    o365MsolUsersRepository.Filter.Eq(x => x.AccountDisabled, true);
+                var filterDef = o365MsolUsersRepository.Filter.In(x => x.DeviceId, listOfDevices);
                 var results = o365MsolUsersRepository.Find(filterDef).ToList().Select(x => new MsolUser()
                 {
                     DisplayName = x.DisplayName,
                     AccountLastModified = x.AccountLastModified,
                     UserPrincipalName = x.UserPrincipalName,
-                    Licensed = dictOfLicense.ContainsKey(x.License) ? dictOfLicense[x.License] : x.License,
+                    Licensed = x.License != null && x.License.Count > 0 ? String.Join(", ", x.License.Select(y => dictOfLicense.ContainsKey(y) ? dictOfLicense[y] : y)) : null,
                     AccountDisabled = x.AccountDisabled,
                     ADLastSync = x.ADLastSync,
                     Department = x.Department,
