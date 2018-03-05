@@ -329,7 +329,7 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
         var urluptimehourly = "";
         var urluptimedaily = "";
         urluptimehourly = `/services/statistics?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@${this.nodeName},Services.HourlyUpTimePercent.Exchange@${this.nodeName},Services.HourlyUpTimePercent.OneDrive@${this.nodeName},Services.HourlyUpTimePercent.SharePoint@${this.nodeName}]&operation=HOURLY&isChart=true`;
-        urluptimedaily = `/services/summarystats?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@${this.nodeName},Services.HourlyUpTimePercent.Exchange@${this.nodeName},Services.HourlyUpTimePercent.OneDrive@${this.nodeName},Services.HourlyUpTimePercent.SharePoint@${this.nodeName}]`;
+        urluptimedaily = `/services/summarystats?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@${this.nodeName},Services.HourlyUpTimePercent.Exchange@${this.nodeName},Services.HourlyUpTimePercent.OneDrive@${this.nodeName},Services.HourlyUpTimePercent.SharePoint@${this.nodeName}]&includeLastDay=false`;
 
         this.dataProvider.get(`/services/enabled_office365_tests?deviceId=${this.serviceId}`)
             .subscribe(
@@ -338,7 +338,7 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
 
                 if (this.service.indexOf('Create Site') == -1) {
                     urluptimehourly = `/services/statistics?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@${this.nodeName},Services.HourlyUpTimePercent.Exchange@${this.nodeName},Services.HourlyUpTimePercent.OneDrive@${this.nodeName}]&operation=HOURLY&isChart=true&getNode=true`;
-                    urluptimedaily = `/services/summarystats?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@${this.nodeName},Services.HourlyUpTimePercent.Exchange@${this.nodeName},Services.HourlyUpTimePercent.OneDrive@${this.nodeName}]&getNode=true`;
+                    urluptimedaily = `/services/summarystats?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@${this.nodeName},Services.HourlyUpTimePercent.Exchange@${this.nodeName},Services.HourlyUpTimePercent.OneDrive@${this.nodeName}]&getNode=true&includeLastDay=false`;
 
                     this.widgetService.refreshWidget('upTimeDaily', urluptimedaily)
 
@@ -359,7 +359,7 @@ export class Office365OverallTab extends WidgetController implements OnInit, Ser
         else {
             url = `/services/statistics?deviceId=${this.serviceId}&statName=[POP@${this.nodeName},IMAP@${this.nodeName},SMTP@${this.nodeName}]&operation=HOURLY&isChart=true&getNode=true`;
             urluptimehourly = `/services/statistics?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@${this.nodeName},Services.HourlyUpTimePercent.Exchange@${this.nodeName},Services.HourlyUpTimePercent.OneDrive@${this.nodeName},Services.HourlyUpTimePercent.SharePoint@${this.nodeName}]&operation=HOURLY&isChart=true&getNode=true`;
-            urluptimedaily = `/services/summarystats?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@${this.nodeName},Services.HourlyUpTimePercent.Exchange@${this.nodeName},Services.HourlyUpTimePercent.OneDrive@${this.nodeName},Services.HourlyUpTimePercent.SharePoint@${this.nodeName}]&getNode=true`;
+            urluptimedaily = `/services/summarystats?deviceId=${this.serviceId}&statName=[Services.HourlyUpTimePercent.SkypeForBusiness@${this.nodeName},Services.HourlyUpTimePercent.Exchange@${this.nodeName},Services.HourlyUpTimePercent.OneDrive@${this.nodeName},Services.HourlyUpTimePercent.SharePoint@${this.nodeName}]&getNode=true&includeLastDay=false`;
         }
 
         return {

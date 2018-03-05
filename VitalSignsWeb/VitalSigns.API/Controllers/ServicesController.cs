@@ -1062,22 +1062,22 @@ namespace VitalSigns.API.Controllers
         /// <param name="id"></param>
         /// <returns> summary stats data </returns>
         [HttpGet("summarystats")]
-        public APIResponse GetSummaryStat(string deviceId, string statName, string seriesTitle = "", string startDate = "", string endDate = "", bool isChart = true, string regex = "", bool getNode = false)
+        public APIResponse GetSummaryStat(string deviceId, string statName, string seriesTitle = "", string startDate = "", string endDate = "", bool isChart = true, string regex = "", bool getNode = false, bool includeLastDay = true)
         {
             statusRepository = new Repository<Status>(ConnectionString);
             UtilsController uc = new UtilsController();
             //DateFormat is YYYY-MM-DD
             if (startDate == "")
-                startDate = DateTime.UtcNow.Date.AddDays(-7).ToString(DateFormat);
+                startDate = DateTime.Now.Date.ToUniversalTime().AddDays(-7).ToString(DateFormat);
 
             if (endDate == "")
-                endDate = DateTime.UtcNow.Date.ToString(DateFormat);
+                endDate = DateTime.Now.Date.ToUniversalTime().ToString(DateFormat);
 
             //1 day is added to the end so we include that days data
             //NS - removed adding one day since the summary collection is always 1 day behind
             DateTime dtStart = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture).ToUniversalTime();
             DateTime dtEnd = DateTime.ParseExact(endDate, DateFormat, CultureInfo.InvariantCulture).ToUniversalTime();
-            if (dtStart.CompareTo(dtEnd) == 0)
+            //if (dtStart.CompareTo(dtEnd) == 0)
                 dtEnd = dtEnd.AddDays(1);
 
             summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
@@ -1237,8 +1237,11 @@ namespace VitalSigns.API.Controllers
                             var devicename = result.Where(x => x.StatName == name.ToString()).ToList();
 
                             //WS changed to just less then end date due to the end date being the next day to include all of the previous day values.
-                            for (DateTime date = dtStart; date <= dtEnd; date = date.AddDays(1))
+                            for (DateTime date = dtStart; date <= dtEnd.AddDays(-1); date = date.AddDays(1))
                             {
+                                if (!includeLastDay && date.AddDays(1) > dtEnd.AddDays(-1))
+                                    continue;
+
                                 var item = result.Where(x => x.Date.Date == date.Date && x.StatName == name.ToString()).FirstOrDefault();
                                 var output = result.Where(x => x.Date.Date == date.Date && x.StatName == name.ToString()).ToList();
                                 
