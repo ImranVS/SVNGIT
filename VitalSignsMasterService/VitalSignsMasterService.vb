@@ -351,19 +351,19 @@ Public Class VSMaster
         End Try
 
         Try
-            StopService(VitalSignsPlusDomino)
+            StopService(VitalSignsPlusDomino, True)
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Error stopping " & VitalSignsPlusDomino & ": " & ex.Message)
         End Try
 
         Try
-            StopService(VitalSignsMicrosoft)
+            StopService(VitalSignsMicrosoft, True)
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Error stopping Microsoft service: " & ex.Message)
         End Try
 
         Try
-            StopService(VitalSignsPlusCore)
+            StopService(VitalSignsPlusCore, True)
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Error stopping " & VitalSignsPlusCore & ": " & ex.Message)
         End Try
@@ -376,37 +376,37 @@ Public Class VSMaster
 
 
         Try
-            StopService(VitalSignsPlusAlerting)
+            StopService(VitalSignsPlusAlerting, True)
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Error stopping " & VitalSignsPlusAlerting & ": " & ex.Message)
         End Try
 
         Try
-            StopService(VitalSignsDailyService)
+            StopService(VitalSignsDailyService, True)
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Error stopping Daily Tasks service: " & ex.Message)
         End Try
 
         Try
-            StopService(EXJournalServiceName)
+            StopService(EXJournalServiceName, True)
         Catch ex As Exception
             'WriteAuditEntry(Now.ToString & " Error stopping " & VitalSignsPlusCore & ": " & ex.Message)
         End Try
 
         Try
-            StopService(VitalSignsPlusDBHealthService)
+            StopService(VitalSignsPlusDBHealthService, True)
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Error stopping Database Health service: " & ex.Message)
         End Try
 
         Try
-            StopService(VitalSignsConsoleCommands)
+            StopService(VitalSignsConsoleCommands, True)
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Error stopping Domino Console Commands service: " & ex.Message)
         End Try
 
         Try
-            StopService(VitalSignsCore64)
+            StopService(VitalSignsCore64, True)
         Catch ex As Exception
             WriteAuditEntry(Now.ToString & " Error stopping Core 64 service: " & ex.Message)
         End Try
