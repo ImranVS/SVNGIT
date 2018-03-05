@@ -267,7 +267,7 @@ namespace VitalSigns.API.Controllers
                                 Id = x["_id"].ToString(),
                                 IsEnabled = x["is_enabled"].AsBoolean,
                                 Type = x["device_type"].ToString(),
-                                Name = x["device_name"].ToString() + "-" + x["location"][0]["location"].ToString()
+                                Name = x["device_name"].ToString() + "-" + (x["location"][0].ToBsonDocument().Names.Contains("location") ? x["location"][0]["location"].ToString() : x["location"][0]["name"].ToString())
                             })
                             );
                 }
