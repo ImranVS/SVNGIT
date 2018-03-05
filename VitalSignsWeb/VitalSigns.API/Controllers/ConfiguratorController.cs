@@ -201,7 +201,7 @@ namespace VitalSigns.API.Controllers
                 var result = Common.GetNameValues(preferencesSettings);
                 VSNext.Mongo.Repository.Repository<License> repoLic = new VSNext.Mongo.Repository.Repository<License>(ConnectionString);
                 License licenseItem = repoLic.Find(i => i.LicenseKey != "").FirstOrDefault();
-                if(result.Exists(x => x.Name == "Company Name"))
+                if (result.Exists(x => x.Name == "Company Name"))
                     userpreference.CompanyName = result.FirstOrDefault(x => x.Name == "Company Name").Value;
                 if (result.Exists(x => x.Name == "Currency Symbol"))
                     userpreference.CurrencySymbol = result.FirstOrDefault(x => x.Name == "Currency Symbol").Value;
@@ -289,7 +289,7 @@ namespace VitalSigns.API.Controllers
                     int n = bytepwd.LastIndexOf(", ");
                     bytepwd = bytepwd.Substring(0, n);
                 }
-                
+
                 if (serverCredential.IsModified)
                 {
                     FilterDefinition<Credentials> filterDefination = Builders<Credentials>.Filter.Where(p => p.Id == serverCredential.Id);
@@ -536,10 +536,10 @@ namespace VitalSigns.API.Controllers
             {
                 locationRepository = new Repository<Location>(ConnectionString);
                 serversRepository = new Repository<Server>(ConnectionString);
-                var result = serversRepository.Collection.AsQueryable().Where(x => x.LocationId == id).Select(x=>x.LocationId).FirstOrDefault();
-                if(!string.IsNullOrEmpty(result))
+                var result = serversRepository.Collection.AsQueryable().Where(x => x.LocationId == id).Select(x => x.LocationId).FirstOrDefault();
+                if (!string.IsNullOrEmpty(result))
                 {
-                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This Location is used for different servers. Cannot delete.") ;
+                    Response = Common.CreateResponse(false, Common.ResponseStatus.Error.ToDescription(), "This Location is used for different servers. Cannot delete.");
                 }
                 else
                 {
@@ -547,7 +547,7 @@ namespace VitalSigns.API.Controllers
                     locationRepository.Delete(expression);
                     Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Location deleted successfully");
                 }
-               
+
             }
             catch (Exception exception)
             {
@@ -1325,7 +1325,7 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-               
+
                 Response = Common.CreateResponse(GetDeviceAttributeList(type));
             }
 
@@ -1335,7 +1335,7 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
-        public List<DeviceAttributesModel> GetDeviceAttributeList( string type)
+        public List<DeviceAttributesModel> GetDeviceAttributeList(string type)
         {
             deviceAttributesRepository = new Repository<DeviceAttributes>(ConnectionString);
             var result = deviceAttributesRepository.Find(x => x.DeviceType == type).Select(x => new DeviceAttributesModel
@@ -1600,7 +1600,7 @@ namespace VitalSigns.API.Controllers
                     Response = Common.CreateResponse("No Windows Services availabe");
                 }
                 else
-                { 
+                {
                     var result = serverName
                     .WindowServices
                     .Select(x => new WindowsServiceModel
@@ -1615,9 +1615,9 @@ namespace VitalSigns.API.Controllers
                     .ThenByDescending(x => x.Monitored)
                     .ThenBy(x => x.DisplayName)
                     .ToList();
-                Response = Common.CreateResponse(result);
+                    Response = Common.CreateResponse(result);
+                }
             }
-               }
             catch (Exception exception)
             {
                 Response = Common.CreateResponse(null, "Error", exception.Message);
@@ -1767,7 +1767,7 @@ namespace VitalSigns.API.Controllers
                 serverTypeRepository = new Repository<ServerType>(ConnectionString);
 
                 var serverTypeData = Common.GetServerTypes();
-               
+
 
                 var credentialsData = credentialsRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
                 var businessHoursData = businessHoursRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.Name, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
@@ -1894,16 +1894,7 @@ namespace VitalSigns.API.Controllers
 
 
                 }).FirstOrDefault();
-                if (!string.IsNullOrEmpty(serverresult.LocationId))
-                {
-                    var locationname = locationRepository.All().Where(x => x.Id == serverresult.LocationId).Select(x => new Location
-                    {
-                        LocationName = x.LocationName
-
-
-                    }).FirstOrDefault();
-                    serverresult.LocationId = locationname.LocationName;
-                }
+                
                 if (serverresult.Devicetype == "WebSphere")
                 {
                     var cellname = serversRepository.Collection.AsQueryable().Where(x => x.Id == serverresult.CellId).Select(x => new DeviceAttributesDataModel
@@ -1922,14 +1913,14 @@ namespace VitalSigns.API.Controllers
                     serverresult.NodeName = nodename.NodeName;
                 }
                 // var credentialsData = credentialsRepository.All().Where(x => x.DeviceType == serverresult.Devicetype).Select(x => x.Alias).Distinct().OrderBy(x => x).ToList();
-                
+
                 var credentialsData = credentialsRepository.Collection.AsQueryable().Where(x => x.DeviceType == serverresult.Devicetype).Select(x => new ComboBoxListItem { DisplayText = x.Alias, Value = x.Id }).ToList().OrderBy(x => x.DisplayText);
 
 
                 Expression<Func<DeviceAttributes, bool>> attributesexpression = (p => p.DeviceType == serverresult.Devicetype);
                 List<DeviceAttributesModel> deviceAttributes = new List<DeviceAttributesModel>();
 
-               var attributes = deviceAttributesRepository.Collection.Find(attributesexpression).ToList().OrderBy(x => x.Category).Select(x => new DeviceAttributesModel
+                var attributes = deviceAttributesRepository.Collection.Find(attributesexpression).ToList().OrderBy(x => x.Category).Select(x => new DeviceAttributesModel
                 {
                     AttributeName = x.AttributeName,
                     Category = x.Category,
@@ -1945,7 +1936,7 @@ namespace VitalSigns.API.Controllers
 
 
                 var serverattributes = serversRepository.Find(attributeexpression).AsQueryable().OrderBy(x => x.Id).FirstOrDefault();
-               
+
                 var serverValues = serverattributes.ToBsonDocument();
                 foreach (var attri in attributes)
                 {
@@ -2006,9 +1997,15 @@ namespace VitalSigns.API.Controllers
                     exchangeServers = serversRepository.Find(x => x.DeviceType == Enums.ServerType.Exchange.ToDescription()).ToList()
                         .Select(x => new { _id = x.Id, device_name = x.DeviceName }).Cast<object>().ToList();
                 }
+
+                List<NameValueModel> locationList = locationRepository.Find(x => true).Select(x => new NameValueModel() { Name = x.LocationName, Value = x.Id }).ToList();
                 //Response = Common.CreateResponse(serverresult);
-                Response = Common.CreateResponse(new { credentialsData = credentialsData, serverresult = serverresult,
-                    exchangeservers = exchangeServers != null ? exchangeServers : null });
+                Response = Common.CreateResponse(new {
+                    credentialsData = credentialsData,
+                    serverresult = serverresult,
+                    exchangeservers = exchangeServers != null ? exchangeServers : null,
+                    location_list = locationList
+                });
             }
             catch (Exception exception)
             {
@@ -2021,7 +2018,7 @@ namespace VitalSigns.API.Controllers
         ///Get Sametime Websphere data
         /// </summary>
         /// <author>Swathi</author>
-       
+
         [HttpGet("get_sametime_websphere/{id}")]
         public APIResponse GetWebSphereSametimeData(string id)
         {
@@ -2130,7 +2127,7 @@ namespace VitalSigns.API.Controllers
             string errorMessage = string.Empty;
 
             try
-            {                
+            {
                 serversRepository = new Repository<Server>(ConnectionString);
                 //Get user name and password from credentials
                 try
@@ -2268,20 +2265,7 @@ namespace VitalSigns.API.Controllers
                 var deviceAttributes = ((Newtonsoft.Json.Linq.JObject)serverAttributes.Value).ToObject<DeviceAttributesDataModel>();
                 var filter = Builders<BsonDocument>.Filter.Eq("_id", ObjectId.Parse(id));
                 var filterDefination = Builders<Server>.Filter.Where(p => p.Id == id);
-                if (!string.IsNullOrEmpty(deviceAttributes.LocationId))
-                {
-                    var locationname = locationRepository.All().Where(x => x.LocationName == deviceAttributes.LocationId).Select(x => new Location
-                    {
-                        Id = x.Id
-
-
-                    }).FirstOrDefault();
-                    deviceAttributes.LocationId = locationname.Id;
-                }
-                else
-                {
-                    deviceAttributes.LocationId = null;
-                }
+                
                 //   UpdateDefinition<BsonDocument> updateserverDefinition = Builders<BsonDocument>.Update.Set(devicename=devicename,, category, ipaddress, isenabled, location, description);
                 //  var serverresult = repository.Collection.UpdateMany(filter, updateserverDefinition);
                 ObjectId objectIdTest = new ObjectId();
@@ -2309,6 +2293,8 @@ namespace VitalSigns.API.Controllers
                 {
                     foreach (var attribute in deviceAttributes.DeviceAttributes)
                     {
+                        if (new string[] {"location_id"}.Contains(attribute.FieldName))
+                            continue;
                         if (!string.IsNullOrEmpty(attribute.FieldName))
                         {
                             if (attribute.FieldName != "is_enabled" && attribute.FieldName != "require_ssl")

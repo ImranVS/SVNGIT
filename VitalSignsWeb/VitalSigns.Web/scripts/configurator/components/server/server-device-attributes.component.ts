@@ -56,6 +56,7 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
     exchangeSettings: string = "Exchange Settings";
     mailLatencySettings: string = "Mail Latency Settings";
     DAGSettings: string = "DAG Settings";
+    locationList: any[];
     exchangeservers: any;
     mode: string = "";
     visiblity: boolean;
@@ -110,6 +111,7 @@ export class ServerAttribute implements OnInit, AfterViewChecked {
                 this.serverAttributes = response.data.serverresult;
                 this.deviceCredentialData = response.data.credentialsData;
                 this.exchangeservers = response.data.exchangeservers
+                this.locationList = response.data.location_list;
                },
             error => this.errorMessage = <any>error
            );

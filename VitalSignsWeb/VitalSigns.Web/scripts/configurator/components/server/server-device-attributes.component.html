@@ -37,7 +37,9 @@
                 <div class="form-group">
                     <label class="control-label col-sm-2">Location</label>
                     <div class="col-sm-3">
-                        <input type="text" [(ngModel)]="serverAttributes.location_id" class="form-control">
+                        <wj-combo-box name="serverAttributes.location_id" displayMemberPath="name" selectedValuePath="value" [itemsSource]="locationList"
+                                      [(ngModel)]="serverAttributes.location_id" placeholder="Select Location" [isEditable]="true">
+                        </wj-combo-box>
                     </div>
                     <div *ngIf="serverAttributes.device_type !='Domino'">
                         <label class="control-label col-sm-2">Category</label>
