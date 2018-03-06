@@ -1,7 +1,7 @@
 ﻿<!--<wj-pivot-panel control="thePanel" items-source="data" initialized="initPanel(s,e)"></wj-pivot-panel>
 <wj-pivot-grid control="pivotGrid" items-source="thePanel"></wj-pivot-grid>-->
 
-<div class="btn-group" *ngIf="data != null">
+<!--<div class="btn-group" *ngIf="data != null">
     <button type="button" class="btn btn-default"
             (click)="data.moveToFirstPage()"
             [disabled]="data.pageIndex <= 0">
@@ -33,4 +33,25 @@
         <wj-menu-item [value]="20">20</wj-menu-item>
         <wj-menu-item [value]="50">50</wj-menu-item>
     </wj-menu>
-</div>
+</div>-->
+
+<table class="table table-condensed small table-striped" id="htmlTable">
+    <thead>
+        <tr>
+            <th>Device Name</th>
+            <th>User Count</th>
+            <th>Cost Per User</th>
+            <th>Montly Operating Cost</th>
+            <th>Daily Operating Cost</th>
+        </tr>
+    </thead>
+    <tbody *ngIf="data">
+        <tr *ngFor="let entry of data">
+            <td>{{entry.device_name}}</td>
+            <td>{{entry.user_count | number: '1.1-1'}}
+            <td>{{entry.cost_per_user| number: '1.2-2'}}</td>
+            <td>{{entry.monthly_operating_cost| number: '1.2-2'}}</td>
+            <td>{{entry.cost_per_day| number: '1.2-2'}}</td>
+        </tr>
+    </tbody>
+</table>

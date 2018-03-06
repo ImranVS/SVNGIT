@@ -62,8 +62,9 @@ export class CostPerUserPivotGrid implements WidgetComponent, OnInit {
         this.service.get('/reports/cost_per_user?statName=Server.Users&isChart=false')
             .subscribe(
             (data) => {
-                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
-                this.data.pageSize = this.currentPageSize;
+                this.data = data.data;
+                //this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
+                //this.data.pageSize = this.currentPageSize;
             },
             (error) => this.errorMessage = <any>error
             );

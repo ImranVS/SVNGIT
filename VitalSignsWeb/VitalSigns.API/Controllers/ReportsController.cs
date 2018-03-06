@@ -653,7 +653,7 @@ namespace VitalSigns.API.Controllers
         public APIResponse GetCostPerUser(string deviceId = "", string statName = "", bool isChart = true)
         {
             List<Server> serverlist = null;
-            List<dynamic> result = new List<dynamic>();
+            List<FinancialCosts> result = new List<FinancialCosts>();
             FilterDefinition<SummaryStatistics> filterDef = null;
 
             //string startDate = DateTime.Now.AddDays(-30).ToString(DateFormat);
@@ -759,26 +759,36 @@ namespace VitalSigns.API.Controllers
                     serverlist = serverRepository.Collection.Aggregate().Match(_ => true).ToList();
                     foreach (var stats in summarylist)
                     {
-                        var x = new ExpandoObject() as IDictionary<string, Object>;
-                        x.Add("device_name", stats.DeviceName);
-                        x.Add("user_count", stats.StatValue);
-                        x.Add("date", stats.StatDate);
+                        FinancialCosts x = new FinancialCosts();
+                        x.DeviceName = stats.DeviceName;
+                        x.UserCount = stats.StatValue;
+                        x.DateTime =stats.StatDate;
                         var server = serverlist.Where(p => p.Id == stats.DeviceId).ToList();
                         var bson2 = server[0].ToBsonDocument();
                         var fieldvalue = bson2["monthly_operating_cost"].ToDouble();
                         if (stats.StatValue != 0)
                         {
-                            x.Add("cost_per_user", Math.Round((fieldvalue * 12) / (365 * Math.Round(stats.StatValue, 0)), 2));
+                            x.CostPerUser = Math.Round((fieldvalue * 12) / (365 * Math.Round(stats.StatValue, 0)), 2);
                         }
                         else
                         {
-                            x.Add("cost_per_user", 0);
+                            x.CostPerUser = 0;
                         }
-                        x.Add("cost_per_day", Math.Round((fieldvalue * 12) / 365, 2));
-                        x.Add("monthly_operating_cost", fieldvalue);
+                        x.CostPerDay = Math.Round((fieldvalue * 12) / 365, 2);
+                        x.MonthlyOperatingCost = fieldvalue;
                         result.Add(x);
                     }
-                    Response = Common.CreateResponse(result);
+
+                    var groupedByServer = result.GroupBy(x => x.DeviceName)
+                        .Select(x => new FinancialCosts()
+                    {
+                        DeviceName = x.Key,
+                        UserCount = x.Average(y => y.UserCount),
+                        MonthlyOperatingCost = x.Average(y => y.MonthlyOperatingCost),
+                        CostPerDay = x.Average(y => y.CostPerDay),
+                        CostPerUser = x.Average(y => y.CostPerUser)
+                    }).ToList();
+                    Response = Common.CreateResponse(groupedByServer);
                 }
                 return Response;
             }
