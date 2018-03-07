@@ -566,7 +566,12 @@ namespace VitalSigns.API.Controllers
                     var allServers = serverRepository.Find(x => true).ToList();
                     if (results.Count > 0)
                     {
-                       
+                        List<String> allStatusDeviceIds = results.Select(x => x.DeviceId).ToList();
+                        List<String> allDiskNames = results.Select(x => x.Disks).SelectMany(x => x).Select(x => x.DiskName + ".Free").ToList();
+                        FilterDefinition<SummaryStatistics> filterDefSummaryStats = summaryStatisticsRepository.Filter.In(x => x.DeviceId, allStatusDeviceIds) &
+                            summaryStatisticsRepository.Filter.In(x => x.StatName, allDiskNames) &
+                            summaryStatisticsRepository.Filter.Gte(x => x.StatDate, DateTime.Now.AddDays(-31));  //did 31 to ensure the 30 rule below holds true and easy math
+                        var allDiskSizes = summaryStatisticsRepository.Find(filterDefSummaryStats).ToList();
                         foreach (var result in results)
                         {
                             var currServer = allServers.Where(x => x.Id == result.DeviceId).Count() > 0 ? allServers.Where(x => x.Id == result.DeviceId).First() : null;
@@ -591,8 +596,7 @@ namespace VitalSigns.API.Controllers
 
                                 }
                                 avgDailyGrowth = 0;
-                                var disksizes = summaryStatisticsRepository.Collection.AsQueryable()
-                                    .Where(x => x.StatName == drive.DiskName + ".Free" && x.DeviceId == result.DeviceId)
+                                var disksizes = allDiskSizes.Where(x => x.StatName == drive.DiskName + ".Free" && x.DeviceId == result.DeviceId)
                                     .OrderByDescending(x => x.StatDate).ToList();
                                 if (disksizes.Count > 0)
                                 {
