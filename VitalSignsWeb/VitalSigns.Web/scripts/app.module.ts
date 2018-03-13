@@ -144,6 +144,9 @@ import { Office365MailboxReport } from './reports/components/office365/office365
 import { O365GroupCollectionReport } from './reports/components/office365/office365-group-collection.component';
 import { Office365UserTypeReport } from './reports/components/office365/office365-usertype.component';
 import { Office365DisabledUsersReport } from './reports/components/office365/office365-disabled-users.component';
+import { IBMConnectionsDisabledusersReport } from './reports/components/ibm-connections/connections-disabled-users.component';
+import { MSExchangeDisabledUsersReport } from './reports/components/ms-exchange/ms-exchange-disabled-users.component';
+
 import { Office365ActiveDirectorySyncReport } from './reports/components/office365/office365-active-directory-sync.component';
 
 import { ibmconnectionsinactiveUsersReport } from './reports/components/ibm-connections/inactive-users.component';
@@ -294,6 +297,8 @@ import { LoadingIndicator } from './core/services/loading-indicator'
         MobileUsersReport,
         ConnectionsExecutiveOverviewReport,
         Office365DisabledUsersReport,
+        IBMConnectionsDisabledusersReport,
+        MSExchangeDisabledUsersReport,
         Office365ActiveDirectorySyncReport,
         ibmconnectionsinactiveUsersReport,
         Office365DisabledUsersSort,
@@ -498,6 +503,8 @@ import { LoadingIndicator } from './core/services/loading-indicator'
         widgets.O365GroupList,
         widgets.ExchnagemailboxList,
         widgets.Office365DisabledUsersList,
+        widgets.IBMConnectionsDisabledUsersList,
+        widgets.MSExchangeDisabledUsersList,
         widgets.Office365ActiveDirectorySyncList,
         widgets.ibmdominoinactiveUsersList,
         widgets.ExecutiveSummaryWidget,
@@ -718,6 +725,8 @@ import { LoadingIndicator } from './core/services/loading-indicator'
         widgets.O365GroupList,
         widgets.ExchnagemailboxList,
         widgets.Office365DisabledUsersList,
+        widgets.MSExchangeDisabledUsersList,
+        widgets.IBMConnectionsDisabledUsersList,
         widgets.Office365ActiveDirectorySyncList,
         widgets.ibmdominoinactiveUsersList,
         widgets.ExecutiveSummaryWidget,

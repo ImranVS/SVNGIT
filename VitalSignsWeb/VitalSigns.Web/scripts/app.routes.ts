@@ -140,6 +140,9 @@ import { Office365UserTypeReport } from './reports/components/office365/office36
 import { MobileDevicesSummaryOS } from './reports/components/mobile-users/mobile-users-os-summary.component';
 import { MobileUsersReport } from './reports/components/mobile-users/mobile-users-report.component';
 import { Office365DisabledUsersReport } from './reports/components/office365/office365-disabled-users.component';
+import { IBMConnectionsDisabledusersReport } from './reports/components/ibm-connections/connections-disabled-users.component';
+import { MSExchangeDisabledUsersReport } from './reports/components/ms-exchange/ms-exchange-disabled-users.component';
+
 import { Office365ActiveDirectorySyncReport } from './reports/components/office365/office365-active-directory-sync.component';
 
 import { ibmconnectionsinactiveUsersReport } from './reports/components/ibm-connections/inactive-users.component';
@@ -670,8 +673,16 @@ const appRoutes: Routes = [
                         component: MobileUsersReport
                     },
                     {
+                        path: 'IBMConnectionsdisabledusers',
+                        component: IBMConnectionsDisabledusersReport
+                    },
+                    {
                         path: 'office365disabledusers',
                         component: Office365DisabledUsersReport
+                    },
+                    {
+                        path: 'MSExchnagedisabledusers',
+                        component: MSExchangeDisabledUsersReport
                     },
                     {
                         path: 'ActiveDirectorySync',
