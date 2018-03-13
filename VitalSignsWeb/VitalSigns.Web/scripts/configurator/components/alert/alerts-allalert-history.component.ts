@@ -39,7 +39,7 @@ export class AlertHistory extends GridBase implements WidgetComponent, OnInit {
     notification_definitions: any;
     loading1 = false;
     loading2 = false;
-
+    
     constructor(private dataProvider: RESTService, private route: ActivatedRoute, protected widgetService: WidgetService,
         protected datetimeHelpers: helpers.DateTimeHelper, protected toolTip: helpers.GridTooltip, appComponentService: AppComponentService, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) {
         super(dataProvider, appComponentService);
@@ -77,19 +77,25 @@ export class AlertHistory extends GridBase implements WidgetComponent, OnInit {
             .subscribe(
             (data) => {
                 this.notification_definitions = data.data.notificationsList;
+                
             },
-            (error) => this.errorMessage = <any>error
+            (error) => { this.errorMessage = <any>error;}
             );
         var date = new Date();
         var displayDate = new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString();
+        this.appComponentService.showProgressBar();
         this.service.get('/configurator/viewalerts')
             .subscribe(
             (response) => {
+                this.appComponentService.hideProgressBar();
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
                 this.data.pageSize = this.currentPageSize;
+                
             },
-            (error) => this.errorMessage = <any>error
-        );
+            (error) => {
+                this.appComponentService.hideProgressBar();
+                this.errorMessage = <any>error
+            });
         this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("AlertHistory", this.authService.CurrentUser.email)}`)
             .subscribe(
             (data) => {
