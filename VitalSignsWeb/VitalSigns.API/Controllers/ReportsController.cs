@@ -2498,7 +2498,7 @@ namespace VitalSigns.API.Controllers
                     UserType = x.UserType,
                     Title = x.Title,
                     Licensed = String.Join(", ", x.License.Select(y => dictOfLicense.ContainsKey(y) ? dictOfLicense[y] : y)),
-                    Department =x.Department,
+                    Department=x.Department,
                     AccountLastModified  = x.AccountLastModified
                 }).ToList().OrderBy(x => x.DisplayName);
                 Response = Common.CreateResponse(results);
@@ -2559,24 +2559,79 @@ namespace VitalSigns.API.Controllers
 
         public List<MsolUser> LicensesForReassignment()
         {
-            o365MsolUsersRepository = new Repository<Office365MSOLUsers>(ConnectionString);
-            serverRepository = new Repository<Server>(ConnectionString);
+                o365MsolUsersRepository = new Repository<Office365MSOLUsers>(ConnectionString);
+                serverRepository = new Repository<Server>(ConnectionString);
             office365LicenseInfoRepository = new Repository<Office365LicenseInfo>(ConnectionString);
 
             Dictionary<string, string> dictOfLicense = office365LicenseInfoRepository.All().Select(x => new { LicenseType = x.LicenseType, LicenseTypeId = x.LicenseTypeId }).Distinct().ToDictionary(x => x.LicenseTypeId, x => x.LicenseType);
 
-            var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription())).ToList().Select(x => x.Id).ToList();
-            var filterDef = o365MsolUsersRepository.Filter.In(x => x.DeviceId, listOfDevices) &
-                o365MsolUsersRepository.Filter.Eq(x => x.IsLicensed, true) &
-                o365MsolUsersRepository.Filter.Eq(x => x.AccountDisabled, true);
-            var results = o365MsolUsersRepository.Find(filterDef).ToList().Select(x => new MsolUser()
-            {
-                DisplayName = x.DisplayName,
-                AccountLastModified = x.AccountLastModified,
-                UserPrincipalName = x.UserPrincipalName,
+                var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription())).ToList().Select(x => x.Id).ToList();
+                var filterDef = o365MsolUsersRepository.Filter.In(x => x.DeviceId, listOfDevices) &
+                    o365MsolUsersRepository.Filter.Eq(x => x.IsLicensed, true) &
+                    o365MsolUsersRepository.Filter.Eq(x => x.AccountDisabled, true);
+                var results = o365MsolUsersRepository.Find(filterDef).ToList().Select(x => new MsolUser()
+                {
+                    DisplayName = x.DisplayName,
+                    AccountLastModified = x.AccountLastModified,
+                    UserPrincipalName = x.UserPrincipalName,
                 Licensed = String.Join(", ", x.License.Select(y => dictOfLicense.ContainsKey(y) ? dictOfLicense[y] : y)),
             }).ToList().OrderBy(x => x.DisplayName).ToList();
             return results;
+            }
+
+        [HttpGet("ibm_disabled_users_with_license")]
+        public APIResponse IBMDisabledUsersWithLicense(string mailboxType)
+        {
+            try
+            {
+                connectionsObjectsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
+                serverRepository = new Repository<Server>(ConnectionString);
+                var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.IBMConnections.ToDescription())).ToList().Select(x => x.Id).ToList();
+                var filterDef = connectionsObjectsRepository.Filter.In(x => x.DeviceId, listOfDevices) &
+                    connectionsObjectsRepository.Filter.Eq(x => x.IsActive, true) &
+                   connectionsObjectsRepository.Filter.Lt(x => x.LastLoginDate, DateTime.UtcNow.AddDays(-30));
+                var results = connectionsObjectsRepository.Find(filterDef).ToList().Select(x => new ibmconnections()
+                {
+                    DeviceName = x.Name,
+                    ServerName = x.DeviceName,
+                    LastLoginDate = x.LastLoginDate,
+                }).ToList().OrderBy(x => x.DeviceName);
+                Response = Common.CreateResponse(results);
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
+
+
+          [HttpGet("exchange_disabled_users_with_license")]
+        public APIResponse ExchnageDisabledUsersWithLicense(string mailboxType)
+        {
+            try
+            {
+                UserGroupRepository = new Repository<UsersAndGroups>(ConnectionString);
+                serverRepository = new Repository<Server>(ConnectionString);
+                var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Exchange.ToDescription())).ToList().Select(x => x.Id).ToList();
+                var filterDef = UserGroupRepository.Filter.In(x => x.DeviceId, listOfDevices) &
+                   UserGroupRepository.Filter.Lt(x => x.ModifiedOn, DateTime.UtcNow.AddDays(-30));
+                var results = UserGroupRepository.Find(filterDef).ToList().Select(x => new UserGroupModel()
+                {
+                   DisplayName =x.Name,
+                  
+                }).ToList().OrderBy(x => x.DisplayName);
+                Response = Common.CreateResponse(results);
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
         }
 
         [HttpGet("active_directory_sync_report")]
