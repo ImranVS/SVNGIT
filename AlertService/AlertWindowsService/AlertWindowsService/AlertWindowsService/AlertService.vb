@@ -519,7 +519,7 @@ Public Class VitalSignsAlertService
                 'Compares the device type AND device ID for the very very slim chance there is a document in both server and server_other collections with the same id. Type will make sure it will be correct
                 For Each currAlertDefinition As AlertDefinition In alertDefinitions.Where(Function(x) _
                         (x.Servers IsNot Nothing AndAlso x.Servers.Exists(Function(y) y.DeviceType = currEvent.DeviceType And y.DeviceId = currEvent.DeviceId)) And
-                        (x.Events IsNot Nothing AndAlso x.Events.Exists(Function(y) y.DeviceType = currEvent.DeviceType And currEvent.EventType.Contains(y.EventType)))
+                        (x.Events IsNot Nothing AndAlso x.Events.Exists(Function(y) y.DeviceType = currEvent.DeviceType And (currEvent.EventType IsNot Nothing AndAlso currEvent.EventType.Contains(y.EventType))))
                     )
 
                     'Checks if it can send via recurrence rules
@@ -613,7 +613,7 @@ Public Class VitalSignsAlertService
                                     WriteServiceHistoryEntry(Now.ToString & " Processing alert definition " & currAlertDefinition.NotificationId & ".", LogLevel.Normal)
                                     WriteServiceHistoryEntry(Now.ToString & " Processing alert destination " & currDestination.DestinationId & ".", LogLevel.Normal)
                                     WriteServiceHistoryEntry(Now.ToString & " SENT EMAIL. /" & currDestination.SendTo & "/" & "/" & currDestination.CopyTo & "/" & currDestination.BlindCopyTo & "", LogLevel.Normal)
-                                        alertSent = SendMailwithChilkatorNet(currDestination.SendTo, currDestination.CopyTo, currDestination.BlindCopyTo, currEvent.Device,
+                                    alertSent = SendMailwithChilkatorNet(currDestination.SendTo, currDestination.CopyTo, currDestination.BlindCopyTo, currEvent.Device,
                                         currEvent.DeviceType, "", currEvent.EventType, currEvent.EventType, currEvent.Details, "", "Alert")
                                     'alertSent = True
                                 Case Destinations.SendType.SMS.ToDescription()
@@ -621,21 +621,21 @@ Public Class VitalSignsAlertService
                                     WriteServiceHistoryEntry(Now.ToString & " Processing alert definition " & currAlertDefinition.NotificationId & ".", LogLevel.Normal)
                                     WriteServiceHistoryEntry(Now.ToString & " Processing alert destination " & currDestination.DestinationId & ".", LogLevel.Normal)
                                     WriteServiceHistoryEntry(Now.ToString & " SENT SMS. /" & currDestination.PhoneNumber & "", LogLevel.Normal)
-                                        alertSent = SendSMSwithTwilio(currDestination.PhoneNumber, currEvent.Device, currEvent.DeviceType, currEvent.EventType, currEvent.Details, "", "")
+                                    alertSent = SendSMSwithTwilio(currDestination.PhoneNumber, currEvent.Device, currEvent.DeviceType, currEvent.EventType, currEvent.Details, "", "")
                                     'alertSent = True
                                 Case Destinations.SendType.Script.ToDescription()
                                     WriteServiceHistoryEntry(Now.ToString & " Processing alert " & currEvent.Id & ". " & currEvent.DeviceType & " - " & currEvent.EventType & ".", LogLevel.Normal)
                                     WriteServiceHistoryEntry(Now.ToString & " Processing alert definition " & currAlertDefinition.NotificationId & ".", LogLevel.Normal)
                                     WriteServiceHistoryEntry(Now.ToString & " Processing alert destination " & currDestination.DestinationId & ".", LogLevel.Normal)
                                     WriteServiceHistoryEntry(Now.ToString & " SENT SCRIPT. /" & currDestination.ScriptName & "/" & "/" & currDestination.ScriptCommand & "/" & currDestination.ScriptLocation & "", LogLevel.Normal)
-                                     alertSent = SendScript(currDestination.ScriptName, currDestination.ScriptCommand, currDestination.ScriptLocation, currEvent.Device,
+                                    alertSent = SendScript(currDestination.ScriptName, currDestination.ScriptCommand, currDestination.ScriptLocation, currEvent.Device,
                                     currEvent.DeviceType, currEvent.EventType, currEvent.Details, "")
-                                    Case Destinations.SendType.URL.ToDescription()
-                                        WriteServiceHistoryEntry(Now.ToString & " Processing alert " & currEvent.Id & ". " & currEvent.DeviceType & " - " & currEvent.EventType & ".", LogLevel.Normal)
-                                        WriteServiceHistoryEntry(Now.ToString & " Processing alert definition " & currAlertDefinition.NotificationId & ".", LogLevel.Normal)
-                                        WriteServiceHistoryEntry(Now.ToString & " Processing alert destination " & currDestination.DestinationId & ".", LogLevel.Normal)
-                                        WriteServiceHistoryEntry(Now.ToString & " Calling URL. /" & currDestination.URL, LogLevel.Normal)
-                                       alertSent = PostURL(currDestination.URL, currEvent.Device, currEvent.DeviceType, currEvent.EventType, currEvent.Details, False)
+                                Case Destinations.SendType.URL.ToDescription()
+                                    WriteServiceHistoryEntry(Now.ToString & " Processing alert " & currEvent.Id & ". " & currEvent.DeviceType & " - " & currEvent.EventType & ".", LogLevel.Normal)
+                                    WriteServiceHistoryEntry(Now.ToString & " Processing alert definition " & currAlertDefinition.NotificationId & ".", LogLevel.Normal)
+                                    WriteServiceHistoryEntry(Now.ToString & " Processing alert destination " & currDestination.DestinationId & ".", LogLevel.Normal)
+                                    WriteServiceHistoryEntry(Now.ToString & " Calling URL. /" & currDestination.URL, LogLevel.Normal)
+                                    alertSent = PostURL(currDestination.URL, currEvent.Device, currEvent.DeviceType, currEvent.EventType, currEvent.Details, False)
 
                             End Select
                         Catch ex As Exception
