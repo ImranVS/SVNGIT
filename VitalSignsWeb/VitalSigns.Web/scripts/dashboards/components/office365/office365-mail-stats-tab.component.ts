@@ -25,18 +25,18 @@ export class Office365MailStatsTab extends WidgetController implements OnInit {
     ngOnInit() {
         this.route.params.subscribe(params => {
             if (params['service']) {
-                var res: string[] = params['service'].split(';');
-                if (res.length > 1) {
-                    this.nodeName = res[1];
-                }
-                this.serviceId = res[0];
+                //var res: string[] = params['service'].split(';');
+                //if (res.length > 1) {
+                //    this.nodeName = res[1];
+                //}
+                this.serviceId = params['service'].split(';');
             }
             else {
-                var res: string[] = this.serviceId.split(';');
-                if (res.length > 1) {
-                    this.nodeName = res[1];
-                }
-                this.serviceId = res[0];
+                //var res: string[] = this.serviceId.split(';');
+                //if (res.length > 1) {
+                //    this.nodeName = res[1];
+                //}
+                //this.serviceId = res[0];
             }
         });
             this.widgets = [
@@ -264,7 +264,7 @@ export class Office365MailStatsTab extends WidgetController implements OnInit {
 
             this.serviceId = value;
 
-            this.widgetService.refreshWidget('top5InactiveMailboxes', `/services/top_inactive_mailboxes?deviceId=${this.serviceId}`)
+            this.widgetService.refreshWidget('top5ActiveMailboxes', `/services/top_mailboxes?deviceId=${this.serviceId}`)
                 .catch(error => console.log(error));
             this.widgetService.refreshWidget('top5InactiveMailboxes', `/services/top_inactive_mailboxes?deviceId=${this.serviceId}`)
                 .catch(error => console.log(error));

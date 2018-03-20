@@ -94,7 +94,8 @@ export class Office365ActiveDirectorySyncTab extends WidgetController implements
                 id: 'ActivedirectoryStatsGrid',
                 title: 'AD Status Grid',
                 name: 'ActiveDirectoryStatsGrid',
-                css: 'col-xs-15 col-sm-8 col-md-6 col-lg-6'
+                css: 'col-xs-15 col-sm-8 col-md-6 col-lg-6',
+                settings: { ServiceId: this.serviceId }
             },
         ];
         injectSVG();
@@ -103,12 +104,12 @@ export class Office365ActiveDirectorySyncTab extends WidgetController implements
     onPropertyChanged(key: string, value: any) {
 
         if (key === 'serviceId') {
-
             this.serviceId = value;
 
-            this.widgetService.refreshWidget('activedirectorysync', `/services/group_by_ad_sync_interval?deviceId=${this.serviceId}`)
+            this.widgetService.refreshWidget('activedirectorysync', `/dashboard/group_by_ad_sync_interval?deviceId=${this.serviceId}`)
                 .catch(error => console.log(error));
-           
+            this.widgetService.refreshWidget('ActivedirectoryStatsGrid', { ServiceId: this.serviceId })
+                .catch(error => console.log(error));
 
         }
 

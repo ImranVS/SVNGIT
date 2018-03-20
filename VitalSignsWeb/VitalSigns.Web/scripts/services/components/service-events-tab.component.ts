@@ -49,6 +49,17 @@ export class ServiceEventsTab extends WidgetController implements OnInit {
 
     }
 
+    onPropertyChanged(key: string, value: any) {
+
+        if (key === 'serviceId') {
+            this.serviceId = value;
+            this.widgetService.refreshWidget('ServiceEventsGrid')
+                .catch(error => console.log(error));
+
+        }
+
+    }
+
 }
 
 

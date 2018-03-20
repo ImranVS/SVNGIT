@@ -65,8 +65,8 @@ export class ActiveDirectoryStatsGrid implements WidgetComponent, OnInit {
         this.gridHelpers.ExportExcel(this.flex, "ActiveDirectoryStatsGrid.xlsx")
     }
 
-    ngOnInit() {
-        this.service.get('/dashboard/active_directory_sync_grid_report?type=Office365')
+    LoadData() {
+        this.service.get(`/dashboard/active_directory_sync_grid_report?type=Office365&deviceId=${this.serviceId}`)
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
@@ -75,6 +75,12 @@ export class ActiveDirectoryStatsGrid implements WidgetComponent, OnInit {
             },
             (error) => this.errorMessage = <any>error
             );
+    }
+
+    ngOnInit() {
+        if (this.settings && this.settings.ServiceId) {
+            this.serviceId = this.settings.ServiceId;
+        }
         this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("ActiveDirectoryStatsGrid", this.authService.CurrentUser.email)}`)
             .subscribe(
             (data) => {
@@ -84,9 +90,14 @@ export class ActiveDirectoryStatsGrid implements WidgetComponent, OnInit {
             },
             (error) => this.errorMessage = <any>error
             );
-
+        this.LoadData();
         //this.toolTip.getTooltip(this.flex, 0, 8);
 
+    }
+
+    refresh(settings: any) {
+        this.serviceId = settings.ServiceId;
+        this.LoadData();
     }
 
 }

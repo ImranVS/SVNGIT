@@ -211,8 +211,16 @@ namespace VitalSigns.API.Controllers
                 }
                 else
                 {
-                    filterDef = mailboxRepository.Filter.Eq(x => x.DeviceId, deviceId) &
-                        mailboxRepository.Filter.Ne(x => x.MailboxType, null);
+                    if (deviceId.Contains(';'))
+                    {
+                        filterDef = mailboxRepository.Filter.Eq(x => x.DeviceId, deviceId.Split(';').First()) &
+                            mailboxRepository.Filter.Ne(x => x.MailboxType, null);
+                    }
+                    else
+                    {
+                        filterDef = mailboxRepository.Filter.Eq(x => x.DeviceId, deviceId) &
+                            mailboxRepository.Filter.Ne(x => x.MailboxType, null);
+                    }
                 }
                 if (!isChart)
                 {
@@ -282,9 +290,19 @@ namespace VitalSigns.API.Controllers
                 }
                 else
                 {
-                    filterDef = mailboxRepository.Filter.Eq(x => x.DeviceId, deviceId) &
+                    if (deviceId.Contains(';'))
+                    {
+                        filterDef = mailboxRepository.Filter.Eq(x => x.DeviceId, deviceId.Split(';').First()) &
                         mailboxRepository.Filter.Ne(x => x.MailboxType, "DiscoveryMailbox") &
                         mailboxRepository.Filter.Ne(x => x.TotalItemSizeMb, null);
+                    }
+                    else
+                    {
+                        filterDef = mailboxRepository.Filter.Eq(x => x.DeviceId, deviceId) &
+                        mailboxRepository.Filter.Ne(x => x.MailboxType, "DiscoveryMailbox") &
+                        mailboxRepository.Filter.Ne(x => x.TotalItemSizeMb, null);
+                    }
+                    
                 }
                 if (!isChart)
                 {
@@ -479,8 +497,16 @@ namespace VitalSigns.API.Controllers
                 }
                 else
                 {
-                    filterDef = mailboxRepository.Filter.Eq(x => x.DeviceId, deviceId) &
-                        mailboxRepository.Filter.Ne(x => x.InactiveDaysCount, null);
+                    if (deviceId.Contains(';'))
+                    {
+                        filterDef = mailboxRepository.Filter.Eq(x => x.DeviceId, deviceId.Split(';').First()) &
+                            mailboxRepository.Filter.Ne(x => x.InactiveDaysCount, null);
+                    }
+                    else
+                    {
+                        filterDef = mailboxRepository.Filter.Eq(x => x.DeviceId, deviceId) &
+                            mailboxRepository.Filter.Ne(x => x.InactiveDaysCount, null);
+                    }
                 }
                 if (!isChart)
                 {
@@ -547,8 +573,17 @@ namespace VitalSigns.API.Controllers
                 }
                 else
                 {
-                    filterDef = mailboxRepository.Filter.Eq(x => x.DeviceId, deviceId) &
+                    if (deviceId.Contains(';'))
+                    {
+                        filterDef = mailboxRepository.Filter.Eq(x => x.DeviceId, deviceId.Split(';').First()) &
                         mailboxRepository.Filter.Ne(x => x.InactiveDaysCount, null);
+                    }
+                    else
+                    {
+                        filterDef = mailboxRepository.Filter.Eq(x => x.DeviceId, deviceId) &
+                        mailboxRepository.Filter.Ne(x => x.InactiveDaysCount, null);
+                    }
+                    
                 }
                 if (!isChart)
                 {

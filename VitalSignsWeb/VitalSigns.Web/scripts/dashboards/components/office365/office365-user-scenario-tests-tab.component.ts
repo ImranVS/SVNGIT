@@ -324,7 +324,7 @@ export class Office365UserScenarioTestsTab extends WidgetController implements O
 
         if (key === 'serviceId') {
 
-            var serviceId = value;
+            this.serviceId = value;
             var res = this.serviceId.split(';');
             if (res.length > 1) {
                 this.nodeName = res[1];

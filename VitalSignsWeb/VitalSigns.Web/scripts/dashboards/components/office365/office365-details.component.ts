@@ -56,11 +56,11 @@ export class Office365Details implements OnInit {
                 this.serviceId = this.widgetService.getProperty('serviceId');
             }
         });
-        var res = this.serviceId.split(';');
+       // var res = this.serviceId.split(';');
         this.route.params.subscribe(params => {
 
             // Get tabs associated with selected service
-            this.dataProvider.get(`/services/device_details?device_id=${res[0]}&destination=dashboard`)
+            this.dataProvider.get(`/services/device_details?device_id=${this.serviceId}&destination=dashboard`)
                 .subscribe(
                 data => {
                     this.service = data.data;

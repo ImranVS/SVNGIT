@@ -66,30 +66,7 @@ export class ServiceEventsGrid implements WidgetComponent, OnInit {
     }
 
     ngOnInit() {
-        var serviceId = this.widgetService.getProperty('serviceId');
-        if (serviceId) {
-            var res = serviceId.split(';');
-            this.deviceId = res[0];
-        }
-        else {
-            this.route.params.subscribe(params => {
-                if (params['service']) {
-                    this.serviceId = params['service']
-                    if (this.serviceId) {
-                        var res = this.serviceId.split(';');
-                        this.deviceId = res[0];
-                    }
-                }
-            });
-        }    
-        this.service.get('/dashboard/' + this.deviceId + '/notifications')
-            .subscribe(
-            (response) => {
-                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
-                this.data.pageSize = this.currentPageSize;
-            },
-            (error) => this.errorMessage = <any>error
-            );
+        this.loadData();
         this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("ServiceEventsGrid", this.authService.CurrentUser.email)}`)
             .subscribe(
             (data) => {
@@ -113,5 +90,36 @@ export class ServiceEventsGrid implements WidgetComponent, OnInit {
                 return '';
         }
 
+    }
+
+    loadData() {
+        var serviceId = this.widgetService.getProperty('serviceId');
+        if (serviceId) {
+            var res = serviceId.split(';');
+            this.deviceId = res[0];
+        }
+        else {
+            this.route.params.subscribe(params => {
+                if (params['service']) {
+                    this.serviceId = params['service']
+                    if (this.serviceId) {
+                        var res = this.serviceId.split(';');
+                        this.deviceId = res[0];
+                    }
+                }
+            });
+        }
+        this.service.get('/dashboard/' + this.deviceId + '/notifications')
+            .subscribe(
+            (response) => {
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
+                this.data.pageSize = this.currentPageSize;
+            },
+            (error) => this.errorMessage = <any>error
+            );
+    }
+
+    refresh(settings: any) {
+        this.loadData();
     }
 }
