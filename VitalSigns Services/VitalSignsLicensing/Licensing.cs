@@ -417,12 +417,12 @@ namespace VitalSignsLicensing
         private int checkLicenseValidity(List<License> licenseList)
         {
             int units = 0;
-            units=licenseList.Where(c => c.ExpirationDate > DateTime.Now && c.units > 0).Sum(c => c.units);
+            units=licenseList.Where(c => c.ExpirationDate.Date >= DateTime.Now.Date && c.units > 0).Sum(c => c.units);
             try
             {
                 foreach (License s in licenseList)
                 {
-                    if (s.ExpirationDate > DateTime.Now && s.units > 0)
+                    if (s.ExpirationDate.Date >= DateTime.Now.Date && s.units > 0)
                         units = s.units;
                 }
             }
@@ -603,6 +603,47 @@ namespace VitalSignsLicensing
 
            
             return triggerServerRefresh;
+        }
+
+        public void checkLicenseInfo()
+        {
+            try
+            { 
+            VSNext.Mongo.Repository.Repository<License> repoLic = new VSNext.Mongo.Repository.Repository<License>(cs);
+            List<License> licenseList = repoLic.Find(i => i.LicenseKey != "").ToList();
+
+            if (licenseList.Count == 0)
+                return;
+
+            License license = licenseList[0];
+
+            //200#HA#RPRWyatt#Perpetual#12/31/9999
+            VSFramework.TripleDES tripleDes = new VSFramework.TripleDES();
+            string[] decodedValues = tripleDes.Decrypt(license.LicenseKey).Split('#');
+            license.units = Convert.ToInt32(decodedValues[0]);
+            license.InstallType = decodedValues[1];
+            license.CompanyName = decodedValues[2];
+            license.LicenseType = decodedValues[3];
+            license.ExpirationDate = DateTime.ParseExact(decodedValues[4], "MM/dd/yyyy", null);
+            repoLic.Replace(license);
+
+            string licenseExpiredString = "Your license has expired!";
+            string licenseExpiresSoonString = "Your license expires soon!";
+            AlertLibrary.Alertdll alertDll = new AlertLibrary.Alertdll();
+
+            if (DateTime.Now.Date.AddDays(7) > license.ExpirationDate.Date)
+                alertDll.QueueSysMessage(licenseExpiresSoonString);
+            else
+                alertDll.ResetSysMessage(licenseExpiresSoonString);
+
+            if (DateTime.Now.Date > license.ExpirationDate.Date)
+                alertDll.QueueSysMessage(licenseExpiredString);
+            else
+                alertDll.ResetSysMessage(licenseExpiredString);
+            }
+            catch(Exception ex)
+            {
+            }
         }
         #region utilities
         private void createLicense()

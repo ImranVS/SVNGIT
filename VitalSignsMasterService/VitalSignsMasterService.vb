@@ -783,6 +783,10 @@ Public Class VSMaster
 
                     Thread.Sleep(2000)
 
+                    'Check to be sure the license info is proper from the key and send/reset any system alerts regarding the license about to expire
+                    Dim licensingDll As New VitalSignsLicensing.Licensing()
+                    licensingDll.checkLicenseInfo()
+
                 End If
 
 
