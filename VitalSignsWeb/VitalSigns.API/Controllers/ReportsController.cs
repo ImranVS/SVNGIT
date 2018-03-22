@@ -354,14 +354,19 @@ namespace VitalSigns.API.Controllers
         {
             FilterDefinition<SummaryStatistics> filterDef = null;
             if (startDate == "")
-                startDate = DateTime.UtcNow.AddDays(-7).ToString(DateFormat);
+                startDate = DateTime.UtcNow.AddDays(-8).ToString(DateFormat);
+            else
+                startDate = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture).AddDays(-1).ToString(DateFormat);
+            
 
             if (endDate == "")
                 endDate = DateTime.UtcNow.ToString(DateFormat);
+            else
+                endDate = DateTime.ParseExact(endDate, DateFormat, CultureInfo.InvariantCulture).AddDays(1).ToString(DateFormat);
 
             //1 day is added to the end so we include that days data
             DateTime dtStart = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture).ToUniversalTime();
-            DateTime dtEnd = DateTime.ParseExact(endDate, DateFormat, CultureInfo.InvariantCulture).AddDays(1).ToUniversalTime();
+            DateTime dtEnd = DateTime.ParseExact(endDate, DateFormat, CultureInfo.InvariantCulture).ToUniversalTime();
 
             summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
 
@@ -446,7 +451,7 @@ namespace VitalSigns.API.Controllers
                     Serie serie = new Serie();
                     serie.Segments = new List<Segment>();
                     serie.Title = currList[0].DeviceName + (statNames.Count() > 1 ? "-" + uc.GetUserFriendlyStatName(curr.StatName) : "");
-                    for (DateTime date = dtStart; date < dtEnd; date = date.AddDays(1))
+                    for (DateTime date = dtStart.AddDays(1); date < dtEnd; date = date.AddDays(1))
                     {
                         var item = currList.Where(x => x.StatDate.Value.Date == date.Date).ToList();
 

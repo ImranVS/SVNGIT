@@ -23,6 +23,7 @@ export class StatisticsReport extends WidgetController {
     widgets: WidgetContract[];
     statname: string;
     title: string;
+    reportType: string;
 
     currentHideServerControl: boolean = false;
     currentHideDatePanel: boolean = false;
@@ -46,11 +47,14 @@ export class StatisticsReport extends WidgetController {
         this.route.queryParams.subscribe(params => {
             this.statname = params['statname'];
             this.title = params['title'];
+            this.reportType = params['reporttype'];
         });
 
+        if (!this.reportType || this.reportType === "")
+            this.reportType = "server";
         this.currentWidgetURL = `/reports/summarystats_chart?statName=${this.statname}`;
 
-        this.service.get('/navigation/sitemaps/server_reports')
+        this.service.get(`/navigation/sitemaps/${this.reportType}_reports`)
             .subscribe
             (
             data => {
