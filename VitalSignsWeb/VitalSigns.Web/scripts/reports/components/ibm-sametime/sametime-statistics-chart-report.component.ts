@@ -49,7 +49,7 @@ export class SametimeStatisticsChartReport extends WidgetController {
         this.widgets = [
             {
                 id: 'report',
-                //title: `${this.title}`,
+                title: `Sametime Statistics Chart`,
                 name: 'ChartComponent',
                 settings: {
                     url: `${this.url}?statName=TotalnWayChats`,
