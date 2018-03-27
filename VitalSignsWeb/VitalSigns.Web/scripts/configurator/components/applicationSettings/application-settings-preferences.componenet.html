@@ -76,7 +76,30 @@
                         </div>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="form-group col-sm-12">
+                        <div class="form-group col-sm-2">&nbsp;</div>
 
+                        <div class="col-sm-7">
+                            <button class="btn btn-primary" (click)="licensedetails()">License Information</button>
+                            <wj-popup style="border: 0px; width: 820px" #licensedetailsPopup>
+                                <div class="modal-content">
+                                    <h3 class="popover-title">
+                                        License Info
+                                        <button type="button" tabindex="-1" class="close wj-hide">&times;</button>
+                                    </h3>
+                                    <div class="modal-body">
+                                        <wj-flex-grid [itemsSource]="detailsdata" selectionMode="Row" [isReadOnly]="true" headersVisibility="Column" #flex1>
+                                            <wj-flex-grid-filter></wj-flex-grid-filter>
+                                            <wj-flex-grid-column [header]="'Device Type'" [binding]="'device_type'" [width]="200"></wj-flex-grid-column>
+                                            <wj-flex-grid-column [header]="'Unit Consumed'" [binding]="'license_cost'" [width]="250"></wj-flex-grid-column>
+                                        </wj-flex-grid>
+                                    </div>
+                                </div>
+                            </wj-popup>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 

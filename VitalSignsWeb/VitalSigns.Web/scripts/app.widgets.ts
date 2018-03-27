@@ -69,7 +69,6 @@ export * from './widgets/reports/components/usergroup-list.component';
 export * from './widgets/reports/components/exchange-mailbox-list.component';
 export * from './widgets/reports/components/o365-disabled-users-list.component';
 export * from './widgets/reports/components/ibm-connections-disabled-users-list.component';
-export * from './widgets/reports/components/exchange-disabled-users-list.component';
 export * from './widgets/reports/components/o365-active-directory-sync-list.component';
 export * from './widgets/reports/components/ibm-connections-inctive-users-list.component';
 export * from './widgets/reports/components/inactive-community-list.component';

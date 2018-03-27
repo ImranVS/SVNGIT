@@ -1,4 +1,4 @@
-﻿import {Component, OnInit, ViewChildren} from '@angular/core';
+﻿import { Component, OnInit, ViewChildren, ViewChild} from '@angular/core';
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import {Router, ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
@@ -16,8 +16,11 @@ import * as helpers from '../../../core/services/helpers/helpers';
     ]
 })
 export class PreferencesForm implements OnInit {
-
+  
+    @ViewChild('flex1') flex1: wijmo.grid.FlexGrid;
+    @ViewChild('licensedetailsPopup') dlg: wijmo.input.Popup
     @ViewChildren('licencekey') licencekey;
+    detailsdata: wijmo.collections.CollectionView;
     insertMode: boolean = false;
     preferencesForm: FormGroup;
     errorMessage: string;
@@ -34,6 +37,7 @@ export class PreferencesForm implements OnInit {
 
     appComponentService: AppComponentService;
     constructor(
+        protected service: RESTService,
         private formBuilder: FormBuilder,
         private dataProvider: RESTService,
         private router: Router,
@@ -133,5 +137,19 @@ export class PreferencesForm implements OnInit {
                 });          
             dialog.hide();
         }
+    }
+
+    licensedetails() {
+        this.service.get('/configurator/get_license_information')
+            .subscribe(
+            response => {
+                this.detailsdata = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
+                this.dlg.show();
+            },
+            error => this.errorMessage = <any>error
+            );
+    }
+    closePopup() {
+        this.dlg.hide();
     }
 }
