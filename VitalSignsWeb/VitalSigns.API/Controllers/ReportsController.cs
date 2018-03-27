@@ -2546,7 +2546,7 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("disabled_users_with_license")]
-        public APIResponse DisabledUsersWithLicense(string mailboxType)
+        public APIResponse DisabledUsersWithLicense()
         {
             try
             {
@@ -2585,7 +2585,7 @@ namespace VitalSigns.API.Controllers
             }
 
         [HttpGet("ibm_disabled_users_with_license")]
-        public APIResponse IBMDisabledUsersWithLicense(string mailboxType)
+        public APIResponse IBMDisabledUsersWithLicense()
         {
             try
             {
@@ -2593,6 +2593,7 @@ namespace VitalSigns.API.Controllers
                 serverRepository = new Repository<Server>(ConnectionString);
                 var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.IBMConnections.ToDescription())).ToList().Select(x => x.Id).ToList();
                 var filterDef = connectionsObjectsRepository.Filter.In(x => x.DeviceId, listOfDevices) &
+                    connectionsObjectsRepository.Filter.Eq(x => x.Type, "Users") &
                     connectionsObjectsRepository.Filter.Eq(x => x.IsActive, true) &
                    connectionsObjectsRepository.Filter.Lt(x => x.LastLoginDate, DateTime.UtcNow.AddDays(-30));
                 var results = connectionsObjectsRepository.Find(filterDef).ToList().Select(x => new ibmconnections()
@@ -2601,33 +2602,6 @@ namespace VitalSigns.API.Controllers
                     ServerName = x.DeviceName,
                     LastLoginDate = x.LastLoginDate,
                 }).ToList().OrderBy(x => x.DeviceName);
-                Response = Common.CreateResponse(results);
-                return Response;
-            }
-            catch (Exception exception)
-            {
-                Response = Common.CreateResponse(null, "Error", exception.Message);
-
-                return Response;
-            }
-        }
-
-
-          [HttpGet("exchange_disabled_users_with_license")]
-        public APIResponse ExchnageDisabledUsersWithLicense(string mailboxType)
-        {
-            try
-            {
-                UserGroupRepository = new Repository<UsersAndGroups>(ConnectionString);
-                serverRepository = new Repository<Server>(ConnectionString);
-                var listOfDevices = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Exchange.ToDescription())).ToList().Select(x => x.Id).ToList();
-                var filterDef = UserGroupRepository.Filter.In(x => x.DeviceId, listOfDevices) &
-                   UserGroupRepository.Filter.Lt(x => x.ModifiedOn, DateTime.UtcNow.AddDays(-30));
-                var results = UserGroupRepository.Find(filterDef).ToList().Select(x => new UserGroupModel()
-                {
-                   DisplayName =x.Name,
-                  
-                }).ToList().OrderBy(x => x.DisplayName);
                 Response = Common.CreateResponse(results);
                 return Response;
             }

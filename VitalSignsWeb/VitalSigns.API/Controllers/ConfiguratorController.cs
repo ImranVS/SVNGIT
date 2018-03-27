@@ -226,6 +226,28 @@ namespace VitalSigns.API.Controllers
 
             return Response;
         }
+
+        [HttpGet("get_license_information")]
+        public APIResponse GetLicenseInformation()
+        {
+            try
+            {
+                serverRepository = new Repository<Server>(ConnectionString);
+                serverOtherRepository = new Repository<ServerOther>(ConnectionString);
+                var listofservers = serverRepository.Find(x => true).ToList();
+                var serverlist = listofservers.GroupBy(x => x.DeviceType).Select(x => new LicenseInformation() { DeviceType = x.Key, LicenseCost = x.Sum(y => y.LicenseCost) }).ToList();
+                var listofservers1 = serverOtherRepository.Find(x => true).ToList();
+                var serverlist1 = listofservers1.GroupBy(x => x.Type).Select(x => new LicenseInformation() { DeviceType = x.Key, LicenseCost = x.Sum(y => y.LicenseCost) }).ToList();
+                serverlist.AddRange(serverlist1);
+                Response = Common.CreateResponse(serverlist.OrderByDescending(x => x.LicenseCost).ThenBy(x => x.DeviceType));
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), " License Information  failed .\n Error Message :" + exception.Message);
+            }
+
+            return Response;
+        }
         #endregion
 
         #region Credentials
