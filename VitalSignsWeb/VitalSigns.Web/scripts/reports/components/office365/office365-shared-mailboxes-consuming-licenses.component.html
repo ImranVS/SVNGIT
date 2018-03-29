@@ -1,0 +1,43 @@
+﻿<div>
+    <div class="hidden-xs hidden-sm dashboard-menu col-lg-3" id="zeusContext">
+        <ul class="list-group" *ngIf="contextMenuSiteMap">
+
+            <li class="list-group-item" *ngFor="let node of contextMenuSiteMap.nodes"
+                [routerLinkActive]="['selected']"
+                [routerLinkActiveOptions]="{exact: true}">
+                <a [routerLink]="this.urlHelpers.getUrlPath(node.url)" [queryParams]="this.urlHelpers.getUrlQueryParams(node.url)">{{node.title}}</a>
+            </li>
+
+        </ul>
+    </div>
+    <div class="container-fluid">
+        <office365-disabled-users-sort [(widgetName)]="currentWidgetName"></office365-disabled-users-sort>
+        <div class="reportsPage">
+            <h1>Shared Mailboxes Consuming Licenses</h1>
+            <div *ngIf="data && data.length == 0">
+                There are no Shared Mailboxes Consuming Licenses.
+            </div>
+            <div *ngIf="data && data.length != 0">
+                <table class="table table-condensed small table-striped" id="htmlTable">
+                    <thead>
+                        <tr>
+                            <th>Display Name</th>
+                            <th>Primary SMTP Address</th>
+                        </tr>
+                    </thead>
+                    <tbody *ngIf="data">
+                        <tr *ngFor="let entry of data">
+                            <td>{{entry.display_name}}
+                            <td>{{entry.primary_smtp_address}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <button class="visible-xs visible-sm showMbtn" onclick="$('.dashboard-menu').toggle();">
+        <img class="svgInject" src="/img/dashboard/SubLevelsMenu.svg" title="Dashboard Sub Levels" alt="Dashboard Sub Levels" />
+    </button>
+
+</div>

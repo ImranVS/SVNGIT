@@ -158,6 +158,7 @@ import { ExchnageStatisticReport } from './reports/components/ms-exchange/ms-exc
 import { ExchangeMailboxReport } from './reports/components/ms-exchange/ms-exchange-mailbox-report.component';
 import { exchnagemaillistreport } from './reports/components/ms-exchange/ms-exchange-mailbox.component';
 import { ScheduleReports } from './reports/components/schedule-reports/schedule-reports.component';
+import { Office365SharedMailboxesConsumingLicensesReport } from './reports/components/office365/office365-shared-mailboxes-consuming-licenses.component';
 
 import { FileUploadSample } from './configurator/components/serverImport/file-upload-sample.component';
 import { NotYetImplemented } from './not-yet-implemented.component';
@@ -731,6 +732,10 @@ const appRoutes: Routes = [
                         path: 'schedulereports',
                         component: ScheduleReports
                     
+                    },
+                    {
+                        path: 'o365sharedmbconsuminglicense',
+                        component: Office365SharedMailboxesConsumingLicensesReport
                     }
                     
                 ]

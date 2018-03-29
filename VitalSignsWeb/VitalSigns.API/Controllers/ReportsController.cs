@@ -2861,6 +2861,50 @@ namespace VitalSigns.API.Controllers
                 return Response;
             }
         }
+
+        [HttpGet("office365_shared_mailboxes_consuming_license")]
+        public APIResponse Office365SharedMailboxesConsumingLicense()
+        {
+            try
+            {
+
+                mailboxRepository = new Repository<Mailbox>(ConnectionString);
+                o365MsolUsersRepository = new Repository<Office365MSOLUsers>(ConnectionString);
+                serverRepository = new Repository<Server>(ConnectionString);
+                
+                //Gets O365 device ids
+                List<String> listOfDeviceIds = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.Office365.ToDescription())).ToList().Select(x => x.Id).ToList();
+
+                //Gets all licensed users
+
+                FilterDefinition<Office365MSOLUsers> msolUsersFilterDef = o365MsolUsersRepository.Filter.Eq(x => x.IsLicensed, true) & 
+                    o365MsolUsersRepository.Filter.In(x => x.DeviceId, listOfDeviceIds) &
+                    o365MsolUsersRepository.Filter.Ne(x => x.UserPrincipalName, null);
+                List<Office365MSOLUsers> licensedUsers = o365MsolUsersRepository.Find(msolUsersFilterDef).ToList();
+
+                //Gets all Licensed O365 Users who has a matching primary email to that of a shared mailbox - put the licensed user bit differently for case-insensativity check
+                FilterDefinition<Mailbox> mailboxFilterDef = mailboxRepository.Filter.Eq(x => x.MailboxType, "SharedMailbox") & mailboxRepository.Filter.Ne(x => x.PrimarySmtpAddress, null);
+                List<Mailbox> sharedLicensedMailboxes = mailboxRepository.Find(mailboxFilterDef)
+                    .Where(x => licensedUsers.Select(y => y.UserPrincipalName.ToUpper()).Contains(x.PrimarySmtpAddress.ToUpper()))
+                    .ToList();
+
+                //Puts data into API Model and returns the list
+                List<MailboxModel> results = sharedLicensedMailboxes.Select(x => new MailboxModel()
+                {
+                    DisplayName = x.DisplayName,
+                    PrimarySmtpAddress = x.PrimarySmtpAddress
+                }).OrderBy(x => x.DisplayName).ToList();
+                               
+                Response = Common.CreateResponse(results);
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
     }
 
 

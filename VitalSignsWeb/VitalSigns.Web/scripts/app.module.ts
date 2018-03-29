@@ -144,6 +144,7 @@ import { Office365MailboxReport } from './reports/components/office365/office365
 import { O365GroupCollectionReport } from './reports/components/office365/office365-group-collection.component';
 import { Office365UserTypeReport } from './reports/components/office365/office365-usertype.component';
 import { Office365DisabledUsersReport } from './reports/components/office365/office365-disabled-users.component';
+import { Office365SharedMailboxesConsumingLicensesReport } from './reports/components/office365/office365-shared-mailboxes-consuming-licenses.component';
 import { IBMConnectionsDisabledusersReport } from './reports/components/ibm-connections/connections-disabled-users.component';
 import { Office365ActiveDirectorySyncReport } from './reports/components/office365/office365-active-directory-sync.component';
 
@@ -312,6 +313,7 @@ import { LoadingIndicator } from './core/services/loading-indicator'
         ExchangeMailboxReport,
         exchnagemaillistreport,
         LoadingIndicator,
+        Office365SharedMailboxesConsumingLicensesReport,
         dashboards.SampleDashboard,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
