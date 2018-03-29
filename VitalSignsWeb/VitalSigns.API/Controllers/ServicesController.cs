@@ -1965,7 +1965,7 @@ namespace VitalSigns.API.Controllers
                 foreach (string filePath in powershellFiles)
                 {
                     string currDeviceType = filePath.Replace(Startup.wwwrootPath, "");
-                    currDeviceType = currDeviceType.Substring(0, currDeviceType.LastIndexOf("\\")).Replace("\\", "");
+                    currDeviceType = currDeviceType.Substring(0, currDeviceType.IndexOf("\\")).Replace("\\", "");
                     string script = System.IO.File.ReadAllText(filePath);
                     string parameters;
                     System.Management.Automation.Language.Token[] tokens;
