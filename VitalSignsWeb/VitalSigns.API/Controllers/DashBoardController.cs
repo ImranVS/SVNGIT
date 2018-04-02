@@ -1237,7 +1237,7 @@ namespace VitalSigns.API.Controllers
                     DeviceId = x.DeviceId,
                     DeviceName = x.DeviceName,
                     DateTimeDown = Convert.ToString(x.DateTimeDown.ToString(DateFormat)),
-                    DateTimeUp = Convert.ToString(x.DateTimeUp.Value.ToString(DateFormat)),
+                    DateTimeUp = x.DateTimeUp.HasValue ? Convert.ToString(x.DateTimeUp.Value.ToString(DateFormat)): "",
                 }).ToList().OrderBy(x=>x.DeviceName);
                 Response = Common.CreateResponse(result);
             }
