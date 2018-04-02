@@ -60,7 +60,8 @@ export class ResponseTimeReport extends WidgetController {
                             endOnTick: false,
                             allowDecimals: false,
                             title: {
-                                enabled: false
+                                enabled: true,
+                                text:'Time(MS)'
                             }
                         },
                         plotOptions: {
