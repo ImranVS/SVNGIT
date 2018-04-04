@@ -10,7 +10,7 @@ namespace VitalSigns.API.Models.Configurator
         public MicrosoftServerImportModel()
         {
             DeviceAttributes = new List<DeviceAttributesModel>();
-            Servers = new List<ServersModel>();
+            //Servers = new List<ServersModel>();  
         }
 
 
