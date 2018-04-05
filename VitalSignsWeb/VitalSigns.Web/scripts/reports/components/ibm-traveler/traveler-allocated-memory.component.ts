@@ -60,7 +60,7 @@ export class TravelerAllocatedMemoryReport extends WidgetController {
             this.paramtype = params['type'];
         });
 
-        this.currentWidgetURL = `/services/summarystats?statName=Traveler.Memory.${this.paramtype}.Current&seriesTitle=DeviceName`;
+        this.currentWidgetURL = `/reports/summarystats_chart?type=Traveler&statName=Traveler.Memory.${this.paramtype}.Current&seriesTitle=DeviceName`;
         
         this.widgets = [
             {

@@ -57,7 +57,7 @@ export class TravelerDeviceSyncReport extends WidgetController {
             error => console.log(error)
             );
 
-        this.currentWidgetURL = `/services/summarystats?statName=Traveler.IncrementalDeviceSyncs&seriesTitle=devicename`;
+        this.currentWidgetURL = `/reports/summarystats_chart?type=Traveler&statName=Traveler.IncrementalDeviceSyncs&seriesTitle=devicename`;
         
         this.widgets = [
             {

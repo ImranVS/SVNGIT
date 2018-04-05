@@ -66,7 +66,7 @@ export class TravelerHTTPSessionsReport extends WidgetController {
             },
             (error) => this.errorMessage = <any>error
             );
-        this.currentWidgetURL = `/services/summarystats?statName=Http.CurrentConnections&seriesTitle=devicename`;
+        this.currentWidgetURL = `/reports/summarystats_chart?type=Traveler&statName=Http.CurrentConnections&seriesTitle=devicename`;
         
         this.widgets = [
             {
