@@ -2,6 +2,8 @@
     <thead>
         <tr>
             <th>Key Word</th>
+            <th>Exclude</th>
+            <th>One Alert Per Day</th>
             <th>Scan Agent Log</th>
             <th>Scan Log</th>
         </tr>
@@ -9,6 +11,8 @@
     <tbody *ngIf="logFile">
         <tr *ngFor="let logF of logFile">
             <td>{{logF.key_word}}</td>
+            <td>{{logF.exclude}}</td>
+            <td>{{logF.one_alert_per_day}}</td>
             <td>{{logF.agent_log}}</td>
             <td>{{logF.log}}</td>
         </tr>
