@@ -172,6 +172,9 @@ data.pageIndex + 1 | number
                             <div class="alert alert-info col-sm-12" *ngIf="selectedSetting=='4'">
                                 <p>Maintenence window will occur on selected day(s) of the week on the first, second, third, or last week of the month (depending on selection) every month or on a specific day of the month.</p>
                             </div>
+                            <div class="alert alert-info col-sm-12" *ngIf="selectedSetting=='5'">
+                                <p>This will happen on the 3rd Saturday after at least one Tuesday every month. </p>
+                            </div>
                         </div>
                         <div class="row col-sm-12">
                             <div class="form-group col-sm-8">
@@ -184,6 +187,8 @@ data.pageIndex + 1 | number
                                     <label for="selectionType3" class="col-sm-2">Weekly</label>
                                     <input type="radio" id="selectionType4" name="selectionType" value="4" [(ngModel)]="selectedSetting" (click)="handleClickMonthly(this);">
                                     <label for="selectionType4" class="col-sm-2">Monthly</label>
+                                    <input type="radio" id="selectionType5" name="selectionType" value="5" [(ngModel)]="selectedSetting">
+                                    <label for="selectionType5" class="col-sm-4">Patch Saturday</label>
                                 </div>
                             </div>
                         </div>

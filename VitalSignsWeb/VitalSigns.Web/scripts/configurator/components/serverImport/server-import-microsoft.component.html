@@ -82,9 +82,9 @@
                     <br />
                     Please enter the Exchange Server's URL, including HTTP/HTTPS. The credentials should be an administrative account with the format of USERNAME@DOMAIN.com
                 </div>
-                <div *ngIf="exchangeServerImportData.servers != null && exchangeServerImportData.servers.length == 0">
+                <div class="alert alert-info col-sm-12"  *ngIf="exchangeServerImportData.servers != null && exchangeServerImportData.servers.length == 0">
                    
-                        No Servers are Available to Import
+                        <p>No Servers are Available to Import</p>
                 </div>
             </div>
        
