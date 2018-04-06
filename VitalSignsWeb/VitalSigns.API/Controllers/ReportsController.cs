@@ -1026,8 +1026,11 @@ namespace VitalSigns.API.Controllers
                 result.AddRange(currList.Select(x => new LogFileList()
                 {
                     Keyword = x.Keyword,
+                    Exclude = x.Exclude,
+                    OneAlertPerDay =x.OneAlertPerDay,
                     AgentLog = x.ScanAgentLog,
                     Log = x.ScanLog
+                 
                 }));
             }
                 

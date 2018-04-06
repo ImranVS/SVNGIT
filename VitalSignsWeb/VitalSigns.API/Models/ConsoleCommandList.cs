@@ -63,6 +63,9 @@ namespace VitalSigns.API.Models
         [JsonProperty("key_word")]
         public string Keyword { get; set; }
 
+        [JsonProperty("exclude")]
+        public string Exclude { get; set; }
+
         [JsonProperty("repeat_once")]
         public Boolean? RepeatOnce { get; set; }
 
@@ -74,6 +77,9 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("agent_log")]
         public Boolean? AgentLog { get; set; }
+
+        [JsonProperty("one_alert_per_day")]
+        public Boolean? OneAlertPerDay { get; set; }
 
         [JsonProperty("domino_event_log_id")]
         public int DominoEventLogId { get; set; }
