@@ -383,7 +383,7 @@ namespace VitalSigns.API
                 System.Security.SecureString securePassword = String2SecureString(Password);
 
                 System.Management.Automation.PSCredential creds = new System.Management.Automation.PSCredential(UserName, securePassword);
-                System.Management.Automation.Runspaces.PowerShellProcessInstance instance = new System.Management.Automation.Runspaces.PowerShellProcessInstance(new Version(5, 0), null, null, true);
+                System.Management.Automation.Runspaces.PowerShellProcessInstance instance = new System.Management.Automation.Runspaces.PowerShellProcessInstance(new Version(4, 0), null, null, false);
                 System.Management.Automation.Runspaces.Runspace runspace = System.Management.Automation.Runspaces.RunspaceFactory.CreateOutOfProcessRunspace(new System.Management.Automation.Runspaces.TypeTable(new string[0]), instance);
                 //System.Management.Automation.Runspaces.Runspace runspace = System.Management.Automation.Runspaces.RunspaceFactory.CreateRunspace();
 
@@ -523,7 +523,7 @@ namespace VitalSigns.API
                 System.Security.SecureString securePassword = String2SecureString(Password);
 
                 System.Management.Automation.PSCredential creds = new System.Management.Automation.PSCredential(UserName, securePassword);
-                System.Management.Automation.Runspaces.PowerShellProcessInstance instance = new System.Management.Automation.Runspaces.PowerShellProcessInstance(new Version(5, 0), null, null, true);
+                System.Management.Automation.Runspaces.PowerShellProcessInstance instance = new System.Management.Automation.Runspaces.PowerShellProcessInstance(new Version(4, 0), null, null, false);
                 System.Management.Automation.Runspaces.Runspace runspace = System.Management.Automation.Runspaces.RunspaceFactory.CreateOutOfProcessRunspace(new System.Management.Automation.Runspaces.TypeTable(new string[0]), instance);
                 //System.Management.Automation.Runspaces.Runspace runspace = System.Management.Automation.Runspaces.RunspaceFactory.CreateRunspace();
 
@@ -690,11 +690,12 @@ namespace VitalSigns.API
                 session.ImportPSModule(new string[] { "MSOnline" });
                 //Common.WriteDeviceHistoryEntry(ServerType, ServerName, "In  PrereqForOffice365WithCmdlets: after Import", Common.LogLevel.Normal);
 
-                System.Uri uri = new Uri((IPAddress.ToLower().StartsWith("http") ? "" : "https://") + IPAddress + "/powershell-liveid/");
+                System.Uri uri = new Uri("https://outlook.office365.com" + "/powershell-liveid/");
                 System.Security.SecureString securePassword = String2SecureString(Password);
 
                 System.Management.Automation.PSCredential creds = new System.Management.Automation.PSCredential(UserName, securePassword);
-                System.Management.Automation.Runspaces.Runspace runspace = System.Management.Automation.Runspaces.RunspaceFactory.CreateOutOfProcessRunspace(new System.Management.Automation.Runspaces.TypeTable(new string[0]));
+                System.Management.Automation.Runspaces.PowerShellProcessInstance instance = new System.Management.Automation.Runspaces.PowerShellProcessInstance(new Version(4, 0), null, null, false);
+                System.Management.Automation.Runspaces.Runspace runspace = System.Management.Automation.Runspaces.RunspaceFactory.CreateOutOfProcessRunspace(new System.Management.Automation.Runspaces.TypeTable(new string[0]), instance);
                 //Common.WriteDeviceHistoryEntry(ServerType, ServerName, "In  PrereqForOffice365WithCmdlets: before open", Common.LogLevel.Normal);
                 runspace.Open();
                 //Common.WriteDeviceHistoryEntry(ServerType, ServerName, "In  PrereqForOffice365WithCmdlets: after open", Common.LogLevel.Normal);
@@ -765,7 +766,7 @@ namespace VitalSigns.API
                 powerShell.Invoke();
 
                 System.Management.Automation.PSCommand importSession = new System.Management.Automation.PSCommand();
-                importSession.AddScript("Import-PSSession -AllowClobber -Session $ra -FormatTypeName *");
+                importSession.AddScript("Import-PSSession -Session $ra");
                 powerShell.Commands = importSession;
                 powerShell.Runspace = runspace;
                 powerShell.Invoke();
@@ -779,7 +780,7 @@ namespace VitalSigns.API
 
                 System.Management.Automation.PSCommand command;
 
-                foreach (String mod in new String[] { "MSOnlne", "Microsoft.Online.SharePoint.PowerShell" })
+                foreach (String mod in new String[] { "MSOnline", "Microsoft.Online.SharePoint.PowerShell" })
                 {
                     command = new System.Management.Automation.PSCommand();
                     command.AddCommand("Import-Module");
@@ -866,7 +867,7 @@ namespace VitalSigns.API
                 System.Security.SecureString securePassword = String2SecureString(Password);
 
                 System.Management.Automation.PSCredential creds = new System.Management.Automation.PSCredential(UserName, securePassword);
-                System.Management.Automation.Runspaces.PowerShellProcessInstance instance = new System.Management.Automation.Runspaces.PowerShellProcessInstance(new Version(5, 0), null, null, true);
+                System.Management.Automation.Runspaces.PowerShellProcessInstance instance = new System.Management.Automation.Runspaces.PowerShellProcessInstance(new Version(4, 0), null, null, false);
                 System.Management.Automation.Runspaces.Runspace runspace = System.Management.Automation.Runspaces.RunspaceFactory.CreateOutOfProcessRunspace(new System.Management.Automation.Runspaces.TypeTable(new string[0]), instance);
                 //System.Management.Automation.Runspaces.Runspace runspace = System.Management.Automation.Runspaces.RunspaceFactory.CreateRunspace();
 
