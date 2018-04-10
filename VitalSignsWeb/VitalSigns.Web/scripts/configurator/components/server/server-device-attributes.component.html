@@ -121,7 +121,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group" *ngIf="serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' ||
+                    <div class="form-group" >
+                         <div *ngIf="serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' ||
                     serverAttributes.device_type=='Exchange' || serverAttributes.device_type=='IBM FileNet' || serverAttributes.device_type=='SharePoint'">
                         <label class="control-label col-sm-2">Credentials</label>
                         <div class="col-sm-3">
@@ -130,6 +131,14 @@
                             </wj-combo-box>
                         </div>
                     </div>
+                        <div *ngIf="serverAttributes.device_type =='Exchange'">
+                            <label class="control-label col-sm-2">IP Address</label>
+                            <div class="col-sm-3" *ngIf="serverAttributes.device_type =='Exchange'">
+                                <input type="text" [(ngModel)]="serverAttributes.ip_address" class="form-control">
+                            </div>
+                        </div>
+                        </div>
+                
                     <div class="form-group" *ngIf="serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' ||
                     serverAttributes.device_type=='Exchange' || serverAttributes.device_type=='IBM FileNet' || serverAttributes.device_type=='SharePoint'">
                         <div class="col-sm-2">&nbsp;</div>
