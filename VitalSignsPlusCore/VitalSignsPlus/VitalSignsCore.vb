@@ -9895,7 +9895,7 @@ CleanUp:
         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In SwitchIbmConnectionsCollections after loop. Seconds: " & oWatch.Elapsed.TotalSeconds.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
     End Sub
 
-    Public Function GetCommunityId(ByRef myServer As MonitoredItems.IBMConnect, ByVal communityGUID As String = Nothing)
+    Public Function GetCommunityId(ByRef myServer As MonitoredItems.IBMConnect, ByVal communityGUID As String)
 
         Try
             Dim parentId As String = Nothing
