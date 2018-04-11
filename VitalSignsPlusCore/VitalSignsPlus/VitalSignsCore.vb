@@ -8250,6 +8250,7 @@ CleanUp:
         Dim oWatch As New System.Diagnostics.Stopwatch
         oWatch.Start()
         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects.", LogUtilities.LogUtils.LogLevel.Normal)
+        GetCommunityId(myServer, Nothing)
         Dim sql As String = "SELECT node.Name, 'Activity' as Type, node.CREATED, node.LASTMOD, mp.EXID, node.ACTIVITYUUID FROM ACTIVITIES.OA_NODE node INNER JOIN ACTIVITIES.OA_MEMBERPROFILE mp ON mp.MEMBERID = node.CREATEDBY WHERE node.ISDELETED = 0;" &
          "SELECT NODEUUID, NAME FROM ACTIVITIES.OA_TAG;" &
          "SELECT node.ACTIVITYUUID, mp.EXID, ac.ROLEID FROM ACTIVITIES.OA_NODE node INNER JOIN ACTIVITIES.OA_ACLENTRY ac ON node.ACTIVITYUUID = ac.OBJECTUUID INNER JOIN ACTIVITIES.OA_MEMBERPROFILE mp ON mp.MEMBERID = ac.MEMBERID WHERE node.ISDELETED = 0 AND mp.MEMBERTYPE <> 3;" &
@@ -8346,7 +8347,7 @@ CleanUp:
                                 Try
                                     If (ds.Tables(3).Select("NODEUUID = '" + row("ACTIVITYUUID").ToString() + "'").Count > 0) Then
                                         Dim parentGUID As String = ds.Tables(3).Select("NODEUUID = '" + row("ACTIVITYUUID").ToString() + "'").First()("exid").ToString()
-                                        IbmConnectionsObjectsTemp2.ParentGUID = dictOfCommunityIds(parentGUID)
+                                        IbmConnectionsObjectsTemp2.ParentGUID = GetCommunityId(myServer, parentGUID)
                                     End If
                                 Catch ex As Exception
                                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " GetActivityObjects. Exception findign activity parent. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
@@ -8534,7 +8535,7 @@ CleanUp:
                                         'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Num of entries as a parent : " & ds.Tables(21).Select("WEBSITEID = '" + row("ID").ToString() + "'").Count(), LogUtilities.LogUtils.LogLevel.Verbose)
                                         Dim parentGUID As String = ds.Tables(3).Select("WEBSITEID = '" + row("ID").ToString() + "'").First()("ASSOCID").ToString()
 
-                                        IbmConnectionsObjectsTemp2.ParentGUID = dictOfCommunityIds(parentGUID)
+                                        IbmConnectionsObjectsTemp2.ParentGUID = GetCommunityId(myServer, parentGUID)
                                     Catch ex As Exception
                                         'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " GetBlogObjects. Exception getting parent guid. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                                     End Try
@@ -8774,10 +8775,7 @@ CleanUp:
 
                         'Grabs a lsit of all comunity IDs and their GUIDs
                         Try
-                            Dim listOfComms As List(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp) = repoIbmConnectionsObjectsTemp.Find(filterdefIbmConnectionsObjectsTemp).ToList()
-                            For Each entity As VSNext.Mongo.Entities.IbmConnectionsObjectsTemp In listOfComms
-                                dictOfCommunityIds.Add(entity.GUID, entity.Id)
-                            Next
+                            GetCommunityId(myServer, Nothing)
 
                             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Get Community Objects. There are " & dictOfCommunityIds.Count & " communities found", LogUtilities.LogUtils.LogLevel.Normal)
 
@@ -8796,7 +8794,7 @@ CleanUp:
 
                                     Dim id3 As String = Nothing
                                     Try
-                                        Dim sxs4 As String = dictOfCommunityIds(bookmarkRow("COMMUNITY_UUID").ToString())
+                                        Dim sxs4 As String = GetCommunityId(myServer, bookmarkRow("COMMUNITY_UUID").ToString())
                                         id3 = sxs4
                                     Catch ex As Exception
 
@@ -9334,7 +9332,7 @@ CleanUp:
 
                                 Try
                                     If (parentType = "Community") Then
-                                        parentObjectId = dictOfCommunityIds(parent)
+                                        parentObjectId = GetCommunityId(myServer, parent)
                                     Else
 
                                         Dim writeModel As WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp) = bulkOps.Where(Function(x) CType(x, MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp)).Document.GUID = parent And
@@ -9442,7 +9440,7 @@ CleanUp:
                                 Try
 
                                     If (parentType = "Community") Then
-                                        parentObjectId = dictOfCommunityIds(parent)
+                                        parentObjectId = GetCommunityId(myServer, parent)
                                     Else
 
                                         Dim writeModel As WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp) = bulkOps.Where(Function(x) CType(x, MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp)).Document.GUID = parent And
@@ -9623,7 +9621,7 @@ CleanUp:
                                 Next
 
                                 If (row("EXTERNAL_CONTAINER_ID") IsNot Nothing And row("EXTERNAL_CONTAINER_ID").ToString() <> "") Then
-                                    IbmConnectionsObjectsTemp.ParentGUID = dictOfCommunityIds(row("EXTERNAL_CONTAINER_ID").ToString())
+                                    IbmConnectionsObjectsTemp.ParentGUID = GetCommunityId(myServer, row("EXTERNAL_CONTAINER_ID").ToString())
                                 End If
 
                                 If (Not IsDBNull(row("FOLLOWERS"))) And (row("FOLLOWERS").ToString() <> Nothing) And row("FOLLOWERS").ToString() <> "" Then
@@ -9896,6 +9894,63 @@ CleanUp:
         Next
         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In SwitchIbmConnectionsCollections after loop. Seconds: " & oWatch.Elapsed.TotalSeconds.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
     End Sub
+
+    Public Function GetCommunityId(ByRef myServer As MonitoredItems.IBMConnect, ByVal communityGUID As String = Nothing)
+
+        Try
+            Dim parentId As String = Nothing
+            If dictOfCommunityIds Is Nothing OrElse dictOfCommunityIds.Count = 0 Then
+                Try
+                    WriteDeviceHistoryEntry("All", "ConnectionsDaily", Now.ToString() & " Community Dictionary is empty. Will try to construct a new one", LogUtilities.LogUtils.LogLevel.Normal)
+                    dictOfCommunityIds = New Dictionary(Of String, String)()
+                    Dim repoIbmConnectionsObjectsTemp As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp)(connectionString)
+                    Dim ServerName As String = myServer.Name
+                    Dim filterdefIbmConnectionsObjectsTemp As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp) = repoIbmConnectionsObjectsTemp.Filter.Where(Function(i) i.Type.Equals("Community") And i.DeviceName.Equals(ServerName))
+
+                    Dim listOfComms As List(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp) = repoIbmConnectionsObjectsTemp.Find(filterdefIbmConnectionsObjectsTemp).ToList()
+                    For Each entity As VSNext.Mongo.Entities.IbmConnectionsObjectsTemp In listOfComms
+                        dictOfCommunityIds.Add(entity.GUID, entity.Id)
+                    Next
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry("All", "ConnectionsDaily", Now.ToString() & " Community Dictionary is empty and is still empty. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                    dictOfCommunityIds = New Dictionary(Of String, String)()
+                End Try
+            End If
+            WriteDeviceHistoryEntry("All", "ConnectionsDaily", Now.ToString() & " Community Dictionary has " & dictOfCommunityIds.Count & " entries.", LogUtilities.LogUtils.LogLevel.Normal)
+
+            If communityGUID Is Nothing Then
+                WriteDeviceHistoryEntry("All", "ConnectionsDaily", Now.ToString() & " CommunityGUID is nothing. Just checkign that status of the dictionary", LogUtilities.LogUtils.LogLevel.Normal)
+                Return Nothing
+            End If
+            Try
+                parentId = dictOfCommunityIds(communityGUID)
+                WriteDeviceHistoryEntry("All", "ConnectionsDaily", Now.ToString() & " Found parent ID of " & parentId, LogUtilities.LogUtils.LogLevel.Normal)
+            Catch ex As Exception
+                parentId = Nothing
+                WriteDeviceHistoryEntry("All", "ConnectionsDaily", Now.ToString() & " Could not find the parent ID. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+            End Try
+            If parentId Is Nothing Then
+                Try
+                    Dim repoIbmConnectionsObjectsTemp As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp)(connectionString)
+                    Dim ServerName As String = myServer.Name
+                    Dim filterdefIbmConnectionsObjectsTemp As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp) =
+                        repoIbmConnectionsObjectsTemp.Filter.Where(Function(i) i.Type.Equals("Community") And i.DeviceName.Equals(ServerName) And i.GUID.Equals(communityGUID))
+                    Dim results As List(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp) = repoIbmConnectionsObjectsTemp.Find(filterdefIbmConnectionsObjectsTemp).ToList()
+                    WriteDeviceHistoryEntry("All", "ConnectionsDaily", Now.ToString() & " Got back " & results.Count & " documents back from the DB for a GUID of " & communityGUID, LogUtilities.LogUtils.LogLevel.Normal)
+                    If results.Count > 0 Then
+                        parentId = results.First().Id
+                    End If
+
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry("All", "ConnectionsDaily", Now.ToString() & " Couldnt find the GUID of " & communityGUID & " in the database. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                End Try
+            End If
+            Return parentId
+        Catch ex As Exception
+
+        End Try
+        Return Nothing
+    End Function
 
 
 

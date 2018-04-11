@@ -42,7 +42,7 @@ export class ConnectionsUserActivityChartReport extends WidgetController {
                 title: '',
                 name: 'BubbleChartComponent',
                 settings: {
-                    url: `/reports/connections/user_activity?isChart=true&topX=5`,
+                    url: `/reports/connections/user_activity?isChart=true&topX=10`,
                     chart: {
                         chart: {
                             renderTo: 'connectionsUserActivityChartReport',
@@ -92,7 +92,7 @@ export class ConnectionsUserActivityChartReport extends WidgetController {
                             },
                             bubble: {
                                 tooltip: {
-                                    headerFormat: '<b>{series.name}</b><br>',
+                                    headerFormat: '<b>{point.key.y} - {point.key.x}</b><br>',
                                     pointFormat: 'Count: {point.z}'
 
                                 }

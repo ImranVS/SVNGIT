@@ -1558,25 +1558,8 @@ namespace VitalSigns.API.Controllers
                 UtilsController uc = new UtilsController();
                 if (uc.isRPRWyattMachine())
                     lastXDays = DateTime.Now.AddYears(-5);
-                //Find all communities
+
                 connectionsObjectsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
-                if (!string.IsNullOrEmpty(deviceId))
-                {
-                    listOfDevices = deviceId.Replace("[", "").Replace("]", "").Replace(" ", "").Split(',').ToList();
-                    listOfCommunity = connectionsObjectsRepository.Find(i => i.Type == "Community" && listOfDevices.Contains(i.DeviceId)).ToList();
-                }
-                else
-                {
-                    listOfCommunity = connectionsObjectsRepository.Find(i => i.Type == "Community").ToList();
-                }
-
-                //Iterate through the list of communities and build a list of distinct object types, i.e., blogs, bookmarks, etc.
-
-                var listOfStr = listOfCommunity.Select(x => x.Id).ToList();
-
-                filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.In(i => i.ParentGUID, listOfCommunity.Select(x => x.Id)),
-                        connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays));
-                objectTypes = connectionsObjectsRepository.Collection.Distinct(i => i.Type, filterDef).ToList();
 
                 //Iterate through the list of users and collect information about each user's activity level for each of the object types above
                 if (!string.IsNullOrEmpty(deviceId))
@@ -1592,8 +1575,7 @@ namespace VitalSigns.API.Controllers
                 //var listOfUserNames = connectionsObjectsRepository.Collection.Distinct(i => i.Name, filterDef).ToList();
 
                 filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.In(i => i.OwnerId, listOfUsers.Select(x => x.Id)),
-                        connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays),
-                        connectionsObjectsRepository.Filter.In(i => i.Type, objectTypes));
+                        connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays));
                 if (!string.IsNullOrEmpty(deviceId))
                 {
                     filterDef = filterDef & connectionsObjectsRepository.Filter.In(x => x.DeviceId, listOfDevices);
@@ -1612,7 +1594,7 @@ namespace VitalSigns.API.Controllers
                         ObjectValue = x.Count,
                         UserName = listOfUsers.Find(y => y.Id == x.Key.OwnerId).Name
                     }).ToList();
-
+                objectTypes = res.Select(x => x.ObjectName).Distinct().ToList();
                 if (!isChart)
                 {
                     foreach (var curr in res)
@@ -1643,13 +1625,13 @@ namespace VitalSigns.API.Controllers
                 {
                     if(topX != 0)
                     {
-                        var grouped = res.GroupBy(x => x.UserName).Select(g => new { UserName = g.Key, Sum = g.Sum(x => x.ObjectValue) }).OrderByDescending(x => x.Sum).Take(5);
+                        var grouped = res.GroupBy(x => x.UserName).Select(g => new { UserName = g.Key, Sum = g.Sum(x => x.ObjectValue) }).OrderByDescending(x => x.Sum).Take(topX);
                         res = res.Where(x => grouped.Select(y => y.UserName).Contains(x.UserName)).ToList();
                     }
 
                     userList = res.GroupBy(x => x.UserName).Select(x => new { UserName = x.Key, Count = x.Sum(y => y.ObjectValue) }).OrderByDescending(x => x.Count).Select(x => x.UserName).Distinct().ToList();
 
-                    foreach(var user in userList)
+                    foreach(var user in userList) 
                     {
                         var currList = res.Where(x => x.UserName == user).GroupBy(x => x.ObjectName).Select(x => new { ObjectName = x.Key, Count = x.Sum(y => y.ObjectValue)}).ToList();
                         foreach(var curr in currList)
@@ -1830,11 +1812,6 @@ namespace VitalSigns.API.Controllers
                 connectionsObjectsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
                 var listOfCommunity = connectionsObjectsRepository.Find(i => i.Type == "Community").ToList();
 
-                //Iterate through the list of communities and build a list of distinct object types, i.e., blogs, bookmarks, etc.
-                filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.In(i => i.ParentGUID, listOfCommunity.Select(x => x.Id)),
-                        connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays));
-                objectTypes = connectionsObjectsRepository.Collection.Distinct(i => i.Type, filterDef).ToList();
-
                 //Iterate through the list of users and collect information about each user's activity level for each of the object types above
                 if (!string.IsNullOrWhiteSpace(userNames))
                 {
@@ -1852,8 +1829,7 @@ namespace VitalSigns.API.Controllers
                 }
 
                 filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.In(i => i.OwnerId, listOfUsers.Select(x => x.Id)),
-                        connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays),
-                        connectionsObjectsRepository.Filter.In(i => i.Type, objectTypes));
+                        connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays));
 
                 var res = connectionsObjectsRepository.Find(filterDef)
                         .GroupBy(row => new
@@ -1871,7 +1847,7 @@ namespace VitalSigns.API.Controllers
                             ObjectCreatedDate = new DateTime(x.Key.Year, x.Key.Month, 1),
                             UserName = listOfUsers.Find(y => y.Id == x.Key.OwnerId).Name
                         }).ToList();
-
+                objectTypes = res.Select(x => x.ObjectName).Distinct().ToList();
                 foreach(var curr in res)
                 {
 
