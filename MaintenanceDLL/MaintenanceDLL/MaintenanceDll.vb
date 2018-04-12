@@ -191,6 +191,7 @@ Public Class MaintenanceDll
                                     WriteDeviceHistoryEntry("Domino", DeviceName, Now.ToString & " Server " & DeviceName & " is NOT in maintenance.")
                                 End If
                             End If
+
                         Case "3"
                             'Weekly
                             Dim wkType As Array = MaintDayList.Split(",")
@@ -299,6 +300,32 @@ Public Class MaintenanceDll
                                     Next
                                 End If
                             End If
+                        Case "5"
+                            'Patch Saturday'
+
+                            'First, check whether today falls within the date interval
+                            If Today >= StartDate.Date And Today <= EndDate.Date Then
+                                MyStartTime = Now.Date + StartTime.TimeOfDay
+                                MyEndTime = MyStartTime.AddMinutes(dr.Item("Duration"))
+                                MaxTime = MyEndTime.TimeOfDay
+                                If MaxTime < MinTime And Now < MyStartTime Then
+                                    MyStartTime = MyStartTime.AddDays(-1)
+                                End If
+                                MyEndTime = MyStartTime.AddMinutes(dr.Item("Duration"))
+
+                                Dim dtfirstofmonth As New DateTime(Now.Year, 6, 1)
+                                Dim datescanschedule As DateTime = Now.Date()
+                                Dim due1Date As DateTime = datescanschedule.AddDays(21 - daynum)
+                                Dim due2Date As DateTime = datescanschedule.AddDays(28 - daynum)
+                                Dim datesaturdayscan As DateTime
+                                daynum = Weekday(dtfirstofmonth) 'CType(DayofWeek, Integer) CHECK THIS -1
+                                If (daynum = 1 OrElse daynum = 2 OrElse daynum = 3) Then
+                                    datesaturdayscan = due1Date
+                                Else
+                                    datesaturdayscan = due2Date
+                                End If
+                            End If
+
                     End Select
                 Catch ex As Exception
                     WriteHistoryEntry(Now.ToString & " Server " & DeviceName & " Error calculating maintenance window start and end times. Error: " & ex.Message)
