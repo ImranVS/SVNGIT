@@ -61,5 +61,20 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("days_since_last_logon", NullValueHandling = NullValueHandling.Ignore)]
         public double? DaysSinceLastLogon { get; set; }
+        
+        [JsonProperty("mailbox_forwarding_smtp_address")]
+        public string MailboxForwardingSMTPAddress { get; set; }
+        
+        [JsonProperty("mailbox_forwarding_address")]
+        public string MailboxForwardingAddress { get; set; }
+        
+        [JsonProperty("rule_forward_to")]
+        public List<string> RuleForwardTo { get; set; }
+        
+        [JsonProperty("rule_forward_as_attachment_to")]
+        public List<string> RuleForwardAsAttachmentTo { get; set; }
+        
+        [JsonProperty("deliver_to_mailbox_and_forward")]
+        public Boolean DeliverToMailboxAndForward { get; set; }
     }
 }

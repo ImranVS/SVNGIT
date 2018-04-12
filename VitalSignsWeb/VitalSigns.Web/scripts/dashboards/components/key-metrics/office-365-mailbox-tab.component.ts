@@ -102,15 +102,33 @@ export class Office365MailboxViewTab implements OnInit {
     }
 
     gridSourceChanged() {
-        this.flex.autoSizeColumns();
+        var row = this.flex.columnHeaders.rows[0];
+        row.wordWrap = true;
+        this.flex.autoSizeRow(0, true);
+
+        this.flex.autoSizeColumns(0, 0);
+        this.flex.autoSizeColumns(2, 2);
+        this.flex.autoSizeColumns(16, 16);
+
+        //Deliver to mailbox and foward
+        //Foward Rule as Attachment
+
+        this.flex.columns[11].width = 140;
+        this.flex.columns[12].width = 120;
+        this.flex.columns[13].width = 120;
+        this.flex.columns[14].width = 80;
+        this.flex.columns[15].width = 110;
+
+        //lock 1st column
+        this.flex.frozenColumns = 1;
     }
 
     PowerShellScripts() {
         var currRow = this.flex.collectionView.currentItem;
 
         var initParams: initSettings = {
-            DeviceType: 'Office 365',
-            //DefaultValues: new Map([['SamAccountName', currRow.sam_account_name]]),
+            DeviceType: 'Office365',
+            DefaultValues: new Map([['Name', currRow.display_name]]),
             SubTypes: ["Mailbox"]
         }
         this.powershellWindow.initValues(initParams);

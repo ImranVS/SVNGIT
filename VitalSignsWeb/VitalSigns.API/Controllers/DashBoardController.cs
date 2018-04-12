@@ -3108,7 +3108,12 @@ namespace VitalSigns.API.Controllers
                         LastLogonTime = x.LastLogonTime,
                         PrimarySmtpAddress = x.PrimarySmtpAddress,
                         SAMAccountName = x.SAMAccountName,
-                        DaysSinceLastLogon = x.LastLogonTime.HasValue ? (double?) DateTime.UtcNow.Subtract(x.LastLogonTime.Value).TotalDays : null
+                        DaysSinceLastLogon = x.LastLogonTime.HasValue ? (double?) DateTime.UtcNow.Subtract(x.LastLogonTime.Value).TotalDays : null,
+                        MailboxForwardingAddress = x.MailboxForwardingAddress,
+                        MailboxForwardingSMTPAddress = x.MailboxForwardingSMTPAddress,
+                        RuleForwardAsAttachmentTo = x.RuleForwardAsAttachmentTo,
+                        RuleForwardTo = x.RuleForwardTo,
+                        DeliverToMailboxAndForward = x.DeliverToMailboxAndForward
                     }).OrderBy(x => x.DisplayName).ToList();
 
                 Response = Common.CreateResponse(result);

@@ -239,7 +239,7 @@ namespace VitalSignsMicrosoftClasses
 		public ReturnPowerShellObjects testO365ServerConnectivity(MonitoredItems.Office365Server Server, ref TestResults AllTestsList, ref bool isResponding)
 		{
 			doURLTest(Server, ref AllTestsList);
-			string cmdlets = "-CommandName Test-MAPIConnectivity,Get-MailboxActivityReport,Get-Mailbox,Get-MailboxStatistics,Get-MsolAccountSku,Get-MsolUser,Get-User,Get-DistributionGroup,Get-MobileDeviceStatistics,Get-MobileDevice,Get-MsolCompanyInformation,Get-CsActiveUserReport,Get-CsClientDeviceReport,Get-CsP2PAVTimeReport,Get-CsConferenceReport,Get-CsP2PSessionReport,Get-MessageTrace,Get-Recipient";
+			string cmdlets = "-CommandName Test-MAPIConnectivity,Get-MailboxActivityReport,Get-Mailbox,Get-MailboxStatistics,Get-MsolAccountSku,Get-MsolUser,Get-User,Get-DistributionGroup,Get-MobileDeviceStatistics,Get-MobileDevice,Get-MsolCompanyInformation,Get-CsActiveUserReport,Get-CsClientDeviceReport,Get-CsP2PAVTimeReport,Get-CsConferenceReport,Get-CsP2PSessionReport,Get-MessageTrace,Get-Recipient,Get-InboxRule";
 			Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "Before  PrereqForOffice365WithCmdlets", Common.LogLevel.Normal);
 			//pre-check to see if ADFS /Normal
 			ReturnPowerShellObjects results = Common.PrereqForOffice365WithCmdlets(Server.Name, Server.UserName, Server.Password, Server.ServerType, Server.IPAddress, commonEnums.ServerRoles.Windows, cmdlets, Server);
@@ -610,12 +610,18 @@ namespace VitalSignsMicrosoftClasses
 				//string str = "Get-Mailbox -ResultSize Unlimited | Get-MailboxStatistics | Select DisplayName,Database,TotalItemSize,ItemCount,StorageLimitStatus,ServerName,LastLogonTime,LastLogoffTime";
                 string str = @"
 $results=@()
-Get-Mailbox -ResultSize unlimited| select Database,ServerName,identity, PrimarySmtpAddress, SamAccountName | % {
+Get-Mailbox -ResultSize unlimited| select Database,ServerName,identity, PrimarySmtpAddress, SamAccountName, ForwardingSMTPAddress, ForwardingAddress, DeliverToMailboxAndForward | % {
 $stats=Get-MailboxStatistics -Identity $_.identity |select TotalItemSize,ItemCount,StorageLimitStatus,LastLogonTime,LastLogoffTime,DisplayName
+$inboxRules = Get-InboxRule -Mailbox $_.Identity | Select ForwardTo, ForwardAsAttachmentTo
 $stats |Add-Member -Type NoteProperty -Name Database -Value $_.Database
 $stats |Add-Member -Type NoteProperty -Name ServerName -Value $_.ServerName 
 $stats |Add-Member -Type NoteProperty -Name PrimarySmtpAddress -Value $_.PrimarySmtpAddress 
 $stats |Add-Member -Type NoteProperty -Name SamAccountName -Value $_.SamAccountName 
+$stats | Add-Member -Type NoteProperty -Name MailboxForwardingSMTPAddress -Value $_.ForwardingSMTPAddress
+$stats | Add-Member -Type NoteProperty -Name MailboxForwardingAddress -Value $_.ForwardingAddress
+$stats | Add-Member -Type NoteProperty -Name RuleForwardTo -Value ([String[]] ($inboxRules | select -ExpandProperty ForwardTo))
+$stats | Add-Member -Type NoteProperty -Name RuleForwardAsAttachmentTo -Value ([String[]]($inboxRules | select -ExpandProperty ForwardAsAttachmentTo))
+$stats | Add-Member -Type NoteProperty -Name DeliverToMailboxAndForward -Value $_.DeliverToMailboxAndForward
 $results +=($stats)
 } 
 $results
@@ -636,56 +642,67 @@ Clear-Variable 'results' -ErrorAction SilentlyContinue";
 					foreach (PSObject ps in results)
 					{
 						string DisplayName = ps.Properties["DisplayName"].Value == null ? "" : ps.Properties["DisplayName"].Value.ToString();
-						if (DisplayName != "Discovery Search Mailbox")
-						{
-							string Database = ps.Properties["Database"].Value == null ? "" : ps.Properties["Database"].Value.ToString();
-							string totalItemSize = ps.Properties["TotalItemSize"].Value == null ? "0" : ps.Properties["TotalItemSize"].Value.ToString();
-							try
+                        if (DisplayName == "Discovery Search Mailbox")
+                            continue;
+						
+						string Database = ps.Properties["Database"].Value == null ? "" : ps.Properties["Database"].Value.ToString();
+						string totalItemSize = ps.Properties["TotalItemSize"].Value == null ? "0" : ps.Properties["TotalItemSize"].Value.ToString();
+                        string ItemCount = ps.Properties["ItemCount"].Value == null ? "0" : ps.Properties["ItemCount"].Value.ToString();
+                        string StorageLimitStatus = ps.Properties["StorageLimitStatus"].Value == null ? "" : ps.Properties["StorageLimitStatus"].Value.ToString();
+                        string ServerName = ps.Properties["ServerName"].Value == null ? "" : ps.Properties["ServerName"].Value.ToString();
+                        string LastLogonTime = ps.Properties["LastLogonTime"].Value == null ? null : ps.Properties["LastLogonTime"].Value.ToString();
+                        string LastLogoffTime = ps.Properties["LastLogoffTime"].Value == null ? null : ps.Properties["LastLogoffTime"].Value.ToString();
+                        string PrimarySmtpAddress = ps.Properties["PrimarySmtpAddress"].Value == null ? null : ps.Properties["PrimarySmtpAddress"].Value.ToString();
+                        string SamAccountName = ps.Properties["SamAccountName"].Value == null ? null : ps.Properties["SamAccountName"].Value.ToString();
+                        string MailboxForwardingSMTPAddress = ps.Properties["MailboxForwardingSMTPAddress"].Value == null ? null : ps.Properties["MailboxForwardingSMTPAddress"].Value.ToString();
+                        string MailboxForwardingAddress = ps.Properties["MailboxForwardingAddress"].Value == null ? null : ps.Properties["MailboxForwardingAddress"].Value.ToString();
+                        List<string> RuleForwardTo = ps.Properties["RuleForwardTo"].Value == null ? null : ((ArrayList) ((PSObject)ps.Properties["RuleForwardTo"].Value).BaseObject).Cast<string>().ToList();
+                        List<string> ForwardAsAttachmentTo = ps.Properties["RuleForwardAsAttachmentTo"].Value == null ? null : ((ArrayList) ((PSObject)ps.Properties["RuleForwardAsAttachmentTo"].Value).BaseObject).Cast<string>().ToList();
+                        Boolean DeliverToMailboxAndForward = ps.Properties["DeliverToMailboxAndForward"].Value == null ? false : Boolean.Parse(ps.Properties["DeliverToMailboxAndForward"].Value.ToString());
+
+                        try
+                        {
+							if (totalItemSize != "Unlimited")
 							{
-								if (totalItemSize != "Unlimited")
+								if (totalItemSize.IndexOf("MB") > 0)
+									totalItemSize = totalItemSize.Substring(0, totalItemSize.IndexOf("MB")).Trim();
+								if (totalItemSize.IndexOf("KB") > 0)
 								{
-									if (totalItemSize.IndexOf("MB") > 0)
-										totalItemSize = totalItemSize.Substring(0, totalItemSize.IndexOf("MB")).Trim();
-									if (totalItemSize.IndexOf("KB") > 0)
-									{
-										totalItemSize = totalItemSize.Substring(0, totalItemSize.IndexOf("KB")).Trim();
-										totalItemSize = (Convert.ToDouble(totalItemSize) / 1000).ToString();
-									}
-									if (totalItemSize.IndexOf("GB") > 0)
-									{
-										totalItemSize = totalItemSize.Substring(0, totalItemSize.IndexOf("GB")).Trim();
-										totalItemSize = (Convert.ToDouble(totalItemSize) * 1000).ToString();
-									}
+									totalItemSize = totalItemSize.Substring(0, totalItemSize.IndexOf("KB")).Trim();
+									totalItemSize = (Convert.ToDouble(totalItemSize) / 1000).ToString();
+								}
+								if (totalItemSize.IndexOf("GB") > 0)
+								{
+									totalItemSize = totalItemSize.Substring(0, totalItemSize.IndexOf("GB")).Trim();
+									totalItemSize = (Convert.ToDouble(totalItemSize) * 1000).ToString();
 								}
 							}
-							catch
-							{
-							}
-                            
-							string ItemCount = ps.Properties["ItemCount"].Value == null ? "0" : ps.Properties["ItemCount"].Value.ToString();
-							string StorageLimitStatus = ps.Properties["StorageLimitStatus"].Value == null ? "" : ps.Properties["StorageLimitStatus"].Value.ToString();
-							string ServerName = ps.Properties["ServerName"].Value == null ? "" : ps.Properties["ServerName"].Value.ToString();
-							string LastLogonTime = ps.Properties["LastLogonTime"].Value == null ? null : ps.Properties["LastLogonTime"].Value.ToString();
-							string LastLogoffTime = ps.Properties["LastLogoffTime"].Value == null ? null : ps.Properties["LastLogoffTime"].Value.ToString();
-                            string PrimarySmtpAddress = ps.Properties["PrimarySmtpAddress"].Value == null ? null : ps.Properties["PrimarySmtpAddress"].Value.ToString();
-                            string SamAccountName = ps.Properties["SamAccountName"].Value == null ? null : ps.Properties["SamAccountName"].Value.ToString();
-
-                            MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox>();
-                            mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DatabaseName == Database && i.DisplayName == DisplayName && i.DeviceId == myServer.ServerObjectID);
-                            mongoStatement.updateDef = mongoStatement.repo.Updater
-                                .Set(i => i.DeviceName, myServer.Name)
-                                .Set(i => i.DisplayName, DisplayName)
-                                .Set(i => i.DatabaseName, Database)
-                                .Set(i => i.TotalItemSizeMb, Convert.ToDouble(totalItemSize))
-                                .Set(i => i.ItemCount, Convert.ToInt32(ItemCount))
-                                .Set(i => i.StorageLimitStatus, StorageLimitStatus)
-                                .Set(i => i.LastLogonTime , LastLogonTime == null ? null : Convert.ToDateTime(LastLogonTime) as DateTime?)
-                                .Set(i => i.LastLogoffTime, LastLogoffTime == null ? null : Convert.ToDateTime(LastLogoffTime) as DateTime?)
-                                .Set(i => i.SAMAccountName, SamAccountName)
-                                .Set(i => i.PrimarySmtpAddress, PrimarySmtpAddress);
-
-                            AllTestsList.MongoEntity.Add(mongoStatement);
 						}
+						catch
+						{
+						}
+
+                        MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox>();
+                        mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DatabaseName == Database && i.DisplayName == DisplayName && i.DeviceId == myServer.ServerObjectID);
+                        mongoStatement.updateDef = mongoStatement.repo.Updater
+                            .Set(i => i.DeviceName, myServer.Name)
+                            .Set(i => i.DisplayName, DisplayName)
+                            .Set(i => i.DatabaseName, Database)
+                            .Set(i => i.TotalItemSizeMb, Convert.ToDouble(totalItemSize))
+                            .Set(i => i.ItemCount, Convert.ToInt32(ItemCount))
+                            .Set(i => i.StorageLimitStatus, StorageLimitStatus)
+                            .Set(i => i.LastLogonTime , LastLogonTime == null ? null : Convert.ToDateTime(LastLogonTime) as DateTime?)
+                            .Set(i => i.LastLogoffTime, LastLogoffTime == null ? null : Convert.ToDateTime(LastLogoffTime) as DateTime?)
+                            .Set(i => i.SAMAccountName, SamAccountName)
+                            .Set(i => i.PrimarySmtpAddress, PrimarySmtpAddress)
+                            .Set(i => i.DeliverToMailboxAndForward, DeliverToMailboxAndForward)
+                            .Set(i => i.MailboxForwardingAddress, MailboxForwardingAddress)
+                            .Set(i => i.MailboxForwardingSMTPAddress, MailboxForwardingSMTPAddress)
+                            .Set(i => i.RuleForwardAsAttachmentTo, ForwardAsAttachmentTo)
+                            .Set(i => i.RuleForwardTo, RuleForwardTo);
+
+                        AllTestsList.MongoEntity.Add(mongoStatement);
+						
 
 					}
 

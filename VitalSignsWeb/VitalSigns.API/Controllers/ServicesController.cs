@@ -1958,9 +1958,9 @@ namespace VitalSigns.API.Controllers
                 var results = new List<PowerShellScriptModel>();
                 var powershellFiles = new List<String>();
                 if (String.IsNullOrWhiteSpace(deviceType))
-                    powershellFiles = System.IO.Directory.EnumerateFiles(Startup.wwwrootPath, "*.*", System.IO.SearchOption.AllDirectories).ToList();
+                    powershellFiles = System.IO.Directory.EnumerateFiles(Startup.wwwrootPath, "*.ps1", System.IO.SearchOption.AllDirectories).ToList();
                 else
-                    powershellFiles = System.IO.Directory.EnumerateFiles(Startup.wwwrootPath + "\\" + deviceType, "*.*", System.IO.SearchOption.AllDirectories).ToList();
+                    powershellFiles = System.IO.Directory.EnumerateFiles(Startup.wwwrootPath + "\\" + deviceType, "*.ps1", System.IO.SearchOption.AllDirectories).ToList();
 
                 foreach (string filePath in powershellFiles)
                 {
@@ -2008,7 +2008,7 @@ namespace VitalSigns.API.Controllers
                 }
                 serverRepository = new Repository<Server>(ConnectionString);
                 List<ServersModel> deviceList = serverRepository.Find(serverRepository.Filter.In(x => x.DeviceType, results.Select(y => y.DeviceType))).ToList().Select(x => new ServersModel() { DeviceId = x.Id, DeviceName = x.DeviceName, DeviceType = x.DeviceType }).ToList() ;
-
+                        
                 Response = Common.CreateResponse(new { scripts = results, devices = deviceList });
             }
             catch (Exception exception)
@@ -2081,7 +2081,7 @@ namespace VitalSigns.API.Controllers
                 string response = "Output from PowerShell:\n";
 
                 System.Collections.ObjectModel.Collection<System.Management.Automation.PSObject> psOutput = ps.Invoke();
-
+                
 
 
                 
@@ -2097,7 +2097,7 @@ namespace VitalSigns.API.Controllers
 
                 if (ps.Streams.Error.Count > 0)
                 {
-                    response += "Erros:\n";
+                    response += "Errors:\n";
                     foreach (System.Management.Automation.ErrorRecord error in ps.Streams.Error)
                         response += error.ToString() + "\n";
                 }
