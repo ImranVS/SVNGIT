@@ -134,6 +134,32 @@ namespace VSNext.Mongo.Entities
         public string Identity { get; set; }
 
         [DataMember]
+        [BsonElement("mailbox_forwarding_smtp_address")]
+        [BsonIgnoreIfNullAttribute]
+        public string MailboxForwardingSMTPAddress { get; set; }
+
+        [DataMember]
+        [BsonElement("mailbox_forwarding_address")]
+        [BsonIgnoreIfNullAttribute]
+        public string MailboxForwardingAddress { get; set; }
+
+        [DataMember]
+        [BsonElement("rule_forward_to")]
+        [BsonIgnoreIfNullAttribute]
+        public List<string> RuleForwardTo { get; set; }
+
+        [DataMember]
+        [BsonElement("rule_forward_as_attachment_to")]
+        [BsonIgnoreIfNullAttribute]
+        public List<string> RuleForwardAsAttachmentTo { get; set; }
+
+        [DataMember]
+        [BsonElement("deliver_to_mailbox_and_forward")]
+        [BsonIgnoreIfNullAttribute]
+        public Boolean DeliverToMailboxAndForward { get; set; }
+        
+
+        [DataMember]
         [BsonElement("users_with_permission")]
         [BsonIgnoreIfNullAttribute]
         [BsonRepresentation(BsonType.ObjectId)]
