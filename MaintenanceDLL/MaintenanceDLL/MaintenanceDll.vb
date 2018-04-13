@@ -302,7 +302,6 @@ Public Class MaintenanceDll
                             End If
                         Case "5"
                             'Patch Saturday'
-
                             'First, check whether today falls within the date interval
                             If Today >= StartDate.Date And Today <= EndDate.Date Then
                                 MyStartTime = Now.Date + StartTime.TimeOfDay
@@ -313,7 +312,7 @@ Public Class MaintenanceDll
                                 End If
                                 MyEndTime = MyStartTime.AddMinutes(dr.Item("Duration"))
 
-                                Dim dtfirstofmonth As New DateTime(Now.Year, 6, 1)
+                                Dim dtfirstofmonth As New DateTime(Now.Year, Now.Month, 1)
                                 Dim datescanschedule As DateTime = Now.Date()
                                 Dim due1Date As DateTime = datescanschedule.AddDays(21 - daynum)
                                 Dim due2Date As DateTime = datescanschedule.AddDays(28 - daynum)
