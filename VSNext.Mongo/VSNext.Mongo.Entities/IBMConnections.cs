@@ -6,53 +6,6 @@ using MongoDB.Bson.Serialization.Attributes;
 using System.Collections.Generic;
 namespace VSNext.Mongo.Entities
 {
-    //[DataContract]
-    //[Serializable]
-    //[CollectionName("ibm_connections_top_stats")]
-    //public class IbmConnectionsTopStats : Entity
-    //{
-    //    [DataMember]
-    //    [BsonElement("device_name")]
-    //    public string DeviceName { get; set; }
-
-
-    //    [DataMember]
-    //    [BsonElement("device_id")]
-    //    [BsonRepresentation(BsonType.ObjectId)]
-    //    public string DeviceId { get; set; }
-
-    //    [DataMember]
-    //    [BsonElement("ranking")]
-    //    public string Ranking { get; set; }
-
-    //    [DataMember]
-    //    [BsonElement("name")]
-    //    public string Name { get; set; }
-
-    //    [DataMember]
-    //    [BsonElement("usage_count")]
-    //    public string UsageCount { get; set; }
-
-    //    [DataMember]
-    //    [BsonElement("type")]
-    //    public string Type { get; set; }
-
-    //}
-    //[DataContract]
-    //[Serializable]
-    //[CollectionName("ibm_connections_community")]
-    //public class IbmConnectionsCommunity : Entity
-    //{
-    //    [DataMember]
-    //    [BsonElement("id")]
-    //    public int id { get; set; }
-
-    //    [DataMember]
-    //    [BsonElement("community_name")]
-    //    public string CommunityName { get; set; }
-
-    //}
-
     [DataContract]
     [Serializable]
     [CollectionName("ibm_connections_objects")]
@@ -177,6 +130,11 @@ namespace VSNext.Mongo.Entities
         [BsonElement("description")]
         [BsonIgnoreIfNull]
         public string Description { get; set; }
+
+        [DataMember]
+        [BsonElement("parent_db2_guid")]
+        [BsonIgnoreIfNull]
+        public string ParentDB2Guid { get; set; }
 
         [DataMember]
         [BsonElement("children")]

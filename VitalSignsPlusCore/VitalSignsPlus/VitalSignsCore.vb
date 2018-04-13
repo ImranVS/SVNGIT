@@ -8347,6 +8347,7 @@ CleanUp:
                                 Try
                                     If (ds.Tables(3).Select("NODEUUID = '" + row("ACTIVITYUUID").ToString() + "'").Count > 0) Then
                                         Dim parentGUID As String = ds.Tables(3).Select("NODEUUID = '" + row("ACTIVITYUUID").ToString() + "'").First()("exid").ToString()
+                                        IbmConnectionsObjectsTemp2.ParentDB2Guid = parentGUID
                                         IbmConnectionsObjectsTemp2.ParentGUID = GetCommunityId(myServer, parentGUID)
                                     End If
                                 Catch ex As Exception
@@ -8534,7 +8535,7 @@ CleanUp:
                                     Try
                                         'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Num of entries as a parent : " & ds.Tables(21).Select("WEBSITEID = '" + row("ID").ToString() + "'").Count(), LogUtilities.LogUtils.LogLevel.Verbose)
                                         Dim parentGUID As String = ds.Tables(3).Select("WEBSITEID = '" + row("ID").ToString() + "'").First()("ASSOCID").ToString()
-
+                                        IbmConnectionsObjectsTemp2.ParentDB2Guid = parentGUID
                                         IbmConnectionsObjectsTemp2.ParentGUID = GetCommunityId(myServer, parentGUID)
                                     Catch ex As Exception
                                         'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " GetBlogObjects. Exception getting parent guid. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
@@ -8790,10 +8791,12 @@ CleanUp:
                                 Try
                                     Dim sxs3 As VSNext.Mongo.Entities.IbmConnectionsObjectsTemp = allUsers.Where(Function(x) x.GUID = bookmarkRow("DIRECTORY_UUID").ToString()).FirstOrDefault()
                                     Dim userId3 As String = sxs3.Id
-
+                                    Dim IbmConnectionsObjectsTemp2 As New VSNext.Mongo.Entities.IbmConnectionsObjectsTemp
 
                                     Dim id3 As String = Nothing
                                     Try
+
+                                        IbmConnectionsObjectsTemp2.ParentDB2Guid = bookmarkRow("COMMUNITY_UUID").ToString()
                                         Dim sxs4 As String = GetCommunityId(myServer, bookmarkRow("COMMUNITY_UUID").ToString())
                                         id3 = sxs4
                                     Catch ex As Exception
@@ -8801,7 +8804,7 @@ CleanUp:
                                     End Try
 
 
-                                    Dim IbmConnectionsObjectsTemp2 As New VSNext.Mongo.Entities.IbmConnectionsObjectsTemp
+
                                     IbmConnectionsObjectsTemp2.DeviceId = myServer.ServerObjectID
                                     IbmConnectionsObjectsTemp2.DeviceName = myServer.Name
                                     IbmConnectionsObjectsTemp2.Name = bookmarkRow("NAME").ToString()
@@ -9365,7 +9368,8 @@ CleanUp:
                                     .GUID = row("NODEUUID").ToString(),
                                     .Type = type,
                                     .ParentGUID = parentObjectId,
-                                    .Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString()
+                                    .Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString(),
+                                    .ParentDB2Guid = parent
                                 }
 
                                 Dim tagList As New List(Of String)()
@@ -9466,7 +9470,8 @@ CleanUp:
                                     .GUID = row("NODEUUID").ToString(),
                                     .Type = type,
                                     .ParentGUID = parentObjectId,
-                                    .Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString()
+                                    .Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString(),
+                                    .ParentDB2Guid = parent
                                 }
 
                                 Dim tagList As New List(Of String)()
@@ -9621,6 +9626,7 @@ CleanUp:
                                 Next
 
                                 If (row("EXTERNAL_CONTAINER_ID") IsNot Nothing And row("EXTERNAL_CONTAINER_ID").ToString() <> "") Then
+                                    IbmConnectionsObjectsTemp.ParentDB2Guid = row("EXTERNAL_CONTAINER_ID").ToString()
                                     IbmConnectionsObjectsTemp.ParentGUID = GetCommunityId(myServer, row("EXTERNAL_CONTAINER_ID").ToString())
                                 End If
 
