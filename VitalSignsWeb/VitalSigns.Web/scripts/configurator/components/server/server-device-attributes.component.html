@@ -149,8 +149,8 @@
                             </button>
                         </div>
                       </div>
-                        <div class="alert alert-info col-sm-12" *ngIf="serverAttributes.device_type =='Exchange' && !(serverAttributes.ip_address.toLowerCase().indexOf('http') > -1)">
-                            <p>The Url Should Inculde Http or Https  {{serverAttributes.ip_address}}  {{serverAttributes.ip_address.toLowerCase()}}  {{serverAttributes.ip_address.toLowerCase().indexOf('http')}}</p>
+                        <div class="alert alert-danger col-sm-4" *ngIf="serverAttributes.device_type =='Exchange' && !(serverAttributes.ip_address.toLowerCase().indexOf('http') > -1)">
+                            <p>The IP Address should include either http or https protocol</p>
                         </div>
                 </div>
                     <div class="form-group" *ngIf="serverAttributes.device_type=='Sametime'">

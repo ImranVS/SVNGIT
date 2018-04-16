@@ -1877,12 +1877,21 @@ namespace VitalSigns.API.Controllers
                     {
                         userList.Add(record.UserName);
                     }
-                    var dt = record.ObjectCreatedDate.ToString("MMM yyyy");
+                }
+                
+                DateTime dtFrom = result.Where(x => x.ObjectCreatedDate >= lastXDays).Min(x => x.ObjectCreatedDate);
+                DateTime dtTo = result.Max(x => x.ObjectCreatedDate);
+                dtFrom = new DateTime(dtFrom.Year, dtFrom.Month, 1);
+                dtTo = new DateTime(dtTo.Year, dtTo.Month, 1);
+                for (DateTime currDt = dtFrom; currDt <= dtTo; currDt = currDt.AddMonths(1))
+                {
+                    var dt = currDt.ToString("MMM yyyy");
                     if (!objectList.Contains(dt))
                     {
                         objectList.Add(dt);
                     }
                 }
+
                 List<Serie> series = new List<Serie>();
                 foreach (var val in result)
                 {

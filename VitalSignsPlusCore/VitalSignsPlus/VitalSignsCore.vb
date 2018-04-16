@@ -9917,23 +9917,24 @@ CleanUp:
                     For Each entity As VSNext.Mongo.Entities.IbmConnectionsObjectsTemp In listOfComms
                         dictOfCommunityIds.Add(entity.GUID, entity.Id)
                     Next
+                    WriteDeviceHistoryEntry("All", "ConnectionsDaily", Now.ToString() & " Community Dictionary has " & dictOfCommunityIds.Count & " entries.", LogUtilities.LogUtils.LogLevel.Normal)
                 Catch ex As Exception
                     WriteDeviceHistoryEntry("All", "ConnectionsDaily", Now.ToString() & " Community Dictionary is empty and is still empty. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
                     dictOfCommunityIds = New Dictionary(Of String, String)()
                 End Try
             End If
-            WriteDeviceHistoryEntry("All", "ConnectionsDaily", Now.ToString() & " Community Dictionary has " & dictOfCommunityIds.Count & " entries.", LogUtilities.LogUtils.LogLevel.Normal)
+
 
             If communityGUID Is Nothing Then
-                WriteDeviceHistoryEntry("All", "ConnectionsDaily", Now.ToString() & " CommunityGUID is nothing. Just checkign that status of the dictionary", LogUtilities.LogUtils.LogLevel.Normal)
+                WriteDeviceHistoryEntry("All", "ConnectionsDaily", Now.ToString() & " CommunityGUID is nothing. Just checkign that status of the dictionary", LogUtilities.LogUtils.LogLevel.Verbose)
                 Return Nothing
             End If
             Try
                 parentId = dictOfCommunityIds(communityGUID)
-                WriteDeviceHistoryEntry("All", "ConnectionsDaily", Now.ToString() & " Found parent ID of " & parentId, LogUtilities.LogUtils.LogLevel.Normal)
+                WriteDeviceHistoryEntry("All", "ConnectionsDaily", Now.ToString() & " Found parent ID of " & parentId, LogUtilities.LogUtils.LogLevel.Verbose)
             Catch ex As Exception
                 parentId = Nothing
-                WriteDeviceHistoryEntry("All", "ConnectionsDaily", Now.ToString() & " Could not find the parent ID. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                WriteDeviceHistoryEntry("All", "ConnectionsDaily", Now.ToString() & " Could not find the parent ID for GUID " & communityGUID & ". Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
             End Try
             If parentId Is Nothing Then
                 Try
@@ -9953,7 +9954,7 @@ CleanUp:
             End If
             Return parentId
         Catch ex As Exception
-
+            WriteDeviceHistoryEntry("All", "ConnectionsDaily", Now.ToString() & " Exception in GetCommunityId: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
         End Try
         Return Nothing
     End Function

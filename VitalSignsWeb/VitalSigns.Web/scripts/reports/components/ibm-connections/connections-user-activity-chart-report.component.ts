@@ -92,8 +92,8 @@ export class ConnectionsUserActivityChartReport extends WidgetController {
                             },
                             bubble: {
                                 tooltip: {
-                                    headerFormat: '<b>{point.key.y} - {point.key.x}</b><br>',
-                                    pointFormat: 'Count: {point.z}'
+                                    headerFormat: '<b>{point.key.x}</b><br>',
+                                    pointFormat: '{point.z} items'
 
                                 }
                             }

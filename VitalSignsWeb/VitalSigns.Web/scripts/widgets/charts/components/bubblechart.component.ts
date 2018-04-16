@@ -10,7 +10,7 @@ import * as helpers from '../../../core/services/helpers/helpers';
 declare var Highcharts: any;
 
 @Component({
-    template: '',
+    template: '<loading-indicator [isLoading]="isLoading"></loading-indicator>',
     providers: [
         HttpModule,
         RESTService,
@@ -24,6 +24,8 @@ export class BubbleChartComponent implements WidgetComponent, OnInit {
     categoriesList: string[];
     errorMessage: string;
     chart: any;
+
+    private isLoading: boolean = true;
 
     constructor(private service: RESTService, private widgetService: WidgetService, protected datetimeHelpers: helpers.DateTimeHelper) { }
 
@@ -39,7 +41,7 @@ export class BubbleChartComponent implements WidgetComponent, OnInit {
 
     }
     private loadData(serviceUrl?: string) {
-
+        this.isLoading = true;
         this.service.get(serviceUrl || this.settings.url)
             .subscribe(
             (data) => {
@@ -140,12 +142,14 @@ export class BubbleChartComponent implements WidgetComponent, OnInit {
                         return arr;
                     }
                 });
+                this.isLoading = false;
                 this.chart = new Highcharts.Chart(this.settings.chart);
                 if (this.settings.callback)
                     this.settings.callback(this.settings.chart);
                 
+                
             },
-            error => this.errorMessage = <any>error);
+            error => { this.errorMessage = <any>error; this.isLoading = false; });
 
     }
 }

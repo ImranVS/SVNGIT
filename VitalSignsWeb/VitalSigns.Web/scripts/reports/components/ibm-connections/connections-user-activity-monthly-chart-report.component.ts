@@ -108,8 +108,8 @@ export class ConnectionsUserActivityMonthlyChartReport extends WidgetController 
                             //},
                             bubble: {
                                 tooltip: {
-                                    headerFormat: '<b>{point.key.y} - {series.name}</b><br>{point.key.x}<br>',
-                                    pointFormat: 'Count: {point.z}'
+                                    headerFormat: '<b>{point.key.y}</b><br>{point.key.x}<br>',
+                                    pointFormat: '{point.z} {series.name} items'
 
                                 }
                             }
