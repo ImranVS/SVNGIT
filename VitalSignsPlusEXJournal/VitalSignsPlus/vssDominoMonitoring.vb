@@ -344,7 +344,6 @@ WaitHere:
         'This sub coordinates the actual monitoring of a Domino server
         Dim ResponseTime As Double = 0
         dtDominoLastUpdate = Now
-        Dim strSQL As String
         '11/4/2015 NS added for VSPLUS-2324
         Dim strBody As String
 
@@ -407,63 +406,79 @@ WaitHere:
 
         Dim db As Domino.NotesDatabase
 
+        'Special handling for DAI
+        Dim DAI_Identifier As String = "DAI"
 
-        If ResponseTime <> 0 Then
-
-            Try
-                WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Attempting to open exjournal1.nsf on " & MyDominoServer.Name)
-                db = NotesSession.GetDatabase(MyDominoServer.Name, "EXJournal1.nsf", False)
-                If Not db Is Nothing Then
-                    ' db.Open()
-                    MyDominoServer.EXJournal1_DocCount = db.AllDocuments.Count
-                    WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Exjournal.nsf on " & MyDominoServer.Name & " has " & MyDominoServer.EXJournal1_DocCount & " documents. ")
-                Else
-                    MyDominoServer.EXJournal1_DocCount = -1
-                End If
-            Catch ex As Exception
-                MyDominoServer.EXJournal1_DocCount = -1
-            End Try
-            WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Exjournal.nsf on " & MyDominoServer.Name & " has " & MyDominoServer.EXJournal1_DocCount & " documents. ")
-
-
-            Try
-                WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Attempting to open exjournal2.nsf on " & MyDominoServer.Name)
-                db = NotesSession.GetDatabase(MyDominoServer.Name, "EXJournal2.nsf", False)
-                ' db.Open()
-                If Not db Is Nothing Then
-                    MyDominoServer.EXJournal2_DocCount = db.AllDocuments.Count
-                Else
-                    MyDominoServer.EXJournal2_DocCount = -1
-
-                End If
-                WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Exjournal2.nsf on " & MyDominoServer.Name & " has " & MyDominoServer.EXJournal2_DocCount & " documents. ")
-            Catch ex As Exception
-                MyDominoServer.EXJournal2_DocCount = -1
-            End Try
+        If InStr(MyDominoServer.Name.ToUpper, DAI_Identifier) Then
 
             Try
                 WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Attempting to open exjournal3.nsf on " & MyDominoServer.Name)
-                db = NotesSession.GetDatabase(MyDominoServer.Name, "EXJournal3.nsf", False)
+                db = NotesSession.GetDatabase(MyDominoServer.Name, "btexchange.box", False)
                 If Not db Is Nothing Then
                     'db.Open()
                     MyDominoServer.EXJournal_DocCount = db.AllDocuments.Count
                 Else
                     MyDominoServer.EXJournal_DocCount = -1
-
                 End If
             Catch ex As Exception
                 MyDominoServer.EXJournal_DocCount = -1
                 WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Exception opening exjournal3.nsf on " & MyDominoServer.Name & ": " & ex.ToString)
             End Try
-
+        Else
             Try
-                WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Exjournal3.nsf on " & MyDominoServer.Name & " has " & MyDominoServer.EXJournal_DocCount & " documents. ")
-            Catch ex As Exception
+                    WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Attempting to open exjournal1.nsf on " & MyDominoServer.Name)
+                    db = NotesSession.GetDatabase(MyDominoServer.Name, "EXJournal1.nsf", False)
+                    If Not db Is Nothing Then
+                        ' db.Open()
+                        MyDominoServer.EXJournal1_DocCount = db.AllDocuments.Count
+                        WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Exjournal.nsf on " & MyDominoServer.Name & " has " & MyDominoServer.EXJournal1_DocCount & " documents. ")
+                    Else
+                        MyDominoServer.EXJournal1_DocCount = -1
+                    End If
+                Catch ex As Exception
+                    MyDominoServer.EXJournal1_DocCount = -1
+                End Try
+                WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Exjournal.nsf on " & MyDominoServer.Name & " has " & MyDominoServer.EXJournal1_DocCount & " documents. ")
 
-            End Try
 
-        End If
-        '9/17/2015 NS added
+                Try
+                    WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Attempting to open exjournal2.nsf on " & MyDominoServer.Name)
+                    db = NotesSession.GetDatabase(MyDominoServer.Name, "EXJournal2.nsf", False)
+                    ' db.Open()
+                    If Not db Is Nothing Then
+                        MyDominoServer.EXJournal2_DocCount = db.AllDocuments.Count
+                    Else
+                        MyDominoServer.EXJournal2_DocCount = -1
+
+                    End If
+                    WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Exjournal2.nsf on " & MyDominoServer.Name & " has " & MyDominoServer.EXJournal2_DocCount & " documents. ")
+                Catch ex As Exception
+                    MyDominoServer.EXJournal2_DocCount = -1
+                End Try
+
+                Try
+                    WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Attempting to open exjournal3.nsf on " & MyDominoServer.Name)
+                    db = NotesSession.GetDatabase(MyDominoServer.Name, "EXJournal3.nsf", False)
+                    If Not db Is Nothing Then
+                        'db.Open()
+                        MyDominoServer.EXJournal_DocCount = db.AllDocuments.Count
+                    Else
+                        MyDominoServer.EXJournal_DocCount = -1
+
+                    End If
+                Catch ex As Exception
+                    MyDominoServer.EXJournal_DocCount = -1
+                    WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Exception opening exjournal3.nsf on " & MyDominoServer.Name & ": " & ex.ToString)
+                End Try
+
+                Try
+                    WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Exjournal3.nsf on " & MyDominoServer.Name & " has " & MyDominoServer.EXJournal_DocCount & " documents. ")
+                Catch ex As Exception
+
+                End Try
+            End If
+
+
         WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Finished If ResponseTime <> 0 loop.", LogUtilities.LogUtils.LogLevel.Verbose)
 Update:
 
@@ -575,22 +590,29 @@ Update:
                     If MyDominoServer.EXJournal2_DocCount > -1 Then
                         strBody += "The database 'EXJournal2.nsf' currently has " & MyDominoServer.EXJournal2_DocCount & " documents in it."
                     End If
-                    myAlert.QueueAlert("Domino", MyDominoServer.Name, "EXJournal", strBody, MyDominoServer.Location)
+                    If InStr(MyDominoServer.Name.ToUpper, DAI_Identifier) Then
+                        strBody += "The BT Exchange database 'btexchange.box' currently has " & MyDominoServer.EXJournal_DocCount & " documents in it."
+                        myAlert.QueueAlert("Domino", MyDominoServer.Name, "EXJournal", strBody, MyDominoServer.Location)
+                    Else
+                        myAlert.QueueAlert("Domino", MyDominoServer.Name, "EXJournal", strBody, MyDominoServer.Location)
+                    End If
+
+
                     Try
-                        Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-                        Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToString()) _
+                            Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
+                            Dim filterDef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repository.Filter.Eq(Function(x) x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Domino.ToString()) _
                                                                                              And repository.Filter.Eq(Function(x) x.DeviceName, MyDominoServer.Name)
-                        Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
+                            Dim updateDef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repository.Updater _
                                                                                              .Set(Function(x) x.Description, MyDominoServer.Description)
 
-                        repository.Update(filterDef, updateDef)
+                            repository.Update(filterDef, updateDef)
 
-                    Catch ex As Exception
-                        WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Exception updating ExJournal Status Description. Exception : " & ex.Message)
-                    End Try
+                        Catch ex As Exception
+                            WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Exception updating ExJournal Status Description. Exception : " & ex.Message)
+                        End Try
 
-                Else
-                    If mySum >= 0 Then
+                    Else
+                        If mySum >= 0 Then
 
                         Try
                             Dim repository As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
