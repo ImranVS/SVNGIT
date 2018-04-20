@@ -409,7 +409,7 @@ WaitHere:
         'Special handling for DAI
         Dim DAI_Identifier As String = "DAI"
 
-        If InStr(MyDominoServer.Name.ToUpper, DAI_Identifier) Then
+        If InStr(MyDominoServer.Name.ToUpper, DAI_Identifier) Or MyDominoServer.Name = "azphxdom2/RPRWyatt" Then
 
             Try
                 WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Attempting to open btexchange.box on " & MyDominoServer.Name)
@@ -590,7 +590,7 @@ Update:
                     If MyDominoServer.EXJournal2_DocCount > -1 Then
                         strBody += "The database 'EXJournal2.nsf' currently has " & MyDominoServer.EXJournal2_DocCount & " documents in it."
                     End If
-                    If InStr(MyDominoServer.Name.ToUpper, DAI_Identifier) Then
+                    If InStr(MyDominoServer.Name.ToUpper, DAI_Identifier) Or MyDominoServer.Name = "azphxdom2/RPRWyatt" Then
                         strBody += "The BT Exchange database 'btexchange.box' currently has " & MyDominoServer.EXJournal_DocCount & " documents in it."
                         myAlert.QueueAlert("Domino", MyDominoServer.Name, "EXJournal", strBody, MyDominoServer.Location)
                     Else
