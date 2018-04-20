@@ -412,7 +412,7 @@ WaitHere:
         If InStr(MyDominoServer.Name.ToUpper, DAI_Identifier) Then
 
             Try
-                WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Attempting to open exjournal3.nsf on " & MyDominoServer.Name)
+                WriteDeviceHistoryEntry("All", "ExJournal", Now.ToString & " Attempting to open btexchange.box on " & MyDominoServer.Name)
                 db = NotesSession.GetDatabase(MyDominoServer.Name, "btexchange.box", False)
                 If Not db Is Nothing Then
                     'db.Open()
