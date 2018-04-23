@@ -119,6 +119,7 @@ import { ConnectionsUserActivityChartReport } from './reports/components/ibm-con
 import { ConnectionsUserActivityMonthlyChartReport } from './reports/components/ibm-connections/connections-user-activity-monthly-chart-report.component';
 //import { ConnectionsPopularContentReport } from './reports/components/ibm-connections/connections-popular-content-report.component';
 import { ConnectionsPopularCommunitiesReport } from './reports/components/ibm-connections/connections-popular-communities-report.component';
+import { ConnectionsPopularCommunitiesByTypeReport } from './reports/components/ibm-connections/connections-popular-communities-by-type-report.component';
 import { ConnectionsInactiveCommunityReport } from './reports/components/ibm-connections/community-inactivity-report.component';
 import {ServerConfigurationFilter} from './reports/filters/components/server-configuration-filter.component';
 import {FileUploadSample} from './configurator/components/serverImport/file-upload-sample.component';
@@ -271,6 +272,7 @@ import { LoadingIndicator } from './core/services/loading-indicator'
         ConnectionsUserActivityMonthlyChartReport,
         ConnectionsInactiveCommunityReport,
         ConnectionsPopularCommunitiesReport,
+        ConnectionsPopularCommunitiesByTypeReport,
         ServerConfigurationFilter,
         FileUploadSample,
         SametimeServerFilter,

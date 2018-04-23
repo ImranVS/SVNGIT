@@ -32,7 +32,7 @@ export class LoginForm {
             .subscribe(result => {
                 this.reroute(result);
                 
-            }, error => this.error = error);
+            }, error => { this.error = error; this.loading = false; });
     }
 
     ngAfterViewInit() {

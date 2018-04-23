@@ -2170,6 +2170,95 @@ namespace VitalSigns.API.Controllers
             }
         }
 
+        [HttpGet("connections/most_popular_communities_by_type")]
+        public APIResponse ConnectionsPopularCommunitiesMonthlyByType()
+        {
+            try
+            {
+                connectionsObjectsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
+                var filterDef = connectionsObjectsRepository.Filter.Eq(x => x.Type, "Community") &
+                    connectionsObjectsRepository.Filter.Ne(x => x.Children, null);
+                var listOfObjects = connectionsObjectsRepository.Find(filterDef).ToList();
+
+                List<Segment> segmentList = new List<Segment>();
+                List<Segment> subSegmentList = new List<Segment>();
+
+                List<String> listOfTypes = listOfObjects.Select(x => x.Children).SelectMany(x => x).Select(x => x.Type).Distinct().ToList();
+
+                foreach(String type in listOfTypes)
+                {
+                    List<IbmConnectionsObjects> listOfCurrentCommunities = listOfObjects.Where(x => x.Children.Exists(y => y.Type == type)).ToList();
+                    Segment segment = new Segment()
+                    {
+                        Label = type,
+                        DrillDownName = type,
+                        Value = listOfCurrentCommunities.Select(x => x.Children).SelectMany(x => x).Where(x => x.Type == type).Sum(x => x.Count)
+                    };
+                    segmentList.Add(segment);
+                    foreach(IbmConnectionsObjects community in listOfCurrentCommunities.OrderBy(x => x.Children.Find(y => y.Type == type).Count).Take(25))
+                    {
+                        Segment subSegment = new Segment()
+                        {
+                            Label = community.Name,
+                            DrillDownName = type,
+                            Value = community.Children.Find(x => x.Type == type).Count
+                        };
+                        subSegmentList.Add(subSegment);
+                    }
+
+                    
+                }
+
+                //foreach (var entity in listOfObjects)
+                //{
+                //    Segment segment = new Segment()
+                //    {
+                //        Label = entity.Name,
+                //        DrillDownName = entity.GUID,
+                //        Value = entity.Children.Sum(x => x.Count)
+                //    };
+                //    segmentList.Add(segment);
+                //    foreach (var child in entity.Children)
+                //    {
+                //        Segment subSegment = new Segment()
+                //        {
+                //            Label = child.Type,
+                //            DrillDownName = entity.GUID,
+                //            Value = child.Count
+                //        };
+                //        subSegmentList.Add(subSegment);
+                //    }
+                //}
+                Serie serie = new Serie();
+                serie.Title = "total";
+                serie.Segments = segmentList;
+
+                Serie subSerie = new Serie();
+                subSerie.Title = "Item Counts";
+                subSerie.Segments = subSegmentList;
+
+                List<Serie> series = new List<Serie>();
+                series.Add(serie);
+
+                List<Serie> subSeries = new List<Serie>();
+                subSeries.Add(subSerie);
+
+                Chart chart = new Chart();
+                chart.Title = "";
+                chart.Series = series;
+                chart.Series2 = subSeries;
+                Response = Common.CreateResponse(chart);
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+
+                return Response;
+            }
+        }
+
+
         [HttpGet("connections/executive_overview")]
         public APIResponse ConnectionsExecutiveOverview(string date = "")
         {

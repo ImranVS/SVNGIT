@@ -10,19 +10,19 @@ declare var injectSVG: any;
 
 
 @Component({
-    templateUrl: '/app/reports/components/ibm-connections/connections-popular-communities-report.component.html',
+    templateUrl: '/app/reports/components/ibm-connections/connections-popular-communities-by-type-report.component.html',
     providers: [
         WidgetService,
         RESTService
     ]
 })
-export class ConnectionsPopularCommunitiesReport extends WidgetController {
+export class ConnectionsPopularCommunitiesByTypeReport extends WidgetController {
     contextMenuSiteMap: any;
     chartData: any;
     errorMessage: string;
     widgets: WidgetContract[];
     currentWidgetName: string = `connectionsPopularContentReport`;
-    currentWidgetURL: string = `/reports/connections/most_popular_communities`;
+    currentWidgetURL: string = `/reports/connections/most_popular_communities_by_type`;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
 
@@ -44,7 +44,7 @@ export class ConnectionsPopularCommunitiesReport extends WidgetController {
                 title: '',
                 name: 'ChartComponent',
                 settings: {
-                    url: `/reports/connections/most_popular_communities`,
+                    url: `/reports/connections/most_popular_communities_by_type`,
                     dateformat: "date",
                     chart: {
                         chart: {
