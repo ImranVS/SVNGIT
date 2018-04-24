@@ -1,0 +1,86 @@
+﻿<div id="serverDetailHeader" *ngIf="service">
+
+    <div id="serverOverview">
+        <div class="row">
+            <!--<div class="form-group col-lg-12">-->
+            <div class="form-group col-sm-9">
+                <div class="serverStatus {{service.status}}" [innerHTML]="getStatusDescription(service.status)"></div>
+                <div class="serverIcon" id="selectedServerIcon">
+                    <span class="helper"></span><img class="svgInject" src="{{service.icon}}" title="{{service.name}}" alt="{{service.name}}" />
+                </div>
+                <h2>{{service.name}}</h2>
+                <p title="{{service.details}} - Last Updated: {{service.last_updated}}">{{service.details}} - Last Updated: {{service.last_updated}}</p>
+            </div>
+           
+            <div id="zeusContextActions">
+
+                <!-- Split button -->
+                <div class="btn-wrapper">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary">Action</button>
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li *ngIf="module == 'Configurator'"><a (click)="deleteServer()">Delete Server</a></li>
+                            <li> <a (click)="scanNow()">Scan Now</a></li>
+                           
+                            <li><a (click)="suspendTemporarly(frmDialog)">Suspend Temporarily</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+    </div>
+    
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+
+        <li role="presentation" [class.active]="tab.active" (click)="selectTab(tab)" *ngFor="let tab of service.tabs">
+            <a href="javascript:void(0);">{{tab.title}}</a>
+        </li>
+
+    </ul>
+    <wj-popup class="col-md-6 modal-content" #frmDialog>
+        <div class="panel panel-default">
+
+
+
+            <form (ngSubmit)="SaveSuspendTemporarly(suspendTemporarilyForm.value,frmDialog)" class="form-horizontal" [formGroup]="suspendTemporarilyForm">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <b>  Suspend Temporarily</b>
+                        <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+                    </div>
+                   
+                    <div class="panel-body">
+
+                        <div class="form-group col-sm-12">
+                            <label for="duration" class="control-label col-sm-4">Duration (mins):</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control" #duration required name="duration" formControlName="duration">
+                            </div>
+                        </div>
+
+                        <div class="form-group col-sm-12">
+                            <label for="duration">You may temporarily suspend monitoring for a maximum duration of two hours. If you need to suspend monitoring for more than two hours, please use the Maintenance Windows functionality in the VitalSigns Configurator.</label>
+
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <button type="submit" class="btn btn-primary"> Save </button>
+                        <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </wj-popup>
+</div>
+<!-- Tab panes -->
+<div id="serverDetailContent" class="tab-content">
+
+    <div #tab></div>
+
+</div>

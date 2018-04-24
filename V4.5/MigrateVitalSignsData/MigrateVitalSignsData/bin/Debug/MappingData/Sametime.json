@@ -1,0 +1,136 @@
+{
+  "sql_query": "SELECT st.ServerType, sr.ServerName,sr.Description,sr.IPAddress,sr.MonthlyOperatingCost,sr.IdealUserCount,ss.Enabled,ss.ScanInterval,ss.RetryInterval,ss.OffHoursScanInterval,ss.Category,ss.ResponseThreshold,ss.FailureThreshold,ss.Platform,ss.TestChatSimulation,ss.ChatUser1CredentialsId,ss.ChatUser2CredentialsId,ss.proxytype,ss.proxyprotocol,ss.db2hostname,ss.db2databasename,ss.db2port,ss.STScanExtendedStats,ss.STExtendedStatsPort,ss.WsScanMeetingServer,ss.WsMeetingHost,ss.WsMeetingPort,ss.WsMeetingRequireSSL,ss.WsMediaHost,ss.WsMediaPort,ss.WsMediaRequireSSL,cr.[AliasName] AS credentialsid,lr.Location AS locationid FROM [vitalsigns].[dbo].Servers sr INNER JOIN [vitalsigns].[dbo].SametimeServers ss ON sr.id = ss.ServerID INNER JOIN [vitalsigns].[dbo].[ServerTypes] st ON sr.ServerTypeID=st.ID left JOIN [vitalsigns].[dbo].Locations lr ON sr.LocationID=lr.ID left JOIN [vitalsigns].[dbo].[Credentials] cr ON cr.[ID]=ss.CredentialID",
+
+    "mappings": [
+        {
+            "sql_column": "ServerName",
+            "mongodb_field": "device_name"
+        },
+        {
+            "sql_column": "ServerType",
+            "mongodb_field": "device_type"
+        },
+        {
+            "sql_column": "Description",
+            "mongodb_field": "description"
+        },
+        {
+            "sql_column": "locationid",
+            "mongodb_field": "location_id"
+        },
+        {
+            "sql_column": "IPAddress",
+            "mongodb_field": "ip_address"
+        },
+        {
+            "sql_column": "MonthlyOperatingCost",
+            "mongodb_field": "monthly_operating_cost"
+        },
+        {
+            "sql_column": "IdealUserCount",
+            "mongodb_field": "ideal_user_count"
+        },
+        {
+            "sql_column": "Enabled",
+            "mongodb_field": "is_enabled"
+        },
+        {
+            "sql_column": "ScanInterval",
+            "mongodb_field": "scan_interval"
+        },
+        {
+            "sql_column": "RetryInterval",
+            "mongodb_field": "retry_interval"
+        },
+        {
+            "sql_column": "OffHoursScanInterval",
+            "mongodb_field": "off_hours_scan_interval"
+        },
+        {
+            "sql_column": "Category",
+            "mongodb_field": "category"
+        },       
+        {
+            "sql_column": "FailureThreshold",
+            "mongodb_field": "consecutive_failures_before_alert"
+        },
+        {
+            "sql_column": "credentialsid",
+            "mongodb_field": "credentials_id"
+        },
+        {
+            "sql_column": "Platform",
+            "mongodb_field": "platform"
+        },
+        {
+            "sql_column": "TestChatSimulation",
+            "mongodb_field": "test_chat_simulation"
+        },
+        {
+            "sql_column": "ChatUser1CredentialsId",
+            "mongodb_field": "user1_credentials_id"
+        },
+        {
+            "sql_column": "ChatUser2CredentialsId",
+            "mongodb_field": "user2_credentials_id"
+        },
+        {
+            "sql_column": "proxytype",
+            "mongodb_field": "proxy_server_type"
+        },
+        {
+            "sql_column": "proxyprotocol",
+            "mongodb_field": "proxy_server_protocol"
+        },
+        {
+            "sql_column": "db2hostname",
+            "mongodb_field": "dbms_host_name"
+        },
+        {
+            "sql_column": "db2databasename",
+            "mongodb_field": "dbms_name"
+        },
+        {
+            "sql_column": "db2port",
+            "mongodb_field": "dbms_port"
+        },
+        {
+            "sql_column": "STScanExtendedStats",
+            "mongodb_field": "collect_extended_statistics"
+        },
+        {
+            "sql_column": "STExtendedStatsPort",
+            "mongodb_field": "ExtendedStatisticsPort"
+        },
+        {
+            "sql_column": "WsScanMeetingServer",
+            "mongodb_field": "collect_meeting_statistics"
+        },
+        {
+            "sql_column": "WsMeetingHost",
+            "mongodb_field": "meeting_host_name"
+        },
+        {
+            "sql_column": "WsMeetingPort",
+            "mongodb_field": "meeting_port"
+        },
+        {
+            "sql_column": "WsMeetingRequireSSL",
+            "mongodb_field": "meeting_require_ssl"
+        },
+        {
+            "sql_column": "WsMediaHost",
+            "mongodb_field": "conference_host_name"
+        },
+        {
+            "sql_column": "WsMediaPort",
+            "mongodb_field": "conference_port"
+        },
+        {
+            "sql_column": "WsMediaRequireSSL",
+            "mongodb_field": "conference_require_ssl"
+        }
+    ]
+
+
+}

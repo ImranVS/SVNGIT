@@ -1,0 +1,60 @@
+﻿<div id="infoDiv1" class="alert alert-info col-md-12" align="left">
+    One way to integrate VitalSigns into other systems is to call a URL in response to an event.  The list of URLs is displayed below. In order to add new definitions or configure existing definitions, please use the buttons below.
+</div>
+<div class="grid-sort-group" *ngIf="data">
+
+    <!-- edit details in a popup -->
+    <button class="btn btn-success" (click)="showEditForm(frmDialog)" [disabled]="data.itemCount==0">
+        Edit
+    </button>
+    <button class="btn btn-success" (click)="showAddForm(frmDialog)">
+        Add
+    </button>
+    <button class="btn btn-success" (click)="delete_alert_url()" [disabled]="data.itemCount==0">
+        Delete
+    </button>
+</div>
+<div>&nbsp;</div>
+<wj-flex-grid [itemsSource]="data" selectionMode="Row" headersVisibility="Column" [frozenColumns]="1" [isReadOnly]="true" #flex>
+    <wj-flex-grid-filter></wj-flex-grid-filter>
+    <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="200"> </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'URL'" [binding]="'url'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [width]="180" [visible]="false"></wj-flex-grid-column>
+</wj-flex-grid>
+
+<wj-popup  style="border: 0px; width: 820px" #frmDialog>
+    <div class="modal-content">
+        <div class="modal-header">
+            {{formTitle}}
+            <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+        </div>
+        <form (ngSubmit)="saveAlertUrl(frmDialog)" #frmUser="ngForm">
+            <div class="modal-body">
+                <div id="infoDiv1" class="alert alert-info">
+                    When passing parameters to your URLs, the following variables can be used. At run time, the variables will be substituted for their current values.<br /><br />
+
+                    %Name% - the of the server, device, or application<br />
+                    %Type% - the type of device, i.e., Domino, IBM Connections, etc.<br />
+                    %EventType% - the type of exception, i.e., Dead Mail, Not Responding, Memory, etc.<br />
+                    %DTD% - the date and time the alert condition was detected<br />
+                    %Details% - the details of the alert condition
+                </div>
+                <div class="form-group">
+                    <label for="name">Friendly Name</label>
+                    <input type="text" class="form-control" id="name" required name="name" [(ngModel)]="formObject.name">
+                </div>
+                <div class="form-group">
+                    <label for="script_command">URL</label>
+                    <input type="text" class="form-control" id="url" required name="url" [(ngModel)]="formObject.url">
+                </div>
+        
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+                <button class="btn btn-primary wj-hide" type="cancel" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+            </div>
+
+        </form>
+    </div>
+
+</wj-popup>

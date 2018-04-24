@@ -1,0 +1,23 @@
+﻿<%@ ServiceHost Service="vsMobileService.MobileService" Language="C#"  Factory="AppServiceHostFactory" %>
+
+using System;
+using System.ServiceModel;
+using System.ServiceModel.Activation;
+using System.ServiceModel.Web;
+using Microsoft.ServiceModel.Web;
+
+	class AppServiceHostFactory : ServiceHostFactory
+	{
+		protected override ServiceHost CreateServiceHost(Type serviceType, Uri[] baseAddresses)
+		{
+			WebServiceHost2 result = new WebServiceHost2(serviceType, true, baseAddresses);
+			//result.Interceptors.Add(new BasicAuthenticationInterceptor(
+			//    System.Web.Security.Membership.Provider, "engageWebservice"));
+
+                        
+            
+            
+			return result;
+
+		}
+}

@@ -1,0 +1,17 @@
+﻿{
+  "sql_query": "SELECT em.ID, em.EventName, st.ServerType, em.AlertOnRepeat FROM [vitalsigns].[dbo].[EventsMaster] em inner join [vitalsigns].[dbo].[ServerTypes] st on em.ID = st.ID ",
+  "mappings": [
+    {
+      "sql_column": "EventName",
+      "mongodb_field": "event_type"
+    },
+    {
+      "sql_column": "ServerType",
+      "mongodb_field": "device_type"
+    },
+    {
+      "sql_column": "AlertOnRepeat",
+      "mongodb_field": "notification_on_repeat"
+    }
+  ]
+}

@@ -1,0 +1,238 @@
+﻿<div id="zeusContext">
+    <div id="zeusContextNavigation">
+        <div id="zeusContextNavigationIcon">
+            <img class="svgInject" src="/img/menu/servers.svg" title="NotesMail Probes" alt="NotesMail Probes" />
+        </div>
+        <div id="zeusContextNavigationText">
+            <h2>
+                NotesMail Probes
+            </h2>
+            <p>NotesMail probes</p>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+<div id="zeusContent">
+    <div class="widgetWrapper">
+        <!--<div class="widgetTitle">NotesMail Probes</div>-->
+        <div class="widgetContent">
+            <div class="alert alert-info col-lg-12">
+                NotesMail Probes send a text message from a specified server to a NotesMail Address. Then the mail file of the recipient is checked to verify that the message has arrived and to see how long it took. NotesMail Probes are useful for spotting trends in delivery times and successful message delivery.
+            </div>
+            <div class="grid-sort-group" *ngIf="data">
+                <button class="btn btn-success" (click)="editGridRow(frmDialogSend)" [disabled]="data.itemCount==0">
+                    Edit
+                </button>
+                <button class="btn btn-success" (click)="showAddForm(frmDialogSend)">
+                    Add
+                </button>
+                <button class="btn btn-success" (click)="deleteNotesMailProbes()" [disabled]="data.itemCount==0">
+                    Delete
+                </button>
+            </div>
+            <div>&nbsp;</div>
+            <wj-flex-grid [itemsSource]="data" selectionMode="Row" headersVisibility="Column" [isReadOnly]="true" #flex id="grid" (itemsSourceChanged)="onItemsSourceChanged()">
+                <wj-flex-grid-filter></wj-flex-grid-filter>
+                <wj-flex-grid-column [header]="'Enabled'" [binding]="'is_enabled'" [width]="120" align="center"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="120"> </wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Category'" [binding]="'category'" [width]="120"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Scan Interval'" [binding]="'scan_interval'" align="right"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Off-Hours Scan Interval'" [binding]="'off_hours_interval'" align="right"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Source Server'" [binding]="'source_server'" [width]="200"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Send To'" [binding]="'send_to'" [width]="200"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Destination Server'" [binding]="'destination_server'" [width]="200"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Destination Database'" [binding]="'destination_database'" [width]="200"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Delivery Threshold'" [binding]="'threshold'" [width]="100" align="right"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Retry Interval'" [binding]="'retry_interval'" align="right"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Echo Service'" [binding]="'echo_service'" [width]="100"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Reply To'" [binding]="'reply_to'" [width]="120"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [visible]="false"></wj-flex-grid-column>
+            </wj-flex-grid>
+            <div class="btn-group" *ngIf="data != null">
+                <button type="button" class="btn btn-default"
+                        (click)="data.moveToFirstPage()"
+                        [disabled]="data.pageIndex <= 0">
+                    <span class="glyphicon glyphicon-fast-backward"></span>
+                </button>
+                <button type="button" class="btn btn-default"
+                        (click)="data.moveToPreviousPage()"
+                        [disabled]="data.pageIndex <= 0">
+                    <span class="glyphicon glyphicon-step-backward">
+                    </span>
+                </button>
+                <button type="button" class="btn btn-default" disabled style="width:100px">
+                    {{
+data.pageIndex + 1 | number
+                    }} / {{data.pageCount | number}}
+                </button>
+                <button type="button" class="btn btn-default"
+                        (click)="data.moveToNextPage()"
+                        [disabled]="data.pageIndex >= data.pageCount - 1">
+                    <span class="glyphicon glyphicon-step-forward"></span>
+                </button>
+                <button type="button" class="btn btn-default"
+                        (click)="data.moveToLastPage()"
+                        [disabled]="data.pageIndex >= data.pageCount - 1">
+                    <span class="glyphicon glyphicon-fast-forward"></span>
+                </button>
+            </div>
+            <div class="pull-right" *ngIf="data != null">
+                <wj-menu [(value)]="pageSize" [header]="'Page size'">
+                    <wj-menu-item [value]="10">10</wj-menu-item>
+                    <wj-menu-item [value]="20">20</wj-menu-item>
+                    <wj-menu-item [value]="50">50</wj-menu-item>
+                </wj-menu>
+            </div>
+            <div>&nbsp;</div>
+            <wj-popup style="border: 0px; width: 80%; height: 80%" #frmDialogSend>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        {{formTitle}}
+                        <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+                    </div>
+                    <form (ngSubmit)="saveNotesMailProbes(frmDialogSend)" #frmUser="ngForm" class="form-horizontal">
+                        <div class="modal-body" *ngIf="currentEditItem">
+                            <div class="col-sm-12">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">General Attributes</div>
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="form-group col-sm-6">
+                                                <label for="stat_name" class="control-label col-sm-5">Name</label>
+                                                <div class="col-sm-7">
+                                                    <input type="text" class="form-control" id="name" required name="name" [(ngModel)]="currentEditItem.name" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-sm-6">
+                                                <div class="funkyradio col-sm-8">
+                                                    <div class="funkyradio-default">
+                                                        <input type="checkbox" id="is_enabled" name="is_enabled" [(ngModel)]="currentEditItem.is_enabled" />
+                                                        <label for="is_enabled">Enabled for scanning</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-sm-6">
+                                                <label for="domino_server_a" class="control-label col-sm-5">Category</label>
+                                                <div class="col-sm-7">
+                                                    <wj-combo-box name="category" [itemsSource]="categories" [(text)]="currentEditItem.category" [(ngModel)]="currentEditItem.category" placeholder="Select Category" [isEditable]="true" required></wj-combo-box>
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-sm-6">
+                                                <div class="funkyradio col-sm-8">
+                                                    <div class="funkyradio-default">
+                                                        <input type="checkbox" id="echo_service" name="echo_service" [(ngModel)]="currentEditItem.echo_service" />
+                                                        <label for="echo_service">Send to an echo service</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">Scan Settings</div>
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="form-group col-sm-6">
+                                                <label for="scan_interval" class="control-label col-sm-5">Scan Interval</label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control" id="scan_interval" required name="scan_interval" 
+                                                           [(ngModel)]="currentEditItem.scan_interval" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
+                                                </div>
+                                                <div class="control-label col-sm-1">minutes</div>
+                                            </div>
+                                            <div class="form-group col-sm-6">
+                                                <label for="retry_interval" class="control-label col-sm-5">Retry Interval</label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control" id="retry_interval" required name="retry_interval" 
+                                                           [(ngModel)]="currentEditItem.retry_interval" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
+                                                </div>
+                                                <div class="control-label col-sm-1">minutes</div>
+                                            </div>
+                                            <div class="form-group col-sm-6">
+                                                <label for="off_hours_interval" class="control-label col-sm-5">Off-Hours Scan Interval</label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control" id="off_hours_interval" required name="off_hours_interval" 
+                                                           [(ngModel)]="currentEditItem.off_hours_interval" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
+                                                </div>
+                                                <div class="control-label col-sm-1">minutes</div>
+                                            </div>
+                                            <div class="form-group col-sm-6">
+                                                <label for="threshold" class="control-label col-sm-5">Delivery Threshold</label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control" id="threshold" required name="threshold" 
+                                                           [(ngModel)]="currentEditItem.threshold" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
+                                                </div>
+                                                <div class="control-label col-sm-1">minutes</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">Message Source</div>
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="form-group col-sm-12">
+                                                <label for="source_server" class="control-label col-sm-6">Source Server</label>
+                                                <div class="col-sm-6">
+                                                    <wj-combo-box name="source_server" [itemsSource]="serverNames" displayMemberPath="text" selectedValuePath="text" [(ngModel)]="currentEditItem.source_server" placeholder="Select Server" [isEditable]="true" required></wj-combo-box>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group col-sm-12">
+                                                <label for="send_to" class="control-label col-sm-6">Send to</label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control" name="send_to" [(ngModel)]="currentEditItem.send_to" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group col-sm-12">
+                                                <label for="reply_to" class="control-label col-sm-6">Reply to</label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control" name="reply_to" [(ngModel)]="currentEditItem.reply_to">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">Message Destination</div>
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="form-group col-sm-12">
+                                                <label for="destination_server" class="control-label col-sm-6">Destination Server</label>
+                                                <div class="col-sm-6">
+                                                    <wj-combo-box name="destination_server" [itemsSource]="serverNames" displayMemberPath="text" selectedValuePath="text" [(ngModel)]="currentEditItem.destination_server" placeholder="Select Server" [isEditable]="true" required></wj-combo-box>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group col-sm-12">
+                                                <label for="destination_database" class="control-label col-sm-6">Destination Database Filename</label>
+                                                <div class="col-sm-6">
+                                                    <input type="text" placeholder="mail\vitalsigns.nsf" class="form-control" name="destination_database" [(ngModel)]="currentEditItem.destination_database" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" type="submit" name="submit" [disabled]="!(frmUser.form.valid)">Save</button>
+                            <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </wj-popup>
+        </div>
+    </div>
+</div>

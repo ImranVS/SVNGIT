@@ -1,0 +1,115 @@
+﻿
+
+<div class="widgetWrapper">
+    <div class="col-xs-12 col-md-3 col-sm-12 col-lg-3">
+        <div class="row">&nbsp;</div>
+        <div class="form-group">
+            <div class="funkyradio">
+                <div class="funkyradio-default">
+                    <input type="radio" name="selectionType" value="allDatabases" [(ngModel)]="selectedDbSetting" id="selectionType1">
+                    <label for="selectionType1">	All Databases</label>
+                </div>
+                <div class="funkyradio-default">
+                    <input type="radio" name="selectionType" value="selectedDatabases" [(ngModel)]="selectedDbSetting" id="selectionType2">
+                    <label for="selectionType2">Selected Databases</label>
+                </div>
+
+                <div class="funkyradio-default">
+                    <input type="radio" name="selectionType" value="noAlerts" [(ngModel)]="selectedDbSetting" id="selectionType3">
+                    <label for="selectionType3">No Database Checking</label>
+                </div>
+            </div>
+            <div class="form-group" *ngIf="selectedDbSetting">
+                <button type="button" class="btn btn-primary" (click)="applySetting(diskSettingsForm.value)">Save</button>
+            </div>
+        </div>
+        
+    </div>
+    
+
+    <div class="col-xs-12 col-md-9 col-sm-12 col-lg-9">
+        <div class="row">&nbsp;</div>
+        <div class="form-group" *ngIf="selectedDbSetting=='allDatabases'">
+            <div class="form-group col-sm-11">
+                <label for="currentReplayThreshold" class="control-label col-sm-3">Replay Threshold</label>
+                <div class="col-sm-2">
+                    <input type="number" name="currentReplayThreshold" class="form-control" min="0" [(ngModel)]="replayThreshold" #name="ngModel" />
+                </div>
+            </div>
+
+            <div class="form-group col-sm-11">
+                <label for="currentCopyThreshold" class="control-label col-sm-3">Copy threshold</label>
+                <div class="col-sm-2">
+                    <input type="number" name="currentCopyThreshold" class="form-control" min="0" [(ngModel)]="copyThreshold" #name="ngModel">
+
+                </div>
+            </div>
+        </div>
+        <div class="form-group" *ngIf="selectedDbSetting =='selectedDatabases'">
+            <div class="alert alert-info col-md-12">
+                <p>
+                    The column 'Free Space Threshold' should be set to a value in GB or Percent (1 to 100) of the remaining free space when an alert should be generated.
+                    The column 'Threshold Type' should be set accordingly in either percent or GB.
+                </p>
+            </div>
+            <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" headersVisibility="Column">
+                <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" [width]="60"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Server'" is-read-only="true" [binding]="'server_name'" [isReadOnly]="true" ></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Database Name'" is-read-only="true" [binding]="'database_name'" [isReadOnly]="true"  align="right"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Current Reply Queue'" is-read-only="true" [binding]="'dag_replyqueue'" [isReadOnly]="true" align="right"> </wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Current Copy Queue'" is-read-only="true" [binding]="'dag_copyqueue'" [isReadOnly]="true"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Replay Queue Threshold'" [binding]="'replay_queue_threshold'"  align="right">
+                    <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                        <input type="text" class="form-control" style="width: 120px; text-align: right" align="right" id="replay_queue_threshold" name="replay_queue_threshold"
+                               [(ngModel)]="cell.item.replay_queue_threshold" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
+                    </template>
+                </wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Copy Queue Threshold'" [binding]="'copy_queue_threshold'" align="right">
+                    <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                        <input type="text" class="form-control" style="width: 120px; text-align: right" align="right" id="copy_queue_threshold" name="copy_queue_threshold"
+                               [(ngModel)]="cell.item.copy_queue_threshold" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
+                    </template>
+                </wj-flex-grid-column>
+
+
+            </wj-flex-grid>
+
+            <div class="btn-group" *ngIf="data != null">
+                <button type="button" class="btn btn-default"
+                        (click)="data.moveToFirstPage()"
+                        [disabled]="data.pageIndex <= 0">
+                    <span class="glyphicon glyphicon-fast-backward"></span>
+                </button>
+                <button type="button" class="btn btn-default"
+                        (click)="data.moveToPreviousPage()"
+                        [disabled]="data.pageIndex <= 0">
+                    <span class="glyphicon glyphicon-step-backward">
+                    </span>
+                </button>
+                <button type="button" class="btn btn-default" disabled style="width:100px">
+                    {{
+data.pageIndex + 1 | number
+                    }} / {{data.pageCount | number}}
+                </button>
+                <button type="button" class="btn btn-default"
+                        (click)="data.moveToNextPage()"
+                        [disabled]="data.pageIndex >= data.pageCount - 1">
+                    <span class="glyphicon glyphicon-step-forward"></span>
+                </button>
+                <button type="button" class="btn btn-default"
+                        (click)="data.moveToLastPage()"
+                        [disabled]="data.pageIndex >= data.pageCount - 1">
+                    <span class="glyphicon glyphicon-fast-forward"></span>
+                </button>
+            </div>
+            <div class="pull-right" *ngIf="data != null">
+                <wj-menu [(value)]="pageSize" [header]="'Page size'">
+                    <wj-menu-item [value]="10">10</wj-menu-item>
+                    <wj-menu-item [value]="20">20</wj-menu-item>
+                    <wj-menu-item [value]="50">50</wj-menu-item>
+                </wj-menu>
+            </div>
+        </div>
+        <br />
+    </div>
+</div>

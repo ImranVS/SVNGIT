@@ -1,0 +1,113 @@
+﻿<div id="zeusHeaderLeftWrapper">
+    <a href="javascript:void(0);" class="toggleMenuBt headerBlock">
+        <img class="svgInject" src="/img/menu/toggleMenu.svg" title="toggle Menu" alt="toggle Menu" />
+    </a>
+    <a [routerLink]="['/']" id="headerLogo" class="headerBlock">
+        <img src="/img/LogoVitalSigns.png" />
+    </a>
+    <div id="searchWrapper" class="headerBlock" *ngIf="authService.isLoggedIn">
+        <input type="text" value="" placeholder="Find servers..." id="searchInput"  [(ngModel)]="deviceName" (blur)="changeDeviceName()"/>      
+        <span class="glyphicon glyphicon-search" aria-hidden="true" id="launchSearchBt" ></span>
+    </div>
+</div>
+<div id="zeusHeaderRightWrapper" *ngIf="authService.isLoggedIn">  
+    <div id="statusWrapper" class="headerBlock">
+        <div class="col-lg-12 col-md-12" style="padding: 1px">
+            <div class="widgetWrapper h-xs-48 zeusColorReactBg" data-widget-type="widgetImageText" *ngIf="appStatus"
+                 [class.zeusColorReact-success]="appStatus.status == 'ok'"
+                 [class.zeusColorReact-warning]="appStatus.status == 'late'"
+                 [class.zeusColorReact-danger]="appStatus.status == 'verylate'">
+                <img class="svgInject" src="/img/dashboard/Clock.svg" title="Most recent scan" alt="Most recent scan" style="width: 30px" />
+                <div>
+                    <div class="widgetImageText-text" *ngIf="appStatus">{{appStatus.last_updated}}</div>
+                    <div class="widgetImageText-text">Most recent scan</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="noResponseNotification" class="headerBlock notifVitalSign" *ngIf="deviceSummary">
+        <a [routerLink]="['/services/dashboard']" [queryParams]="{status: 'Not Responding'}" class="widgetFooter zeusColorReactBg">
+            <span class="notifVitalSignNumber badge">{{deviceSummary.notResponding}}</span>
+            <span class="notifVitalSignLabel">Not responding </span>
+        </a>      
+    </div>
+    <div id="noIssuesNotification" class="headerBlock notifVitalSign" *ngIf="deviceSummary">
+        <a [routerLink]="['/services/dashboard']" [queryParams]="{status: 'OK'}" class="widgetFooter zeusColorReactBg">
+            <span class="notifVitalSignNumber badge">{{deviceSummary.ok}}</span>
+            <span class="notifVitalSignLabel">No issues</span>
+        </a>
+    </div>
+    <div id="issuesNotification" class="headerBlock notifVitalSign" *ngIf="deviceSummary">
+        <a [routerLink]="['/services/dashboard']" [queryParams]="{status: 'Issue'}" class="widgetFooter zeusColorReactBg">
+            <span class="notifVitalSignNumber badge">{{deviceSummary.issue}}</span>
+            <span class="notifVitalSignLabel">Issues</span>
+        </a>      
+    </div>
+    <div id="maintenanceNotification" class="headerBlock notifVitalSign" *ngIf="deviceSummary">
+        <a [routerLink]="['/services/dashboard']" [queryParams]="{status: 'Maintenance'}" class="widgetFooter zeusColorReactBg">
+            <span class="notifVitalSignNumber badge">{{deviceSummary.maintenance}}</span>
+            <span class="notifVitalSignLabel">Maintenance</span>
+        </a>
+    </div>
+    <div id="notificationBtWrapper" class="headerBlock" *ngIf="deviceSummary">
+        <a #sysMsg >
+            <span aria-hidden="true" class="glyphicon glyphicon-bell" (click)="showSystemMessages()"></span>
+            <span class="notifVitalSignNumber badge" (click)="showSystemMessages()">{{deviceSummary.systemMessages}}</span>
+        </a>
+
+        <wj-popup #frmDialogSysMsg class="model-content col-sm-4"  [owner]="sysMsg" [showTrigger]="'Click'" [hideTrigger]="'None'">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    System Messages
+                    <button type="button" tabindex="-1" class="close wj-hide">&times;</button>
+                </div>
+                <div class="panel-body" *ngIf="systemMessages">
+                    <div class="aServer" *ngFor="let message of systemMessages">
+                        <p><b>{{message.CreatedDate}} </b> {{message.Details}}</p>
+                    </div>
+                    <div class="aServer" *ngIf="systemMessages.length=='0'">
+                        <label>No System Messages Found</label>
+                    </div>
+                </div>
+                <div class="panel-footer" *ngIf="systemMessages">
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-primary" name="Dismiss" (click)="dismissSystemMessages(frmDialogSysMsg);" [disabled]="!(systemMessages.length>0)">Dismiss</button>
+                    </div>
+                </div>
+            </div>
+</wj-popup>
+    </div>
+
+    <div id="userWrapper" class="headerBlock">
+        <div id="userName">
+            
+            <a class="dropdown-toggle" data-toggle="dropdown" id="openContextNavigation" aria-hidden="true">{{authService.CurrentUser.email}}<span class="glyphicon glyphicon-chevron-down"></span></a>
+            <ul class="dropdown-menu" style="white-space:nowrap; right: 0 !important; left:unset">
+                <li style="display:table">
+                    <a #forgot2>Change password</a>
+                </li>
+                <li style="display:table"><a [routerLink]="['/login']" (click)="logout();">Log out</a></li>
+            </ul>
+            <wj-popup #frmDialog class="popover" [owner]="forgot2" [showTrigger]="'Click'" [hideTrigger]="'None'">
+                <h3 class="popover-title">
+                    Change Password
+                    <button type="button" tabindex="-1" class="close wj-hide">&times;</button>
+                </h3>
+                <div class="popover-content">
+                    <div class="input-group">
+                        <label for="password" class="control-label">Please Enter New Password</label>
+                        <input #password class="form-control" name="password" type="password" required />
+                    </div>
+                    <div>&nbsp;</div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-primary" name="save" (click)="changePassword(frmDialog);">OK</button>
+                    </div>
+                </div>
+            </wj-popup>
+
+        </div>
+        <!--<a [routerLink]="['/profiles']">
+            <img src="/img/JohnDoeAvatar.png" id="userAvatar" />
+        </a>-->
+    </div>
+</div>

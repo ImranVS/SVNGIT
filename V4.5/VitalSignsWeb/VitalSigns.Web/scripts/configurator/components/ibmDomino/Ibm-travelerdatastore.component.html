@@ -1,0 +1,184 @@
+﻿<div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+    <div class="row">
+        <div class="alert alert-info col-lg-12">
+            Traveler HA servers share a common backend data store, either SQL Server or DB2.
+        </div>
+        <div class="grid-sort-group" *ngIf="data">
+
+            <!-- edit details in a popup -->
+            <button class="btn btn-success" (click)="editTravelerDataStore(frmDialog)" [disabled]="data.itemCount==0">
+                Edit
+            </button>
+            <button class="btn btn-success" (click)="addTravelerData(frmDialog,usedByServers)">
+                Add
+            </button>
+            <button class="btn btn-success" (click)="delteTravelerDataStore();" [disabled]="data.itemCount==0">
+                Delete
+            </button>
+        </div>
+        <div>&nbsp;</div>
+        <wj-flex-grid #flex [itemsSource]="data" headersVisibility="Column" selectionMode="Row" [isReadOnly]="true">
+            <wj-flex-grid-filter></wj-flex-grid-filter>
+            <wj-flex-grid-column [header]="'Traveler Service Pool Name'" [binding]="'traveler_service_pool_name'" [width]="300"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Server Name'" [binding]="'device_name'" [width]="300"></wj-flex-grid-column>
+        </wj-flex-grid>
+        <div class="btn-group" *ngIf="data != null">
+            <button type="button" class="btn btn-default"
+                    (click)="data.moveToFirstPage()"
+                    [disabled]="data.pageIndex <= 0">
+                <span class="glyphicon glyphicon-fast-backward"></span>
+            </button>
+            <button type="button" class="btn btn-default"
+                    (click)="data.moveToPreviousPage()"
+                    [disabled]="data.pageIndex <= 0">
+                <span class="glyphicon glyphicon-step-backward">
+                </span>
+            </button>
+            <button type="button" class="btn btn-default" disabled style="width:100px">
+                {{
+data.pageIndex + 1 | number
+                }} / {{data.pageCount | number}}
+            </button>
+            <button type="button" class="btn btn-default"
+                    (click)="data.moveToNextPage()"
+                    [disabled]="data.pageIndex >= data.pageCount - 1">
+                <span class="glyphicon glyphicon-step-forward"></span>
+            </button>
+            <button type="button" class="btn btn-default"
+                    (click)="data.moveToLastPage()"
+                    [disabled]="data.pageIndex >= data.pageCount - 1">
+                <span class="glyphicon glyphicon-fast-forward"></span>
+            </button>
+        </div>
+        <div class="pull-right" *ngIf="data != null">
+            <wj-menu [(value)]="pageSize" [header]="'Page size'">
+                <wj-menu-item [value]="10">10</wj-menu-item>
+                <wj-menu-item [value]="20">20</wj-menu-item>
+                <wj-menu-item [value]="50">50</wj-menu-item>
+            </wj-menu>
+        </div>
+        <div>&nbsp;</div>
+        <wj-popup style="border: 0px; width: 80%" #frmDialog>
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    {{formTitle}}
+                    <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+                </div>
+                <form (ngSubmit)="saveTravelerDataStore(frmDialog)" #frmUser="ngForm" class="form-horizontal">
+                    <div class="modal-body" *ngIf="currentEditItem">
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                <label for="traveler_service_pool_name" class="control-label col-sm-5">Traveler Service Pool Name</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="traveler_service_pool_name" required name="traveler_service_pool_name" [(ngModel)]="currentEditItem.traveler_service_pool_name">
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label for="device_name" class="control-label col-sm-5">Server Name</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="device_name" required name="device_name" [(ngModel)]="currentEditItem.device_name">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                <label for="data_store" class="control-label col-sm-5">Data Store</label>
+                                <div class="col-sm-7">
+                                    <select name="data_store" class="form-control" required [(ngModel)]="currentEditItem.data_store">
+                                        <option value="DB2">DB2</option>
+                                        <option value="SQL Server">SQL Server</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label for="database_name" class="control-label col-sm-5">Database</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="database_name" required name="database_name" [(ngModel)]="currentEditItem.database_name">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                <label for="port" class="control-label col-sm-5">Port</label>
+                                <div class="col-sm-7">
+                                    <input type="number" min="0" class="form-control" id="port" required name="port" [(ngModel)]="currentEditItem.port"
+                                           onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label for="user_name" class="control-label col-sm-5">User Name</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" id="user_name" required name="user_name" [(ngModel)]="currentEditItem.user_name">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                <label for="password" class="control-label col-sm-5">Password</label>
+                                <div class="col-sm-7" *ngIf="this.formTitle == 'Add ' + this.formName">
+                                    <input type="password" class="form-control" id="password" required name="password" [(ngModel)]="currentEditItem.password">
+                                </div>
+                                <div class="col-sm-7" *ngIf="this.formTitle == 'Edit ' + this.formName">
+                                    <button #pwd type="button" class="btn btn-primary">
+                                        Enter Password
+                                    </button>
+                                    <wj-popup #frmDialog class="popover" [owner]="pwd" [showTrigger]="'Click'" [hideTrigger]="'None'">
+                                        <h3 class="popover-title">
+                                            Password
+                                            <button type="button" tabindex="-1" class="close wj-hide">&times;</button>
+                                        </h3>
+                                        <div class="popover-content">
+                                            <div class="input-group">
+                                                <label for="some_password" class="control-label">Please enter a password below</label>
+                                                <input #somespwd class="form-control" name="some_password" type="password" />
+                                            </div>
+                                            <div>&nbsp;</div>
+                                            <div class="form-actions">
+                                                <button type="button" class="btn btn-primary" name="save" (click)="savePwd(frmDialog);">Save</button>
+                                            </div>
+                                        </div>
+                                    </wj-popup>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label for="integrated_security" class="control-label col-sm-5">Authentication Type</label>
+                                <div class="col-sm-7">
+                                    <select name="integrated_security" class="form-control" required [(ngModel)]="currentEditItem.integrated_security">
+                                        <option value="0">SQL Server</option>
+                                        <option value="1">Windows</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                <label for="test_scan_server" class="control-label col-sm-5">Test when scanning Traveler server</label>
+                                <div class="col-sm-7">
+                                    <wj-combo-box name="test_scan_server" [itemsSource]="testTravelerServers" displayMemberPath="text" selectedValuePath="value"
+                                                  [(ngModel)]="currentEditItem.test_scan_server" placeholder="Select Server" [isEditable]="true">
+                                    </wj-combo-box>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label for="used_by_servers" class="control-label col-sm-5">Used by servers</label>
+                                <div class="col-sm-7">
+
+                                    <wj-multi-select name="used_by_servers" [itemsSource]="travelerServers" displayMemberPath="text" selectedValuePath="value"
+                                                     [(checkedItems)]="checkedItems" placeholder="Select Server" [isEditable]="true" #usedByServers
+                                                     (lostFocus)="serversChecked(usedByServers)">
+                                    </wj-multi-select>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+                        <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </wj-popup>
+    </div>
+</div>

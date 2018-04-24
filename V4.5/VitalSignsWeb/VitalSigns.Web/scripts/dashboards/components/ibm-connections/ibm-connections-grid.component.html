@@ -1,0 +1,71 @@
+﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" id="flex" headersVisibility="Column" (selectionChanged)="onSelectionChanged($event)" #flex>
+    <wj-flex-grid-filter></wj-flex-grid-filter>
+    <wj-flex-grid-column [header]="'Name'" [binding]="'device_name'" [width]="240"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Status'" [binding]="'status'" [width]="160" align="center">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            <span *ngIf="cell.item.status == 'OK'" class="label label-pill label-success">OK</span>
+            <span *ngIf="cell.item.status == 'Not Responding'" class="label label-pill label-danger">Not Responding</span>
+            <span *ngIf="cell.item.status == 'Issue'" class="label label-pill label-warning">Issue</span>
+            <span *ngIf="cell.item.status == 'Maintenance'" class="label label-pill label-default">Maintenance</span>
+        </template>
+    </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Details'" [binding]="'details'" [width]="320">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            <div data-toggle="tooltip" data-placement="top" title={{cell.item.details}}>
+                {{cell.item.details}}
+            </div>
+        </template>
+    </wj-flex-grid-column>
+    <wj-flex-grid-column header="Tests" [binding]="headerText" [width]="550">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-item="item" let-cell="cell">
+            <!--<div  class="list-group">
+                <div *ngFor="let htext of cell.item.headerText; let i = index">
+                    <div *ngIf="cell.item.dataKey[i] == 'Pass'" class="list-group-item list-group-item-action list-group-item-success">{{htext}}</div>
+                    <div *ngIf="cell.item.dataKey[i] == 'Fail'" class="list-group-item list-group-item-action list-group-item-danger">{{htext}}</div>
+                </div>
+                <div *ngIf="cell.item.dataKey[i] == 'Pass'" class="label label-pill label-success" style="float: left; width: 150px">{{htext}}</div>
+                <div *ngIf="cell.item.dataKey[i] == 'Fail'" class="label label-pill label-danger" style="float: left; width: 150px">{{htext}}</div>
+                
+            </div>-->
+            <div *ngFor="let htext of cell.item.headerText; let i = index">
+                <a *ngIf="cell.item.dataKey[i] == 'Pass'" class="btn btn-primary btn-circle text-uppercase" style="float: left; width: 180px; text-align: left"><span class="glyphicon glyphicon-ok-circle" style="text-align: left"></span> {{htext}}</a>
+                <a *ngIf="cell.item.dataKey[i] == 'Fail'" class="btn btn-danger btn-circle text-uppercase" style="float: left; width: 180px; text-align: left"><span class="glyphicon glyphicon-remove-circle" style="text-align: left"></span> {{htext}}</a>
+            </div>
+</template>
+    </wj-flex-grid-column>
+</wj-flex-grid>
+<div class="btn-group" *ngIf="data != null">
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToFirstPage()"
+            [disabled]="data.pageIndex <= 0">
+        <span class="glyphicon glyphicon-fast-backward"></span>
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToPreviousPage()"
+            [disabled]="data.pageIndex <= 0">
+        <span class="glyphicon glyphicon-step-backward">
+        </span>
+    </button>
+    <button type="button" class="btn btn-default" disabled style="width:100px">
+        {{data.pageIndex + 1 | number}} / {{data.pageCount | number}}
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToNextPage()"
+            [disabled]="data.pageIndex >= data.pageCount - 1">
+        <span class="glyphicon glyphicon-step-forward"></span>
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToLastPage()"
+            [disabled]="data.pageIndex >= data.pageCount - 1">
+        <span class="glyphicon glyphicon-fast-forward"></span>
+    </button>
+</div>
+<div class="pull-right" *ngIf="data != null">
+    <wj-menu [(value)]="pageSize" [header]="'Page size'">
+        <wj-menu-item [value]="10">10</wj-menu-item>
+        <wj-menu-item [value]="20">20</wj-menu-item>
+        <wj-menu-item [value]="50">50</wj-menu-item>
+        <wj-menu-item [value]="100">100</wj-menu-item>
+        <wj-menu-item [value]="200">200</wj-menu-item>
+    </wj-menu>
+</div>

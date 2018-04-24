@@ -1,0 +1,70 @@
+﻿{
+    "sql_query": "SELECT sr.ServerName,st.ServerType,sr.Description,sr.IPAddress,sr.MonthlyOperatingCost,sr.IdealUserCount,sa.Enabled,sa.ScanInterval,sa.RetryInterval,sa.OffHourInterval,sa.Category,sa.ResponseTime,sa.ConsFailuresBefAlert FROM [vitalsigns].[dbo].WebsphereServer wss INNER JOIN [vitalsigns].[dbo].ServerAttributes sa ON sa.ServerID = wss.ServerID INNER JOIN [vitalsigns].[dbo].Servers sr ON wss.ServerID = sr.ID INNER JOIN [vitalsigns].[dbo].[ServerTypes] st  ON sr.ServerTypeID = st.ID",
+
+    "mappings": [
+        {
+            "sql_column": "ServerName",
+            "mongodb_field": "device_name"
+        },
+        {
+            "sql_column": "ServerType",
+            "mongodb_field": "device_type"
+        },
+        {
+            "sql_column": "Description",
+            "mongodb_field": "description"
+        },
+        {
+            "sql_column": "locationid",
+            "mongodb_field": "location_id"
+        },
+        {
+            "sql_column": "IPAddress",
+            "mongodb_field": "ip_address"
+        },
+        {
+            "sql_column": "Type",
+            "mongodb_field": "business_hours_id"
+        },
+        {
+            "sql_column": "MonthlyOperatingCost",
+            "mongodb_field": "monthly_operating_cost"
+        },
+        {
+            "sql_column": "IdealUserCount",
+            "mongodb_field": "ideal_user_count"
+        },
+        {
+            "sql_column": "Enabled",
+            "mongodb_field": "is_enabled"
+        },
+        {
+            "sql_column": "[Scan Interval]",
+            "mongodb_field": "scan_interval"
+        },
+        {
+            "sql_column": "RetryInterval",
+            "mongodb_field": "retry_interval"
+        },
+        {
+            "sql_column": "OffHourInterval",
+            "mongodb_field": "off_hours_scan_interval"
+        },
+        {
+            "sql_column": "Category",
+            "mongodb_field": "category"
+        },
+
+        {
+            "sql_column": "ResponseTime",
+            "mongodb_field": "response_time"
+        },
+        {
+            "sql_column": "ConsFailuresBefAlert",
+            "mongodb_field": "consecutive_failures_before_alert"
+        }
+
+    ]
+
+
+}

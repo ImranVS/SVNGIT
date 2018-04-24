@@ -1,0 +1,84 @@
+﻿<div id="zeusContext">
+    <div id="zeusContextNavigation">
+        <div id="zeusContextNavigationIcon">
+            <img class="svgInject" src="/img/menu/dashboard.svg" title="Dashboard" alt="Dashboard" />
+        </div>
+        <div id="zeusContextNavigationText">
+            <h2>
+                Dashboard
+                <app-navigator></app-navigator>
+            </h2>
+            <p>Global overview of your servers health</p>
+        </div>
+    </div>
+    <div id="zeusContextActions">
+
+        <!-- Split button -->
+        <!--<div class="btn-wrapper">
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary">Action</button>
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="caret"></span>
+                    <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li><a href="#">Action</a></li>
+                    <li><a href="#">Another action</a></li>
+                    <li><a href="#">Something else here</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="#">Separated link</a></li>
+                </ul>
+            </div>
+        </div>-->
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+<div class="col-lg-12">
+
+    <div id="zeusContent" class="container-fluid">
+        <div class="row">
+
+            <div class="col-lg-8">
+                
+
+                <div class="row">
+
+                    <my-widget [contract]="widgetStatusSummary">loading...</my-widget>
+
+                    <!--Usersessions, Downtimes, AverageResponse, Pending, Dead and Held Mails widget-->
+                    <my-widget [contract]="widgetUsersSessions">loading...</my-widget>
+                </div>
+                
+                
+            </div>
+
+            <div class="col-lg-4">
+                <div class="row">
+                    
+                    <!-- On premises applications -->
+                    <div class="{{widgetOnPremisesApps.css}}">
+                        <div class="widgetWrapper " data-widget-type="widgetOnPremisesApps">
+
+                            <div class="widgetTitle">
+                                {{widgetOnPremisesApps.title}}
+                            </div>
+
+                            <div class="widgetContent">
+
+                                <my-widget [contract]="widgetOnPremisesApps">loading...</my-widget>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                </div>
+                
+            </div>
+
+            
+        </div>
+</div>
+</div>

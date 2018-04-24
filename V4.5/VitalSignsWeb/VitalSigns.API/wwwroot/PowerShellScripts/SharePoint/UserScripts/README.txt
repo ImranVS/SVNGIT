@@ -1,0 +1,1 @@
+﻿All scripts placed in this folder will not be removed during an upgrade.

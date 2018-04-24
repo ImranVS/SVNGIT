@@ -1,0 +1,440 @@
+{"_id":{"$oid":"59513ca7721f5b12600695f5"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"5860E","translated_value":"Coolpad","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600695f6"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"ADR6300","translated_value":"HTC Droid","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600695f7"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"ADR6330VW","translated_value":"HTC Rhyme","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600695f8"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"ADR6350","translated_value":"HTC Droid","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600695f9"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"ADR6400L","translated_value":"HTC Thunderbolt","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600695fa"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"ADR6410LVW","translated_value":"HTC Droid","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600695fb"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"ADR6425LVW","translated_value":"HTC Rezound","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600695fc"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"ASUS_Transformer_Pad_TF300T","translated_value":"Asus","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600695fd"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"ASUS_Transformer_Pad_TF700T","translated_value":"Asus","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600695fe"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"C5155","translated_value":"Kyocera","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600695ff"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"C5170","translated_value":"Kyocera","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069600"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"C6603","translated_value":"Sony","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069601"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"C6606","translated_value":"Sony","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069602"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"C6903","translated_value":"Sony","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069603"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Desire_HD","translated_value":"HTC Desire","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069604"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"DROID2_GLOBAL","translated_value":"Motorola Droid","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069605"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"DROID2","translated_value":"Motorola Droid","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069606"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"DROID3","translated_value":"Motorola Droid","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069607"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"DROID4","translated_value":"Motorola Droid","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069608"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"DROID_BIONIC","translated_value":"Motorola Droid","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069609"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"DROID","translated_value":"Motorola Droid","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006960a"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"DROID_PRO","translated_value":"Motorola Droid","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006960b"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"DROID_RAZR_HD","translated_value":"Motorola Droid","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006960c"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"DROID_RAZR","translated_value":"Motorola Droid","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006960d"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"DROID_X2","translated_value":"Motorola Droid","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006960e"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"DROID_X","translated_value":"Motorola Droid","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006960f"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"EVO","translated_value":"HTC Evo","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069610"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Galaxy_Nexus","translated_value":"Samsung Galaxy Nexus","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069611"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"google_sdk","translated_value":"Android Emulator","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069612"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"I8160","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069613"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-I8190","translated_value":"Samsung Galaxy S III Mini","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069614"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-I9000","translated_value":"Samsung Galaxy S","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069615"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-I9001","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069616"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-I9070","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069617"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-I9082","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069618"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-I9100M","translated_value":"Samsung Galaxy S II","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069619"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-I9100P","translated_value":"Samsung Galaxy S II","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006961a"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-I9100","translated_value":"Samsung Galaxy S II","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006961b"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-I9100T","translated_value":"Samsung Galaxy S II","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006961c"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-I9195","translated_value":"Samsung Galaxy S4 Mini","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006961d"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-I9300","translated_value":"Samsung Galaxy S III","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006961e"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-I9300T","translated_value":"Samsung Galaxy S III","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006961f"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-I9305","translated_value":"Samsung Galaxy S III","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069620"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-I9305T","translated_value":"Samsung Galaxy S III","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069621"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-I95","translated_value":"Samsung Galaxy S4","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069622"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069623"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-P31","translated_value":"Samsung Galaxy Tab","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069624"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-P51","translated_value":"Samsung Galaxy Tab","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069625"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-P52","translated_value":"Samsung Galaxy Tab","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069626"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-P7510","translated_value":"Samsung Galaxy Tab","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069627"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-S5360","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069628"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-S5570","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069629"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-S5830i","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006962a"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-S5830","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006962b"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-S7562","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006962c"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"HTC6435LVW","translated_value":"HTC Droid","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006962d"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"HTC6500LVW","translated_value":"HTC One","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006962e"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"HTC_Amaze_4G","translated_value":"HTC Amaze","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006962f"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"HTC_Desire","translated_value":"HTC Desire","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069630"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"HTC_Desire_C","translated_value":"HTC Desire","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069631"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"HTC_Desire_HD_A9191","translated_value":"HTC Desire","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069632"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"HTC_Desire_S","translated_value":"HTC Desire","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069633"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"HTCEVODesign4G","translated_value":"HTC Evo","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069634"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"HTCEVOV4G","translated_value":"HTC Evo","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069635"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"HTC_Glacier","translated_value":"HTC Glacier","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069636"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"HTC_Incredible_S","translated_value":"HTC Incredible","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069637"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"HTC_One","translated_value":"HTC One","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069638"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"HTCONE","translated_value":"HTC One","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069639"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"HTC_One_S","translated_value":"HTC One","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006963a"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"HTC_One_V","translated_value":"HTC One","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006963b"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"HTC_One_X","translated_value":"HTC One","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006963c"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"HTC_One_X+","translated_value":"HTC One","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006963d"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"HTC_PH39100","translated_value":"HTC Vivid","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006963e"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"HTC_PN071","translated_value":"HTC One","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006963f"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"HTC_Sensation_4G","translated_value":"HTC Sensatio","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069640"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"HTC_Sensation_Z710e","translated_value":"HTC Sensatio","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069641"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"HTC_VLE_U","translated_value":"HTC One","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069642"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"KFJWA","translated_value":"Kindle Fire","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069643"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"KFJWI","translated_value":"Kindle Fire","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069644"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"KFOT","translated_value":"Kindle Fire","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069645"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"KFTT","translated_value":"Kindle Fire","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069646"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Kindle_Fire","translated_value":"Kindle Fire","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069647"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"LG-C800","translated_value":"LG myTouch","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069648"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"LG-D800","translated_value":"LG G2","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069649"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"LG-C801","translated_value":"LG G2","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006964a"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"LG-C802","translated_value":"LG G2","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006964b"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"LG-E739","translated_value":"LG MyTouch","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006964c"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"LG-E970","translated_value":"LG Optimus","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006964d"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"LG-E980","translated_value":"LG Optimus","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006964e"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"LGL55C","translated_value":"LG LGL55C","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006964f"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"LG-LS840","translated_value":"LG Viper","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069650"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"LG-LS970","translated_value":"LG Optimus","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069651"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"LG-LS980","translated_value":"LG G2","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069652"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"LGMS769","translated_value":"LG Optimus","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069653"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"LG-MS770","translated_value":"LG Motio","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069654"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"LG-MS910","translated_value":"LG Esteem","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069655"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"LG-P509","translated_value":"LG Optimus","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069656"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"LG-P769","translated_value":"LG Optimus","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069657"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"LG-P999","translated_value":"LG G2X","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069658"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"LG-VM696","translated_value":"LG Optimus","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069659"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"LS670","translated_value":"LG Optimus","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006965a"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"LT26i","translated_value":"Sony","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006965b"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"MB855","translated_value":"Motorola Photo","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006965c"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"MB860","translated_value":"Motorola Atrix","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006965d"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"MB865","translated_value":"Motorola Atrix","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006965e"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"MB886","translated_value":"Motorola Atrix","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006965f"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Motorola_Electrify","translated_value":"Motorola Electrify","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069660"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"MOTWX435KT","translated_value":"Motorola Triumph","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069661"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"myTouch_4G_Slide","translated_value":"HTC myTouch","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069662"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"N860","translated_value":"ZTE Warp N860","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069663"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Nexus_10","translated_value":"Google Nexus","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069664"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Nexus_4","translated_value":"Google Nexus","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069665"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Nexus_5","translated_value":"Google Nexus","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069666"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Nexus_7","translated_value":"Google Nexus","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069667"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Nexus_S_4G","translated_value":"Google Nexus","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069668"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Nexus_S","translated_value":"Google Nexus","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069669"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"PantechP9070","translated_value":"Pantech Burst","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006966a"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"PC36100","translated_value":"HTC Evo","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006966b"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"PG06100","translated_value":"HTC EVO","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006966c"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"PG86100","translated_value":"HTC Evo","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006966d"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"PH44100","translated_value":"HTC Evo","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006966e"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SAMSUNG-SGH-I317","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006966f"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SAMSUNG-SGH-I337","translated_value":"Samsung Galaxy S4","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069670"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SAMSUNG-SGH-I537","translated_value":"Samsung Galaxy S4","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069671"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SAMSUNG-SGH-I717","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069672"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SAMSUNG-SGH-I727","translated_value":"Samsung Skyrocket","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069673"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SAMSUNG-SGH-I747","translated_value":"Samsung Galaxy S III","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069674"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SAMSUNG-SGH-I777","translated_value":"Samsung Galaxy S II","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069675"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SAMSUNG-SGH-I897","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069676"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SAMSUNG-SGH-I927","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069677"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SAMSUNG-SGH-I997","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069678"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SM-N9","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069679"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SCH-I200","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006967a"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SCH-I405","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006967b"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SCH-I415","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006967c"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SCH-I500","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006967d"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SCH-I510","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006967e"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SCH-I535","translated_value":"Samsung Galaxy S III","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006967f"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SCH-I545","translated_value":"Samsung Galaxy S4","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069680"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SCH-I605","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069681"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SCH-I800","translated_value":"Samsung Galaxy Tab","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069682"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SCH-R530M","translated_value":"Samsung Galaxy S III","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069683"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SCH-R530U","translated_value":"Samsung Galaxy S III","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069684"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SCH-R720","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069685"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SCH-R720C","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069686"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SCH-R738C","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069687"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SGH-I317M","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069688"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SGH-I337M","translated_value":"Samsung Galaxy S4","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069689"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SGH-I727R","translated_value":"Samsung Galaxy S II","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006968a"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SGH-I747M","translated_value":"Samsung Galaxy S III","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006968b"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SGH-M919","translated_value":"Samsung Galaxy S4","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006968c"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SGH-T599","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006968d"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SGH-T679","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006968e"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SGH-T769","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006968f"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SGH-T889","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069690"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SGH-T959","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069691"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SGH-T959V","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069692"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SGH-T989D","translated_value":"Samsung Galaxy S II","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069693"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SGH-T989","translated_value":"Samsung Galaxy S II","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069694"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SGH-T999L","translated_value":"Samsung Galaxy S III","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069695"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SGH-T999","translated_value":"Samsung Galaxy S III","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069696"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SGH-T999V","translated_value":"Samsung Galaxy S III","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069697"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SHV-E210S","translated_value":"Samsung Galaxy S III","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069698"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SM-T","translated_value":"Samsung Galaxy Tab","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069699"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SPH-D600","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006969a"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SPH-D700","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006969b"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SPH-D710BST","translated_value":"Samsung Galaxy S II","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006969c"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SPH-D710","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006969d"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SPH-D710VMUB","translated_value":"Samsung Galaxy S II","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006969e"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SPH-L300","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006969f"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SPH-L710","translated_value":"Samsung Galaxy S III","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696a0"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SPH-L720","translated_value":"Samsung Galaxy S4","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696a1"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SPH-L900","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696a2"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SPH-M820-BST","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696a3"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SPH-M830","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696a4"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SPH-M930BST","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696a5"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"ST25i","translated_value":"Sony","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696a6"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"T-Mobile_G2","translated_value":"T-Mobile G2","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696a7"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"T-Mobile_myTouch_Q","translated_value":"T-Mobile MyTouch Q","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696a8"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Transformer_Prime_TF201","translated_value":"Asus","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696a9"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Transformer_TF101","translated_value":"Asus","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696aa"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"VM670","translated_value":"LG Optimus V","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696ab"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"VS840_4G","translated_value":"LG Lucid","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696ac"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"VS910_4G","translated_value":"LG Revolutio","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696ad"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"VS920_4G","translated_value":"LG Spectrum","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696ae"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"VS980_4G","translated_value":"LG G2","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696af"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Xoom","translated_value":"Motorola Xoom","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696b0"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"XT1030","translated_value":"Motorola Droid","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696b1"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"XT1032","translated_value":"Motorola Moto","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696b2"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"XT1058","translated_value":"Motorola Moto","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696b3"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"XT1060","translated_value":"Motorola Moto","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696b4"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"XT1080","translated_value":"Motorola Droid","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696b5"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"XT897","translated_value":"Motorola Photo","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696b6"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"XT907","translated_value":"Motorola Droid","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696b7"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SM-G900","translated_value":"Samsung Galaxy S5","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696b8"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"LGL86C","translated_value":"LG Optimus","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696b9"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPhone","translated_value":"iPhone","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696ba"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPhone1C2","translated_value":"iPhone 3G","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696bb"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPhone2C1","translated_value":"iPhone 3GS","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696bc"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPhone3C1","translated_value":"iPhone 4","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696bd"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPhone3C2","translated_value":"iPhone 4","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696be"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPhone3C3","translated_value":"iPhone 4","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696bf"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPhone4C1","translated_value":"iPhone 4S","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696c0"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPhone5C1","translated_value":"iPhone 5","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696c1"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPhone5C2","translated_value":"iPhone 5","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696c2"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPhone5C3","translated_value":"iPhone 5C","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696c3"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPhone5C4","translated_value":"iPhone 5C","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696c4"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPhone6C1","translated_value":"iPhone 5S","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696c5"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPhone6C2","translated_value":"iPhone 5S","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696c6"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPhone7C1","translated_value":"iPhone 6+","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696c7"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPhone7C2","translated_value":"iPhone 6","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696c8"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPad5C4","translated_value":"iPad Air 2","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696c9"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPad","translated_value":"iPad","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696ca"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPad1C1","translated_value":"iPad","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696cb"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPad2C1","translated_value":"iPad 2","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696cc"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPad2C2","translated_value":"iPad 2","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696cd"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPad2C3","translated_value":"iPad 2","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696ce"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPad2C4","translated_value":"iPad Mini","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696cf"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPad2C5","translated_value":"iPad Mini","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696d0"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPad3C1","translated_value":"iPad 3","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696d1"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPad3C2","translated_value":"iPad 3","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696d2"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPad3C3","translated_value":"iPad 3","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696d3"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPad3C4","translated_value":"iPad 4","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696d4"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPad3C5","translated_value":"iPad 4","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696d5"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPad3C6","translated_value":"iPad 4","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696d6"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPad4C1","translated_value":"iPad Air","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696d7"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPad4C2","translated_value":"iPad Air","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696d8"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPad4C3","translated_value":"iPad Air","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696d9"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPad4C4","translated_value":"iPad Mini(Retina)","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696da"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPad4C5","translated_value":"iPad Mini(Retina)","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696db"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPod","translated_value":"iPod Touch","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696dc"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPod2C1","translated_value":"iPod Touch","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696dd"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPod3C1","translated_value":"iPod Touch","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696de"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPod4C1","translated_value":"iPod Touch","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696df"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPod5C1","translated_value":"iPod Touch","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696e0"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPad2C6","translated_value":"iPad 2","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696e1"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPad2C7","translated_value":"iPad 2","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696e2"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-I9228","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696e3"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SHV-E250","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696e4"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SM-G3508","translated_value":"Samsung Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696e5"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SGH-I497","translated_value":"Samsung Galaxy Tab","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696e6"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-I8268","translated_value":"Samsung Galaxy S III","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696e7"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SM-G870A","translated_value":"Samsung Galaxy S5","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696e8"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SCH-N719","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696e9"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-I9308","translated_value":"Samsung Galaxy S III","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696ea"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SCH-R530X","translated_value":"Samsung Galaxy S III","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696eb"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SHW-M440S","translated_value":"Samsung Galaxy S III","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696ec"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SGH-I337","translated_value":"Samsung Galaxy S4","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696ed"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SCH-I435","translated_value":"Samsung Galaxy S4","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696ee"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SHV-E300S","translated_value":"Samsung Galaxy S4","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696ef"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SM-P600","translated_value":"Samsung Galaxy Tab","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696f0"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-P6800","translated_value":"Samsung Galaxy Tab","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696f1"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SGH-T859","translated_value":"Samsung Galaxy Tab","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696f2"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SCH-I925","translated_value":"Samsung Galaxy Tab","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696f3"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-I9220","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696f4"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SGH-I467M","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696f5"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SHV-E160S","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696f6"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SHW-M480W","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696f7"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SM-G3508J","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696f8"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-S7582","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696f9"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-I9268","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696fa"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-I8552","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696fb"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-I8730","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696fc"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-I9050","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696fd"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-I9168","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696fe"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-I9168I","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b12600696ff"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SGH-T499","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069700"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SCH-I779","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069701"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SHV-E270S","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069702"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"SHV-E500S","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069703"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Xiaomi","translated_value":"Xiaomi","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069704"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Sony","translated_value":"Sony","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069705"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Asus","translated_value":"Asus","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069706"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Lumia","translated_value":"Nokia Lumia","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069707"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Lenovo","translated_value":"Lenovo","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069708"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"LGE","translated_value":"LG Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069709"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"ZTE","translated_value":"ZTE","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006970a"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Unknow","translated_value":"Unknow","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006970b"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Toshiba","translated_value":"Toshiba","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006970c"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"HUAWEI","translated_value":"HUAWEI","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006970d"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Philips","translated_value":"Philips","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006970e"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Acer","translated_value":"Acer","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b126006970f"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"GT-N","translated_value":"Samsung Galaxy Note","os_type":"Android","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069710"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPhone8C1","translated_value":"iPhone 6S","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069711"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPhone8C2","translated_value":"iPhone 6S+","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069712"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPhone8C4","translated_value":"iPhone SE","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069713"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPhone9C1","translated_value":"iPhone 7","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069714"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPhone9C2","translated_value":"iPhone 7","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069715"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPhone9C3","translated_value":"iPhone 7","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069716"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Apple-iPhone9C4","translated_value":"iPhone 7+","os_type":"Apple","type":"Device"}
+{"_id":{"$oid":"59513ca7721f5b1260069717"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1104.257","translated_value":"iOS 7.2","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069718"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1001.551","translated_value":"iOS 6.0","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069719"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1001.550","translated_value":"iOS 6.0","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006971a"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Cupcake","translated_value":"Android 1.5","os_type":"Android","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006971b"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Doughnut","translated_value":"Android 1.6","os_type":"Android","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006971c"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Eclair","translated_value":"Android (2.0-2.1)","os_type":"Android","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006971d"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Froyo","translated_value":"Android 2.2","os_type":"Android","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006971e"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Gingerbread","translated_value":"Android 2.3","os_type":"Android","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006971f"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Honeycomb","translated_value":"Android (3.0-3.2)","os_type":"Android","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069720"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Ice Cream Sandwich","translated_value":"Android 4.0","os_type":"Android","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069721"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"Jelly Bea","translated_value":"Android (4.1-4.3)","os_type":"Android","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069722"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"KitKat","translated_value":"Android 4.4","os_type":"Android","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069723"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"508.11","translated_value":"iOS 2.2.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069724"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"701.341","translated_value":"iOS 3.0","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069725"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"701.400","translated_value":"iOS 3.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069726"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"702.367","translated_value":"iOS 3.2","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069727"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"702.405","translated_value":"iOS 3.2.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069728"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"702.500","translated_value":"iOS 3.2.2","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069729"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"703.144","translated_value":"iOS 3.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006972a"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"704.11","translated_value":"iOS 3.1.2","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006972b"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"705.18","translated_value":"iOS 3.1.3","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006972c"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"801.293","translated_value":"iOS 4.0","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006972d"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"801.306","translated_value":"iOS 4.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006972e"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"801.400","translated_value":"iOS 4.0.2","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006972f"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"802.117","translated_value":"iOS 4.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069730"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"802.118","translated_value":"iOS 4.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069731"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"803.148","translated_value":"iOS 4.2.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069732"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"803.14800001","translated_value":"iOS 4.2.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069733"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"805.128","translated_value":"iOS 4.2.5","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069734"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"805.200","translated_value":"iOS 4.2.6","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069735"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"805.303","translated_value":"iOS 4.2.7","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069736"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"805.401","translated_value":"iOS 4.2.8","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069737"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"805.501","translated_value":"iOS 4.2.9","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069738"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"805.600","translated_value":"iOS 4.2.10","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069739"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"806.190","translated_value":"iOS 4.3","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006973a"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"806.191","translated_value":"iOS 4.3","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006973b"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"807.4","translated_value":"iOS 4.3.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006973c"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"808.7","translated_value":"iOS 4.3.2","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006973d"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"808.8","translated_value":"iOS 4.3.2","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006973e"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"810.2","translated_value":"iOS 4.3.3","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006973f"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"810.3","translated_value":"iOS 4.3.3","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069740"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"811.2","translated_value":"iOS 4.3.4","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069741"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"812.1","translated_value":"iOS 4.3.5","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069742"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"901.334","translated_value":"iOS 5.0","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069743"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"901.400","translated_value":"iOS 5.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069744"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"901.401","translated_value":"iOS 5.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069745"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"901.402","translated_value":"iOS 5.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069746"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"901.403","translated_value":"iOS 5.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069747"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"901.404","translated_value":"iOS 5.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069748"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"901.405","translated_value":"iOS 5.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069749"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"901.406","translated_value":"iOS 5.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006974a"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"901.407","translated_value":"iOS 5.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006974b"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"901.408","translated_value":"iOS 5.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006974c"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"901.409","translated_value":"iOS 5.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006974d"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"902.170","translated_value":"iOS 5.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006974e"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"902.171","translated_value":"iOS 5.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006974f"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"902.172","translated_value":"iOS 5.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069750"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"902.173","translated_value":"iOS 5.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069751"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"902.174","translated_value":"iOS 5.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069752"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"902.175","translated_value":"iOS 5.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069753"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"902.176","translated_value":"iOS 5.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069754"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"902.177","translated_value":"iOS 5.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069755"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"902.178","translated_value":"iOS 5.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069756"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"902.179","translated_value":"iOS 5.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069757"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"902.206","translated_value":"iOS 5.1.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069758"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1001.400","translated_value":"iOS 6.0","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069759"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1001.401","translated_value":"iOS 6.0","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006975a"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1001.402","translated_value":"iOS 6.0","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006975b"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1001.403","translated_value":"iOS 6.0","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006975c"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1001.404","translated_value":"iOS 6.0","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006975d"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1001.405","translated_value":"iOS 6.0","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006975e"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1001.406","translated_value":"iOS 6.0","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006975f"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1001.407","translated_value":"iOS 6.0","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069760"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1001.408","translated_value":"iOS 6.0","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069761"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1001.409","translated_value":"iOS 6.0","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069762"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1001.520","translated_value":"iOS 6.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069763"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1001.529","translated_value":"iOS 6.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069764"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1001.521","translated_value":"iOS 6.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069765"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1001.522","translated_value":"iOS 6.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069766"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1001.523","translated_value":"iOS 6.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069767"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1001.524","translated_value":"iOS 6.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069768"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1001.525","translated_value":"iOS 6.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069769"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1001.526","translated_value":"iOS 6.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006976a"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1001.527","translated_value":"iOS 6.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006976b"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1001.528","translated_value":"iOS 6.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006976c"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1002.140","translated_value":"iOS 6.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006976d"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1002.141","translated_value":"iOS 6.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006976e"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1002.142","translated_value":"iOS 6.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006976f"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1002.143","translated_value":"iOS 6.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069770"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1002.144","translated_value":"iOS 6.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069771"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1002.145","translated_value":"iOS 6.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069772"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1002.147","translated_value":"iOS 6.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069773"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1002.148","translated_value":"iOS 6.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069774"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1002.149","translated_value":"iOS 6.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069775"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1002.146","translated_value":"iOS 6.1.2","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069776"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1002.329","translated_value":"iOS 6.1.3","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069777"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1002.350","translated_value":"iOS 6.1.3","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069778"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1101.465","translated_value":"iOS 7.0","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069779"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1101.470","translated_value":"iOS 7.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006977a"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1101.47000001","translated_value":"iOS 7.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006977b"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1101.501","translated_value":"iOS 7.0.2","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006977c"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1102.511","translated_value":"iOS 7.0.3","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006977d"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1102.55400001","translated_value":"iOS 7.0.4","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006977e"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1102.651","translated_value":"iOS 7.0.6","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006977f"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1104.167","translated_value":"iOS 7.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069780"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1002.500","translated_value":"iOS 6.1.4","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069781"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1104.201","translated_value":"iOS 7.1.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069782"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1102.601","translated_value":"iOS 7.0.5","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069783"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1104.169","translated_value":"iOS 7.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069784"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1001.8500","translated_value":"iOS 6.0","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069785"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1001.8426","translated_value":"iOS 6.0","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069786"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1201.365","translated_value":"iOS 8.0","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069787"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1201.366","translated_value":"iOS 8.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069788"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1201.405","translated_value":"iOS 8.0.2","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069789"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1202.411","translated_value":"iOS 8.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006978a"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1202.410","translated_value":"iOS 8.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006978b"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1202.435","translated_value":"iOS 8.1.0","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006978c"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1202.436","translated_value":"iOS 8.1.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006978d"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1202.440","translated_value":"iOS 8.1.2","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006978e"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1202.445","translated_value":"iOS 8.1.2","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006978f"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1202.466","translated_value":"iOS 8.1.3","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069790"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1204.508","translated_value":"iOS 8.2","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069791"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1206.69","translated_value":"iOS 8.3","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069792"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1206.70","translated_value":"iOS 8.3","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069793"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1208.143","translated_value":"iOS 8.4","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069794"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1301.404","translated_value":"iOS 9.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069795"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1208.321","translated_value":"iOS 8.4.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069796"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1301.344","translated_value":"iOS 9","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069797"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1301.402","translated_value":"iOS 9.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069798"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1301.452","translated_value":"iOS 9.0.2","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b1260069799"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1302.143","translated_value":"iOS 9.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006979a"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1303.075","translated_value":"iOS 9.2","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006979b"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1304.15","translated_value":"iOS 9.2.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006979c"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1303.75","translated_value":"iOS 9.2","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006979d"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1305.234","translated_value":"iOS 9.3","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006979e"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1305.328","translated_value":"iOS 9.3.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b126006979f"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1306.69","translated_value":"iOS 9.3.2","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b12600697a0"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1306.72","translated_value":"iOS 9.3.2","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b12600697a1"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1307.34","translated_value":"iOS 9.3.3","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b12600697a2"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1307.35","translated_value":"iOS 9.3.4","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b12600697a3"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1307.36","translated_value":"iOS 9.3.5","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b12600697a4"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1401.403","translated_value":"iOS 10.0.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b12600697a5"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1401.456","translated_value":"iOS 10.0.2","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b12600697a6"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1402.72","translated_value":"iOS 10.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b12600697a7"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1402.100","translated_value":"iOS 10.1.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b12600697a8"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1403.92","translated_value":"iOS 10.2","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b12600697a9"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1404.27","translated_value":"iOS 10.2.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b12600697aa"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1405.277","translated_value":"10.3","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b12600697ab"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1405.304","translated_value":"10.3.1","os_type":"Apple","type":"OS"}
+{"_id":{"$oid":"59513ca7721f5b12600697ac"},"created_on":{"$date":"2017-06-26T16:56:07.000Z"},"original_value":"1406.89","translated_value":"iOS 10.3.2","os_type":"Apple","type":"OS"}

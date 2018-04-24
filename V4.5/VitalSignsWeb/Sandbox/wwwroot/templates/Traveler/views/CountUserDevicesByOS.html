@@ -1,0 +1,14 @@
+﻿<div>
+    User devices by type
+    <ul *ngIf="data">
+        {{data.title}}
+        <li *ngFor="#serie of data.series">
+            {{serie.title}}
+            <ul>
+                <li *ngFor="#segment of serie.segments">
+                    {{segment.label}}:{{segment.value}}
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>

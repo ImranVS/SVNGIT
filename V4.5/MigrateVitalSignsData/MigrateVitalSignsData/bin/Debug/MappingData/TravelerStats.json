@@ -1,0 +1,35 @@
+{
+  "sql_query": "SELECT sr.[ServerName],ts.[TravelerServerName],ts.[MailServerName],ts.[Interval],ts.[Delta],ts.[OpenTimes],ts.[DateUpdated] FROM [vitalsigns].[dbo].[TravelerStats]ts inner join [vitalsigns].[dbo].Servers sr on sr.ServerName=ts.TravelerServerName",
+  "mappings": [
+    {
+      "sql_column": "ServerName",
+      "mongodb_field": "device_id"
+    },
+    {
+      "sql_column": "TravelerServerName",
+      "mongodb_field": "traveler_server_name"
+    },
+    {
+      "sql_column": "MailServerName",
+      "mongodb_field": "mail_server_name"
+    },
+    {
+      "sql_column": "Interval",
+      "mongodb_field": "interval"
+    },
+    {
+      "sql_column": "Delta",
+      "mongodb_field": "delta"
+    },
+    {
+      "sql_column": "OpenTimes",
+      "mongodb_field": "open_times"
+    },
+    {
+      "sql_column": "DateUpdated",
+      "mongodb_field": "date_updated"
+    }
+  ]
+
+
+}

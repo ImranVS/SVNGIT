@@ -1,0 +1,30 @@
+﻿<div>
+    <div class="hidden-xs hidden-sm dashboard-menu" id="zeusContext">
+        <ul class="list-group" *ngIf="contextMenuSiteMap">
+
+            <li class="list-group-item" *ngFor="let node of contextMenuSiteMap.nodes"
+                [routerLinkActive]="['selected']"
+                [routerLinkActiveOptions]="{exact: true}">
+                <a [routerLink]="[node.url]">{{node.title}}</a>
+            </li>
+
+        </ul>
+    </div>
+    <div id="zeusContent" class="container-fluid">
+        <div class="reportsPage">
+            <h1>Mail Threshold Report</h1>
+            <div *ngFor="let widget of widgets">
+                <h3>{{widget.title}}</h3>
+                <div id="{{widget.id}}">
+                    <my-widget [contract]="widget"></my-widget>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <button class="visible-xs visible-sm showMbtn" onclick="$('.dashboard-menu').toggle();">
+        <img class="svgInject" src="/img/dashboard/SubLevelsMenu.svg" title="Dashboard Sub Levels" alt="Dashboard Sub Levels" />
+    </button>
+
+</div>

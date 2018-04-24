@@ -1,0 +1,18 @@
+﻿<table class="table table-condensed small table-striped" id="htmlTable">
+    <thead>
+        <tr>
+            <th>Server Name</th>
+            <th>Dead Mail</th>
+            <th>Pending Mail</th>
+            <th>Held Mail</th>
+        </tr>
+    </thead>
+    <tbody *ngIf="mailThreshold">
+        <tr *ngFor="let mailTh of mailThreshold">
+            <td>{{mailTh.device_name}}</td>
+            <td>{{mailTh.dead_mail_threshold}}</td>
+            <td>{{mailTh.pending_mail_threshold}}</td>
+            <td>{{mailTh.held_mail_threshold}}</td>
+        </tr>
+    </tbody>
+</table>

@@ -1,0 +1,8 @@
+C:\Users\Alan\Documents\VitalSigns Development\IconControl\bin\IconControl.dll
+C:\Users\Alan\Documents\VitalSigns Development\IconControl\bin\IconControl.xml
+C:\Users\Alan\Documents\VitalSigns Development\IconControl\obj\Release\ResolveAssemblyReference.cache
+C:\Users\Alan\Documents\VitalSigns Development\IconControl\obj\Release\MZLUIControls.IconControl.resources
+C:\Users\Alan\Documents\VitalSigns Development\IconControl\obj\Release\ResGen.read.1.tlog
+C:\Users\Alan\Documents\VitalSigns Development\IconControl\obj\Release\ResGen.write.1.tlog
+C:\Users\Alan\Documents\VitalSigns Development\IconControl\obj\Release\IconControl.dll
+C:\Users\Alan\Documents\VitalSigns Development\IconControl\obj\Release\IconControl.xml

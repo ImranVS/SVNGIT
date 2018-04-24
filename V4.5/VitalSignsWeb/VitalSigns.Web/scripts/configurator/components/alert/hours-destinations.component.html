@@ -1,0 +1,113 @@
+﻿<div class="panel panel-default">
+    <div class="panel-heading">Hours and Destinations</div>
+    <div class="panel-body">
+        <div class="grid-sort-group" *ngIf="data">
+            <button class="btn btn-success" (click)="showEditForm(frmDialogSend)" [disabled]="data.itemCount==0">
+                Edit
+            </button>
+            <button class="btn btn-success" (click)="showAddForm(frmDialogSend)">
+                Add
+            </button>
+            <button class="btn btn-success" (click)="deleteHoursDestinations()" [disabled]="data.itemCount==0">
+                Delete
+            </button>
+        </div>
+        <div>&nbsp;</div>
+        <wj-flex-grid [itemsSource]="data" selectionMode="Row" headersVisibility="Column" [isReadOnly]="true" #flex id="grid" (selectionChanged)="onSelectionChanged($event)">
+            <wj-flex-grid-filter></wj-flex-grid-filter>
+            <wj-flex-grid-column [header]="'Type'" [binding]="'business_hours_type'" [width]="120"> </wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Send To'" [binding]="'send_to'" [width]="200"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Copy To'" [binding]="'copy_to'" [width]="200"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Blind Copy To'" [binding]="'blind_copy_to'" [width]="200"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Persistent Notification'" [binding]="'persistent_notification'" [width]="200"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Send Via'" [binding]="'send_via'" [visible]="false"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [visible]="false"></wj-flex-grid-column>
+        </wj-flex-grid>
+
+        <wj-popup style="border: 0px; width: 820px" #frmDialogSend>
+            <div class="modal-content">
+                <div class="modal-header">
+                    {{formTitle}}
+                    <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+                </div>
+                <form (ngSubmit)="saveHoursDestinations(frmDialogSend)" #frmUser="ngForm" class="form-horizontal">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                <label for="business_hour" class="control-label col-sm-5">Hours</label>
+                                <wj-combo-box name="business_hours_type" [itemsSource]="businesshours" [(text)]="formObject.business_hours_type"
+                                              [(ngModel)]="formObject.business_hours_type">
+                                </wj-combo-box>
+                                <input type="text" class="form-control" id="hours_destinations_id" name="hours_destinations_id" [(ngModel)]="formObject.hours_destinations_id" style="display: none" />
+                            </div>
+                            <div class="form-group col-sm-6" *ngIf="isEmail">
+                                <label for="send_to" class="control-label col-sm-4">Send To</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="send_to" name="send_to" required [(ngModel)]="formObject.send_to"
+                                           pattern="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*" />
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-6" *ngIf="isSMS">
+                                <label for="sms_to" class="control-label col-sm-4">SMS To</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="sms_to" name="sms_to" required [(ngModel)]="formObject.send_to" />
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-6" *ngIf="isScript">
+                                <label for="script_name" class="control-label col-sm-4">Script</label>
+                                <wj-combo-box name="script_name" [itemsSource]="scripts" displayMemberPath="text" selectedValuePath="text"
+                                              [(text)]="formObject.send_to" placeholder="Select Script" [(ngModel)]="formObject.send_to">
+                                </wj-combo-box>
+                            </div>
+                            <div class="form-group col-sm-6" *ngIf="isUrl">
+                                <label for="url_name" class="control-label col-sm-4">URL</label>
+                                <wj-combo-box name="url_name" [itemsSource]="urls" displayMemberPath="text" selectedValuePath="text"
+                                              [(text)]="formObject.send_to" placeholder="Select URL" [(ngModel)]="formObject.send_to">
+                                </wj-combo-box>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                <label for="alerting_mechanism" class="control-label col-sm-5">Alerting Mechanism</label>
+                                <wj-combo-box name="alerting_mechanism" [itemsSource]="sendvia" [(text)]="formObject.send_via" #alerting_mechanism
+                                              [(ngModel)]="formObject.send_via" (selectedIndexChanged)="onSendViaSelectedIndexChanged($event)">
+                                </wj-combo-box>
+                            </div>
+                            <div class="form-group col-sm-6" *ngIf="isEmail">
+                                <label for="copy_to" class="control-label col-sm-4">Copy To</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="copy_to" name="copy_to" [(ngModel)]="formObject.copy_to"
+                                           pattern="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-6" *ngIf="isEmail">
+                                <div class="col-sm-2">&nbsp;</div>
+                                <div class="funkyradio col-sm-9">
+                                    <div class="funkyradio-default">
+                                        <input type="checkbox" id="persistent_notification" name="persistent_notification" [(ngModel)]="formObject.persistent_notification" />
+                                        <label for="persistent_notification">Enable Persistent Notification</label>
+                                    </div>
+                                </div>                    
+                                </div>
+                            <div class="form-group col-sm-6" *ngIf="isEmail">
+                                <label for="blind_copy_to" class="control-label col-sm-4">Blind Copy To</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="blind_copy_to" name="blind_copy_to" [(ngModel)]="formObject.blind_copy_to"
+                                           pattern="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+                        <button class="btn btn-primary wj-hide" type="cancel" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                    </div>
+
+                </form>
+            </div>
+        </wj-popup>
+    </div>
+</div>

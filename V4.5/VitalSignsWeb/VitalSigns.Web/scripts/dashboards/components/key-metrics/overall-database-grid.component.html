@@ -1,0 +1,67 @@
+﻿<wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+<button class="btn btn-primary" (click)="ExportExcel()">Export to Excel</button>
+<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true" headersVisibility="Column" #flex>
+    <wj-flex-grid-filter></wj-flex-grid-filter>
+    <wj-flex-grid-column [header]="'Title'" [binding]="'title'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Status'" [binding]="'status'" [width]="150" align="center">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            <div [ngSwitch]="cell.item.status">
+                <span *ngSwitchCase="'OK'" class="label label-pill label-success">{{cell.item.status}}</span>
+                <span *ngSwitchCase="'Not Responding'" class="label label-pill label-danger">{{cell.item.status}}</span>
+                <span *ngSwitchCase="'Exception'" class="label label-pill label-danger">{{cell.item.status}}</span>
+                <span *ngSwitchCase="'Login Failure'" class="label label-pill label-danger">{{cell.item.status}}</span>
+                <span *ngSwitchCase="'Maintenance'" class="label label-pill label-info">{{cell.item.status}}</span>
+                <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.status}}</span>
+            </div>
+        </template>
+    </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'File Name'" [binding]="'file_name'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Server Name'" [binding]="'device_name'" [width]="250"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Template'" [binding]="'design_template_name'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'File Size'" [binding]="'file_size'" align="right"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Details'" [binding]="'details'" [width]="280">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            <div data-toggle="tooltip" data-placement="top" title={{cell.item.details}}>
+                {{cell.item.details}}
+            </div>
+        </template>
+    </wj-flex-grid-column>
+</wj-flex-grid>
+<loading-indicator [isLoading]="isLoading"></loading-indicator>
+<div class="btn-group" *ngIf="data != null">
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToFirstPage()"
+            [disabled]="data.pageIndex <= 0">
+        <span class="glyphicon glyphicon-fast-backward"></span>
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToPreviousPage()"
+            [disabled]="data.pageIndex <= 0">
+        <span class="glyphicon glyphicon-step-backward">
+        </span>
+    </button>
+    <button type="button" class="btn btn-default" disabled style="width:100px">
+        {{
+data.pageIndex + 1 | number
+        }} / {{data.pageCount | number}}
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToNextPage()"
+            [disabled]="data.pageIndex >= data.pageCount - 1">
+        <span class="glyphicon glyphicon-step-forward"></span>
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToLastPage()"
+            [disabled]="data.pageIndex >= data.pageCount - 1">
+        <span class="glyphicon glyphicon-fast-forward"></span>
+    </button>
+</div>
+<div class="pull-right" *ngIf="data != null">
+    <wj-menu [(value)]="pageSize" [header]="'Page size'">
+        <wj-menu-item [value]="10">10</wj-menu-item>
+        <wj-menu-item [value]="20">20</wj-menu-item>
+        <wj-menu-item [value]="50">50</wj-menu-item>
+        <wj-menu-item [value]="100">100</wj-menu-item>
+        <wj-menu-item [value]="200">200</wj-menu-item>
+    </wj-menu>
+</div>

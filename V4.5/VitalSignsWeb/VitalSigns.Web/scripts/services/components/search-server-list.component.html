@@ -1,0 +1,34 @@
+﻿
+<div class="zeusFilterWrapper simple">
+    <div class="row">
+
+        <div class="aZeusFilter col-md-5 col-lg-5">
+            <span class="aZeusFilterName">Type : </span>
+            <select name="selecttype" class="form-control" [(ngModel)]="deviceType" (ngModelChange)="selectDeviceType()">
+                <option *ngFor="let optionData of deviceTypeData" [ngValue]="optionData">{{optionData}}</option>
+            </select>
+        </div>
+        <div class="aZeusFilter col-md-5 col-lg-5">
+            <span class="aZeusFilterName">Status : </span>
+            <select name="selecttype" class="form-control" [(ngModel)]="deviceStatus" (ngModelChange)="selectDeviceStatus()">
+                <option *ngFor="let optionData of deviceStatusData" [ngValue]="optionData">{{optionData}}</option>
+            </select>
+        </div>
+
+    </div>
+    
+    <div class="row">
+        <div class="aZeusFilter col-md-5 col-lg-5">
+            <span class="aZeusFilterName">Location : </span>
+            <select name="selecttype" class="form-control" [(ngModel)]="deviceLocation" (ngModelChange)="selectDeviceLocation()">
+                <option *ngFor="let optionData of deviceLocationData" [ngValue]="optionData">{{optionData}}</option>
+            </select>
+        </div>
+
+        <div class="aZeusFilter col-md-5 col-lg-5">
+            <span class="aZeusFilterName">Name : </span>
+            <input #searchBox type="text" class="form-control" [(ngModel)]="deviceName" (ngModelChange)="changeDeviceName()" />
+        </div>
+    </div>
+
+</div>

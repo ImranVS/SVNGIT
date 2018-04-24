@@ -1,0 +1,24 @@
+﻿<table class="table table-condensed small table-striped" id="htmlTable">
+    <thead>
+        <tr>
+            <th>Server Name</th>
+            <th>Community Name</th>
+            <th>Community Type</th>
+            <th align="right">No. of Owners</th>
+            <th>User</th>
+            <th align="right">No. of Members</th>
+            <th align="right">No. of Followers</th>
+        </tr>
+    </thead>
+    <tbody *ngIf="communityUsers">
+        <tr *ngFor="let user of communityUsers">
+            <td>{{user.device_name}}</td>
+            <td>{{user.name}}</td>
+            <td>{{user.community_type}}</td>
+            <td align="center">{{user.num_of_owners}}</td>
+            <td>{{user.object_user}}</td>
+            <td align="center">{{user.num_of_members}}</td>
+            <td align="center">{{user.num_of_followers}}</td>
+        </tr>
+    </tbody>
+</table>

@@ -1,0 +1,516 @@
+﻿<form [formGroup]="advancedSettingsForm">
+    <div class="form-group" *ngIf="deviceType=='Domino'  || deviceType == 'SharePoint' || deviceType == 'Exchange'|| deviceType == 'IBM FileNet'">
+        <div class="panel panel-default">
+            <div class="panel-heading">Memory Usage Alert</div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <div class="col-sm-2">
+                        <input type="number" class="form-control" name="memoryUsageAlert" [min]="0" [max]="100" formControlName="memory_threshold">
+                    </div>
+                    <div class="col-sm-10">
+                        Memory Utilization alerts will trigger if the percentage of memory in use on the server exceeds this threshold.
+                        If you don't want to get memory alerts, set the threshold to zero.
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">CPU Utilization Alert</div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <div class="col-sm-2">
+                        <input type="number" class="form-control" name="cpuUtilization" [min]="0" [max]="100" formControlName="cpu_threshold">
+                    </div>
+                    <div class="col-sm-10">
+                        CPU Utilization alerts will trigger if the CPU utilization rate exceeds this threshold.
+                        If you don't want to get CPU alerts, set the threshold to zero.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">Server Running Days Alert</div>
+
+            <div class="panel-body">
+                <div class="form-group">
+                    <div class="alert alert-info col-sm-12">
+                        Some companies have a practice to reboot their servers after a set number of days. Enter a value here if you would like to be notified if a server is running beyond this limit.
+                    </div>
+                    <div class="col-sm-12">&nbsp;</div>
+                    <label for="serverRunningDaysAlert" class="control-label col-sm-4">Alert if total elapsed running time exceeds</label>
+                    <div class="col-sm-1">
+                        <input type="text" class="form-control" name="serverRunningDaysAlert" formControlName="server_days_alert">
+                    </div>
+                    <div class="col-sm-4">
+                        consecutive days
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="panel panel-default" *ngIf="deviceType=='Domino'">
+            <div class="panel-heading">Cluster Replication Delays Alert</div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <div class="alert alert-info col-sm-12">
+                        Cluster Replication Delay alerts will trigger if the amount of time (in seconds) that it takes for a document created on this server to be pushed to other servers in the cluster rate exceeds this threshold. If you don't want to get Cluster Replication Delay alerts, set the threshold to zero.
+                    </div>
+                    <div class="col-sm-12">&nbsp;</div>
+                    <div class="row col-sm-12">
+                        <label for="clusterReplicationDelaysAlert" class="control-label col-sm-4">Alert if cluster replication queue time exceeds</label>
+                        <div class="col-sm-1">
+                            <input type="text" class="form-control" name="clusterReplicationDelaysAlert" formControlName="cluster_replication_delay_threshold">
+                        </div>
+                        <div class="row col-sm-4">
+                            seconds
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row col-sm-12">
+                        <label for="clusterReplicationQueueAlert" class="control-label col-sm-7">Load another Cluster Replicator instance if cluster replication queue exceeds</label>
+                        <div class="col-sm-1">
+                            <input type="text" class="form-control" name="clusterReplicationQueueAlert" formControlName="cluster_replication_queue_threshold">
+                        </div>
+                        <div class="row col-sm-2">
+                            seconds
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default" *ngIf="deviceType=='Exchange'">
+            <div class="panel-heading">CAS Server Tests</div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <input type="hidden" name="cas_tests" formControlName="simulation_tests" [(ngModel)]="cas_tests">
+                                    <div *ngFor="let test of cas_tests" class="col-sm-4">
+                                        <input type="checkbox" [value]="test.value" [checked]="test.value" (change)="$event.target.checked ? test.value = true : test.value = false"> <label>{{test.name}}</label>
+                                    </div>
+                                </div>
+                                <div class="form-group" >
+                                    <label class="control-label col-sm-2">Credentials</label>
+                                    <div class="col-sm-3">
+                                        <wj-combo-box formControlName="cas_credentials_id" name="cas_credentials_id" [itemsSource]="deviceCredentialData" displayMemberPath="text" selectedValuePath="value"
+                                                      placeholder="Select Credential" [isEditable]="true" selectedItem="cas_credentials_id" [(ngModel)]="casCredentialsId">
+                                        </wj-combo-box>
+                                    </div>
+                                    <div class="col-sm-5">
+                                        <button class="btn btn-primary" (click)="addCredentials(frmDialog)">
+                                            Add Credentials
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default" *ngIf="deviceType=='SharePoint'">
+            <div class="panel-heading">Site Collection Health Check</div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <div class="alert alert-info col-sm-12">
+                        Check any items you would like to be tested upon scanning this server.
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <input type="hidden" name="site_collections" formControlName="simulation_tests" [(ngModel)]="site_collections">
+                                    <div *ngFor="let test of site_collections" class="col-sm-4">
+                                        <input type="checkbox" [value]="test.value" [checked]="test.value" (change)="$event.target.checked ? test.value = true : test.value = false"> <label>{{test.name}}</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="form-horizontal" *ngIf="deviceType=='Sametime'">
+        <!--<div class="panel panel-default" *ngIf="websphereplatform=='WebSphere'">
+            <div class="panel-heading">WebSphere Settings</div>
+                <div class="panel-body">
+
+                    <div class="form-group col-sm-6">
+                        <label for="name" class="control-label col-sm-5">Name</label>
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control" required formControlName="name" name="name">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label for="host_name" class="control-label col-sm-5">Host Name</label>
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control" required formControlName="host_name" name="host_name">
+                        </div>
+                    </div>
+
+
+                    <div class="form-group col-sm-6">
+                        <label for="connection_type" class="control-label col-sm-5">Connection Type</label>
+                        <div class="col-sm-7">
+                            <select formControlName="connection_type" name="connection_type" class="form-control" id="connection_type">
+                                <option value="SOAP">SOAP</option>
+                                <option value="RMI">RMI</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label for="email" class="control-label col-sm-5">Port No</label>
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control" required formControlName="port_no" name="port_no" >
+                        </div>
+                    </div>
+
+
+                    <div class="form-group col-sm-6">
+                        <div class="col-sm-5">&nbsp;</div>
+                        <div class="funkyradio col-sm-7">
+                            <div class="funkyradio-default">
+                                <input type="checkbox" id="global_security" formControlName="global_security" name="global_security" (change)="isLimitsChecked($event.target.checked)" />
+                                <label for="global_security">Global Security</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="limitsChecked" class="form-group col-sm-6">
+                        <label for="credentials_id" class="control-label col-sm-5">Credentials</label>
+                        <div class="col-sm-7">
+                            <wj-combo-box formControlName="credentials_id" name="credentials_id" [itemsSource]="wsDeviceCredentialData" displayMemberPath="text" selectedValuePath="value"
+                                          placeholder="Select Credential" [isEditable]="true" selectedItem="credentials_id">
+                            </wj-combo-box>
+                        </div>
+                    </div>
+
+
+                    <div *ngIf="limitsChecked" class="form-group col-sm-6">
+                        <label for="realm" class="control-label col-sm-5">Realm</label>
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control" formControlName="realm" name="realm">
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12">
+                        <button type="button" class="btn btn-primary" (click)="onClickRefresh(advancedSettingsForm.value)">Refresh</button>
+                    </div>
+                    <div class="col-sm-12">&nbsp;</div>
+                    <wj-flex-grid #flex1 [itemsSource]="webSphereServerNodeData" selectionMode="Row" headersVisibility="Column">
+                        <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'">
+                            <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                                <input type="checkbox" [ngModel]="cell.item.is_selected" (change)="serverCheck(cell.item.id,$event)" />
+                            </template>
+                        </wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Node Name'" [binding]="'node_name'" [visible]="false" [width]="180">
+                        </wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Server Name'" [binding]="'server_name'"  [isReadOnly]="true" [width]="200">
+                        </wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Host Name'" [binding]="'host_name'" [isReadOnly]="true" [width]="250">
+                        </wj-flex-grid-column>
+                    </wj-flex-grid>
+                    <div class="btn-group" *ngIf="webSphereServerNodeData != null">
+                        <button type="button" class="btn btn-default"
+                                (click)="webSphereServerNodeData.moveToFirstPage()"
+                                [disabled]="webSphereServerNodeData.pageIndex <= 0">
+                            <span class="glyphicon glyphicon-fast-backward"></span>
+                        </button>
+                        <button type="button" class="btn btn-default"
+                                (click)="webSphereServerNodeData.moveToPreviousPage()"
+                                [disabled]="webSphereServerNodeData.pageIndex <= 0">
+                            <span class="glyphicon glyphicon-step-backward">
+                            </span>
+                        </button>
+                        <button type="button" class="btn btn-default" disabled style="width:100px">
+                            {{
+webSphereServerNodeData.pageIndex + 1 | number
+                            }} / {{webSphereServerNodeData.pageCount | number}}
+                        </button>
+                        <button type="button" class="btn btn-default"
+                                (click)="webSphereServerNodeData.moveToNextPage()"
+                                [disabled]="webSphereServerNodeData.pageIndex >= webSphereServerNodeData.pageCount - 1">
+                            <span class="glyphicon glyphicon-step-forward"></span>
+                        </button>
+                        <button type="button" class="btn btn-default"
+                                (click)="webSphereServerNodeData.moveToLastPage()"
+                                [disabled]="webSphereServerNodeData.pageIndex >= webSphereServerNodeData.pageCount - 1">
+                            <span class="glyphicon glyphicon-fast-forward"></span>
+                        </button>
+                    </div>
+                    <div class="pull-right" *ngIf="webSphereServerNodeData != null">
+                        <wj-menu [header]="'Page size'">
+                            <wj-menu-item [value]="10">10</wj-menu-item>
+                            <wj-menu-item [value]="20">20</wj-menu-item>
+                            <wj-menu-item [value]="50">50</wj-menu-item>
+                        </wj-menu>
+                    </div>
+                </div>
+            </div>-->
+        <!--<div class="panel panel-default">
+            <div class="panel-heading"> Proxy Server Settings</div>
+
+            <div class="panel-body">
+                <div class="row">
+                    <div class="form-group col-sm-6">
+                        <label for="proxyServerType" class="control-label col-sm-2">Type</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" name="proxyServerType" formControlName="proxy_server_type">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label for="proxyServerProtocol" class="control-label col-sm-2">Protocol</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" name="proxyServerProtocol" formControlName="proxy_server_protocol">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>-->
+        <!--<div class="panel panel-default">
+            <div class="panel-heading">DB2 Settings</div>
+
+            <div class="panel-body">
+                <div class="form-group">
+                    <label for="dbms_host_name" class="control-label col-sm-2">DB2 Host Name</label>
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control" name="dbms_host_name" formControlName="dbms_host_name">
+                    </div>
+                    <label for="db2DatabaseName" class="control-label col-sm-2">DB2 Database Name</label>
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control" name="db2DatabaseName" formControlName="dbms_name">
+                    </div>
+                    <div class="col-sm-2">
+                        &nbsp;
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="db2Port" class="control-label col-sm-2">DB2 Port</label>
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control" name="db2Port" formControlName="dbms_port">
+                    </div>
+                    <label for="db2_settings_credentials_id" class="control-label col-sm-2">DB2 Credentials</label>
+                    <div class="col-sm-3">
+
+
+                        <wj-combo-box [itemsSource]="deviceCredentialData" displayMemberPath="text" selectedValuePath="value"
+                                      placeholder="Select Credential" formControlName="db2_settings_credentials_id" name="db2_settings_credentials_id" [isEditable]="true">
+
+                        </wj-combo-box>
+                    </div>
+                    <div class="col-sm-2">
+                        <button class="btn btn-primary" (click)="addSametimeCredentials(frmDialog)">
+                            Add Credentials
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>-->
+        <div class="panel panel-default">
+            <div class="panel-heading">Usage Statistics</div>
+
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group col-sm-12">
+                            <div class="funkyradio col-sm-12">
+                                <div class="funkyradio-default">
+                                    <input type="checkbox" id="collectExtendSametimeStatistics" name="collectExtendSametimeStatistics" formControlName="collect_extended_statistics">
+                                    <label for="collectExtendSametimeStatistics">
+                                        Collect Extended Sametime Statistics
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="alert alert-info col-sm-12" >
+                                  Please enter the name of the Domino server hosting the Sametime Community Server. 
+                                </div>
+                                <label for="DominoServerName" class="control-label col-sm-6 col-lg-6">Domino Server Name (for stlog.nsf)</label>
+                                <div >
+                                    <input type="text" class="form-control" name="DominoServerName" formControlName="domino_server_name">
+                                </div>
+                            </div>
+                        </div>
+                        <!--<div>
+                            <div class="form-group col-sm-4" *ngIf="websphereplatform!='Domino'">
+                                <div class="funkyradio col-sm-12">
+                                    <div class="funkyradio-default">
+                                        <input type="checkbox" id="collectMeetingStatistics" name="collectMeetingStatistics" formControlName="collect_meeting_statistics">
+                                        <label for="collectMeetingStatistics">
+                                            Collect Meeting Server Statistics
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>-->
+
+                            <!--<div class="form-group col-sm-4" *ngIf="websphereplatform!='Domino'">
+                                <div class="funkyradio col-sm-12">
+                                    <div class="funkyradio-default">
+                                        <input type="checkbox" id="collectConferenceStatistics" name="collectConferenceStatistics" formControlName="collect_conference_statistics">
+                                        <label for="collectConferenceStatistics">
+                                            Collect Conference Server Statistics
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>-->
+
+                    </div>
+                    <!--<div class="col-sm-12">
+                        <div class="form-group col-sm-5">
+                            <label for="portNo" class="control-label col-sm-3">Port No</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" name="portNo" formControlName="extended_statistics_port">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4" *ngIf="websphereplatform!='Domino'">
+                            <label for="meetingHostName" class="control-label col-sm-6">Meeting Host Name</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" name="meetingHostName" formControlName="meeting_host_name">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4" *ngIf="websphereplatform!='Domino'">
+                            <label for="conferenceHostName" class="control-label col-sm-7">Conference Host Name</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" name="conferenceHostName" formControlName="conference_host_name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12" *ngIf="websphereplatform!='Domino'">
+                        <div class="form-group col-sm-5">&nbsp;</div>
+                        <div class="form-group col-sm-4">
+                            <label for="meetingPort" class="control-label col-sm-6">Meeting Port</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" name="meetingPort" formControlName="meeting_port">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label for="conferencePort" class="control-label col-sm-7">Conference Port</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" name="conferencePort" formControlName="conference_port">
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="col-sm-12" *ngIf="websphereplatform!='Domino'">
+                        <div class="form-group col-sm-5">&nbsp;</div>
+                        <div class="form-group col-sm-4">
+                            <div class="funkyradio col-sm-12">
+                                <div class="funkyradio-default">
+                                    <input type="checkbox" id="meetingRequireSSL" name="meetingRequireSSL" formControlName="meeting_require_ssl">
+                                    <label for="meetingRequireSSL">
+                                        Require SSL
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <div class="funkyradio col-sm-12">
+                                <div class="funkyradio-default">
+                                    <input type="checkbox" id="conferenceRequireSSL" name="conferenceRequireSSL" formControlName="conference_require_ssl">
+                                    <label for="conferenceRequireSSL">
+                                        Require SSL
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>-->
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-group" *ngIf="deviceType=='IBM Connections'">
+        <div class="panel panel-default">
+            <div class="panel-heading">DB2 Settings</div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="form-group col-sm-4">
+
+                        <label for="hostName" class="control-label col-sm-4">Host Name</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" name="hostName" formControlName="database_settings_host_name">
+                        </div>
+
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="database_settings_credentials_id" class="control-label col-sm-5">DB2 Credentials</label>
+                        <div class="col-sm-7">
+
+                            <wj-combo-box [itemsSource]="ConnectionsCredentialData" displayMemberPath="text" selectedValuePath="value"
+                                          placeholder="Select Credentials" formControlName="database_settings_credentials_id" name="database_settings_credentials_id" 
+                                          [(ngModel)]="database_settings_credentials_id" [isEditable]="true" [isRequired]="false">
+                            </wj-combo-box>
+
+                        </div>
+                    </div>
+
+                    <div class="form-group col-sm-4">
+                        <button class="btn btn-primary" (click)="addIbmCredentials(frmDialog)">
+                            Add Credentials
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-sm-4">
+                        <label for="port" class="control-label col-sm-4">Port</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" name="port" formControlName="database_settings_port">
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary" (click)="onSubmit(advancedSettingsForm.value)">Save</button>
+
+
+<!-- </form> -->
+<wj-popup class="col-md-6 modal-content" #frmDialog>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Add Credentials
+            <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+        </div>
+        <form (ngSubmit)="SaveCredential(addCredentialForm.value,frmDialog)" class="form-horizontal" [formGroup]="addCredentialForm">
+            <div class="panel-body">
+
+                <div class="form-group col-sm-12">
+                    <label for="alias" class="control-label col-sm-2">Alias</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" #name d="alias" required name="alias" formControlName="alias">
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    <label for="user_id" class="control-label col-sm-2">User Id</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" required name="user_id" formControlName="user_id">
+                    </div>
+                </div>
+
+                <div class="form-group col-sm-12">
+                    <label for="password" class="control-label col-sm-2">Password</label>
+                    <div class="col-sm-4">
+                        <input type="password" class="form-control" name="password" required formControlName="password">
+                    </div>
+                </div>
+
+            </div>
+            <div class="panel-footer">
+                <button type="submit" class="btn btn-primary"> Save </button>
+                <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</wj-popup>
+    </form>

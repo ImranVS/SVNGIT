@@ -1,0 +1,131 @@
+﻿
+<div class="widgetWrapper">
+    <div class="col-xs-12 col-md-3 col-sm-12 col-lg-3">
+        <div class="row">&nbsp;</div>
+        <div class="form-group">
+        <div class="funkyradio">
+            <div class="funkyradio-default">
+                <input type="radio" name="selectionType" value="allDisksBypercentage" [(ngModel)]="selectedDiskSetting"  id="selectionType1">
+                <label for="selectionType1">	All Disks - By Percentage</label>
+            </div>
+            <div class="funkyradio-default">
+                <input type="radio" name="selectionType" value="allDisksByGB" [(ngModel)]="selectedDiskSetting" id="selectionType2">
+                <label for="selectionType2">All Disks - By GB</label>
+            </div>
+            <div class="funkyradio-default">
+                <input type="radio" name="selectionType" value="selectedDisks" [(ngModel)]="selectedDiskSetting" id="selectionType3">
+                <label for="selectionType3">	Selected Disks</label>
+            </div>
+            <div class="funkyradio-default">
+                <input type="radio" name="selectionType" value="noDiskAlerts" [(ngModel)]="selectedDiskSetting" id="selectionType4">
+                <label for="selectionType4">No Disk Alerts</label>
+            </div>
+            </div>
+</div>
+        <div class="form-group" *ngIf="selectedDiskSetting">
+
+            <button type="button" class="btn btn-primary" (click)="applySetting(diskSettingsForm.value)">Save</button>
+        </div>
+        </div>
+    <div class="col-xs-12 col-md-9 col-sm-12 col-lg-9">
+        <div class="row">&nbsp;</div>
+        <div class="form-group" *ngIf="selectedDiskSetting=='allDisksBypercentage'">
+            <div id="infoDiv1" class="alert alert-info col-md-12" align="left">
+                Disk Space notifications will trigger if any of the drives on the server fall below the threshold.
+            </div>
+            <div class="form-group col-sm-11">
+                <label for="currentThresholdByPercentage" class="control-label col-sm-3">Current Threshold</label>
+                <div class="col-sm-2">
+                    <input type="number" name="currentThresholdByPercentage" class="form-control" min="0" max="100" [(ngModel)]="diskThreshold" #name="ngModel">
+                    <!--<div *ngIf="name.errors && (name.dirty || name.touched)">
+                        <div [hidden]="!name.errors.max">
+                            Name cannot be more than 24 characters long.
+                        </div>
+                    </div>-->
+                </div>
+                <div class="col-sm-3">% free space</div>
+            </div>
+
+            
+        </div>
+            <div class="form-group" *ngIf="selectedDiskSetting=='allDisksByGB'">
+                <div id="infoDiv2" class="alert alert-info col-md-12" align="left">
+                    Disk Space notifications will trigger if any of the drives on the server fall below the threshold.
+                </div>
+                <div class="form-group col-sm-11">
+                    <label for="currentThresholdByGB" class="control-label col-sm-3">Current Threshold</label>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" name="currentThresholdByGB" [(ngModel)]="diskThreshold">
+                    </div>
+                    <div class="col-sm-3">GB free space</div>
+                </div>
+                </div>
+
+            <div class="form-group" *ngIf="selectedDiskSetting=='selectedDisks'">
+                <!--<label >Current disk:</label>-->
+                <div class="alert alert-info col-md-12">
+                    <p>The column 'Free Space Threshold' should be set to a value in GB or Percent (1 to 100) of the remaining free space when an alert should be generated.
+               The column 'Threshold Type' should be set accordingly in either percent or GB.</p>
+                    </div>
+                <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" headersVisibility="Column" (itemsSourceChanged)="itemsSourceChangedHandler()">
+
+                    <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" [width]="60"></wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Disk Name'" is-read-only="true" [binding]="'disk_name'" [isReadOnly]="true" [width]="90"></wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Disk Size'" is-read-only="true" [binding]="'disk_size'" [isReadOnly]="true" [width]="80" align="right"></wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Disk Free Space'" is-read-only="true" [binding]="'disk_free'" [isReadOnly]="true" align="right"> </wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Percent Free'" is-read-only="true" [binding]="'percent_free'" [isReadOnly]="true" [width]="90" format="n1"></wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Free Space Threshold'" [binding]="'freespace_threshold'" [width]="150" align="right">
+                        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                            <input type="text" class="form-control" style="width: 120px; text-align: right" align="right" id="free_space_threshold" name="free_space_threshold"
+                                   [(ngModel)]="cell.item.freespace_threshold" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
+                        </template>
+                    </wj-flex-grid-column>
+                    <wj-flex-grid-column [header]="'Threshold Type'" [binding]="'threshold_type'">
+                        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                            <wj-combo-box name="threshold_types" [itemsSource]="thresholdTypes" [(selectedValue)]="cell.item.threshold_type"
+                                          [(ngModel)]="cell.item.threshold_type" placeholder="Select Type" [isEditable]="false"></wj-combo-box>
+                        </template>
+                    </wj-flex-grid-column>
+
+
+                </wj-flex-grid>
+                <div class="btn-group" *ngIf="data != null">
+                    <button type="button" class="btn btn-default"
+                            (click)="data.moveToFirstPage()"
+                            [disabled]="data.pageIndex <= 0">
+                        <span class="glyphicon glyphicon-fast-backward"></span>
+                    </button>
+                    <button type="button" class="btn btn-default"
+                            (click)="data.moveToPreviousPage()"
+                            [disabled]="data.pageIndex <= 0">
+                        <span class="glyphicon glyphicon-step-backward">
+                        </span>
+                    </button>
+                    <button type="button" class="btn btn-default" disabled style="width:100px">
+                        {{
+data.pageIndex + 1 | number
+                        }} / {{data.pageCount | number}}
+                    </button>
+                    <button type="button" class="btn btn-default"
+                            (click)="data.moveToNextPage()"
+                            [disabled]="data.pageIndex >= data.pageCount - 1">
+                        <span class="glyphicon glyphicon-step-forward"></span>
+                    </button>
+                    <button type="button" class="btn btn-default"
+                            (click)="data.moveToLastPage()"
+                            [disabled]="data.pageIndex >= data.pageCount - 1">
+                        <span class="glyphicon glyphicon-fast-forward"></span>
+                    </button>
+                </div>
+                <div class="pull-right" *ngIf="data != null">
+                    <wj-menu [(value)]="pageSize" [header]="'Page size'">
+                        <wj-menu-item [value]="10">10</wj-menu-item>
+                        <wj-menu-item [value]="20">20</wj-menu-item>
+                        <wj-menu-item [value]="50">50</wj-menu-item>
+                    </wj-menu>
+                </div>
+            </div>
+            <br />
+          
+        </div>
+    </div>

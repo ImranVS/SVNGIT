@@ -1,0 +1,24 @@
+﻿<table class="table table-condensed small table-striped" style="table-layout:fixed" id="htmlTable">
+    <thead>
+        <tr>
+            <th style='text-align:right'>Display Name</th>
+            <th style='text-align:right'>User Principal Name</th>
+            <th style='text-align:right'>User Type</th>
+            <th style='text-align:right'>Title</th>
+            <th style='text-align:right'>Licensed</th>
+            <th style='text-align:right'>Department</th>
+            <th style='text-align:right'>Account LastModified</th>
+        </tr>
+    </thead>
+    <tbody *ngIf="data">
+        <tr *ngFor="let entry of data">
+            <td style='text-align:right'>{{entry.display_name}}</td>
+            <td style='text-align:right'>{{entry.user_principal_name}}</td>
+            <td style='text-align:right'>{{entry.user_type}}</td>
+            <td style='text-align:right'>{{entry.title}}</td>
+            <td style='text-align:right'>{{entry.license}}</td>
+            <td style='text-align:right'>{{entry.department}}</td>
+            <td style='text-align:right'>{{entry.account_last_modified | date: 'shortDate'}}</td>
+        </tr>
+    </tbody>
+</table>

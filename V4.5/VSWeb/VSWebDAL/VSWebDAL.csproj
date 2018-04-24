@@ -1,0 +1,239 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{193A4A45-02C4-455F-8E6F-A42C3117BDAB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>VSWebDAL</RootNamespace>
+    <AssemblyName>VSWebDAL</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\..\..\..\..\Builds\UI\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>..\..\..\..\..\..\..\Builds\UI\VSWebDAL.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Release\VSWebDAL.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DevExpress.Data.v14.2, Version=14.2.7.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.Printing.v14.2.Core, Version=14.2.7.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.Utils.v14.2, Version=14.2.7.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraEditors.v14.2, Version=14.2.7.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Adaptor.cs" />
+    <Compile Include="AdaptorforDsahBoard.cs" />
+    <Compile Include="ConfiguratorDAL\ActiveDirectoryDAL.cs" />
+    <Compile Include="ConfiguratorDAL\AlertsDAL.cs" />
+    <Compile Include="ConfiguratorDAL\BlackBerryDAL.cs" />
+    <Compile Include="ConfiguratorDAL\BlackBerryServersDAL.cs" />
+    <Compile Include="ConfiguratorDAL\Businesshoursdal.cs" />
+    <Compile Include="ConfiguratorDAL\CloudApplicationsServerDAL.cs" />
+    <Compile Include="ConfiguratorDAL\CompanyDAL.cs" />
+    <Compile Include="ConfiguratorDAL\DELSDAL.cs" />
+    <Compile Include="ConfiguratorDAL\ELSDAL.cs" />
+    <Compile Include="ConfiguratorDAL\IBMConnectionsServersDAL.cs" />
+    <Compile Include="ConfiguratorDAL\LicenseDAL.cs" />
+    <Compile Include="ConfiguratorDAL\NetworkLatencyDAL.cs" />
+    <Compile Include="ConfiguratorDAL\FeedbackDAL.cs" />
+    <Compile Include="ConfiguratorDAL\DAGDAL.cs" />
+    <Compile Include="ConfiguratorDAL\ExchangePropertiesDAL.cs" />
+    <Compile Include="ConfiguratorDAL\ExchangeMailProbeDAL.cs" />
+    <Compile Include="ConfiguratorDAL\O365ServerDAL.cs" />
+    <Compile Include="ConfiguratorDAL\SharePointSettingsDAL.cs" />
+    <Compile Include="ConfiguratorDAL\SNMPDevicesDAL.cs" />
+    <Compile Include="ConfiguratorDAL\WebspehereCellDAL.cs" />
+    <Compile Include="ConfiguratorDAL\WebSpherepropertiesDAL.cs" />
+    <Compile Include="ConfiguratorDAL\WebSphereServerGridDAL.cs" />
+    <Compile Include="ConfiguratorDAL\WindowsDAL.cs" />
+    <Compile Include="ConfiguratorDAL\LyncDAL.cs" />
+    <Compile Include="ConfiguratorDAL\MobileUsersDAL.cs" />
+    <Compile Include="ConfiguratorDAL\CredentialsDAL.cs" />
+    <Compile Include="ConfiguratorDAL\DiskSettingsDAL.cs" />
+    <Compile Include="ConfiguratorDAL\DominoClusterDAL.cs" />
+    <Compile Include="ConfiguratorDAL\DominoCustomStatisticsDAL.cs" />
+    <Compile Include="ConfiguratorDAL\DominoServerTasksDAL.cs" />
+    <Compile Include="ConfiguratorDAL\DominoPropertiesDAL.cs" />
+    <Compile Include="ConfiguratorDAL\ExchangeDAL.cs" />
+    <Compile Include="ConfiguratorDAL\LogFileDAL.cs" />
+    <Compile Include="ConfiguratorDAL\MailServicesDAL.cs" />
+    <Compile Include="ConfiguratorDAL\MaintenanceDAL.cs" />
+    <Compile Include="ConfiguratorDAL\MaintenanceSettingsDAL.cs" />
+    <Compile Include="ConfiguratorDAL\MaintenanceWindowsDAL.cs" />
+    <Compile Include="ConfiguratorDAL\NetworkDevicesDAL.cs" />
+    <Compile Include="ConfiguratorDAL\NotesDatabaseDAL.cs" />
+    <Compile Include="ConfiguratorDAL\NotesMailProbeDAL.cs" />
+    <Compile Include="ConfiguratorDAL\PwrShelDAL.cs" />
+    <Compile Include="ConfiguratorDAL\ReportsDAL.cs" />
+    <Compile Include="ConfiguratorDAL\SametimeServersDAL.cs" />
+    <Compile Include="ConfiguratorDAL\ServerTaskSettingsDAL.cs" />
+    <Compile Include="ConfiguratorDAL\ServicesDAL.cs" />
+    <Compile Include="ConfiguratorDAL\SharepointDAL.cs" />
+    <Compile Include="ConfiguratorDAL\TravelerDAL.cs" />
+    <Compile Include="ConfiguratorDAL\URLsDAL.cs" />
+    <Compile Include="ConfiguratorDAL\UserPreferenceDAL.cs" />
+    <Compile Include="DashboardDAL\ActiveDirectoryServerDetailsDAL.cs" />
+    <Compile Include="DashboardDAL\BESDAL.cs" />
+    <Compile Include="DashboardDAL\CloudDetailsDAL.cs" />
+    <Compile Include="DashboardDAL\ClusteHealthDAL.cs" />
+    <Compile Include="DashboardDAL\LatencyTestDAL.cs" />
+    <Compile Include="DashboardDAL\WebsphereDAL.cs" />
+    <Compile Include="DashboardDAL\WebSphereServerDetailsDAL.cs" />
+    <Compile Include="DashboardDAL\ConnectionsDAL.cs" />
+    <Compile Include="DashboardDAL\ExchangeHeatDAL.cs" />
+    <Compile Include="DashboardDAL\MapDAL.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DashboardDAL\Office365DAL.cs" />
+    <Compile Include="DashboardDAL\SametimeServerDetailsDAL.cs" />
+    <Compile Include="DashboardDAL\ExchangeMailFilesDAL.cs" />
+    <Compile Include="DashboardDAL\DashboardDAL.cs" />
+    <Compile Include="DashboardDAL\DatabaseHealthDAL.cs" />
+    <Compile Include="DashboardDAL\DiskHealthDAL.cs" />
+    <Compile Include="DashboardDAL\DominoServerDetailsDAL.cs" />
+    <Compile Include="DashboardDAL\DominoServerDetails_DAL.cs" />
+    <Compile Include="DashboardDAL\DominoServerHealthDAL.cs" />
+    <Compile Include="DashboardDAL\DominoServerStatisticsDetailDAL.cs" />
+    <Compile Include="DashboardDAL\ExchangeServerDetailsDAL.cs" />
+    <Compile Include="DashboardDAL\NetworkDeviceDetailsDAL.cs" />
+    <Compile Include="DashboardDAL\SNMPServerDetailsDAL.cs" />
+    <Compile Include="DashboardDAL\URLDetailsDAL.cs" />
+    <Compile Include="DashboardDAL\WindowsDetailsDAL.cs" />
+    <Compile Include="DashboardDAL\KeyMetricsDAL.cs" />
+    <Compile Include="DashboardDAL\LotusTravelerHealthDAL.cs" />
+    <Compile Include="DashboardDAL\LyncDetailsDAL.cs" />
+    <Compile Include="DashboardDAL\MailFilesDAL.cs" />
+    <Compile Include="DashboardDAL\MailHealthDAL.cs" />
+    <Compile Include="DashboardDAL\MSServerDAL.cs" />
+    <Compile Include="DashboardDAL\QuickrHealthDAL.cs" />
+    <Compile Include="DashboardDAL\ReportDAL.cs" />
+    <Compile Include="DashboardDAL\SametimeHealthDAL.cs" />
+    <Compile Include="DashboardDAL\SharepointdetailsDAL.cs" />
+    <Compile Include="DashboardDAL\URLHealthDAL.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReportsDAL\AvgCpuUtil1.Designer.cs" />
+    <Compile Include="ReportsDAL\AvgCpuUtilDAL.cs" />
+    <Compile Include="ReportsDAL\AvgDailyResponseTime.Designer.cs" />
+    <Compile Include="ReportsDAL\TravelerReportsDAL.cs" />
+    <Compile Include="ReportsDAL\ReportsDAL.cs" />
+    <Compile Include="ReportsDAL\SqlDataSource.cs" />
+    <Compile Include="SecurityDAL\AdminTabDAL.cs" />
+    <Compile Include="SecurityDAL\NodesDAL.cs" />
+    <Compile Include="SecurityDAL\ProfilesNamesDAL.cs" />
+    <Compile Include="SecurityDAL\FeaturesDAL.cs" />
+    <Compile Include="SecurityDAL\MenusDAL.cs" />
+    <Compile Include="SecurityDAL\ServersDAL.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SecurityDAL\UserStartupURLDAL.cs" />
+    <Compile Include="SecurityDAL\UserProfileMasterDAL.cs" />
+    <Compile Include="SecurityDAL\LocationsDAL.cs" />
+    <Compile Include="SecurityDAL\ServerTypesDAL.cs" />
+    <Compile Include="SecurityDAL\ProfilesMasterDAL.cs" />
+    <Compile Include="SecurityDAL\UsersDAL.cs" />
+    <Compile Include="SecurityDAL\UserSecurityQuestionDAL.cs" />
+    <Compile Include="SecurityDAL\webspehereimportDAL.cs" />
+    <Compile Include="SettingDAL\SettingsDAL.cs" />
+    <Compile Include="StatusDAL\StatusTDAL.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="obj\Debug\DesignTimeResolveAssemblyReferencesInput.cache" />
+    <None Include="obj\Debug\ResolveAssemblyReference.cache" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="bin\Debug\VSWebDAL.dll" />
+    <Content Include="bin\Debug\VSWebDAL.pdb" />
+    <Content Include="obj\Debug\VSWebDAL.csproj.FileListAbsolute.txt" />
+    <Content Include="obj\Debug\VSWebDAL.dll" />
+    <Content Include="obj\Debug\VSWebDAL.pdb" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="bin\Release\" />
+    <Folder Include="obj\Debug\TempPE\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\VitalSignsWebSphereDLL\VitalSignsWebSphereDLL\VitalSignsWebSphereDLL.csproj">
+      <Project>{0A68FB6A-CBDC-4359-8B50-00205806D37F}</Project>
+      <Name>VitalSignsWebSphereDLL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Log\Log.csproj">
+      <Project>{3253631A-E20B-41EA-8B7A-9C822DE3233F}</Project>
+      <Name>Log</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VSWebDO\VSWebDO.csproj">
+      <Project>{A14622A9-D3A7-424E-8ED5-E46BA4282F9A}</Project>
+      <Name>VSWebDO</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

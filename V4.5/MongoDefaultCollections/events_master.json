@@ -1,0 +1,132 @@
+{"_id":{"$oid":"5715834969dfe42f5fb51ea4"},"created_on":{"$date":"2016-04-19T01:00:57.000Z"},"event_type":"Traveler Servlet","device_type":"Domino"}
+{"_id":{"$oid":"5715834969dfe42f5fb51ea6"},"created_on":{"$date":"2016-04-19T01:00:57.000Z"},"event_type":"Availability Index","device_type":"Domino"}
+{"_id":{"$oid":"5715835d69dfe42f5fb51ea5"},"created_on":{"$date":"2016-04-19T01:01:17.000Z"},"event_type":"Not Responding","device_type":"Domino"}
+{"_id":{"$oid":"582c9056d6e14d07a4d157cf"},"created_on":{"$date":"2016-11-16T16:59:02.000Z"},"event_type":"Traveler Device Sync","device_type":"Domino"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157d0"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Traveler Mail","device_type":"Domino"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157d1"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Disk Space","device_type":"Domino"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157d2"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Dead Mail Deletion","device_type":"Domino"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157d3"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"EXJournal","device_type":"Domino"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157d4"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Memory","device_type":"Domino"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157d5"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Failover","device_type":"Domino"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157d6"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"CPU","device_type":"Domino"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157d7"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Log File","device_type":"Domino"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157d8"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Domino Statistic","device_type":"Domino"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157d9"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Dead Mail","device_type":"Domino"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157da"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Pending Mail","device_type":"Domino"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157db"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Held Mail","device_type":"Domino"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157dc"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Telnet","device_type":"Domino"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157dd"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Traveler Status Yellow","device_type":"Domino"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157de"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Traveler Status Red","device_type":"Domino"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157df"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Reboot Overdue","device_type":"Domino"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157e0"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Server Task","device_type":"Domino"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157e1"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Cluster Replicator Delay","device_type":"Domino"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157e2"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Traveler Threads Warning","device_type":"Domino"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157e3"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Traveler Insufficient Threads","device_type":"Domino"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157e4"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Traveler Data Store","device_type":"Domino"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157e5"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Traveler Resource Constraint","device_type":"Domino"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157e6"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Mailbox","device_type":"Domino"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157e7"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Login","device_type":"Sametime"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157e8"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Chat","device_type":"Sametime"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157e9"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Awareness","device_type":"Sametime"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157ea"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Service not running","device_type":"Sametime"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157eb"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Mux Login","device_type":"Sametime"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157ec"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Not Responding","device_type":"Sametime"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157ed"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Resolve","device_type":"Sametime"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157ee"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Status Change","device_type":"Sametime"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157ef"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"IM","device_type":"Sametime"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157f0"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Not Responding","device_type":"Mail"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157f1"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Slow","device_type":"Mail"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157f2"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Slow","device_type":"URL"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157f3"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Not Responding","device_type":"URL"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157f4"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Domino Exception","device_type":"URL"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157f5"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Search Text","device_type":"URL"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157f6"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Error","device_type":"URL"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157f7"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Search String","device_type":"URL"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157f8"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Not Responding","device_type":"Network Device"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157f9"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Slow","device_type":"Network Device"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157fa"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Database Disappearance","device_type":"Notes Database"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157fb"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Too Many Documents","device_type":"Notes Database"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157fc"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Database Size","device_type":"Notes Database"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157fd"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Response Time","device_type":"Notes Database"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157fe"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Monitoring Delay","device_type":"General"}
+{"_id":{"$oid":"582c9057d6e14d07a4d157ff"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Overdue Device Sync","device_type":"Mobile Users"}
+{"_id":{"$oid":"582c9057d6e14d07a4d15800"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Missing Replica","device_type":"Domino Cluster database"}
+{"_id":{"$oid":"582c9057d6e14d07a4d15801"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Cluster Replication","device_type":"Domino Cluster database"}
+{"_id":{"$oid":"582c9057d6e14d07a4d15802"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Slow","device_type":"NotesMail Probe"}
+{"_id":{"$oid":"582c9057d6e14d07a4d15803"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Failure","device_type":"NotesMail Probe"}
+{"_id":{"$oid":"582c9057d6e14d07a4d15804"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Active Thread Count","device_type":"WebSphere"}
+{"_id":{"$oid":"582c9057d6e14d07a4d15805"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Current Hung Thread Count","device_type":"WebSphere"}
+{"_id":{"$oid":"582c9057d6e14d07a4d15806"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Memory Used","device_type":"WebSphere"}
+{"_id":{"$oid":"582c9057d6e14d07a4d15807"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Current Heap Size","device_type":"WebSphere"}
+{"_id":{"$oid":"582c9057d6e14d07a4d15808"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Average Thread Count","device_type":"WebSphere"}
+{"_id":{"$oid":"582c9057d6e14d07a4d15809"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Up Time","device_type":"WebSphere"}
+{"_id":{"$oid":"582c9057d6e14d07a4d1580a"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Process CPU Usage","device_type":"WebSphere"}
+{"_id":{"$oid":"582c9057d6e14d07a4d1580b"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Response Time","device_type":"WebSphere"}
+{"_id":{"$oid":"582c9057d6e14d07a4d1580c"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Not Responding","device_type":"WebSphere"}
+{"_id":{"$oid":"582c9057d6e14d07a4d1580d"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Not Responding","device_type":"IBM Connections"}
+{"_id":{"$oid":"582c9057d6e14d07a4d1580e"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Create Forum Topic","device_type":"IBM Connections"}
+{"_id":{"$oid":"582c9057d6e14d07a4d1580f"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Login Test","device_type":"IBM Connections"}
+{"_id":{"$oid":"582c9057d6e14d07a4d15810"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Create Activity","device_type":"IBM Connections"}
+{"_id":{"$oid":"582c9057d6e14d07a4d15811"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Create Blog","device_type":"IBM Connections"}
+{"_id":{"$oid":"582c9057d6e14d07a4d15812"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Create Bookmark","device_type":"IBM Connections"}
+{"_id":{"$oid":"582c9057d6e14d07a4d15813"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Create Community","device_type":"IBM Connections"}
+{"_id":{"$oid":"582c9057d6e14d07a4d15814"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Create File","device_type":"IBM Connections"}
+{"_id":{"$oid":"582c9057d6e14d07a4d15815"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Create Forum","device_type":"IBM Connections"}
+{"_id":{"$oid":"582c9057d6e14d07a4d15816"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Search Profiles","device_type":"IBM Connections"}
+{"_id":{"$oid":"582c9057d6e14d07a4d15817"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Create Wiki","device_type":"IBM Connections"}
+{"_id":{"$oid":"58b749b74e01bee5d8624761"},"created_on":{"$date":"2017-03-01T22:22:47.000Z"},"event_type":"Database Connection Error","device_type":"Notes Database"}
+{"_id":{"$oid":"58b749df4e01bee5d8624762"},"created_on":{"$date":"2017-03-01T22:23:27.000Z"},"event_type":"Database View Refresh","device_type":"Notes Database"}
+{"_id":{"$oid":"58d58518ca97a28482f25d6f"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"Create Site","device_type":"Office365"}
+{"_id":{"$oid":"58d58518ca97a28482f25d70"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"Delete Site","device_type":"Office365"}
+{"_id":{"$oid":"58d58518ca97a28482f25d71"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"Auto Discovery","device_type":"Office365"}
+{"_id":{"$oid":"58d58518ca97a28482f25d72"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"IMAP","device_type":"Office365"}
+{"_id":{"$oid":"58d58518ca97a28482f25d73"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"SMTP","device_type":"Office365"}
+{"_id":{"$oid":"58d58518ca97a28482f25d74"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"POP3","device_type":"Office365"}
+{"_id":{"$oid":"58d58518ca97a28482f25d75"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"MAPI Connectivity","device_type":"Office365"}
+{"_id":{"$oid":"58d58518ca97a28482f25d76"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"Create Calendar Entry","device_type":"Office365"}
+{"_id":{"$oid":"58d58518ca97a28482f25d77"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"Delete Calendar Entry","device_type":"Office365"}
+{"_id":{"$oid":"58d58518ca97a28482f25d78"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"OWA","device_type":"Office365"}
+{"_id":{"$oid":"58d58518ca97a28482f25d79"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"Mail flow","device_type":"Office365"}
+{"_id":{"$oid":"58d58518ca97a28482f25d7a"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"Inbox","device_type":"Office365"}
+{"_id":{"$oid":"58d58518ca97a28482f25d7b"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"OneDrive Upload Document","device_type":"Office365"}
+{"_id":{"$oid":"58d58518ca97a28482f25d7c"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"OneDrive Download Document","device_type":"Office365"}
+{"_id":{"$oid":"58d58518ca97a28482f25d7d"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"Authentication","device_type":"Office365"}
+{"_id":{"$oid":"58d58518ca97a28482f25d7e"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"Not Responding","device_type":"Office365"}
+{"_id":{"$oid":"58d58518ca97a28482f25d7f"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"Create Mail Folder","device_type":"Office365"}
+{"_id":{"$oid":"58d58518ca97a28482f25d80"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"URL","device_type":"Office365"}
+{"_id":{"$oid":"58d58518ca97a28482f25d81"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"DirSync Import","device_type":"Office365"}
+{"_id":{"$oid":"58d58518ca97a28482f25d82"},"created_on":{"$date":"2017-03-24T20:44:08.000Z"},"event_type":"DirSync Export","device_type":"Office365"}
+{"_id":{"$oid":"59b829235a790c6e0531a94d"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"Response Time","device_type":"Domino"}
+{"_id":{"$oid":"59cd1df9e6082201f647f473"},"created_on":{"$date":"2016-11-16T16:59:03.000Z"},"event_type":"URL Test","device_type":"IBM Connections"}
+{"_id":{"$oid":"5a381218bf46715e101958de"},"created_on":{"$date":"2017-12-18T19:08:08.000Z"},"event_type":"CPU","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958df"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Memory","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958e0"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"SMTP","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958e1"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"IMAP","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958e2"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"MAPO","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958e3"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Active Sync","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958e4"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Active Sync Devices","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958e5"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Submission","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958e6"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Poison","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958e7"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Unreachable","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958e8"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Reboot Overdue","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958e9"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Not Responding","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958ea"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Mailbox Database Size","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958eb"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Mailbox Send Prohibited","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958ec"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Mailbox Receive Prohibited","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958ed"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Shadow","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958ee"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"RPC","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958ef"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"POP3","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958f0"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Auto Discovery","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958f1"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Services","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958f2"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Disk Space","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958f3"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Health Check","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958f4"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"MailBox Assistants Service Test","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958f5"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Mailbox Replication Service Test","device_type":"Exchange"}
+{"_id":{"$oid":"5a38122fbf46715e101958f6"},"created_on":{"$date":"2017-12-18T19:08:31.000Z"},"event_type":"Database Corruption","device_type":"Exchange"}
+{"_id":{"$oid":"5a6f4b84bf46713a609dbfd8"},"created_on":{"$date":"2018-01-29T16:27:48.000Z"},"event_type":"DAG Member Health","device_type":"Database Availability Group"}
+{"_id":{"$oid":"5a6f4b85bf46713a609dbfd9"},"created_on":{"$date":"2018-01-29T16:27:49.000Z"},"event_type":"DAG Database Health","device_type":"Database Availability Group"}
+{"_id":{"$oid":"5a6f4b85bf46713a609dbfda"},"created_on":{"$date":"2018-01-29T16:27:49.000Z"},"event_type":"DAG Activation Preference","device_type":"Database Availability Group"}
+{"_id":{"$oid":"5a6f4b85bf46713a609dbfdb"},"created_on":{"$date":"2018-01-29T16:27:49.000Z"},"event_type":"DAG Copy Queue","device_type":"Database Availability Group"}
+{"_id":{"$oid":"5a6f4b85bf46713a609dbfdc"},"created_on":{"$date":"2018-01-29T16:27:49.000Z"},"event_type":"DAG Replay Queue","device_type":"Database Availability Group"}
+{"_id":{"$oid":"5a6f4b85bf46713a609dbfdd"},"created_on":{"$date":"2018-01-29T16:27:49.000Z"},"event_type":"Auto Discovery","device_type":"Database Availability Group"}
+{"_id":{"$oid":"5a6f4b85bf46713a609dbfde"},"created_on":{"$date":"2018-01-29T16:27:49.000Z"},"event_type":"Not Responding","device_type":"Database Availability Group"}

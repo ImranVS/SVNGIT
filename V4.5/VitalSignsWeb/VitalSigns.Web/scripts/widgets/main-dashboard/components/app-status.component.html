@@ -1,0 +1,27 @@
+﻿<div class="col-lg-6 col-md-6">
+    <div class="widgetWrapper h-xs-78 zeusColorReactBg" data-widget-type="widgetImageText" *ngIf="appStatus"
+         [class.zeusColorReact-success]="appStatus.status == 'ok'"
+         [class.zeusColorReact-warning]="appStatus.status == 'late'"
+         [class.zeusColorReact-danger]="appStatus.status == 'verylate'">
+        <img class="svgInject" src="/img/dashboard/Clock.svg" title="Most recent scan" alt="Most recent scan" />
+        <div>
+            <div class="widgetImageText-head" *ngIf="appStatus">{{appStatus.last_updated}}</div>
+            <div class="widgetImageText-text">Most recent scan</div>
+        </div>
+    </div>
+</div>
+
+<!--<div class="widgetWrapper h-xs-236" data-widget-type="widgetAppStatus">
+    <div class="widgetContent" *ngIf="appStatus"
+         [class.zeusColorReact-success]="appStatus.status == 'noIssue'"
+         [class.zeusColorReact-default]="appStatus.status == 'maintenance'"
+         [class.zeusColorReact-warning]="appStatus.status == 'issue'"
+         [class.zeusColorReact-danger]="appStatus.status == 'notResponding'">
+        <img class="svgInject zeusColorReactFill" src="{{appStatus.icon}}" title="{{appStatus.name}}" alt="{{appStatus.name}}" />
+        <div class="widgetAppStatus-head">Cloud application, <strong>{{appStatus.name}}</strong></div>
+        <div class="widgetAppStatus-text">Last scan : {{appStatus.last_scan}}</div>
+        <div class="widgetFooter zeusColorReactText">
+            {{getStatusDescription(appStatus.status)}}
+        </div>
+    </div>
+</div>-->

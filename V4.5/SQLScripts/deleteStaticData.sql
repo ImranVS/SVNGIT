@@ -1,0 +1,12 @@
+delete from Credentials
+delete from EventsMaster
+delete from HoursIndicator
+delete from MenuItems
+delete from PowershellScripts
+delete from PowershellScripts1
+delete from ReportItems
+delete from Reports
+delete from ServerTypes
+delete from Settings
+delete from UserSecurityQuestions
+delete from DominoServerTasks

@@ -1,0 +1,12 @@
+C:\Documents and Settings\forbesa\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\Interop.DAO.dll
+C:\Documents and Settings\forbesa\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\MailMonServiceInstaller.vbproj.ResolveComReference.cache
+C:\Documents and Settings\forbesa\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\MailMonitorServiceInstaller.exe
+C:\Documents and Settings\forbesa\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\MailMonitorServiceInstaller.pdb
+C:\Documents and Settings\forbesa\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\bin\MailMonitorServiceInstaller.exe
+C:\Documents and Settings\forbesa\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\bin\MailMonitorServiceInstaller.pdb
+C:\Documents and Settings\forbesa\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\bin\MailMonitorServiceInstaller.xml
+C:\Documents and Settings\forbesa\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\bin\Interop.DAO.dll
+C:\Documents and Settings\forbesa\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\ResolveAssemblyReference.cache
+C:\Documents and Settings\forbesa\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\MailMonServiceInstaller.Form1.resources
+C:\Documents and Settings\forbesa\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\MailMonServiceInstaller.vbproj.GenerateResource.Cache
+C:\Documents and Settings\forbesa\My Documents\Visual Studio 2008\Projects\VitalSignsServiceInstaller\obj\Debug\MailMonitorServiceInstaller.xml

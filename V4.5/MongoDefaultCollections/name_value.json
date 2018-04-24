@@ -1,0 +1,39 @@
+{ "_id" : { "$oid" : "57a28e944491ee376cefc3b2" }, "name" : "AlertsRepeatOn", "value" : "false" }
+{ "_id" : { "$oid" : "57a28ea24491ee376cefc3b3" }, "name" : "AlertsRepeatOccurrences", "value" : "3" }
+{ "_id" : { "$oid" : "57a28eb24491ee376cefc3b4" }, "name" : "TotalMaximumAlertsPerDay", "value" : "0", "modified_on" : { "$date" : "2017-03-02T20:50:25.806+0000" } }
+{ "_id" : { "$oid" : "57a28ebe4491ee376cefc3b5" }, "name" : "TotalMaximumAlertsPerDefinition", "value" : "0", "modified_on" : { "$date" : "2017-03-02T20:50:25.702+0000" } }
+{ "_id" : { "$oid" : "57bb119f5851eac8b4007308" }, "name" : "Log Files Path-New", "value" : "C:\\Program Files (x86)\\VitalSignsPlus\\Log_Files" }
+{ "_id" : { "$oid" : "57d0b89f97edc637df861196" }, "name" : "Notes User ID", "value" : "C:/Program Files (x86)/IBM/notes/data/user.id", "modified_on" : { "$date" : "2017-02-24T21:25:34.067+0000" } }
+{ "_id" : { "$oid" : "57d0b90f97edc637df861198" }, "name" : "Notes.ini", "value" : "C:/Program Files (x86)/IBM/notes/notes.ini", "modified_on" : { "$date" : "2017-02-24T21:25:34.152+0000" } }
+{ "_id" : { "$oid" : "57d0b93097edc637df861199" }, "name" : "Notes Program Directory", "value" : "C:/Program Files (x86)/IBM/Notes", "modified_on" : { "$date" : "2017-02-24T21:25:33.987+0000" } }
+{ "_id" : { "$oid" : "57d8574f97edc637df861284" }, "name" : "Log Files Path", "value" : "C:\\Program Files (x86)\\VitalSignsPlus\\log_files\\", "created_on" : { "$date" : "2016-09-13T19:45:18.795+0000" }, "modified_on" : { "$date" : "2017-03-02T21:53:36.026+0000" } }
+{ "_id" : { "$oid" : "57d8575497edc637df861287" }, "name" : "InstallLocation", "value" : "C:\\Program Files (x86)\\VitalSignsPlus", "created_on" : { "$date" : "2016-09-13T19:45:23.847+0000" }, "modified_on" : { "$date" : "2017-03-02T21:53:41.055+0000" } }
+{ "_id" : { "$oid" : "5800807221c5190d7e9a0863" }, "name" : "Enable Domino Console Commands", "value" : "True", "modified_on" : { "$date" : "2017-02-24T21:25:34.234+0000" } }
+{ "_id" : { "$oid" : "580081fb21c5190d7e9a0864" }, "name" : "Enable ExJournal", "value" : "True", "modified_on" : { "$date" : "2017-02-24T21:25:34.329+0000" } }
+{ "_id" : { "$oid" : "5800823821c5190d7e9a0865" }, "name" : "ExJournal Threshold", "value" : "10", "modified_on" : { "$date" : "2017-02-24T21:25:34.414+0000" } }
+{ "_id" : { "$oid" : "580492ef740dfb27205ee176" }, "created_on" : { "$date" : "2016-10-17T08:59:27.000+0000" }, "name" : "Currency Symbol", "value" : "$", "modified_on" : { "$date" : "2017-02-03T21:21:01.833+0000" } }
+{ "_id" : { "$oid" : "580492f1740dfb27205ee177" }, "created_on" : { "$date" : "2016-10-17T08:59:29.000+0000" }, "name" : "Monitoring Delay", "value" : "13", "modified_on" : { "$date" : "2017-02-03T21:21:01.835+0000" } }
+{ "_id" : { "$oid" : "580492f7740dfb27205ee178" }, "created_on" : { "$date" : "2016-10-17T08:59:35.000+0000" }, "name" : "Threshold Show", "value" : "30", "modified_on" : { "$date" : "2017-02-03T21:21:01.838+0000" } }
+{ "_id" : { "$oid" : "581739a1740dfb3170c6e033" }, "created_on" : { "$date" : "2016-10-31T12:31:29.000+0000" }, "name" : "Alert Interval", "value" : "11" }
+{ "_id" : { "$oid" : "581739a2740dfb3170c6e034" }, "created_on" : { "$date" : "2016-10-31T12:31:30.000+0000" }, "name" : "Alert Duration", "value" : "111" }
+{ "_id" : { "$oid" : "581739a2740dfb3170c6e035" }, "created_on" : { "$date" : "2016-10-31T12:31:30.000+0000" }, "name" : "E-Mail" }
+{ "_id" : { "$oid" : "581739a3740dfb3170c6e036" }, "created_on" : { "$date" : "2016-10-31T12:31:31.000+0000" }, "name" : "Enable Alert Limits", "value" : "False" }
+{ "_id" : { "$oid" : "581739a3740dfb3170c6e037" }, "created_on" : { "$date" : "2016-10-31T12:31:31.000+0000" }, "name" : "Total Maximum Alerts per Definition", "value" : "0" }
+{ "_id" : { "$oid" : "581739a4740dfb3170c6e038" }, "created_on" : { "$date" : "2016-10-31T12:31:32.000+0000" }, "name" : "Total Maximum Alerts per Day", "value" : "0" }
+{ "_id" : { "$oid" : "581739a4740dfb3170c6e039" }, "created_on" : { "$date" : "2016-10-31T12:31:32.000+0000" }, "name" : "Enable SNMP traps", "value" : "False" }
+{ "_id" : { "$oid" : "581e6da98a287b4b00602909" }, "created_on" : { "$date" : "2016-11-05T23:39:21.000+0000" }, "name" : "EnablePersitentAlerting", "value" : "False", "modified_on" : { "$date" : "2017-03-02T20:50:25.035+0000" } }
+{ "_id" : { "$oid" : "581e6da98a287b4b0060290a" }, "created_on" : { "$date" : "2016-11-05T23:39:21.000+0000" }, "name" : "AlertInterval", "value" : "1", "modified_on" : { "$date" : "2017-03-02T20:50:25.122+0000" } }
+{ "_id" : { "$oid" : "581e6da98a287b4b0060290b" }, "created_on" : { "$date" : "2016-11-05T23:39:21.000+0000" }, "name" : "AlertDuration", "value" : "0", "modified_on" : { "$date" : "2017-03-02T20:50:25.511+0000" } }
+{ "_id" : { "$oid" : "581e6da98a287b4b0060290c" }, "created_on" : { "$date" : "2016-11-05T23:39:21.000+0000" }, "name" : "EnableAlertLimits", "value" : "True", "modified_on" : { "$date" : "2017-03-02T20:50:25.608+0000" } }
+{ "_id" : { "$oid" : "581e6da98a287b4b0060290d" }, "created_on" : { "$date" : "2016-11-05T23:39:21.000+0000" }, "name" : "EnableSNMPTraps", "value" : "False", "modified_on" : { "$date" : "2017-03-02T20:50:25.899+0000" } }
+{ "_id" : { "$oid" : "581e6da98a287b4b0060290f" }, "created_on" : { "$date" : "2016-11-05T23:39:21.000+0000" }, "name" : "AlertAboutRecurrencesOnly", "value" : "False", "modified_on" : { "$date" : "2017-03-02T20:50:26.082+0000" } }
+{ "_id" : { "$oid" : "581e6daa8a287b4b00602910" }, "created_on" : { "$date" : "2016-11-05T23:39:22.000+0000" }, "name" : "NumberOfRecurrences", "value" : "4", "modified_on" : { "$date" : "2017-03-02T20:50:26.172+0000" } }
+{ "_id" : { "$oid" : "584981900227daacc64cf538" }, "name" : "c", "value" : "C:\\Program Files (x86)\\IBM\\WebSphere\\AppClient\\" }
+{ "_id" : { "$oid" : "584990a10227daacc64cf539" }, "name" : "Daily Service Last Processed", "value" : "2016-12-07", "created_on" : { "$date" : "2016-12-08T16:55:58.814+0000" }, "modified_on" : { "$date" : "2016-12-08T16:56:05.239+0000" } }
+{ "_id" : { "$oid" : "586e3792a009d12e986c9de6" }, "created_on" : { "$date" : "2017-01-05T12:09:54.000+0000" }, "name" : "2", "value" : "2", "modified_on" : { "$date" : "2017-01-05T12:15:40.920+0000" } }
+{ "_id" : { "$oid" : "586e391ea009d11cd885b072" }, "created_on" : { "$date" : "2017-01-05T12:16:30.000+0000" }, "name" : "1", "value" : "2", "modified_on" : { "$date" : "2017-01-05T12:17:58.007+0000" } }
+{ "_id" : { "$oid" : "586e3992a009d11cd885b073" }, "created_on" : { "$date" : "2017-01-05T12:18:26.000+0000" }, "name" : "1", "value" : "1", "modified_on" : { "$date" : "2017-01-05T12:20:32.020+0000" } }
+{ "_id" : { "$oid" : "586e3a25a009d1272c9db727" }, "created_on" : { "$date" : "2017-01-05T12:20:53.000+0000" }, "name" : "1", "value" : "1", "modified_on" : { "$date" : "2017-01-05T12:21:52.190+0000" } }
+{ "_id" : { "$oid" : "586e3af0a009d12fa00d8c5b" }, "created_on" : { "$date" : "2017-01-05T12:24:16.000+0000" }, "name" : "Log Level", "value" : "2", "modified_on" : { "$date" : "2017-03-03T08:00:23.456+0000" } }
+{ "_id" : { "$oid" : "58793a63d9bf90ae9011c912" }, "name" : "WebSphereAppClientPath", "value" : "C:\\Program Files (x86)\\IBM\\WebSphere\\AppClient\\" }
+{ "_id" : { "$oid" : "58ad453e4e01bee5d8623cfe" }, "name" : "Daily Service Lookback Day Count", "value" : "3", "created_on" : { "$date" : "2017-02-22T08:01:02.484+0000" }, "modified_on" : { "$date" : "2017-03-03T08:00:40.753+0000" } }

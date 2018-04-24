@@ -1,0 +1,48 @@
+﻿@model VitalSigns.Web.Models.SiteMap
+
+<ul>
+    <li>
+        <a href="javascript:void(0);" class="toggleMenuBt menuIcon">
+            <img class="svgInject" src="/img/menu/toggleMenu.svg" title="toggle Menu" alt="toggle Menu" />
+        </a>
+    </li>
+
+    @foreach (var l1Node in Model.Nodes)
+    {
+        <li>
+            <a [routerLink]="this.urlHelpers.getUrlPath('@l1Node.Url')" [queryParams]="this.urlHelpers.getUrlQueryParams('@l1Node.Url')" class="menuIcon">
+                <img class="svgInject" src="@l1Node.Icon" title="@l1Node.Title" alt="@l1Node.Title" />
+                <span class="zeusMenuTitle">@l1Node.Title</span>
+            </a>
+
+            <ul>
+
+                @if (l1Node.Nodes != null)
+                {
+
+                    @foreach (var l2Node in l1Node.Nodes)
+                    {
+                        @if (l2Node.Url.Substring(0, 4) == "http")
+                        {
+                            <li>
+                                <a href='@l2Node.Url' target="_blank">@l2Node.Title</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li>
+                                <a [routerLink]="this.urlHelpers.getUrlPath('@l2Node.Url')" [queryParams]="this.urlHelpers.getUrlQueryParams('@l2Node.Url')">@l2Node.Title</a>
+                            </li>
+                        }
+
+                    }
+
+                }
+
+            </ul>
+
+
+        </li>
+    }
+
+</ul>

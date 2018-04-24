@@ -1,0 +1,24 @@
+{
+  "sql_query": "SELECT [ID],[Type],[Starttime],[Duration],[UseType] FROM [vitalsigns].[dbo].[HoursIndicator]",
+  "mappings": [
+
+    {
+      "sql_column": "Type",
+      "mongodb_field": "name"
+    },
+    {
+      "sql_column": "Starttime",
+      "mongodb_field": "start_time"
+    },
+    {
+      "sql_column": "Duration",
+      "mongodb_field": "duration"
+    },
+    {
+      "sql_column": "UseType",
+      "mongodb_field": "use_type"
+    }
+  ]
+
+
+}

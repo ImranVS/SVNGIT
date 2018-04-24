@@ -1,0 +1,4 @@
+C:\VSTrunk\LicenseKeyGenerator\License\DO\bin\DO.dll
+C:\VSTrunk\LicenseKeyGenerator\License\DO\bin\DO.pdb
+C:\VSTrunk\LicenseKeyGenerator\License\DO\obj\Debug\DO.dll
+C:\VSTrunk\LicenseKeyGenerator\License\DO\obj\Debug\DO.pdb

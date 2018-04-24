@@ -1,0 +1,158 @@
+﻿<div id="zeusContext">
+    <div id="zeusContextNavigation">
+        <div id="zeusContextNavigationIcon"  *ngIf="module == 'dashboard'">
+            <img  class="svgInject" src="/img/menu/servers.svg" title="Dashboard" alt="Dashboard" />
+        </div>
+        <div id="zeusContextNavigationIcon" *ngIf="module == 'Configurator'">
+            <img class="svgInject" src="/img/menu/configurator.svg" title="Configurator" alt="Configurator" />
+        </div>
+        <div id="zeusContextNavigationText">
+            <div class="form-group col-sm-8">
+                <h2>
+                    Servers
+                </h2>
+                <!--<div class="dropdown">
+                    <span class="glyphicon glyphicon-chevron-down dropdown-toggle" data-toggle="dropdown" id="openContextNavigation" aria-hidden="true"></span>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Action</a></li>
+                        <li><a href="#">Another action</a></li>
+                    </ul>
+                </div>-->
+                <p *ngIf="module == 'Configurator'">Manage your servers</p>
+            </div>
+            <div class="form-group col-sm-4">
+                <button (click)="addServer(frmDialog)" type="button" class="btn btn-primary"  *ngIf="module == 'Configurator'">Add Server</button>
+            </div>
+            </div>
+    </div>
+   
+    <div class="clearfix"></div>
+</div>
+
+<div id="zeusContent" class="noPadding twoColumns30-70">
+    <div class="twoColumn30 serversList">
+        <div id="serversFilters">
+            <search-server-list (name)="searchText=$event" (type)="searchType=$event" (status)="searchStatus=$event" (location)="searchLocation=$event"></search-server-list>
+        </div>
+        <div>
+            <div class="text-center">
+                <b> {{filterCount}}</b> servers found.
+            </div>
+        </div>
+        <div id="serversListWrapper">
+            <div class="aServer" [class.active]="service.active" attr.data-status="{{service.status}}" id="{{service.id}}" *ngFor="let service of services |searchserverlist:searchText :searchType :searchStatus :searchLocation; let i = index;" (click)="selectService(service)">
+                <div class="serverIcon">
+                    <span class="helper"></span><img class="svgInject" src="{{service.icon}}" title="{{service.name}}" alt="{{service.name}}" />
+                </div>
+                <div class="serverTitle">{{service.name}}</div>
+                <p class="desc" *ngIf="service.details && module == 'dashboard'">{{service.details}}</p>
+                <p class="desc" *ngIf="module == 'Configurator'">{{service.type}}<span *ngIf="service.location"> - {{service.location}}</span><span style="font-weight: bold;" *ngIf="service.is_enabled == false"> (Disabled)</span></p>
+                <p class="desc">Last Updated: {{service.last_updated}}</p>
+                <div class="statusIndicator"></div>
+                {{setFilterCount(i)}}
+            </div>
+        </div>
+        <div class="hide" id="rmenu" #rmenu *ngIf="module == 'dashboard'">
+            <ul>
+                <li> <a (click)="scanNow(rmenu)">Scan Now</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="twoColumn70 serverDetailWrapper" style="overflow-x: auto;">
+        <wj-popup class="col-md-7 modal-content" #frmDialog>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Add Server
+                    <button type="button" tabindex="-1" class="close wj-hide">&times;</button>
+                </div>
+                <form (ngSubmit)="onSubmit(addServersForm.value,frmDialog)" class="form-horizontal" [formGroup]="addServersForm">
+                    <div class="popover-content">
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                <label for="device_name" class="control-label col-sm-5">Server Name</label>
+                                <div class="col-sm-7">
+                                    <input #deviceName type="text" class="form-control" name="device_name" formControlName="device_name" required>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label for="device_type" class="control-label col-sm-5">Server Type</label>
+                                <div class="col-sm-7">
+                                    <wj-combo-box #selectedType displayMemberPath="text" selectedValuePath="value" name="selectedType" [itemsSource]="deviceTypeData" [(text)]="device_type"
+                                                  placeholder="Select Location" formControlName="device_type" (selectedIndexChanged)="onServerTypeSelectedIndexChanged($event,selectedType)" [isEditable]="true">
+
+                                    </wj-combo-box>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-6" *ngIf="Type!='URL'">
+                                <label for="description" class="control-label col-sm-5">Description</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" name="description" formControlName="description" required>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-6" *ngIf="Type=='URL'">
+                                <label for="description" class="control-label col-sm-5">Category</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" name="Category" formControlName="category" required>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label for="location_name" class="control-label col-sm-5">Location</label>
+                                <div class="col-sm-7">
+
+                                    <wj-combo-box displayMemberPath="text" selectedValuePath="value" name="location" [itemsSource]="deviceLocationData"
+                                                  formControlName="location_id" placeholder="Select Location" [isEditable]="true">
+                                    </wj-combo-box>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                <label for="ip_address" class="control-label col-sm-5">IP/Host Name</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" name="ip_address" formControlName="ip_address">
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label for="business_hour" class="control-label col-sm-5">Business Hours</label>
+                                <div class="col-sm-7">
+
+                                    <wj-combo-box name="businessHour" [itemsSource]="devicebusinessHourData" displayMemberPath="text" selectedValuePath="value"
+                                                  formControlName="business_hours_id" placeholder="Select Hours" [isEditable]="true">
+                                    </wj-combo-box>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-6" *ngIf="Type!='URL'">
+                                <label for="monthly_operating_cost" class="control-label col-sm-5">Monthly Operating Cost</label>
+                                <div class="col-sm-7">
+                                    <input type="text" pattern="^[1-9]\d*(\.\d+)?$" class="form-control" name="monthly_operating_cost" formControlName="monthly_operating_cost">
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-6" *ngIf="Type!='URL'">
+                                <label for="ideal_user_count" class="control-label col-sm-5">Ideal User Count</label>
+                                <div class="col-sm-7">
+                                    <input type="text" pattern="^[1-9]\d*(\.\d+)?$" class="form-control" name="ideal_user_count" formControlName="ideal_user_count">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <button type="submit" class="btn btn-primary"> Save </button>
+                        <button class="btn btn-primary wj-hide" type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </wj-popup>
+
+        <div id="serverDetail">
+
+            <router-outlet></router-outlet>
+
+        </div>
+
+    </div>
+</div>

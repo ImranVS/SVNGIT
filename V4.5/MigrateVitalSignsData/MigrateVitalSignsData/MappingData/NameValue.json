@@ -1,0 +1,15 @@
+{
+  "sql_query": "SELECT [sname],[svalue] FROM [vitalsigns].[dbo].[Settings]",
+  "mappings": [
+    {
+      "sql_column": "sname",
+      "mongodb_field": "name"
+    },
+    {
+      "sql_column": "svalue",
+      "mongodb_field": "value"
+    }
+  ]
+
+
+}

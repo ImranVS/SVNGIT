@@ -1,0 +1,21 @@
+.zeus h1,
+.zeus h2,
+.zeus h3,
+.zeus h4,
+.zeus h5,
+.zeus h6 {
+	font-family: 'robotothin';
+}
+
+.zeus h1 {
+	font-size: 50px;
+}
+
+.zeus h2 {
+	font-size: 40px;
+}
+
+.zeus h1,
+.zeus h2 {
+	letter-spacing: -1px;
+}

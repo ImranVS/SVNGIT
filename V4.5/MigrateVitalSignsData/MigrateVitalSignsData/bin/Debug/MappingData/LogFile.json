@@ -1,0 +1,33 @@
+{
+  "sql_query": "SELECT [Keyword],[RepeatOnce],[NotRequiredKeyword],[Log],[AgentLog],[DominoEventLogId] FROM [vitalsigns].[dbo].[LogFile] ",
+
+  "mappings": [
+    {
+      "sql_column": "Keyword",
+      "mongodb_field": "key_word"
+    },
+    {
+      "sql_column": "RepeatOnce",
+      "mongodb_field": "repeat_once"
+    },
+    {
+      "sql_column": "NotRequiredKeyword",
+      "mongodb_field": "not_required_keyword"
+    },
+    {
+      "sql_column": "Log",
+      "mongodb_field": "log"
+    },
+    {
+      "sql_column": "AgentLog",
+      "mongodb_field": "agent_log"
+    },
+    {
+      "sql_column": "DominoEventLogId",
+      "mongodb_field": "domino_event_log_id"
+    }
+
+      ]
+
+
+    }

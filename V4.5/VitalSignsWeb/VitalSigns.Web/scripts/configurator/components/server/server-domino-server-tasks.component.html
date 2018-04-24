@@ -1,0 +1,121 @@
+﻿<div class="col-xs-12">
+    <div class="widgetWrapper">
+        <div class="widgetContent">
+            <button class="btn btn-success" (click)="editGridRow(frmDialog)">
+                Edit
+            </button>
+            <button class="btn btn-success" (click)="addServerTask(frmDialog)">
+                Add
+            </button>
+            <button class="btn btn-success" (click)="delteServerTasks();">
+                Delete
+            </button>
+            <div>&nbsp;</div>
+            <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" headersVisibility="Column" [isReadOnly]="true">
+                <wj-flex-grid-filter></wj-flex-grid-filter>
+                <wj-flex-grid-column [header]="'Enabled'" [binding]="'is_selected'" [width]="100"> </wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Task Name'" [binding]="'task_name'" [width]="200" is-read-only="true"> </wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Load'" [binding]="'is_load'" [width]="100"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Restart ASAP'" [binding]="'is_restart_asap'" [width]="150"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Disallow'" [binding]="'is_disallow'" [width]="100"></wj-flex-grid-column>
+            </wj-flex-grid>
+            <div class="btn-group" *ngIf="data != null">
+                <button type="button" class="btn btn-default"
+                        (click)="data.moveToFirstPage()"
+                        [disabled]="data.pageIndex <= 0">
+                    <span class="glyphicon glyphicon-fast-backward"></span>
+                </button>
+                <button type="button" class="btn btn-default"
+                        (click)="data.moveToPreviousPage()"
+                        [disabled]="data.pageIndex <= 0">
+                    <span class="glyphicon glyphicon-step-backward">
+                    </span>
+                </button>
+                <button type="button" class="btn btn-default" disabled style="width:100px">
+                    {{
+data.pageIndex + 1 | number
+                    }} / {{data.pageCount | number}}
+                </button>
+                <button type="button" class="btn btn-default"
+                        (click)="data.moveToNextPage()"
+                        [disabled]="data.pageIndex >= data.pageCount - 1">
+                    <span class="glyphicon glyphicon-step-forward"></span>
+                </button>
+                <button type="button" class="btn btn-default"
+                        (click)="data.moveToLastPage()"
+                        [disabled]="data.pageIndex >= data.pageCount - 1">
+                    <span class="glyphicon glyphicon-fast-forward"></span>
+                </button>
+            </div>
+            <div class="pull-right" *ngIf="data != null">
+                <wj-menu [(value)]="pageSize" [header]="'Page size'">
+                    <wj-menu-item [value]="10">10</wj-menu-item>
+                    <wj-menu-item [value]="20">20</wj-menu-item>
+                    <wj-menu-item [value]="50">50</wj-menu-item>
+                </wj-menu>
+            </div>
+
+            <wj-popup style="border: 0px; width: 40%" #frmDialog>
+
+                <div class="modal-content">
+                    <div class="modal-header">
+                        {{formTitle}}
+                        <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+                    </div>
+                    <form (ngSubmit)="saveServerTasks(frmDialog)" #frmUser="ngForm" class="form-horizontal">
+                        <div class="modal-body" *ngIf="currentEditItem">
+                            <div class="form-group col-sm-3">
+                                <label class="control-label" for="task_name">Task Name</label>
+                            </div>
+                            <div class="form-group col-sm-5">
+                                <wj-combo-box name="task_name" [itemsSource]="TaskNames" [(text)]="currentEditItem.task_name"
+                                              [(ngModel)]="currentEditItem.task_name">
+                                </wj-combo-box>
+                            </div>
+                            <div class="funkyradio col-sm-4">
+                                <div class="funkyradio-default">
+                                    <input type="checkbox" id="is_selected" name="is_selected" [(ngModel)]="currentEditItem.is_selected">
+                                    <label for="is_selected">Enabled</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">&nbsp;</div>
+                            <div class="funkyradio col-sm-12">
+                                <div class="funkyradio-default">
+                                    <input type="checkbox" id="is_load" name="is_load" [(ngModel)]="currentEditItem.is_load">
+                                    <label for="is_load">Load if missing</label>
+                                </div>
+                            </div>
+                            <div class="funkyradio col-sm-12">
+                                <div class="funkyradio-default">
+                                    <input type="checkbox" id="is_disallow" name="is_disallow" [(ngModel)]="currentEditItem.is_disallow">
+                                    <label for="is_disallow">Prohibit task from running</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">&nbsp;</div>
+                            <div class="alert alert-info col-sm-12">In the event the server task is missing, and load command fails to resolve the issue, VitalSigns can send a 'Tell Server Restart' command using the option below.</div>
+                            <div class="funkyradio col-sm-12">
+                                <div class="funkyradio-default">
+                                    <input type="checkbox"id="is_restart_asap" name="is_restart_asap" [(ngModel)]="currentEditItem.is_restart_asap">
+                                    <label for="is_restart_asap">Restart server if task is missing</label>
+                                </div>
+                            </div>
+                            
+
+                            <div class="funkyradio col-sm-6" style="display: none">
+                                <div class="funkyradio-default">
+                                    <input type="checkbox" id="is_resart_later" name="is_resart_later" [(ngModel)]="currentEditItem.is_resart_later">
+                                    <label for="is_resart_later">Restart later</label>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid">Save</button>
+                            <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </wj-popup>
+        </div>
+    </div>
+</div>

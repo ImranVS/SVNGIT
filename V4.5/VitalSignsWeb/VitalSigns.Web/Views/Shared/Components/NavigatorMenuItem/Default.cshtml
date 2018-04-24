@@ -1,0 +1,25 @@
+﻿@using VitalSigns.Web.Models;
+
+@model ICollection<SiteMapNode>
+
+<ul>
+
+    @if (Model != null)
+    {
+
+        @foreach (var node in Model)
+        {
+            <li>
+
+                <a [routerLink]="['@node.Url']">@node.Title</a>
+
+                @if (node.Nodes != null)
+                {
+                    @await Component.InvokeAsync("NavigatorMenuItem", node.Nodes)
+                }
+
+            </li>
+        }
+    }
+
+</ul>

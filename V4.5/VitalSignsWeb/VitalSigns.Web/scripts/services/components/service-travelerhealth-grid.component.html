@@ -1,0 +1,170 @@
+﻿
+<div class="row">
+    <wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" headersVisibility="Column" (itemsSourceChanged)="onItemsSourceChanged()" #flex>
+        <wj-flex-grid-filter></wj-flex-grid-filter>
+        <wj-flex-grid-column [header]="'Status'" [binding]="'traveler_status'" align="center">
+            <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                <div [ngSwitch]="cell.item.traveler_status">
+                    <span *ngSwitchCase="'OK'" class="label label-pill label-success">{{cell.item.traveler_status}}</span>
+                    <span *ngSwitchCase="'Green'" class="label label-pill label-success">{{cell.item.traveler_status}}</span>
+                    <span *ngSwitchCase="'Yellow'" class="label label-pill label-warning">{{cell.item.traveler_status}}</span>
+                    <span *ngSwitchCase="'Red'" class="label label-pill label-danger">{{cell.item.traveler_status}}</span>
+                    <span *ngSwitchCase="'Fail'" class="label label-pill label-danger">{{cell.item.traveler_status}}</span>
+                    <span *ngSwitchCase="'Issue'" class="label label-pill label-warning">{{cell.item.traveler_status}}</span>
+                    <span *ngSwitchCase="'Not Responding'" class="label label-pill label-danger">{{cell.item.traveler_status}}</span>
+                    <span *ngSwitchCase="'Maintenance'" class="label label-pill label-info">{{cell.item.traveler_status}}</span>
+                    <span *ngSwitchCase="'Not Scanned'" class="label label-pill label-info">{{cell.item.traveler_status}}</span>
+                    <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.traveler_status}}</span>
+                </div>
+            </template>
+        </wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Resource Constraint'" [binding]="'resource_constraint'" align="center" [width]="140">
+            <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                <div [ngSwitch]="cell.item.resource_constraint">
+                    <span *ngSwitchCase="'OK'" class="label label-pill label-success">{{cell.item.resource_constraint}}</span>
+                    <span *ngSwitchCase="'Pass'" class="label label-pill label-success">{{cell.item.resource_constraint}}</span>
+                    <span *ngSwitchCase="'Red'" class="label label-pill label-danger">{{cell.item.resource_constraint}}</span>
+                    <span *ngSwitchCase="'Fail'" class="label label-pill label-danger">{{cell.item.resource_constraint}}</span>
+                    <span *ngSwitchCase="'Issue'" class="label label-pill label-warning">{{cell.item.resource_constraint}}</span>
+                    <span *ngSwitchCase="'Not Responding'" class="label label-pill label-danger">{{cell.resource_constraint.traveler_status}}</span>
+                    <span *ngSwitchCase="'Maintenance'" class="label label-pill label-info">{{cell.item.resource_constraint}}</span>
+                    <span *ngSwitchCase="'Not Scanned'" class="label label-pill label-info">{{cell.item.resource_constraint}}</span>
+                    <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.resource_constraint}}</span>
+                </div>
+            </template>
+        </wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Details'" [binding]="'traveler_details'" [width]="140"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Heart Beat'" [binding]="'traveler_heartbeat'" [width]="160" align="center"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Traveler Servlet'" [binding]="'traveler_servlet'" align="center" [width]="140">
+            <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                <div [ngSwitch]="cell.item.traveler_servlet">
+                    <span *ngSwitchCase="'OK'" class="label label-pill label-success">{{cell.item.traveler_servlet}}</span>
+                    <span *ngSwitchCase="'Pass'" class="label label-pill label-success">{{cell.item.traveler_servlet}}</span>
+                    <span *ngSwitchCase="'Red'" class="label label-pill label-danger">{{cell.item.traveler_servlet}}</span>
+                    <span *ngSwitchCase="'Not Responding'" class="label label-pill label-danger">{{cell.item.traveler_servlet}}</span>
+                    <span *ngSwitchCase="'Issue'" class="label label-pill label-warning">{{cell.item.traveler_servlet}}</span>
+                    <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.traveler_servlet}}</span>
+                </div>
+            </template>
+        </wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Users'" [binding]="'traveler_users'" [width]="100"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Devices'" [binding]="'traveler_device_count'"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'HA'" [binding]="'traveler_ha'" [width]="80"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Incremental Syncs'" [binding]="'traveler_incremental_syncs'" [width]="140"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'HTTP Status'" [binding]="'http_status'" align="center" [width]="140">
+            <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                <div [ngSwitch]="cell.item.http_status">
+                    <span *ngSwitchCase="'OK'" class="label label-pill label-success">{{cell.item.http_status}}</span>
+                    <span *ngSwitchCase="'Pass'" class="label label-pill label-success">{{cell.item.http_status}}</span>
+                    <span *ngSwitchCase="'Red'" class="label label-pill label-danger">{{cell.item.http_status}}</span>
+                    <span *ngSwitchCase="'Not Responding'" class="label label-pill label-danger">{{cell.item.http_status}}</span>
+                    <span *ngSwitchCase="'Issue'" class="label label-pill label-warning">{{cell.item.http_status}}</span>
+                    <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.http_status}}</span>
+                </div>
+            </template>
+        </wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Devices API Status'" [binding]="'traveler_devices_api_status'" align="center" [width]="140">
+            <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                <div [ngSwitch]="cell.item.traveler_devices_api_status">
+                    <span *ngSwitchCase="'OK'" class="label label-pill label-success">{{cell.item.traveler_devices_api_status}}</span>
+                    <span *ngSwitchCase="'Pass'" class="label label-pill label-success">{{cell.item.traveler_devices_api_status}}</span>
+                    <span *ngSwitchCase="'Red'" class="label label-pill label-danger">{{cell.item.traveler_devices_api_status}}</span>
+                    <span *ngSwitchCase="'Fail'" class="label label-pill label-danger">{{cell.item.traveler_devices_api_status}}</span>
+                    <span *ngSwitchCase="'Not Responding'" class="label label-pill label-danger">{{cell.item.traveler_devices_api_status}}</span>
+                    <span *ngSwitchCase="'Issue'" class="label label-pill label-warning">{{cell.item.traveler_devices_api_status}}</span>
+                    <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.traveler_devices_api_status}}</span>
+                </div>
+            </template>
+        </wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Status Reasons'" [binding]="'traveler_reasons'"></wj-flex-grid-column>
+    </wj-flex-grid>
+    <!--<div class="btn-group" *ngIf="data != null">
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToFirstPage()"
+                [disabled]="data.pageIndex <= 0">
+            <span class="glyphicon glyphicon-fast-backward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToPreviousPage()"
+                [disabled]="data.pageIndex <= 0">
+            <span class="glyphicon glyphicon-step-backward">
+            </span>
+        </button>
+        <button type="button" class="btn btn-default" disabled style="width:100px">
+            {{
+data.pageIndex + 1 | number
+            }} / {{data.pageCount | number}}
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToNextPage()"
+                [disabled]="data.pageIndex >= data.pageCount - 1">
+            <span class="glyphicon glyphicon-step-forward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToLastPage()"
+                [disabled]="data.pageIndex >= data.pageCount - 1">
+            <span class="glyphicon glyphicon-fast-forward"></span>
+        </button>
+    </div>
+    <div class="pull-right" *ngIf="data != null">
+        <wj-menu [(value)]="pageSize" [header]="'Page size'">
+            <wj-menu-item [value]="10">10</wj-menu-item>
+            <wj-menu-item [value]="20">20</wj-menu-item>
+            <wj-menu-item [value]="50">50</wj-menu-item>
+        </wj-menu>
+    </div>-->
+</div>
+
+<!--<div class="row">
+
+    <wj-group-panel [grid]="flex1" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+    <wj-flex-grid [itemsSource]="maildata" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" #flex1>
+        <wj-flex-grid-filter></wj-flex-grid-filter>
+        <wj-flex-grid-column [header]="'Mail ServerName'" [binding]="'mail_servername'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'000-001'" [binding]="'[000-001]'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'001-002'" [binding]="'[001-002]'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'002-005'" [binding]="'[002-005]'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'005-010'" [binding]="'[005-010]'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'010-030'" [binding]="'[010-030]'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'030-060'" [binding]="'[030-060]'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'060-120'" [binding]="'[060-120]'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'120-INF'" [binding]="'[120-INF]'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Date Updated'" [binding]="'date_updated'" [width]="140"></wj-flex-grid-column>
+       
+ </wj-flex-grid>
+    <div class="btn-group" *ngIf="data != null">
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToFirstPage()"
+                [disabled]="data.pageIndex <= 0">
+            <span class="glyphicon glyphicon-fast-backward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToPreviousPage()"
+                [disabled]="data.pageIndex <= 0">
+            <span class="glyphicon glyphicon-step-backward">
+            </span>
+        </button>
+        <button type="button" class="btn btn-default" disabled style="width:100px">
+            {{
+data.pageIndex + 1 | number
+            }} / {{data.pageCount | number}}
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToNextPage()"
+                [disabled]="data.pageIndex >= data.pageCount - 1">
+            <span class="glyphicon glyphicon-step-forward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToLastPage()"
+                [disabled]="data.pageIndex >= data.pageCount - 1">
+            <span class="glyphicon glyphicon-fast-forward"></span>
+        </button>
+    </div>
+    <div class="pull-right" *ngIf="data != null">
+        <wj-menu [(value)]="pageSize" [header]="'Page size'">
+            <wj-menu-item [value]="10">10</wj-menu-item>
+            <wj-menu-item [value]="20">20</wj-menu-item>
+            <wj-menu-item [value]="50">50</wj-menu-item>
+        </wj-menu>
+    </div>
+</div>-->

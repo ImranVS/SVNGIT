@@ -1,0 +1,11 @@
+﻿<div class="container">
+    <h2>Reports</h2>
+    <!--<a [routerLink]="['/reports']">(empy)</a>
+    <a [routerLink]="['/reports/sample']">Sample</a>
+    <a [routerLink]="['/reports/sample']" [queryParams]="{from:'a',to:'b'}">Period</a>-->
+    <button class="btn btn-primary" (click)="printReport()">Print Report</button>
+    <button *ngIf="!hideButton" class="btn btn-primary" (click)="export()">Export Report</button>
+    <div class="reportsBrowser" id="reportContainer">
+        <router-outlet></router-outlet>
+    </div>
+</div>

@@ -1,0 +1,31 @@
+Thu Sep 10 02:17:58 IST 2015 - Connection established
+NodeName/HostName/Servers
+sametimeSSCNode/sametime.jnittech.com/Servers - nodeagent | STConsoleServer | 
+sametimeSTMSNode1/sametime.jnittech.com/Servers - nodeagent | STMediaServer | 
+webchatSTPNode1/webchat.jnittech.com/Servers - STProxyServer | nodeagent | 
+meetingSTMNode1/meeting.jnittech.com/Servers - nodeagent | STMeetingServer | 
+advancedSTADVNode1/advanced.jnittech.com/Servers - nodeagent | STAdvancedServer | 
+Thu Sep 10 03:55:57 IST 2015 - Connection established
+javax.management.MalformedObjectNameException: Invalid character ':' in value part of property
+Thu Sep 10 04:05:47 IST 2015 - Connection established
+javax.management.MalformedObjectNameException: Invalid character ':' in value part of property
+Thu Sep 10 04:07:10 IST 2015 - Connection established
+NodeName/HostName/Servers
+sametimeSSCNode/sametime.jnittech.com/Servers - nodeagent | STConsoleServer | 
+sametimeSTMSNode1/sametime.jnittech.com/Servers - nodeagent | STMediaServer | 
+webchatSTPNode1/webchat.jnittech.com/Servers - STProxyServer | nodeagent | 
+meetingSTMNode1/meeting.jnittech.com/Servers - nodeagent | STMeetingServer | 
+advancedSTADVNode1/advanced.jnittech.com/Servers - nodeagent | STAdvancedServer | 
+Thu Sep 10 04:09:19 IST 2015 - Connection established
+Thu Sep 10 04:09:42 IST 2015 - sametimeSSCNode/STConsoleServer/6272
+Cell Name: sametimeSSCCell
+ Stat: HeapSize Unit: KILOBYTE Current: 524288
+ Stat: FreeMemory Unit: KILOBYTE Count: 347314
+ Stat: UsedMemory Unit: KILOBYTE Count: 176973
+ Stat: UpTime Unit: SECOND Count: 5646173
+ Stat: ProcessCpuUsage Unit: N/A Count: 0
+ Stat: ActiveCount Unit: N/A Current: 1
+ Stat: PoolSize Unit: N/A Current: 26
+ Stat: DeclaredThreadHungCount Unit: N/A Count: 0
+ Stat: ClearedThreadHangCount Unit: N/A Count: 0
+ Stat: ConcurrentHungThreadCount Unit: N/A Current: 0

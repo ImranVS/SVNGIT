@@ -1,0 +1,50 @@
+﻿<div id="zeusContext">
+
+    <div id="zeusContextNavigation">
+        <div id="zeusContextNavigationIcon">
+            <img class="svgInject" src="/img/servers/Office365.svg" title="Dashboard" alt="Dashboard" />
+        </div>
+        <div id="zeusContextNavigationText">
+            <h2>
+                Office 365
+                <app-navigator></app-navigator>
+            </h2>
+            <p>Office 365 dashboard</p>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+</div>
+<div id="zeusContent" class="container-fluid">
+    <div class="row">
+        <div class="col-xs-12">
+            <executive-summary-widget deviceType="Office365"></executive-summary-widget>
+        </div>
+        <div class="col-xs-12">
+            <div class="widgetWrapper">
+                
+                <div class="widgetTitle">
+                    Office 365 Tenants
+                </div>
+                <!--<div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>-->
+                <div class="widgetContent" id="office365Grid">
+                    <vs-office365-grid (select)="onSelect($event)">loading...</vs-office365-grid>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12" *ngIf="serviceId">
+            <div class="widgetWrapper">
+                <!--<div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>-->
+                <div class="widgetContent" id="office365Details">
+                    <vs-office365-details>loading...</vs-office365-details>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<button class="visible-xs visible-sm showMbtn" onclick="$('.dashboard-menu').toggle();">
+    <img class="svgInject" src="/img/dashboard/SubLevelsMenu.svg" title="Dashboard Sub Levels" alt="Dashboard Sub Levels" />
+</button>

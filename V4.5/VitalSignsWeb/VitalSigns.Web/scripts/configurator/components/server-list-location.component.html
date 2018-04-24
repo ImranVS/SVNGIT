@@ -1,0 +1,64 @@
+﻿<div class="col-sm-12">
+    <div class="row">
+        <div class="col-sm-5">
+            <button class="btn btn-primary" type="button" name="selectall" (click)="selectAll()">Select All</button>
+            <button class="btn btn-primary" type="button" name="deselectall" (click)="deselectAll()">Deselect All</button>
+        </div>
+    </div>
+    <div>
+        &nbsp;
+    </div>
+    <wj-flex-grid style="height:400px;" #flex [itemsSource]="data" selectionMode="Row" headersVisibility ="Column" >
+        <wj-flex-grid-filter></wj-flex-grid-filter>
+        <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" contenteditable="true"> 
+            <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                <input type="checkbox" [ngModel]="cell.item.is_selected" (change)="serverCheck(cell.item.id,$event)" /> 
+            </template>                
+        </wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Device Name'" [binding]="'device_name'" is-read-only="true" [width]="280"> </wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Device Type'" [binding]="'device_type'" is-read-only="true" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Credentials'" [binding]="'credentials'" is-read-only="true" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Description'" [binding]="'description'" is-read-only="true" [width]="200" [visible]="false"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Location'" [binding]="'location_name'" is-read-only="true" [visible]="false"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Category'" [binding]="'category'" is-read-only="true" [visible]="false"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Assigned Node Name'" [binding]="'assigned_node'" [width]="200"></wj-flex-grid-column>
+        <wj-flex-grid-column [header]="'Current Node Name'" [binding]="'current_node'" [width]="200"></wj-flex-grid-column>
+    </wj-flex-grid>
+    <!--<div class="btn-group" *ngIf="data != null">
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToFirstPage()"
+                [disabled]="data.pageIndex <= 0">
+            <span class="glyphicon glyphicon-fast-backward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToPreviousPage()"
+                [disabled]="data.pageIndex <= 0">
+            <span class="glyphicon glyphicon-step-backward">
+            </span>
+        </button>
+        <button type="button" class="btn btn-default" disabled style="width:100px">
+            {{
+                                               data.pageIndex + 1 | number
+            }} / {{data.pageCount | number}}
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToNextPage()"
+                [disabled]="data.pageIndex >= data.pageCount - 1">
+            <span class="glyphicon glyphicon-step-forward"></span>
+        </button>
+        <button type="button" class="btn btn-default"
+                (click)="data.moveToLastPage()"
+                [disabled]="data.pageIndex >= data.pageCount - 1">
+            <span class="glyphicon glyphicon-fast-forward"></span>
+        </button>
+    </div>
+    <div class="pull-right" *ngIf="data != null">
+        <wj-menu [(value)]="pageSize" [header]="'Page size'">
+            <wj-menu-item [value]="10">10</wj-menu-item>
+            <wj-menu-item [value]="20">20</wj-menu-item>
+            <wj-menu-item [value]="50">50</wj-menu-item>
+            <wj-menu-item [value]="100">100</wj-menu-item>
+            <wj-menu-item [value]="200">200</wj-menu-item>
+        </wj-menu>
+    </div>--> 
+</div>

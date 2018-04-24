@@ -1,0 +1,39 @@
+﻿<div role="tabpanel" class="tab-pane active" id="notesemail">
+
+    <div class="visible-xs titleTabMobile">Mail</div>
+    <div class="row">
+
+        <div class="col-lg-5 col-md-6 zeusColorReact-mail">
+            <div class="widgetWrapper h-xs-108 zeusColorReactBg" data-widget-type="widgetImageText">
+                <img class="svgInject" src="/img/dashboard/Mail.svg" title="Email" alt="Email" />
+              
+
+                <div style="padding: 0 15px;" *ngIf="service">
+                    <div class="widgetImageText-head" align="right">{{service[0].pending_mail}}</div>
+                    <div class="widgetImageText-text" align="right">Pending Mail</div>
+                </div>   
+
+                <div style="padding: 0 15px;" *ngIf="service">
+                    <div class="widgetImageText-head" align="right">{{service[0].dead_mail}}</div>
+                    <div class="widgetImageText-text" align="right">Dead Mail</div>
+                </div>   
+
+                <div style="padding: 0 15px;" *ngIf="service">
+                    <div class="widgetImageText-head" align="right">{{service[0].held_mail}}</div>
+                    <div class="widgetImageText-text" align="right">Held Mail</div>
+                </div>   
+
+            </div>
+        </div>
+        <div class="{{widget.css}}" *ngFor="let widget of widgets">
+            <div class="widgetWrapper">
+                <div class="widgetTitle" *ngIf="widget.title">
+                    {{widget.title}}
+                </div>
+                <div class="widgetContent" id="{{widget.id}}">
+                    <my-widget [contract]="widget">loading...</my-widget>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

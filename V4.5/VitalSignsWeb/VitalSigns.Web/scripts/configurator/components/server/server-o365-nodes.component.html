@@ -1,0 +1,21 @@
+﻿
+<div class="widgetWrapper">
+    <div class="row">&nbsp;</div>
+    <div class="col-xs-12 col-md-9 col-sm-12 col-lg-12">
+        <div id="infoDiv1" class="alert alert-info col-md-12" align="left">
+            Select the locations you would liek to scan this Office 365 instance from. TEST
+        </div>
+
+
+        <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" headersVisibility="Column" (itemsSourceChanged)="itemsSourceChangedHandler()">
+            <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Location'" is-read-only="true" [binding]="'location'" [isReadOnly]="true"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Host Name'" is-read-only="true" [binding]="'host_name'" [isReadOnly]="true"></wj-flex-grid-column>
+        </wj-flex-grid>
+        <div class="row">&nbsp;</div>
+    </div>
+    
+</div>
+<div class="form-horizontal">
+    <button type="button" class="btn btn-primary" (click)="applySetting()">Save</button>
+</div>

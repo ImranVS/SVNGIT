@@ -1,0 +1,747 @@
+﻿<!-- Device Attributes -->
+<div *ngIf="serverAttributes" class="form-horizontal">
+    <div class="panel panel-default">
+        <div class="panel-heading">Device Attributes</div>
+        <div class="panel-body">
+            <div *ngIf="serverAttributes.device_type=='WebSphere'">
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Cell Name</label>
+                    <div class="col-sm-3">
+                        <input type="text" [(ngModel)]="serverAttributes.cell_name" class="form-control">
+                    </div>
+                    <label class="control-label col-sm-2">Node Name</label>
+                    <div class="col-sm-3">
+                        <input type="text" [(ngModel)]="serverAttributes.node_name" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="serverAttributes.device_type=='Domino' || serverAttributes.device_type=='WebSphere' || serverAttributes.device_type=='Sametime' || 
+                 serverAttributes.device_type=='URL' || serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' ||
+                 serverAttributes.device_type=='Exchange'||  serverAttributes.device_type=='Database Availability Group'|| serverAttributes.device_type=='SharePoint' || serverAttributes.device_type=='IBM FileNet'">
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Server Name</label>
+                    <div class="col-sm-3">
+                        <input type="text" [(ngModel)]="serverAttributes.device_name" class="form-control">
+                    </div>
+                    <div class="col-sm-2">&nbsp;</div>
+                    <div class="col-sm-3">
+                        <div class="funkyradio">
+                            <div class="funkyradio-default">
+                                <input type="checkbox" id="serverAttributes.is_enabled" name="serverAttributes.is_enabled" [(ngModel)]="serverAttributes.is_enabled">
+                                <label for="serverAttributes.is_enabled">Enable for scanning</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-2">Location</label>
+                    <div class="col-sm-3">
+                        <wj-combo-box name="serverAttributes.location_id" displayMemberPath="name" selectedValuePath="value" [itemsSource]="locationList"
+                                      [(ngModel)]="serverAttributes.location_id" placeholder="Select Location" [isEditable]="true">
+                        </wj-combo-box>
+                    </div>
+                    <div *ngIf="serverAttributes.device_type !='Domino'">
+                        <label class="control-label col-sm-2">Category</label>
+                        <div class="col-sm-3">
+                            <input type="text" [(ngModel)]="serverAttributes.category" class="form-control">
+                        </div>
+                    </div>
+                    <div *ngIf="serverAttributes.device_type =='Domino'">
+                        <label class="control-label col-sm-2">Category</label>
+                        <div class="col-sm-3">
+                            <select class="form-control" name="serverAttributes.category" id="serverAttributes.category" [(ngModel)]="serverAttributes.category">
+                                <option Value="Administration Server">Administration Server</option>
+                                <option Value="Application">Application</option>
+                                <option Value="Backup">Backup</option>
+                                <option Value="Development">Development</option>
+                                <option Value="Directory">Directory</option>
+                                <option Value="Disaster Recovery">Disaster Recovery</option>
+                                <option Value="Gateway">Gateway</option>
+                                <option Value="Hub">Hub</option>
+                                <option Value="iNotes">iNotes</option>
+                                <option Value="Internet Cluster Manager">Internet Cluster Manage</option>
+                                <option Selected="selected" Value="Mail">Mail</option>
+                                <option Value="Multifunction">Multifunction</option>
+                                <option Value="Production">Production</option>
+                                <option Value="Pass-thru">Pass-thru</option>
+                                <option Value="QuickPlace">QuickPlace</option>
+                                <option Value="Replication">Replication</option>
+                                <option Value="Web">Web</option>
+                                <option Value="Test">Test</option>
+                                <option Value="Traveler">Traveler</option>
+                                <option Value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div *ngIf="serverAttributes.device_type !='URL' && serverAttributes.device_type !='Office365'">
+                        <label class="control-label col-sm-2">Description</label>
+                        <div class="col-sm-3" *ngIf="serverAttributes.device_type !='URL'">
+                            <input type="text" [(ngModel)]="serverAttributes.description" class="form-control">
+                        </div>
+                    </div>
+
+                    <div *ngIf="serverAttributes.device_type =='Exchange'">
+                        <label class="control-label col-sm-2">Authentication Type</label>
+                        <div class="col-sm-3">
+                            <select class="form-control" name="serverAttributes.authentication_type" id="serverAttributes.authentication_type" [(ngModel)]="serverAttributes.authentication_type">
+                                <option Value="Default">Default</option>
+                                <option Value="Kerberos">Kerberos</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div *ngIf="serverAttributes.device_type=='IBM FileNet'">
+                        <label class="control-label col-sm-2">Host Name</label>
+                        <div class="col-sm-3">
+                            <input type="text" [(ngModel)]="serverAttributes.ibm_file_host_name" class="form-control">
+                        </div>
+                        <div>
+                            <label class="control-label col-sm-2">Port Name</label>
+                            <div class="col-sm-3">
+                                <input type="text" [(ngModel)]="serverAttributes.ibm_file_port_name" class="form-control">
+                            </div>
+
+                        </div>
+                        </div>
+                </div>
+                        <div class="form-group" *ngIf="serverAttributes.device_type=='URL' || serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Sametime'">
+                        <label class="control-label col-sm-2">Address</label>
+                        <div class="col-sm-3">
+                            <input type="text" [(ngModel)]="serverAttributes.ip_address" class="form-control">
+                        </div>
+                        <div class="col-sm-2">&nbsp;</div>
+                        <div class="col-sm-3" *ngIf="serverAttributes.device_type=='Sametime'">
+                            <div class="funkyradio">
+                                <input type="checkbox" id="serverAttributes.require_ssl" name="serverAttributes.require_ssl" [(ngModel)]="serverAttributes.require_ssl">
+                                <label for="serverAttributes.require_ssl">Access via SSL</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" >
+                         <div *ngIf="serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' ||
+                    serverAttributes.device_type=='Exchange' || serverAttributes.device_type=='IBM FileNet' || serverAttributes.device_type=='SharePoint'">
+                        <label class="control-label col-sm-2">Credentials</label>
+                        <div class="col-sm-3">
+                            <wj-combo-box name="serverAttributes.credentials_id" displayMemberPath="text" selectedValuePath="value" [itemsSource]="deviceCredentialData"
+                                          [(ngModel)]="serverAttributes.credentials_id" placeholder="Select Credentials" [isEditable]="true">
+                            </wj-combo-box>
+                        </div>
+                    </div>
+                       
+                        <div *ngIf="serverAttributes.device_type =='Exchange'">
+                            <label class="control-label col-sm-2">IP Address</label>
+                            <div class="col-sm-3" *ngIf="serverAttributes.device_type =='Exchange'">
+                                <input type="text" [(ngModel)]="serverAttributes.ip_address" class="form-control">
+                            </div>
+                        </div>
+                        </div>
+                    <div class="form-group">
+                         <div  *ngIf="serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' ||
+                    serverAttributes.device_type=='Exchange' || serverAttributes.device_type=='IBM FileNet' || serverAttributes.device_type=='SharePoint'">
+                        <div class="col-sm-2">&nbsp;</div>
+                        <div class="col-sm-5">
+                            <button class="btn btn-primary" (click)="addCrdential(frmDialog)">
+                                Add Credentials
+                            </button>
+                        </div>
+                      </div>
+                        <div class="alert alert-danger col-sm-4" *ngIf="serverAttributes.device_type =='Exchange' && !(serverAttributes.ip_address.toLowerCase().indexOf('http') > -1)">
+                            <p>The IP Address should include either http or https protocol</p>
+                        </div>
+                </div>
+                    <div class="form-group" *ngIf="serverAttributes.device_type=='Sametime'">
+                        <label class="control-label col-sm-2">Platform</label>
+                        <div class="col-sm-3">
+                            <div class="radio radio-info radio-inline">
+                                <input type="radio" name="selectedplatform" id="dominoplatform" value="Domino" [(ngModel)]="serverAttributes.platform" (click)="handleClick(serverAttributes.platform);">
+                                <label for="dominoplatform" class="col-sm-7">Domino</label>
+                            </div>
+                            <div class="radio radio-info radio-inline">
+                                <input type="radio" name="selectedplatform" id="websphereplatform" value="WebSphere" [(ngModel)]="serverAttributes.platform" (click)="handleClick(serverAttributes.platform);">
+                                <label for="websphereplatform" class="col-sm-5">WebSphere</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" *ngIf="serverAttributes.device_type=='Office365'">
+                        <label class="control-label col-sm-2">Mode</label>
+                        <div class="col-sm-4">
+                            <div class="radio radio-info radio-inline">
+                                <input type="radio" name="selectedmode" id="adfs" value="ADFS" [(ngModel)]="serverAttributes.mode" (change)="handleClick2($event.target.value);">
+                                <label for="adfs" class="col-sm-12">ADFS</label>
+                            </div>
+                            <div class="radio radio-info radio-inline">
+                                <input type="radio" name="selectedmode" id="cloud" value="Cloud Only" [(ngModel)]="serverAttributes.mode" (change)="handleClick2($event.target.value);">
+                                <label for="cloud" class="col-sm-12">Cloud Only</label>
+                            </div>
+                            <div class="radio radio-info radio-inline">
+                                <input type="radio" name="selectedmode" id="dirsync" value="Dir Sync" [(ngModel)]="serverAttributes.mode" (change)="handleClick2($event.target.value);">
+                                <label for="dirsync" class="col-sm-12">Dir Sync</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+
+</div>
+<!-- Cost Settings -->
+<div *ngIf="serverAttributes" class="form-horizontal">
+    <div class="panel panel-default">
+        <div class="panel-heading">Cost Settings</div>
+        <div class="panel-body">
+            <div *ngIf="serverAttributes.device_type=='Domino' || serverAttributes.device_type=='WebSphere' || serverAttributes.device_type=='Sametime' ||
+    serverAttributes.device_type=='URL' || serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' ||
+    serverAttributes.device_type=='Exchange'|| serverAttributes.device_type=='SharePoint' || serverAttributes.device_type=='IBM FileNet'">
+                <div class="form-group">
+                    <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:costAttr">
+                        <label class="control-label col-sm-3">{{attribute.attribute_name}}</label>
+                        <div class="col-sm-2">
+                            <div *ngIf="attribute.type=='TextBox'">
+                                <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+<!-- Scan Settings -->
+<div *ngIf="serverAttributes" class="form-horizontal">
+    <div class="panel panel-default">
+        <div class="panel-heading">Scan Settings</div>
+        <div class="panel-body">
+
+            <div *ngIf="serverAttributes.device_type=='Domino' || serverAttributes.device_type=='WebSphere' || serverAttributes.device_type=='Sametime' ||
+            serverAttributes.device_type=='URL' || serverAttributes.device_type=='IBM Connections' || serverAttributes.device_type=='Office365' ||
+            serverAttributes.device_type=='Exchange'||  serverAttributes.device_type=='Database Availability Group'|| serverAttributes.device_type=='SharePoint'|| serverAttributes.device_type=='IBM FileNet'">
+                 
+                <div class="row">
+                    <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:scanSettings">
+                        <div class="form-group col-sm-12">
+                            <label class="control-label col-sm-3">{{attribute.attribute_name}}</label>
+                            <div class="col-sm-1">
+                                <div *ngIf="attribute.type=='TextBox'">
+                                    <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                                </div>
+                                <!--<div *ngIf="attribute.type=='CheckBox'">
+                <input type="checkbox" [(ngModel)]="attribute.default_value" id="attribute.default_value" name="attribute.default_value">
+            </div>-->
+                            </div>
+                            <div class="col-sm-4">
+                                {{attribute.unit_of_measurement}}
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+    </div>
+<!-- Directory Sync Settings -->
+<div *ngIf="serverAttributes" class="form-horizontal">
+    <div *ngIf="serverAttributes.device_type=='Office365' && (mode=='Dir Sync' || serverAttributes.mode=='Dir Sync')">
+        <div class="panel panel-default">
+            <div class="panel-heading">Directory Sync Settings</div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:dirsyncAttr">
+                        <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
+                        <div class="col-sm-4">
+                            <div *ngIf="attribute.type=='TextBox'">
+                                <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                            </div>
+                            <div *ngIf="attribute.type=='ComboBox'">
+                                <wj-combo-box displayMemberPath="text" selectedValuePath="value" [itemsSource]="deviceCredentialData"
+                                              [(ngModel)]="attribute.default_value" placeholder="Select Credentials" [isEditable]="true">
+                                </wj-combo-box>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Mail Settings -->
+<div *ngIf="serverAttributes" class="form-horizontal">
+    <div *ngIf="serverAttributes.device_type=='Domino'">
+        <div class="panel panel-default">
+
+
+            <div class="panel-heading">Mail Settings</div>
+            <div class="panel-body">
+                <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:mailSettings">
+
+
+
+                    <div class="form-group" *ngIf="attribute.type!='CheckBox' && attribute.attribute_name!='Documents' && documentschecked!=true">
+                        <label class="control-label col-sm-3">{{attribute.attribute_name}}</label>
+
+                        <div class="col-sm-2">
+                            <div *ngIf="attribute.type=='TextBox' && attribute.attribute_name!='Documents'">
+                                <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="form-group" *ngIf="attribute.type!='CheckBox'  && documentschecked==true">
+
+                        <label class="control-label col-sm-3">{{attribute.attribute_name}}</label>
+                        <div class="col-sm-2">
+
+                            <div *ngIf="attribute.type=='TextBox'  && documentschecked==true">
+                                <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" *ngIf="attribute.type=='CheckBox'">
+                        <div class="col-sm-3">&nbsp;</div>
+                        <div class="funkyradio col-sm-9">
+                            <div class="funkyradio-default">
+                                <input type="checkbox" id="mailSettings_{{attribute.field_name}}" [(ngModel)]="attribute.default_bool_values">
+                                <label [attr.for]="'mailSettings_' + attribute.field_name">{{attribute.attribute_name}}</label>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-3">&nbsp;</div>
+                    <div class="funkyradio col-sm-9">
+                        <div class="funkyradio-default">
+                            <input type="checkbox" id="delete_mail_threshold" [(ngModel)]="delete_mail_threshold" name="delete_mail_threshold" (change)="isChecked($event.target.checked)" />
+                            <label for="delete_mail_threshold">Delete dead mail if count exceeds the threshold (Dead Mail Delete Threshold)</label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+<!-- Traveler Settings -->
+<div *ngIf="serverAttributes" class="form-horizontal">
+    <div *ngIf="serverAttributes.device_type=='Domino'">
+        <div class="panel panel-default">
+
+            <div class="panel-heading">Traveler Settings</div>
+            <div class="panel-body">
+
+
+                <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:travelerSettings; let i=index">
+
+                    <div class="form-group" *ngIf="attribute.type!='CheckBox'">
+                        <label class="control-label col-sm-3">{{attribute.attribute_name}}</label>
+                        <div class="col-sm-6">
+                            <div *ngIf="attribute.type=='TextBox'">
+                                <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                            </div>
+                            <div *ngIf="attribute.type=='ComboBox'">
+                                <wj-combo-box id="travelerSettings_{{attribute.field_name}}" displayMemberPath="text" selectedValuePath="value" [itemsSource]="deviceCredentialData"
+                                              [(ngModel)]="attribute.default_value" placeholder="Select Credentials" [isEditable]="true" required="false">
+                                </wj-combo-box>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" *ngIf="attribute.type=='ComboBox'">
+                        <div class="col-sm-3">&nbsp;</div>
+                        <div class="col-sm-6">
+                            <button class="btn btn-primary" (click)="adddominoCredentials(frmDialog)">
+                                Add Credentials
+                            </button>
+                            <button class="btn btn-primary" (click)="clearCredentials()">
+                                Clear Credentials
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group" *ngIf="attribute.type=='CheckBox'">
+                        <div class="col-sm-3">&nbsp;</div>
+                        <div class="funkyradio col-sm-6">
+                            <div class="funkyradio-default">
+                                <input type="checkbox" [(ngModel)]="attribute.default_bool_values" id="travelerSettings_{{attribute.field_name}}" name="travelerSettings_{{attribute.field_name}}">
+                                <label [attr.for]="'travelerSettings_' + attribute.field_name">{{attribute.attribute_name}}</label>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- Optional Scan Settings -->
+<div *ngIf="serverAttributes" class="form-horizontal">
+    <div *ngIf="serverAttributes.device_type=='Domino'">
+        <div class="panel panel-default">
+
+
+            <div class="panel-heading">Optional Scan Settings</div>
+            <div class="panel-body">
+                <div class="alert alert-info col-lg-12">
+                    <p>
+                        The database health service queries the Domino server on a daily basis to produce an inventory of the Notes databases on that server.
+                        This information is used to populate a variety of screens, most notably the 'Biggest Mail Files' report and 'Mail Files by Template'.
+                    </p>
+                </div>
+
+
+
+                <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:optionalSettings">
+
+                    <!--<div class="form-group" *ngIf="attribute.type!='CheckBox'">
+                        <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
+                        <div class="col-sm-2">
+                            <div *ngIf="attribute.type=='TextBox'">
+                                <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                            </div>
+                        </div>
+                    </div>-->
+                    <div class="form-group" *ngIf="attribute.type=='CheckBox'">
+                        <div class="col-sm-3">&nbsp;</div>
+                        <div class="funkyradio col-sm-6">
+                            <div class="funkyradio-default">
+                                <input type="checkbox" [(ngModel)]="attribute.default_bool_values" id="optionalSettings_{{attribute.field_name}}" name="optionalSettings_{{attribute.field_name}}">
+                                <label [attr.for]="'optionalSettings_' + attribute.field_name">{{attribute.attribute_name}}</label>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+<!-- Chat Settings -->
+<div *ngIf="serverAttributes" class="form-horizontal">
+    <div *ngIf="serverAttributes.device_type=='Sametime'">
+        <div class="panel panel-default">
+
+
+            <div class="panel-heading">Chat Settings</div>
+            <div class="panel-body">
+                <div class="alert alert-info col-lg-12">
+                    <p>Two User Credentials are required to simulate a chat session between two users. ST User1 and ST User2 reflect existing users that were previously configured to gather Sametime Statistics. To edit or view these users, please go to Configurator -> Application Settings -> Credentials.</p>
+                </div>
+                <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:chatSettings">
+                    <div class="form-group" *ngIf="attribute.type!='CheckBox'">
+                        <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
+                        <div class="col-sm-3" *ngIf="attribute.type=='TextBox'">
+                            <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+
+                        </div>
+                        <div class="col-sm-3" *ngIf="attribute.type=='ComboBox'">
+                            <wj-combo-box name="attribute.default_value" [itemsSource]="deviceCredentialData" displayMemberPath="text" selectedValuePath="value"
+                                          [(ngModel)]="attribute.default_value" placeholder="Select Credentials">
+                            </wj-combo-box>
+                        </div>
+                    </div>
+                    <div class="form-group" *ngIf="attribute.type=='CheckBox'">
+                        <div class="col-sm-2">&nbsp;</div>
+                        <div class="col-sm-3">
+                            <div class="funkyradio">
+                                <input type="checkbox" [(ngModel)]="attribute.default_bool_values" id="chatSettings_{{attribute.field_name}}" name="chatSettings_{{attribute.field_name}}">
+                                <label [attr.for]="'chatSettings_' + attribute.field_name">{{attribute.attribute_name}}</label>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-2">&nbsp;</div>
+                    <div class="col-sm-3">
+                        <button class="btn btn-primary" (click)="addCrdential(frmDialog)">
+                            Add Credentials
+                        </button>
+                    </div>
+                </div>
+                
+            </div>
+
+        </div>
+
+    </div>
+</div>
+<!-- WebSphere Settings -->
+<div *ngIf="serverAttributes" class="form-horizontal">
+    <div *ngIf="serverAttributes.device_type=='WebSphere'">
+        <div class="panel panel-default">
+
+            <div class="panel-heading">WebSphere Settings</div>
+            <div class="panel-body">
+                <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:webSphereSettings">
+
+                    <div class="form-group" *ngIf="attribute.type!='CheckBox'">
+                        <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
+                        <div class="col-sm-2">
+                            <div *ngIf="attribute.type=='TextBox'">
+                                <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" *ngIf="attribute.type=='CheckBox'">
+
+                        <div>
+
+                            <input type="checkbox" [(ngModel)]="attribute.default_bool_values" id="websphereSettings_{{attribute.field_name}}" name="websphereSettings_{{attribute.field_name}}">
+                            <label [attr.for]="'websphereSettings_' + attribute.field_name">{{attribute.attribute_name}}</label>
+
+
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+<!-- Optional: Search Text -->
+<div *ngIf="serverAttributes" class="form-horizontal">
+    <div *ngIf="serverAttributes.device_type =='URL'">
+        <div class="panel panel-default">
+
+            <div class="panel-heading">Search Text (optional)</div>
+
+            <div class="panel-body">
+                <div class="alert alert-info col-lg-12">
+                    <p>
+                        If you enter a value into the Search Text box, then VitalSigns will
+                        try to locate this text on the URL page and an Alert will be generated based on the option you select below.
+                    </p>
+                </div>
+                <div class="row" *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:searchText">
+
+                    <div class="form-group" *ngIf="attribute.type!='CheckBox'">
+                        <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
+                        <div class="col-sm-5">
+                            <div *ngIf="attribute.type=='TextBox'">
+                                <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" *ngIf="attribute.type=='CheckBox'">
+                        <div class="col-sm-2">&nbsp;</div>
+                        <div class="col-sm-3">
+                            <div class="funkyradio">
+                                <input type="checkbox" [(ngModel)]="attribute.default_bool_values" value="attribute.default_bool_values" id="searchtextSettings_{{attribute.field_name}}" name="searchtextSettings_{{attribute.field_name}}">
+                                <label [attr.for]="'searchtextSettings_' + attribute.field_name">{{attribute.attribute_name}}</label>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+    </div>
+</div>
+<!-- Optional: Username/Password -->
+<div *ngIf="serverAttributes" class="form-horizontal">
+    <div *ngIf="serverAttributes.device_type == 'URL'">
+        <div class="panel panel-default">
+            <div class="panel-heading">Username/Password (optional)</div>
+
+
+            <div class="panel-body">
+                <div class="alert alert-info col-lg-12">
+                    <p>
+                        If you enter values into the Username and Password field, VitalSigns will use them when navigating to the page.
+                        This is only applicable to pages requiring authentication when searching for specific text in the page which is only available after authentication.
+                    </p>
+                </div>
+
+
+                <div class="row" *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:usernameorPassword">
+
+                    <div class="form-group">
+                        <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
+                        <div class="col-sm-5">
+                            <div *ngIf="attribute.type=='TextBox' && attribute.field_name =='password'">
+                                <input type="password" [(ngModel)]="attribute.default_value" class="form-control">
+                            </div>
+                            <div *ngIf="attribute.type=='TextBox' && attribute.field_name !='password'">
+                                <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- Exchange Queue Thresholds -->
+<div *ngIf="serverAttributes" class="form-horizontal">
+    <div *ngIf="serverAttributes.device_type=='Exchange'">
+        <div class="panel panel-default">
+            <div class="panel-heading">Queue Thresholds</div>
+            <div class="panel-body">
+                <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:exchangeSettings">
+
+                    <div class="form-group" *ngIf="attribute.type!='CheckBox'">
+                        <label class="control-label col-sm-4">{{attribute.attribute_name}}</label>
+                        <div class="col-sm-2">
+                            <div *ngIf="attribute.type=='TextBox'">
+                                <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" *ngIf="attribute.type=='CheckBox'">
+                        <div class="col-sm-4">&nbsp;</div>
+                        <div class="col-sm-3">
+                            <div class="funkyradio">
+                                <input type="checkbox" [(ngModel)]="attribute.default_bool_values" id="exchangeSettings_{{attribute.field_name}}">
+                                <label [attr.for]="'exchangeSettings_' + attribute.field_name">{{attribute.attribute_name}}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Exchange Mail Latency Test Settings -->
+<!--<div *ngIf="serverAttributes" class="form-horizontal">
+    <div *ngIf="serverAttributes.device_type=='Exchange'">
+        <div class="panel panel-default">
+            <div class="panel-heading">Mail Latency Test Settings</div>
+            <div class="panel-body">
+                <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:mailLatencySettings">
+
+                    <div class="form-group" *ngIf="attribute.type!='CheckBox'">
+                        <label class="control-label col-sm-4">{{attribute.attribute_name}}</label>
+                        <div class="col-sm-2">
+                            <div *ngIf="attribute.type=='TextBox'">
+                                <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            {{attribute.unit_of_measurement}}
+                        </div>
+                    </div>
+                    <div class="form-group" *ngIf="attribute.type=='CheckBox'">
+                        <div class="col-sm-4">&nbsp;</div>
+                        <div class="col-sm-3">
+                            <div class="funkyradio">
+                                <input type="checkbox" [(ngModel)]="attribute.default_bool_values" value="attribute.default_bool_values" id="mailLatencySettings_{{attribute.field_name}}" name="mailLatencySettings_{{attribute.field_name}}">
+                                <label [attr.for]="'mailLatencySettings_' + attribute.field_name">{{attribute.attribute_name}}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>-->
+<!-- DAG Settings-->
+<div *ngIf="serverAttributes" class="form-horizontal">
+    <div *ngIf="serverAttributes.device_type=='Database Availability Group'">
+        <div class="panel panel-default">
+
+            <div class="panel-heading">DAG Settings</div>
+            <div class="panel-body">
+                <div *ngFor="let attribute of serverAttributes.device_attributes |filterDeviceAttributes:DAGSettings">
+
+                    <div class="form-group" *ngIf="attribute.type!='CheckBox'">
+                        <label class="control-label col-sm-2">{{attribute.attribute_name}}</label>
+                        <div class="col-sm-2">
+                            <div *ngIf="attribute.type=='TextBox'">
+                                <input type="text" [(ngModel)]="attribute.default_value" class="form-control">
+                            </div>
+                            <div class="form-group" *ngIf="attribute.type=='CheckBox'">
+
+                                <div>
+
+                                    <input type="checkbox" [(ngModel)]="attribute.default_bool_values" id="DAGSettings_{{attribute.field_name}}" name="DAGSettings_{{attribute.field_name}}">
+                                    <label [attr.for]="'DAGSettings' + attribute.field_name">{{attribute.attribute_name}}</label>
+
+
+                                </div>
+                            </div>
+                            <div *ngIf="attribute.type=='ComboBox'">
+                                <wj-combo-box id="DAGSettings_{{attribute.field_name}}" displayMemberPath="device_name" selectedValuePath="_id" [itemsSource]="exchangeservers"
+                                              [(ngModel)]="attribute.default_value" [isEditable]="true" required="false">
+                                </wj-combo-box>
+                            </div>
+                        </div>
+                    </div> 
+               </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+<!-- Save -->
+<div class="form-horizontal">
+    <button type="button" class="btn btn-primary" (click)="applySetting()">Save</button>
+
+</div>
+
+<wj-popup style="border: 0px; width: 40%" #frmDialog>
+    <div class="modal-content">
+        <div class="modal-header">
+            Credentials
+            <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+        </div>
+        <form (ngSubmit)="SaveCredential(addCredentialForm.value,frmDialog)" class="form-horizontal" [formGroup]="addCredentialForm">
+            <div class="modal-body">
+
+                <div class="form-group col-sm-12">
+                    <label for="alias" class="control-label col-sm-2">Alias</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" #name d="alias" required name="alias" formControlName="alias">
+                    </div>
+                </div>
+                <div class="form-group col-sm-12">
+                    <label for="user_id" class="control-label col-sm-2">User Id</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" required name="user_id" formControlName="user_id">
+                    </div>
+                </div>
+
+                <div class="form-group col-sm-12">
+                    <label for="password" class="control-label col-sm-2">Password</label>
+                    <div class="col-sm-4">
+                        <input type="password" class="form-control" name="password" required formControlName="password">
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary"> Save </button>
+                <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</wj-popup>
+
+

@@ -1,0 +1,61 @@
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\bin\Debug\VitalSignsDailyStats.Mongo.exe.config
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\bin\Debug\VitalSignsDailyStats.Mongo.exe
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\bin\Debug\VitalSignsDailyStats.Mongo.pdb
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\obj\Debug\VitalSignsDailyStats.csprojResolveAssemblyReference.cache
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\obj\Debug\VitalSignsDailyStats.Mongo.exe
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\obj\Debug\VitalSignsDailyStats.Mongo.pdb
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\bin\Debug\DateUtils.dll
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\bin\Debug\Ionic.Zip.dll
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\bin\Debug\LogUtil.dll
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\bin\Debug\MonitoredItems.dll
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\bin\Debug\VSFramework.dll
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\bin\Debug\VSNext.Mongo.Entities.dll
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\bin\Debug\VSNext.Mongo.Repository.dll
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\bin\Debug\VSServices.dll
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\bin\Debug\MongoDB.Bson.dll
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\bin\Debug\MongoDB.Driver.dll
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\bin\Debug\MongoDB.Driver.Core.dll
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\bin\Debug\AlertLibrary.dll
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\bin\Debug\DateUtils.pdb
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\bin\Debug\LogUtil.pdb
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\bin\Debug\MonitoredItems.pdb
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\bin\Debug\VSFramework.pdb
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\bin\Debug\VSNext.Mongo.Entities.pdb
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\bin\Debug\VSNext.Mongo.Repository.pdb
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\bin\Debug\VSServices.pdb
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\bin\Debug\MongoDB.Bson.xml
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\bin\Debug\MongoDB.Driver.xml
+E:\VitalsignsMongo\VitalSigns Services\VitalSignsDailyStats.Mongo\bin\Debug\AlertLibrary.pdb
+E:\VitalSignsDailyStats.Mongo\bin\Debug\VitalSignsDailyStats.Mongo.exe.config
+E:\VitalSignsDailyStats.Mongo\obj\Debug\VitalSignsDailyStats.csprojResolveAssemblyReference.cache
+E:\VitalSignsDailyStats.Mongo\bin\Debug\VitalSignsDailyStats.Mongo.exe
+E:\VitalSignsDailyStats.Mongo\bin\Debug\VitalSignsDailyStats.Mongo.pdb
+E:\VitalSignsDailyStats.Mongo\bin\Debug\DateUtils.dll
+E:\VitalSignsDailyStats.Mongo\bin\Debug\Ionic.Zip.dll
+E:\VitalSignsDailyStats.Mongo\bin\Debug\LogUtil.dll
+E:\VitalSignsDailyStats.Mongo\bin\Debug\VSFramework.dll
+E:\VitalSignsDailyStats.Mongo\bin\Debug\VSNext.Mongo.Entities.dll
+E:\VitalSignsDailyStats.Mongo\bin\Debug\VSNext.Mongo.Repository.dll
+E:\VitalSignsDailyStats.Mongo\bin\Debug\VSServices.dll
+E:\VitalSignsDailyStats.Mongo\bin\Debug\MongoDB.Bson.dll
+E:\VitalSignsDailyStats.Mongo\bin\Debug\MongoDB.Driver.dll
+E:\VitalSignsDailyStats.Mongo\bin\Debug\MongoDB.Driver.Core.dll
+E:\VitalSignsDailyStats.Mongo\bin\Debug\DateUtils.pdb
+E:\VitalSignsDailyStats.Mongo\bin\Debug\DateUtils.xml
+E:\VitalSignsDailyStats.Mongo\bin\Debug\LogUtil.pdb
+E:\VitalSignsDailyStats.Mongo\bin\Debug\VSFramework.pdb
+E:\VitalSignsDailyStats.Mongo\bin\Debug\VSFramework.xml
+E:\VitalSignsDailyStats.Mongo\bin\Debug\VSNext.Mongo.Entities.pdb
+E:\VitalSignsDailyStats.Mongo\bin\Debug\VSNext.Mongo.Repository.pdb
+E:\VitalSignsDailyStats.Mongo\bin\Debug\MongoDB.Bson.xml
+E:\VitalSignsDailyStats.Mongo\bin\Debug\MongoDB.Driver.xml
+E:\VitalSignsDailyStats.Mongo\obj\Debug\VitalSignsDailyStats.Mongo.exe
+E:\VitalSignsDailyStats.Mongo\obj\Debug\VitalSignsDailyStats.Mongo.pdb
+E:\Builds\Services\VitalSignsDailyStats.Mongo.exe.config
+E:\VitalSignsDailyStats.Mongo\bin\Debug\MonitoredItems.dll
+E:\VitalSignsDailyStats.Mongo\bin\Debug\AlertLibrary.dll
+E:\VitalSignsDailyStats.Mongo\bin\Debug\VSServices.pdb
+E:\VitalSignsDailyStats.Mongo\bin\Debug\MonitoredItems.pdb
+E:\VitalSignsDailyStats.Mongo\bin\Debug\MonitoredItems.xml
+E:\VitalSignsDailyStats.Mongo\bin\Debug\AlertLibrary.pdb
+E:\VitalSignsDailyStats.Mongo\bin\Debug\AlertLibrary.xml

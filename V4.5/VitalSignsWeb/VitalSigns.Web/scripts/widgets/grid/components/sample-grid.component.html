@@ -1,0 +1,70 @@
+﻿<wj-group-panel [grid]="flex" [placeholder]="'Drag columns here to create groups.'" class="visible"></wj-group-panel>
+<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" #flex>
+    <wj-flex-grid-filter></wj-flex-grid-filter>
+    <wj-flex-grid-column [header]="'User name'" [binding]="'username'" [width]="280"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Device Name'" [binding]="'device_name'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Monitor'" [binding]="'monitor'" align="center">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            <span *ngIf="cell.item.monitor == 'Yes'" aria-hidden="true" class="glyphicon glyphicon-bell notificationIcon active"></span>
+        </template>
+    </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Security Policy'" [binding]="'security_policy'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'OS Type'" [binding]="'os_type'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Last Sync Time'" [binding]="'last_sync_time'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Last Updated'" [binding]="'last_updated'"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Access'" [binding]="'access'" align="center">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            <span *ngIf="cell.item.access == 'Allow'" class="label label-pill label-success">Allow</span>
+            <span *ngIf="cell.item.access == 'Blocked'" class="label label-pill label-danger">Blocked</span>
+        </template>
+    </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Client Build'" [binding]="'client_build'">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            <span *ngIf="cell.item.client_build != 'NONE'">{{cell.item.client_build}}</span>
+        </template>
+    </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'HA Pool'" [binding]="'ha_pool'">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            <span *ngIf="cell.item.ha_pool != 'NONE'">{{cell.item.ha_pool}}</span>
+        </template>
+    </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Sync Type'" [binding]="'sync_type'">
+        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+            <span *ngIf="cell.item.sync_type != 'NONE'">{{cell.item.sync_type}}</span>
+        </template>
+    </wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Device ID'" [binding]="'device_id'"></wj-flex-grid-column>
+</wj-flex-grid>
+<div class="btn-group" *ngIf="data != null">
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToFirstPage()"
+            [disabled]="data.pageIndex <= 0">
+        <span class="glyphicon glyphicon-fast-backward"></span>
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToPreviousPage()"
+            [disabled]="data.pageIndex <= 0">
+        <span class="glyphicon glyphicon-step-backward">
+        </span>
+    </button>
+    <button type="button" class="btn btn-default" disabled style="width:100px">
+        {{data.pageIndex + 1 | number}} / {{data.pageCount | number}}
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToNextPage()"
+            [disabled]="data.pageIndex >= data.pageCount - 1">
+        <span class="glyphicon glyphicon-step-forward"></span>
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToLastPage()"
+            [disabled]="data.pageIndex >= data.pageCount - 1">
+        <span class="glyphicon glyphicon-fast-forward"></span>
+    </button>
+</div>
+<div class="pull-right" *ngIf="data != null">
+    <wj-menu [(value)]="pageSize" [header]="'Page size'">
+        <wj-menu-item [value]="10">10</wj-menu-item>
+        <wj-menu-item [value]="20">20</wj-menu-item>
+        <wj-menu-item [value]="50">50</wj-menu-item>
+    </wj-menu>
+</div>

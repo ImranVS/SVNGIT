@@ -1,0 +1,38 @@
+﻿<div class="widgetWrapper noprint">
+    <div class="widgetContent">
+        <div id="dtPanel" style="display:inline-block">
+            <span class="headerBlock">Start Date:</span> <wj-input-date format="yyyy-MM-dd" [(value)]="startDate" style="width:125px;"></wj-input-date>
+        </div>
+        <div id="dtPanel2" style="display:inline-block">
+            <span class="headerBlock">End Date:</span> <wj-input-date format="yyyy-MM-dd" [(value)]="endDate" style="width:125px;"></wj-input-date>
+        </div>
+       
+        <div id="dtServer1" style="display:inline-block">
+            <span class="headerBlock">Servers:</span> <wj-multi-select #multisel1
+                                                                       [placeholder]="'Select Servers'"
+                                                                       class="multiselect"
+                                                                       [itemsSource]="deviceNameData"
+                                                                       displayMemberPath="name" selectedValuePath="id"
+                                                                       [headerFormat]="'{count} Servers selected'"
+                                                                       [checkedMemberPath]="'selected'"
+                                                                       [(ngModel)]="selectedServers" style="width:150px;">
+            </wj-multi-select>
+        </div>
+        <div id="dtServer" style="display:inline-block">
+            <span class="headerBlock">Statistic : </span> <wj-multi-select #multisel2
+                 [placeholder]="'Select Statistic'"
+                 class="multiselect"
+                 [itemsSource]="deviceNameData1"
+                 displayMemberPath="name" selectedValuePath="id"
+                 [headerFormat]="'{count} Statistic selected'"
+                 [checkedMemberPath]="'selected'"
+                 [(ngModel)]="selectedStatistic" style="width:150px;">
+</wj-multi-select>
+        </div>
+       
+    
+        <div id="dtFilter" style="display:inline-block">
+            <button class="btn btn-success" (click)="applyFilters(multisel1,multisel2)">Filter</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,15 @@
+﻿<div>&nbsp;</div>
+<div class="form-group col-sm-12" *ngIf="deviceTypeData != null">
+    <label for="deviceType" class="control-label">Select Log</label>
+
+    <wj-combo-box id="combo" name="deviceType" displayMemberPath="text" selectedValuePath="value" [itemsSource]="deviceTypeData" [(text)]="selectedDeviceType"
+                  [(ngModel)]="selectedDeviceType" placeholder="Select Log File" (selectedIndexChanged)="onDeviceTypeIndexChanged($event)" #combo>
+    </wj-combo-box>
+    <div>&nbsp;</div>
+    <div *ngIf="logFile">
+        <textarea class="form-control" style="height: 422px; width: 1400px;" [(ngModel)]="logFile"></textarea>
+    </div>
+</div>
+<div class="form-group col-sm-12" *ngIf="deviceTypeData == null">
+    <div class="text-danger"><b>* There are no logs available or log information could not be loaded</b></div>
+</div>

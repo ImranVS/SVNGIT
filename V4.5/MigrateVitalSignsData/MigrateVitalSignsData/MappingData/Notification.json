@@ -1,0 +1,9 @@
+﻿{
+    "sql_query": "SELECT [AlertName] FROM [vitalsigns].[dbo].[AlertNames]",
+    "mappings": [
+        {
+            "sql_column": "AlertName",
+            "mongodb_field": "notification_name"
+        }
+    ]
+}

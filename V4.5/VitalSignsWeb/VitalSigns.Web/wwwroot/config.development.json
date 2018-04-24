@@ -1,0 +1,4 @@
+﻿{
+  "apiEndpoint": "http://localhost:1234",
+  "uatStorage":  "session"
+}

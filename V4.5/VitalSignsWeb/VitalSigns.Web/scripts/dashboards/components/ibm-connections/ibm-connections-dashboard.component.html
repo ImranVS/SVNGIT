@@ -1,0 +1,43 @@
+﻿<div id="zeusContext">
+
+    <div id="zeusContextNavigation">
+        <div id="zeusContextNavigationIcon">
+            <img class="svgInject" src="/img/servers/IBMConnections.svg" title="Dashboard" alt="Dashboard" />
+        </div>
+        <div id="zeusContextNavigationText">
+            <h2>
+                IBM Connections
+                <app-navigator></app-navigator>
+            </h2>
+            <p>IBM Connections dashboard</p>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+</div>
+<div id="zeusContent">
+    <div class="row">
+
+        <div class="col-xs-12">
+            <div class="widgetWrapper">
+                <div class="widgetTitle">
+                    IBM Connections Servers
+                </div>
+                <!--<div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>-->
+                <div class="widgetContent" id="connectionsGrid" >
+                    <vs-connections-grid (select)="onSelect($event)">loading...</vs-connections-grid>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12" *ngIf="serviceId">
+            <div class="widgetWrapper">
+                <!--<div class="widgetEditButton"><span aria-hidden="true" class="glyphicon glyphicon-cog"></span></div>-->
+                <div class="widgetContent" id="connectionsDetails">
+                    <vs-connections-details>loading...</vs-connections-details>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

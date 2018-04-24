@@ -1,0 +1,19 @@
+﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" id="flex" headersVisibility="Column" (selectionChanged)="onSelectionChanged($event)" #flex>
+    <wj-flex-grid-filter></wj-flex-grid-filter>
+
+   <wj-flex-grid-column header="{{header}}"  [width]="280" binding="{{header}}" *ngFor="let header of headers">
+       <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell" *ngIf="header.indexOf('Activation') !== -1">
+           <span *ngIf="(cell.item[header].is_active === 'Active' && header === 'Activation Preference 1') || (cell.item[header].is_active === 'Passive' && header !== 'Activation Preference 1')" class="label label-pill label-success">{{cell.item[header].server_name}}</span>
+           <span *ngIf="(cell.item[header].is_active === 'Active' && header !== 'Activation Preference 1') || (cell.item[header].is_active === 'Passive' && header === 'Activation Preference 1')" class="label label-pill label-warning">{{cell.item[header].server_name}}</span>
+       </template>
+   </wj-flex-grid-column>
+    
+</wj-flex-grid>
+
+<div class="pull-right" *ngIf="data != null">
+    <wj-menu [(value)]="pageSize" [header]="'Page size'">
+        <wj-menu-item [value]="10">10</wj-menu-item>
+        <wj-menu-item [value]="20">20</wj-menu-item>
+        <wj-menu-item [value]="50">50</wj-menu-item>
+    </wj-menu>
+</div>

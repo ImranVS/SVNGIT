@@ -1,0 +1,105 @@
+﻿<div class="col-lg-2">&nbsp;</div>
+<div class="col-lg-8">
+    <div class="row">
+        <form [formGroup]="ibmDominoSettingsForm" (ngSubmit)="onSubmit(ibmDominoSettingsForm.value)" class="form-horizontal">
+            <div class="alert alert-info col-sm-12">
+                VitalSigns is using the ID listed in the Notes ID field below. <br /><b>Important:</b> if you switch IDs using the Notes client, you must provide the new password for VitalSigns.
+            </div>
+
+            <div class="row">
+                <div class="form-group col-lg-12">
+                    <label for="notes_program_directory" class="control-label col-sm-6 col-md-6 col-lg-4">Notes Program Directory Path</label>
+                    <div class="col-sm-6 col-md-6 col-lg-7">
+                        <input type="text" class="form-control" #notesprogramdirectory id="notes_program_directory" name="notes_program_directory" formControlName="notes_program_directory">
+                    </div>
+                </div>
+                <div class="form-group col-lg-12">
+                    <label for="notes_user_id" class="control-label col-sm-6 col-md-6 col-lg-4">Notes ID File</label>
+                    <div class="col-sm-6 col-md-6 col-lg-7">
+                        <input type="text" class="form-control" #notesuserid id="notes_user_id" name="notes_user_id" formControlName="notes_user_id">
+                    </div>
+                </div>
+                <div class="form-group col-lg-12">
+                    <label  class="control-label col-sm-6 col-md-6 col-lg-4">Notes.INI</label>
+                    <div class="col-sm-6 col-md-6 col-lg-7">
+                        <input type="text" class="form-control" #notesini id="notes_ini" name="notes_ini" formControlName="notes_ini">
+                    </div>
+                </div>
+                <div class="form-group col-lg-12">
+                    <label for="notes_password" class="control-label col-sm-6 col-md-6 col-lg-4">Notes Password</label>
+                    <!--<div class="col-sm-6 col-md-6 col-lg-8">
+                        <input type="password" class="form-control" #notespassword id="notes_password" name="notes_password" formControlName="notes_password" (keypress)="valuechange($event,ibmDominoSettingsForm.value)">
+                    </div>-->
+                    <div class="col-sm-6 col-md-6 col-lg-7">
+                        <button #pwd type="button" class="btn btn-primary">
+                            Enter Password
+                        </button>
+                        <wj-popup #frmDialog class="popover" [owner]="pwd" [showTrigger]="'Click'" [hideTrigger]="'None'">
+                            <h3 class="popover-title">
+                                Password
+                                <button type="button" tabindex="-1" class="close wj-hide">&times;</button>
+                            </h3>
+                            <div class="popover-content">
+                                <div class="input-group">
+                                    <label for="notes_password" class="control-label">Please enter a Notes password below</label>
+                                    <input #notespwd class="form-control" name="notes_password" type="password" required />
+                                </div>
+                                <div>&nbsp;</div>
+                                <div class="form-actions">
+                                    <button type="button" class="btn btn-primary" name="save" (click)="savePwd(frmDialog);">Save</button>
+                                </div>
+                            </div>
+                        </wj-popup>
+                    </div>
+                </div>
+                <div class="form-group col-lg-12">
+                    <label for="exjournal_threshold" class="control-label col-sm-6 col-md-6 col-lg-4">EXJournal Alert Threshold</label>
+                    <div class="col-sm-6 col-md-6 col-lg-7">
+                        <input type="text" pattern="^[1-9]\d*(\.\d+)?$" class="form-control" #exjournalthreshold id="exjournal_threshold"
+                               name="exjournal_threshold" formControlName="exjournal_threshold" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+                    </div>
+                    <div class="col-sm-1">
+                        documents
+                    </div>
+                </div>
+                <div class="form-group col-lg-12">
+                    <label for="consecutive_telnet" class="control-label col-sm-6 col-md-6 col-lg-4">Consecutive Telnet</label>
+                    <div class="col-sm-6 col-md-6 col-lg-7">
+                        <input type="text" pattern="^[1-9]\d*(\.\d+)?$" class="form-control" #consecutivetelnet id="consecutive_telnet"
+                               name="consecutive_telnet" formControlName="consecutive_telnet" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+                    </div>
+                </div>
+                <div class="form-group col-lg-12">
+                    <div class="col-sm-6 col-md-6 col-lg-4">&nbsp;</div>
+                    <div class="col-sm-6 col-md-6 col-lg-7">
+                        <div class="funkyradio">
+                            <div class="funkyradio-default">
+                                <input type="checkbox" id="enableex_journal" formControlName="enableex_journal">
+                                <label for="enableex_journal">Enable EXJournaling</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-lg-12">
+                    <div class="col-sm-6 col-md-6 col-lg-4">&nbsp;</div>
+                    <div class="col-sm-6 col-md-6 col-lg-7">
+                        <div class="funkyradio">
+                            <div class="funkyradio-default">
+                                <input type="checkbox" id="enable_domino_console_commands" formControlName="enable_domino_console_commands">
+                                <label for="enable_domino_console_commands">Enable Console Commands</label>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div>&nbsp;</div>
+            </div>
+            <div class="form-group col-sm-12">
+                <div class="col-sm-7">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="col-lg-2">&nbsp;</div>

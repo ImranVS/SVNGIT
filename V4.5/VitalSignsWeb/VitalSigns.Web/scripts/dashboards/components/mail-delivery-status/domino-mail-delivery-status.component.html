@@ -1,0 +1,142 @@
+﻿<div id="zeusContext">
+    <div id="zeusContextNavigation">
+        <div id="zeusContextNavigationIcon">
+            <img class="svgInject" src="/img/servers/IBMDomino.svg" title="IBM Domino" alt="IBM Domino" />
+        </div>
+        <div id="zeusContextNavigationText">
+            <h2>
+                Key Metrics and Performance Indicators
+            </h2>
+            <p>Mail Delivery Status</p>
+        </div>
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+<div class="clearfix"></div>
+<div id="zeusContent">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="widgetWrapper">
+                <div class="widgetContent">
+                    <button class="btn btn-primary" (click)="ExportExcel()">Export to Excel</button>
+                    <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" headersVisibility="Column">
+                        <wj-flex-grid-filter></wj-flex-grid-filter>
+                        <wj-flex-grid-column [header]="'Server Name'" [binding]="'device_name'" [width]="180"></wj-flex-grid-column>
+
+                        <wj-flex-grid-column [header]="'Overall Status'" [binding]="'StatusCode'" [width]="200" align="center">
+
+                            <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                                <div [ngSwitch]="cell.item.StatusCode">
+                                    <span *ngSwitchCase="'OK'" class="label label-pill label-success">{{cell.item.StatusCode}}</span>
+                                    <span *ngSwitchCase="'Not Responding'" class="label label-pill label-danger">{{cell.item.StatusCode}}</span>
+                                    <span *ngSwitchCase="'Issue'" class="label label-pill label-warning">{{cell.item.StatusCode}}</span>
+                                    <span *ngSwitchDefault class="label label-pill label-default">{{cell.item.StatusCode}}</span>
+                                </div>
+                            </template>
+                        </wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Pending Mail'" [binding]="'pending_mail'" [width]="120" align="center">
+
+                            <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                                <div *ngIf="cell.item.pending_mail >= cell.item.pending_threshold && cell.item.pending_threshold!=0">
+                                    <span class="label label-pill label-danger">{{cell.item.pending_mail}}</span>
+                                </div>
+                                <div *ngIf="cell.item.pending_threshold==0">
+
+                                    <span>{{cell.item.pending_mail}}</span>
+                                </div>
+                                <div *ngIf="cell.item.pending_mail <= (cell.item.pending_threshold*(0.8)) && cell.item.pending_threshold!=0 ">
+
+                                    <span class="label label-pill label-success">{{cell.item.pending_mail}}</span>
+                                </div>
+                                <div *ngIf="cell.item.pending_mail > (cell.item.pending_threshold*(0.8)) && cell.item.pending_mail < cell.item.pending_threshold && cell.item.pending_threshold!=0">
+
+                                    <span class="label label-pill label-warning">{{cell.item.pending_mail}}</span>
+                                </div>
+                            </template>
+                        </wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Held Mail'" [binding]="'held_mail'" [width]="100" align="center">
+                            <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                                <div *ngIf="cell.item.held_mail >= cell.item.held_threshold && cell.item.held_threshold!=0">
+                                    <span class="label label-pill label-danger">{{cell.item.held_mail}}</span>
+                                </div>
+                                <div *ngIf="cell.item.held_threshold==0">
+
+                                    <span>{{cell.item.held_mail}}</span>
+                                </div>
+                                <div *ngIf="cell.item.held_mail <= (cell.item.held_threshold*(0.8)) && cell.item.held_threshold!=0 ">
+
+                                    <span class="label label-pill label-success">{{cell.item.held_mail}}</span>
+                                </div>
+                                <div *ngIf="cell.item.held_mail > (cell.item.held_threshold*(0.8)) && cell.item.held_mail < cell.item.held_threshold && cell.item.held_threshold!=0">
+
+                                    <span class="label label-pill label-warning">{{cell.item.held_mail}}</span>
+                                </div>
+                            </template>
+                        </wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Dead Mail'" [binding]="'dead_mail'" [width]="100" align="center">
+                            <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
+                                <div *ngIf="cell.item.dead_mail >= cell.item.dead_threshold && cell.item.dead_threshold!=0">
+                                    <span class="label label-pill label-danger">{{cell.item.dead_mail}}</span>
+                                </div>
+                                <div *ngIf="cell.item.dead_threshold==0">
+
+                                    <span>{{cell.item.dead_mail}}</span>
+                                </div>
+                                <div *ngIf="cell.item.dead_mail <= (cell.item.dead_threshold*(0.8)) && cell.item.dead_threshold!=0 ">
+
+                                    <span class="label label-pill label-success">{{cell.item.dead_mail}}</span>
+                                </div>
+                                <div *ngIf="cell.item.dead_mail > (cell.item.dead_threshold*(0.8)) && cell.item.dead_mail < cell.item.dead_threshold && cell.item.dead_threshold!=0">
+
+                                    <span class="label label-pill label-warning">{{cell.item.dead_mail}}</span>
+                                </div>
+                            </template>
+                        </wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Location'" [binding]="'location'" [width]="100"></wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Category'" [binding]="'category'" [width]="100"></wj-flex-grid-column>
+                        <wj-flex-grid-column [header]="'Last Updated'" [binding]="'last_updated'" [width]="200"></wj-flex-grid-column>
+                    </wj-flex-grid>
+                    <div class="btn-group" *ngIf="data != null">
+                        <button type="button" class="btn btn-default"
+                                (click)="data.moveToFirstPage()"
+                                [disabled]="data.pageIndex <= 0">
+                            <span class="glyphicon glyphicon-fast-backward"></span>
+                        </button>
+                        <button type="button" class="btn btn-default"
+                                (click)="data.moveToPreviousPage()"
+                                [disabled]="data.pageIndex <= 0">
+                            <span class="glyphicon glyphicon-step-backward">
+                            </span>
+                        </button>
+                        <button type="button" class="btn btn-default" disabled style="width:100px">
+                            {{
+data.pageIndex + 1 | number
+                            }} / {{data.pageCount | number}}
+                        </button>
+                        <button type="button" class="btn btn-default"
+                                (click)="data.moveToNextPage()"
+                                [disabled]="data.pageIndex >= data.pageCount - 1">
+                            <span class="glyphicon glyphicon-step-forward"></span>
+                        </button>
+                        <button type="button" class="btn btn-default"
+                                (click)="data.moveToLastPage()"
+                                [disabled]="data.pageIndex >= data.pageCount - 1">
+                            <span class="glyphicon glyphicon-fast-forward"></span>
+                        </button>
+                    </div>
+                    <div class="pull-right" *ngIf="data != null">
+                        <wj-menu [(value)]="pageSize" [header]="'Page size'">
+                            <wj-menu-item [value]="10">10</wj-menu-item>
+                            <wj-menu-item [value]="20">20</wj-menu-item>
+                            <wj-menu-item [value]="50">50</wj-menu-item>
+                            <wj-menu-item [value]="100">100</wj-menu-item>
+                            <wj-menu-item [value]="200">200</wj-menu-item>
+                        </wj-menu>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="clearfix"></div>

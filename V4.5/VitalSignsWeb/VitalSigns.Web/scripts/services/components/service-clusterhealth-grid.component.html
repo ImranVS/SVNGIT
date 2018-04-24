@@ -1,0 +1,52 @@
+﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [frozenColumns]="2" [isReadOnly]="true" (selectionChanged)="refreshChart($event)" headersVisibility="Column" #flex>
+    <wj-flex-grid-filter></wj-flex-grid-filter>
+    <wj-flex-grid-column [header]="'Server Name'" [binding]="'device_name'" [width]="250"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Cluster Name'" [binding]="'cluster_name'" [width]="180"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Seconds On Queue Current'" [binding]="'cluster_seconds_on_queue'" [width]="200"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Seconds On Queue Avg'" [binding]="'cluster_seconds_on_queue_average'" [width]="180"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Work Queue Depth Current'" [binding]="'cluster_work_queue_depth'" [width]="200"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Work Queue Depth Avg'" [binding]="'cluster_work_queue_depth_average'" [width]="200"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Availability Percentage'" [binding]="'cluster_availability'" [width]="180"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Availability Threshold'" [binding]="'cluster_availability_threshold'" [width]="200"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Last Update'" [binding]="'last_updated'" [width]="200" ></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Analysis'" [binding]="'cluster_analysis'" [width]="150"></wj-flex-grid-column>
+</wj-flex-grid>
+<!--<div class="btn-group" *ngIf="data != null">
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToFirstPage()"
+            [disabled]="data.pageIndex <= 0">
+        <span class="glyphicon glyphicon-fast-backward"></span>
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToPreviousPage()"
+            [disabled]="data.pageIndex <= 0">
+        <span class="glyphicon glyphicon-step-backward">
+        </span>
+    </button>
+    <button type="button" class="btn btn-default" disabled style="width:100px">
+        {{
+data.pageIndex + 1 | number
+        }} / {{data.pageCount | number}}
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToNextPage()"
+            [disabled]="data.pageIndex >= data.pageCount - 1">
+        <span class="glyphicon glyphicon-step-forward"></span>
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToLastPage()"
+            [disabled]="data.pageIndex >= data.pageCount - 1">
+        <span class="glyphicon glyphicon-fast-forward"></span>
+    </button>
+</div>
+<div class="pull-right" *ngIf="data != null">
+    <wj-menu [(value)]="pageSize" [header]="'Page size'">
+        <wj-menu-item [value]="10">10</wj-menu-item>
+        <wj-menu-item [value]="20">20</wj-menu-item>
+        <wj-menu-item [value]="50">50</wj-menu-item>
+    </wj-menu>
+</div>-->
+
+
+
+

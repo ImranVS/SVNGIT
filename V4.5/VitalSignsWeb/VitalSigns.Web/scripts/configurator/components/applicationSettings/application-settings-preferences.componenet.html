@@ -1,0 +1,253 @@
+﻿<div class="alert alert-info col-lg-12">
+    The Preferences tab allows you to update license information and make general settings changes.
+</div>
+<div class="row">
+
+    <div class="col-xs-12 col-md-4 col-sm-12 col-lg-3">
+
+        <div class="panel panel-default">
+            <div class="panel-heading">License Information</div>
+            <div class="form-horizontal">
+                <div class="row">
+                    <div class="form-group col-sm-12">
+                        <label for="companyName" class="control-label col-sm-5">Name</label>
+                        <div id="companyName" name="companyName" class="col-sm-7" style="padding-top: 7px;">{{companyName}}</div>
+                    </div>
+                </div>
+
+                <div class="row" *ngIf="licenseType!='Perpetual'">
+                    <div class="form-group col-sm-12">
+                        <label for="expirationDate" class="control-label col-sm-5">Expiration Date</label>
+                        <div id="expirationDate" name="expirationDate" class="col-sm-7" style="padding-top: 7px;">{{expirationDate}}</div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-sm-12">
+                        <label for="units" class="control-label col-sm-5">Units</label>
+                        <div id="units" name="units" class="col-sm-7" style="padding-top: 7px;">{{units}}</div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-sm-12">
+                        <label for="availableUnits" class="control-label col-sm-5">Available Units</label>
+                        <div id="availableUnits" name="availableUnits" class="col-sm-7" style="padding-top: 7px;">{{availableUnits}}</div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-sm-12">
+                        <label for="installType" class="control-label col-sm-5">Install Type</label>
+                        <div id="installType" name="installType" class="col-sm-7" style="padding-top: 7px;">{{installType}}</div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-sm-12">
+                        <label for="licenseType" class="control-label col-sm-5">License Type</label>
+                        <div id="licenseType" name="licenseType" class="col-sm-7" style="padding-top: 7px;">{{licenseType}}</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-sm-12">
+                        <div class="form-group col-sm-2">&nbsp;</div>
+
+                        <div class="col-sm-7">
+                            <button #licence type="button" class="btn btn-primary">
+                                Enter License Key
+                            </button>
+                            <wj-popup #frmDialog class="popover" [owner]="licence" [showTrigger]="'Click'" [hideTrigger]="'None'">
+                                <h3 class="popover-title">
+                                    License Key
+                                    <button type="button" tabindex="-1" class="close wj-hide">&times;</button>
+                                </h3>
+                                <div class="popover-content">
+                                    <div class="input-group">
+                                        <label for="licencekey" class="control-label">Please enter a licence key below</label>
+                                        <input #licencekey class="form-control" name="licencekey" type="text" required />
+                                    </div>
+                                    <div>&nbsp;</div>
+                                    <div class="form-actions">
+                                        <button type="button" class="btn btn-primary" name="save" (click)="saveLicence(frmDialog);">OK</button>
+                                    </div>
+                                </div>
+                            </wj-popup>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-sm-12">
+                        <div class="form-group col-sm-2">&nbsp;</div>
+
+                        <div class="col-sm-7">
+                            <button class="btn btn-primary" (click)="licensedetails()">License Information</button>
+                            <wj-popup style="border: 0px; width: 820px" #licensedetailsPopup>
+                                <div class="modal-content">
+                                    <h3 class="popover-title">
+                                        License Info
+                                        <button type="button" tabindex="-1" class="close wj-hide">&times;</button>
+                                    </h3>
+                                    <div class="modal-body">
+                                        <wj-flex-grid [itemsSource]="detailsdata" selectionMode="Row" [isReadOnly]="true" headersVisibility="Column" #flex1>
+                                            <wj-flex-grid-filter></wj-flex-grid-filter>
+                                            <wj-flex-grid-column [header]="'Device Type'" [binding]="'device_type'" [width]="200"></wj-flex-grid-column>
+                                            <wj-flex-grid-column [header]="'Unit Consumed'" [binding]="'license_cost'" [width]="250"></wj-flex-grid-column>
+                                        </wj-flex-grid>
+                                    </div>
+                                </div>
+                            </wj-popup>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--<div class="panel panel-default">
+                <div class="panel-heading">Features</div>
+                <div class="panel-body">
+                    <div class="funkyradio">
+                        <div class="funkyradio-default">
+                            <input type="checkbox" id="ibm_connections">
+                            <label for="ibm_connections">IBM Connections </label>
+                        </div>
+                        <div class="funkyradio-default">
+                            <input type="checkbox" id="ibm_domino">
+                            <label for="ibm_domino">IBM Domino </label><br />
+                        </div>
+                        <div class="funkyradio-default">
+                            <input type="checkbox" id="ibm_notes_mail">
+                            <label for="ibm_notes_mail">IBM NotesMail </label>
+                        </div>
+                        <div class="funkyradio-default">
+                            <input type="checkbox" id="ibm_sametime">
+                            <label for="ibm_sametime">IBM Sametime </label>
+                        </div>
+                        <div class="funkyradio-default">
+                            <input type="checkbox" id="ibm_websphere">
+                            <label for="ibm_websphere">IBM WebSphere </label>
+                        </div>
+                    </div>
+                    <div class="input-group">
+
+                        <div class="input-group">
+            <input type="checkbox" class="checkbox-inline" id="microsoft_active_directory">
+            <label for="microsoft_active_directory">Microsoft Active Directory</label>
+        </div>
+        <div class="input-group">
+            <input type="checkbox" class="checkbox-inline" id="microsoft_exchange">
+            <label for="microsoft_exchange">Microsoft Exchange</label>
+        </div>
+        <div class="input-group">
+            <input type="checkbox" class="checkbox-inline" id="microsoft_sharepoint">
+            <label for="microsoft_sharepoint">Microsoft Sharepoint</label>
+        </div>
+        <div class="input-group">
+            <input type="checkbox" class="checkbox-inline" id="microsoft_skype_for_business">
+            <label for="microsoft_skype_for_business">Microsoft Skype for Business</label>
+        </div>
+        <div class="input-group">
+            <input type="checkbox" class="checkbox-inline" id="microsoft_office365">
+            <label for="microsoft_office365">Microsoft Office365</label>
+        </div>
+                    </div>
+                </div>
+            </div>-->
+    </div>
+    <div class="col-xs-12 col-md-8 col-sm-12 col-lg-9">
+        <form [formGroup]="preferencesForm" (ngSubmit)="onSubmit(preferencesForm.value)" #frmPreferences="ngForm" class="form-horizontal">
+            <div class="panel panel-default">
+                <div class="panel-heading">General Settings</div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="alert alert-info">
+                                <p>
+                                    Use the company name encoded in your license key.<br />
+                                    The currency symbol is used in financial reports.<br />
+                                    The Monitoring Delay is a time delay in minutes after a scheduled scan which will trigger a 'Delayed Scanning' alert. <br />
+                                    <!--- Disk Space Alert Threshold - preferred alert threshold for Disk Space (Yellow area).-->
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-sm-12">
+                            <label for="company_name" class="control-label col-sm-3">Company Name</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" id="company_name" name="company_name" formControlName="company_name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-sm-12">
+                            <label for="currency_symbol" class="control-label col-sm-3">Currency Symbol</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" maxlength="1" name="currency_symbol" id="currency_symbol" formControlName="currency_symbol">
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-sm-12">
+                            <label for="monitoring_delay" class="control-label col-sm-3">Monitoring Delay</label>
+                            <div class="col-sm-7">
+                                <input type="number" min="0" class="form-control" id="monitoring_delay" name="monitoring_delay" formControlName="monitoring_delay"
+                                       onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="display: none;">
+                        <div class="form-group col-sm-12">
+                            <label for="threshold_show" class="control-label col-sm-3">Disk Space Alert Threshold</label>
+                            <div class="col-sm-7">
+                                <input type="number" value="15" min="0" class="form-control" id="threshold_show" name="threshold_show" formControlName="threshold_show"
+                                       onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="alert alert-info">
+                            <p>
+                                How long would you like VitalSigns to keep summary statistics?<br />
+                                <!--- Disk Space Alert Threshold - preferred alert threshold for Disk Space (Yellow area).-->
+                            </p>
+                        </div>
+                        <div class="form-group col-sm-12">
+                            <label for="purge_def" class="control-label col-sm-3">Purge Interval</label>
+                            <div class="col-sm-7">
+                                <wj-combo-box name="purge_def" [itemsSource]="purge_intreval" displayMemberPath="name" selectedValuePath="value" formControlName="purge_intreval">
+                                </wj-combo-box>
+                            </div>
+                        </div>
+                    </div>
+                    <!--<div class="form-group">
+            <label for="bing_key" class="control-label col-sm-3">Bing Key:</label>
+            <div class="form-group col-sm-7">
+                <input type="number" class="form-control" name="bing_key" formControlName="bing_key">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-3">&nbsp;</div>
+            <div class="col-sm-7">
+                <div class="funkyradio">
+                    <div class="funkyradio-default">
+                        <input type="checkbox" id="dashboardonly_exec_summary_buttons" name="dashboardonly_exec_summary_buttons" formControlName="dashboardonly_exec_summary_buttons" />
+                        <label for="dashboardonly_exec_summary_buttons">Dashboard Only/Executive Summary Buttons</label>
+                    </div>
+                </div>
+            </div>
+        </div>-->
+                    <div class="row">
+                        <div class="form-group col-sm-12">
+                            <div class="col-sm-7">
+                                <button type="submit" class="btn btn-primary" name="submit" [disabled]="!frmPreferences.form.valid" >Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    </div>
+
+        </form>
+    </div>
+</div>
