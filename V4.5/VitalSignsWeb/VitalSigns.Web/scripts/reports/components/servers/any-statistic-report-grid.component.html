@@ -1,8 +1,0 @@
-﻿<button class="btn btn-primary" (click)="ExportExcel()">Export to Excel</button>
-<wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" #flex 
-              (itemsSourceChanged)="itemsSourceChangedHandler()" headersVisibility="Column">
-    <template ngFor let-colDef [ngForOf]="columns">
-        <wj-flex-grid-column [header]="colDef.header" [binding]="colDef.binding">
-        </wj-flex-grid-column>
-    </template>
-</wj-flex-grid>

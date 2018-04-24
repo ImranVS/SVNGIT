@@ -1,1 +1,0 @@
-﻿Get-MoveRequest | Group-Object -Property:Status | Select-Object Name, Count

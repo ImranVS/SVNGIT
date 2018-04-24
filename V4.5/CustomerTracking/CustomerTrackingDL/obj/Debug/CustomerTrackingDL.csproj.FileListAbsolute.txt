@@ -1,9 +1,0 @@
-C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerTrackingDL\bin\Debug\CustomerTrackingDL.dll
-C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerTrackingDL\bin\Debug\CustomerTrackingDL.pdb
-C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerTrackingDL\bin\Debug\CustomerTrackingDO.dll
-C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerTrackingDL\bin\Debug\VSFramework.dll
-C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerTrackingDL\bin\Debug\VSFramework.pdb
-C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerTrackingDL\bin\Debug\CustomerTrackingDO.pdb
-C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerTrackingDL\obj\Debug\CustomerTrackingDL.csprojResolveAssemblyReference.cache
-C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerTrackingDL\obj\Debug\CustomerTrackingDL.dll
-C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerTrackingDL\obj\Debug\CustomerTrackingDL.pdb

@@ -1,1 +1,0 @@
-//# sourceMappingURL=ViewSimple.js.map

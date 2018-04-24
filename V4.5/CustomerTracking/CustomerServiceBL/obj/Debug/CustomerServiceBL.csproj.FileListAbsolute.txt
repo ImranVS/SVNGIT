@@ -1,9 +1,0 @@
-C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerServiceBL\bin\Debug\CustomerServiceBL.dll
-C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerServiceBL\bin\Debug\CustomerServiceBL.pdb
-C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerServiceBL\bin\Debug\CustomerTrackingDL.dll
-C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerServiceBL\bin\Debug\CustomerTrackingDO.dll
-C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerServiceBL\bin\Debug\CustomerTrackingDL.pdb
-C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerServiceBL\bin\Debug\CustomerTrackingDO.pdb
-C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerServiceBL\obj\Debug\CustomerServiceBL.csprojResolveAssemblyReference.cache
-C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerServiceBL\obj\Debug\CustomerServiceBL.dll
-C:\Users\Alan\Desktop\vsCD\CustomerTracking\CustomerServiceBL\obj\Debug\CustomerServiceBL.pdb

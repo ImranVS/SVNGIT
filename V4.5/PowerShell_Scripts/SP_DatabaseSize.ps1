@@ -1,1 +1,0 @@
-﻿Get-SPDatabase | Sort-Object disksizerequired -desc | Format-Table Name, @{Label ="Size in MB"; Expression = {$_.disksizerequired/1024/1024}}|ft -AutoSize

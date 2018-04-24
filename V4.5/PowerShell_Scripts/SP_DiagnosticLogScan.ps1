@@ -1,1 +1,0 @@
-﻿Get-SPLogEvent -StartTime (Get-Date).AddMinutes(-5) | Where-Object {$_.Category -eq "Error" -and {$_.Area -eq "SharePoint*"}}| ft level,area,Category, Message -AutoSize 
