@@ -1452,6 +1452,16 @@ Public Class ActiveDirectoryServer
     Public Property ADDNSTest As String
     Public Property ADFsmoCheckTest As String
 End Class
+Public Class ExchangeMailProbe
+    Inherits MicrosoftServer
+
+    Public Property ExchangeServers As New List(Of ExchangeServer)
+
+    Public Property LatencyRedThreshold As Integer
+    Public Property LatencyYellowThreshold As Integer
+
+End Class
+
 Public Class Traveler_Backend
     Public Property TravelerServicePoolName As String
     Public Property ServerName As String
@@ -4457,6 +4467,65 @@ Public Class ExchangeServersCollection
         Return Nothing
     End Function
 End Class
+
+Public Class ExchangeMailProbesCollection
+    Inherits MicrosoftServersCollection
+
+    Public Overloads Sub Add(ByVal objItemToAdd As ExchangeMailProbe)
+        Me.List.Add(objItemToAdd)
+    End Sub
+
+    Public Overloads ReadOnly Property Item(ByVal iIndex As Integer) As ExchangeMailProbe
+        Get
+            Return Me.List(iIndex)
+        End Get
+    End Property
+
+    Public Overloads Function SearchByName(ByVal Name As String) As ExchangeMailProbe
+        Dim iIndex As Integer
+        Dim MyCommand As MonitoredItems.ExchangeMailProbe
+        For iIndex = 0 To Me.List.Count - 1
+            MyCommand = Me.List(iIndex)
+            If MyCommand.Name.ToUpper = Name.ToUpper Then
+                Return Me.List(iIndex)
+                Exit Function
+            End If
+        Next
+        Return Nothing
+    End Function
+
+    Public Overloads Function SearchByIPAddress(ByVal Name As String) As ExchangeMailProbe
+        Dim iIndex As Integer
+        Dim MyCommand As MonitoredItems.ExchangeMailProbe
+        For iIndex = 0 To Me.List.Count - 1
+            MyCommand = Me.List(iIndex)
+            If MyCommand.IPAddress = Name Then
+                Return Me.List(iIndex)
+                Exit Function
+            End If
+        Next
+        Return Nothing
+    End Function
+
+    Public Overloads Function Delete(ByVal Name As String) As Boolean
+        Dim iIndex As Integer
+        Dim MyCommand As MonitoredItems.ExchangeMailProbe
+        For iIndex = 0 To Me.List.Count - 1
+            MyCommand = Me.List(iIndex)
+            If MyCommand.Name = Name Then
+                Try
+                    Me.List.RemoveAt(iIndex)
+                    Return True
+                Catch ex As Exception
+                    Return False
+                End Try
+                Exit Function
+            End If
+        Next
+        Return Nothing
+    End Function
+End Class
+
 
 Public Class MicrosoftServersCollection
     Inherits MonitoredDevicesCollection

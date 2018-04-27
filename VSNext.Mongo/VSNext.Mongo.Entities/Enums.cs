@@ -123,7 +123,7 @@ namespace VSNext.Mongo.Entities
             [Description("Notes Database Replica")]
             NotesDatabaseReplica,
             [LicenseCost(0)]
-            [Description("ExchangeMail Probe")]
+            [Description("Exchange Mail Probe")]
             ExchangeMailProbe,
             [LicenseCost(1)]
             [Description("IBM Connections")]

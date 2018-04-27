@@ -35,7 +35,7 @@ namespace VitalSignsMicrosoftClasses
 		string listOfIdsForDag = "";
 		string listOfIdsForLync = "";
 		MonitoredItems.ExchangeServersCollection myExchangeServers;
-		MonitoredItems.ExchangeServersCollection myExchangeMailProbes;
+		MonitoredItems.ExchangeMailProbesCollection myExchangeMailProbes;
 		MonitoredItems.ExchangeServersCollection myDagCollection;
 
 		private Mutex ExchangeMutex = new Mutex();
@@ -101,12 +101,10 @@ namespace VitalSignsMicrosoftClasses
 					//InitStatusTable(myExchangeMailProbes);
 
 
-                    /*
-
-					Thread.Sleep(60 * 1000 * 1);
+                    
+                    
 					StartMailProbeThreads();
-                    */
-
+                    
 
 					CreateExchangeDAGCollection();
 					Common.InitStatusTable(myDagCollection);
@@ -996,9 +994,226 @@ namespace VitalSignsMicrosoftClasses
 			return MyLyncServer;
 		}
 
-		#endregion
+        #endregion
 
-		private string decodePasswordFromEncodedString(string s, string serverName)
+        private void CreateExchangeMailProbeCollection()
+        {
+            //Fetch all servers
+            if (myExchangeMailProbes == null)
+                myExchangeMailProbes = new MonitoredItems.ExchangeMailProbesCollection();
+            MonitoredItems.ExchangeMailProbesCollection newCollection = new MonitoredItems.ExchangeMailProbesCollection();
+            CommonDB DB = new CommonDB();
+            string NodeName = null;
+            List<VSNext.Mongo.Entities.Server> listOfExchangeServers = new List<Server>();
+            List<VSNext.Mongo.Entities.ServerOther> listOfExchangeMailProbes = new List<ServerOther>();
+            List<VSNext.Mongo.Entities.Credentials> listOfCredentials = new List<Credentials>();
+
+            try
+            {
+                NodeName = ConfigurationManager.AppSettings["VSNodeName"].ToString();
+
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.ServerOther> repository = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.ServerOther>(DB.GetMongoConnectionString());
+                FilterDefinition<VSNext.Mongo.Entities.ServerOther> filterDef = repository.Filter.Eq(x => x.Type, VSNext.Mongo.Entities.Enums.ServerType.ExchangeMailProbe.ToDescription());
+
+                ProjectionDefinition<VSNext.Mongo.Entities.ServerOther> projectionDef = repository.Project
+                    .Include(x => x.Id)
+                    .Include(x => x.Name)
+                    .Include(x => x.OffHoursScanInterval)
+                    .Include(x => x.RetryInterval)
+                    .Include(x => x.ScanInterval)
+                    .Include(x => x.ExchangeMailProbeServers)
+                    .Include(x => x.MailProbeRedThreshold)
+                    .Include(x => x.MailProbeYellowThreshold);
+                
+                listOfExchangeMailProbes = repository.Find(filterDef, projectionDef).ToList();
+
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> repositoryServer = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(DB.GetMongoConnectionString());
+                FilterDefinition<VSNext.Mongo.Entities.Server> filterDefServer = repositoryServer.Filter.Eq(x => x.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.Exchange.ToDescription());
+
+                ProjectionDefinition<VSNext.Mongo.Entities.Server> projectionDefServer = repositoryServer.Project
+                    .Include(x => x.Id)
+                    .Include(x => x.DeviceName)
+                    .Include(x => x.IPAddress)
+                    .Include(x => x.AuthenticationType)
+                    .Include(x => x.CredentialsId);
+
+                listOfExchangeServers = repositoryServer.Find(filterDefServer, projectionDefServer).ToList();
+
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Credentials> repositoryCredentials = new VSNext.Mongo.Repository.Repository<Credentials>(DB.GetMongoConnectionString());
+                listOfCredentials = repositoryCredentials.Find(x => true).ToList();
+            }
+            catch (Exception ex)
+            {
+                Common.WriteDeviceHistoryEntry("All", "ExchangeMailProbe", "Exception in CreateExchangeMailProbeCollection when getting the data from the db. Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
+            }
+            
+            //Loop through servers
+            if (listOfExchangeMailProbes.Count > 0)
+            {
+                int updatedServers = 0;
+                int newServers = 0;
+                int removedServers = 0;
+
+                for (int i = 0; i < listOfExchangeMailProbes.Count; i++)
+                {
+                    VSNext.Mongo.Entities.ServerOther entity = listOfExchangeMailProbes[i];
+                    
+                    MonitoredItems.ExchangeMailProbe myExchangeMailProbe = null;// = new MonitoredItems.ExchangeServer();
+                   
+                    //Checks to see if the server is newly added or exists.  Adds if it is new
+                    try
+                    {
+                        try
+                        {
+                            myExchangeMailProbe = myExchangeMailProbes.SearchByName(entity.Name.ToString());
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+
+                        if (myExchangeMailProbe == null)
+                        {
+                            //New server.  Set inits and add to collection
+
+                            myExchangeMailProbe = new MonitoredItems.ExchangeMailProbe();
+                            myExchangeMailProbe.ServerType = Enums.ServerType.ExchangeMailProbe.ToDescription();
+
+                            //myExchangeMailProbe.LastScan = statusEntry == null || !statusEntry.LastUpdated.HasValue || statusEntry.LastUpdated.ToString() == "" ? DateTime.Now.AddHours(-1) : statusEntry.LastUpdated.Value;
+                            //myExchangeMailProbe.Status = statusEntry == null || statusEntry.CurrentStatus.ToString() == "" ? "Not Scanned" : statusEntry.CurrentStatus;
+                            //myExchangeMailProbe.StatusCode = statusEntry == null || statusEntry.StatusCode.ToString() == "" ? "Maintenance" : statusEntry.StatusCode;
+
+                            myExchangeMailProbes.Add(myExchangeMailProbe);
+                            newServers++;
+
+                        }
+                        else
+                        {
+                            updatedServers++;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Common.WriteDeviceHistoryEntry("All", "ExchangeMailProbe", "Exception in CreateExchangeServersCollection when init new server. Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
+                    }
+
+                    myExchangeMailProbe.ServerObjectID = entity.Id;
+                    myExchangeMailProbe.Name = entity.Name;
+
+                    //try
+                    //{
+                    //    var creds = listOfCredentials.Where(x => x.Id == entity.CredentialsId).First();
+                    //    myExchangeServer.UserName = creds.UserId;
+                    //    myExchangeServer.Password = decodePasswordFromEncodedString(creds.Password, myExchangeServer.Name);
+                    //}
+                    //catch (Exception ex)
+                    //{
+
+                    //}
+
+                    //try
+                    //{
+                    //    var location = listOfLocations.Where(x => x.Id == entity.LocationId).First();
+                    //    myExchangeServer.Location = location.LocationName;
+                    //}
+                    //catch (Exception ex)
+                    //{
+
+                    //}
+
+                    //try
+                    //{
+                    //    var status = listOfStatus.Where(x => x.DeviceId == entity.Id).First();
+                    //    myExchangeServer.Status = status.CurrentStatus;
+                    //    myExchangeServer.StatusCode = status.StatusCode;
+                    //    myExchangeServer.LastScan = status.LastUpdated.HasValue ? status.LastUpdated.Value : DateTime.Now.AddHours(-1);
+                    //    myExchangeServer.ResponseDetails = status.Details;
+                    //}
+                    //catch (Exception ex)
+                    //{
+
+                    //}
+
+
+                    myExchangeMailProbe.ScanInterval = entity.ScanInterval.HasValue ? entity.ScanInterval.Value : 8;
+                    myExchangeMailProbe.OffHoursScanInterval = entity.OffHoursScanInterval.HasValue ? entity.OffHoursScanInterval.Value : 10;
+
+                    myExchangeMailProbe.Enabled = true;
+                    //myExchangeServer.InsufficentLicenses = entity.CurrentNode != null && entity.CurrentNode == "-1" ? true : false;
+                    myExchangeMailProbe.InsufficentLicenses = entity.CurrentNode == null || entity.CurrentNode != NodeName;
+                    myExchangeMailProbe.CurrentNode = entity.CurrentNode;
+                    myExchangeMailProbe.LatencyRedThreshold = entity.MailProbeRedThreshold.GetValueOrDefault(0);
+                    myExchangeMailProbe.LatencyYellowThreshold = entity.MailProbeYellowThreshold.GetValueOrDefault(0);
+
+                    foreach(ExchangeMailProbeServer currMailProbeExchangeServer in entity.ExchangeMailProbeServers)
+                    {
+                        if (!listOfExchangeServers.Exists(x => x.Id == currMailProbeExchangeServer.DeviceId))
+                            continue;
+                        Server currentExchangeServer = listOfExchangeServers.First(x => x.Id == currMailProbeExchangeServer.DeviceId);
+                        Credentials credential = new Credentials();
+                        if (listOfCredentials.Exists(x => x.Id == currentExchangeServer.CredentialsId))
+                            credential = listOfCredentials.First(x => x.Id == currentExchangeServer.CredentialsId);
+
+
+                        MonitoredItems.ExchangeServer newExchangeServer = new MonitoredItems.ExchangeServer()
+                        {
+                            Name = currentExchangeServer.DeviceName,
+                            IPAddress = currentExchangeServer.IPAddress,
+                            AuthenticationType = currentExchangeServer.AuthenticationType,
+                            UserName = credential.UserId,
+                            Password = decodePasswordFromEncodedString(credential.Password, currentExchangeServer.DeviceName)
+                        };
+                        myExchangeMailProbe.ExchangeServers.Add(newExchangeServer);
+                    }
+                   
+
+                    //myExchangeServer = SetExchangeServerSettings(myExchangeServer, DR);
+
+                    //newCollection.Add(SetExchangeServerSettings(myExchangeServer, DR));
+
+                }
+
+
+
+                //Removes servers not in the new lsit
+                foreach (MonitoredItems.ExchangeMailProbe server in myExchangeMailProbes)
+                {
+                    string currName = server.Name;
+                    try
+                    {
+                        //MonitoredItems.ExchangeServer newServer = newCollection.SearchByName(currName);
+                        if (!listOfExchangeMailProbes.Select(x => x.Name).Contains(currName))
+                        {
+                            //incase it doesnt throw and exception, if not found, removed server from list
+                            myExchangeMailProbes.Delete(currName);
+                            removedServers++;
+
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        //server not found
+                        myExchangeMailProbes.Delete(currName);
+                        removedServers++;
+
+                    }
+
+                }
+
+                //myExchangeServers = newCollection;
+                /**********************************************************/
+                Common.WriteDeviceHistoryEntry("All", "ExchangeMailProbe", "There are " + myExchangeMailProbes.Count + " servers in the collection.  " + newServers + " were new and " + updatedServers + " were updated.");
+            }
+            else
+            {
+                myExchangeMailProbes = new MonitoredItems.ExchangeMailProbesCollection();
+            }
+
+            Common.InsertInsufficentLicenses(myExchangeMailProbes);
+        }
+
+
+        private string decodePasswordFromEncodedString(string s, string serverName)
 		{
 
 			TripleDES tripledes = new TripleDES();
@@ -2869,115 +3084,6 @@ namespace VitalSignsMicrosoftClasses
 
 		//MailProbe not set up for HA.  If we use again, change queries to reflect HA changes
 		#region MailProbe
-		private void CreateExchangeMailProbeCollection()
-		{
-			//Fetch all servers
-			if (myExchangeMailProbes == null)
-				myExchangeMailProbes = new MonitoredItems.ExchangeServersCollection();
-			MonitoredItems.ExchangeServersCollection newCollection = new MonitoredItems.ExchangeServersCollection();
-			CommonDB DB = new CommonDB();
-			StringBuilder SQL = new StringBuilder();
-			SQL.Append(" select distinct Sr.ID,Sr.ServerName,S.ServerType,L.Location,EMP.ScanInterval,EMP.RetryInterval,EMP.OffHoursScanInterval,sa.Enabled,sr.ipaddress,sa.category,cr.UserID,cr.Password,");
-			SQL.Append(" EMP.Name, EMP.EXCHANGEMAILADDRESS,EMP.DELIVERYTHRESHOLD, ES.AuthenticationType  ");
-			SQL.Append(" from Servers Sr  inner join ServerTypes S on Sr.ServerTypeID=S.ID  inner join Locations L on Sr.LocationID =L.ID    ");
-			SQL.Append("  inner join ServerAttributes sa on sr.ID=sa.serverid  inner join credentials cr on sa.CredentialsId=cr.ID  ");
-			SQL.Append("  inner join ExchangeMailProbe EMP on EMP.SourceServerId=Sr.ID and EMP.Enabled=1 AND EMP.Category='Exchange'  ");
-			SQL.Append("  where S.ServerType='Exchange' and sa.Enabled = 1 order by sr.id");
-			
-			DataTable dtServers = DB.GetData(SQL.ToString());
-			//Loop through servers
-			if (dtServers.Rows.Count > 0)
-			{
-				for (int i = 0; i < dtServers.Rows.Count; i++)
-				{
-					DataRow DR = dtServers.Rows[i];
-					MonitoredItems.ExchangeServer myExchangeServer = new MonitoredItems.ExchangeServer();
-					newCollection.Add(SetMailProbeSettings(myExchangeServer, DR));
-				}
-
-				int updatedServers = 0;
-				int newServers = 0;
-				int removedServers = 0;
-
-				//Removes servers not in the new lsit
-				foreach (MonitoredItems.ExchangeServer server in myExchangeMailProbes)
-				{
-					string currName = server.Name;
-					try
-					{
-						MonitoredItems.ExchangeServer newServer = newCollection.SearchByName(currName);
-						if (newServer == null)
-						{
-							//incase it doesnt throw and exception, if not found, removed server from list
-							if (server.Enabled)
-							myExchangeMailProbes.Delete(currName);
-							removedServers++;
-						}
-					}
-					catch (Exception ex)
-					{
-						//server not found
-						if (server.Enabled)
-							myExchangeMailProbes.Delete(currName);
-						removedServers++;
-					}
-				}
-
-				// adds/updates new servers
-				foreach (MonitoredItems.ExchangeServer server in newCollection)
-				{
-					string currName = server.Name;
-					try
-					{
-						MonitoredItems.ExchangeServer oldServer = myExchangeMailProbes.SearchByName(currName);
-
-						if (oldServer != null)
-						{
-							oldServer.IPAddress = server.IPAddress;
-							oldServer.Name = server.Name;
-							oldServer.UserName = server.UserName;
-							oldServer.Password = server.Password;
-							oldServer.Location = server.Location;
-							oldServer.ResponseThreshold = server.ResponseThreshold;
-							oldServer.ScanInterval = server.ScanInterval;
-							oldServer.OffHoursScanInterval = server.OffHoursScanInterval;
-							oldServer.RetryInterval = server.RetryInterval;
-							oldServer.ServerDaysAlert = server.ServerDaysAlert;
-							oldServer.FailureThreshold = server.FailureThreshold;
-							oldServer.Category = server.Category;
-							oldServer.DeliveryThreshold = server.DeliveryThreshold;
-							oldServer.MailProbeName = server.MailProbeName;
-							oldServer.MailProbeAddress = server.MailProbeAddress;
-
-							if (oldServer.Enabled == false)
-								oldServer.Enabled = true;
-							updatedServers++;
-						}
-						else
-						{
-							myExchangeMailProbes.Add(server);
-							newServers++;
-						}
-					}
-					catch (NullReferenceException ex)
-					{
-						myExchangeMailProbes.Add(server);
-						newServers++;
-					}
-
-				}
-				//myExchangeServers = newCollection;
-				/**********************************************************/
-				Common.WriteDeviceHistoryEntry("All", "Exchange", "There are " + myExchangeMailProbes.Count + " servers in the collection.  " + newServers + " were new and " + updatedServers + " were updated.");
-			}
-			else
-			{
-				myExchangeMailProbes = new MonitoredItems.ExchangeServersCollection();
-			}
-
-
-			//At this point we have all Servers with ALL the information(including Threshold settings)
-		}
 		private MonitoredItems.ExchangeServer SetMailProbeSettings(MonitoredItems.ExchangeServer MyExchangeServer, DataRow DR)
 		{
             MyExchangeServer.ServerType = VSNext.Mongo.Entities.Enums.ServerType.ExchangeMailFlow.ToDescription();
@@ -3041,9 +3147,9 @@ namespace VitalSignsMicrosoftClasses
 			//initialMailProbeThreadCount = mailProbeThreadCount;
 			if (c == null)
 				c = new CultureInfo("en-US");
-			//for (int i = startThreads; i < mailProbeThreadCount; i++)
-			//{
-
+            //for (int i = startThreads; i < mailProbeThreadCount; i++)
+            //{
+            CreateExchangeMailProbeCollection();
 				Thread MainMailProbeThread = new Thread(new ThreadStart(GetMailFlowHeatMap));
 				MainMailProbeThread.CurrentCulture = c == null ? new CultureInfo("en-US") : c;  //Should only be null on our local copies if using wrapper
 				MainMailProbeThread.IsBackground = true;
@@ -3105,266 +3211,65 @@ namespace VitalSignsMicrosoftClasses
 
 		private void GetMailFlowHeatMap()
 		{
-			Thread MailFlowThread = null;
-			int totalWait = 0;
-			while (true)
-			{
-				try
-				{
-					if (MailFlowThread != null && MailFlowThread.IsAlive)
-						MailFlowThread.Abort();
-				}
-				catch (Exception ex)
-				{
-					Common.WriteDeviceHistoryEntry("Exchange", "HeatMap", "Error killing MailFlow thread: " + ex.Message.ToString());
-				}
-				CommonDB DB = new CommonDB();
-				int iInterval = 10;
+            Thread.CurrentThread.CurrentCulture = c;
+            CommonDB DB = new CommonDB();
 
-				try
-				{
-					string sInterval = DB.GetData("Select svalue from Settings where sname='HeatMap Scan Interval'").Rows[0][0].ToString();
-					if (sInterval != "")
-						iInterval = Convert.ToInt32(sInterval);
-				}
-				catch
-				{
-					iInterval = 20;
-				}
+            while (true)
+            {
+                MonitoredItems.ExchangeMailProbe thisServer;
+                try
+                {
+                    thisServer = Common.SelectServerToMonitor(myExchangeMailProbes) as MonitoredItems.ExchangeMailProbe;
 
-				try
-				{
-					myExchangeMailProbes = new MonitoredItems.ExchangeServersCollection();
-					System.Collections.ArrayList mailFlow = new System.Collections.ArrayList();
-					for (int n = 0; n < myExchangeServers.Count; n++)
-					{
-						MonitoredItems.ExchangeServer exServer = myExchangeServers.get_Item(n);
-                        if (exServer.EnableLatencyTest)
-                        {
-                            Common.WriteDeviceHistoryEntry("Exchange", "HeatMap", "Adding Server to collection:" + exServer.Name.ToString(), commonEnums.ServerRoles.MailFlow, Common.LogLevel.Normal);
-                            myExchangeMailProbes.Add(exServer);
-                        }
-					}
-					totalWait = (3 - iInterval) * 60 * 1000;  //3 for a few mre minutes
-					for (int i = 0; i < myExchangeMailProbes.Count; i++)
-					{
-						MonitoredItems.ExchangeServer exServer1 = myExchangeMailProbes.get_Item(i);
-						for (int j = 0; j < myExchangeMailProbes.Count; j++)
-						{
-							MonitoredItems.ExchangeServer exServer2 = myExchangeMailProbes.get_Item(j);
-							mailFlow.Add(new MonitoredItems.MailFlowTest() { SourceServer = exServer1.Name, DestinationServer = exServer2.Name, LatencyRedThreshold = exServer1.LatencyRedThreshold, LatencyYellowThreshold = exServer1.LatencyRedThreshold });
-							totalWait += exServer1.LatencyRedThreshold + 1;
-						}
-					}
-					TestResults AllTestResults = new TestResults();
-					if (myExchangeMailProbes.Count > 0)
-					{
-						MailFlowThread = new Thread(() =>
-						{
-							MonitoredItems.ExchangeServer thisServer = myExchangeMailProbes.get_Item(0);
-							ExchangeMailFlow mailFlowTest = new ExchangeMailFlow();
-							mailFlowTest.PrereqForWindows(thisServer, ref AllTestResults, mailFlow);
+                    if (thisServer != null && !thisServer.IsBeingScanned)
+                    {
+                        thisServer.IsBeingScanned = true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    thisServer = null;
+                }
+                finally
+                {
+                    
+                }
 
-							DB.UpdateAllTests(AllTestResults, thisServer, thisServer.ServerType);
-						});
-						MailFlowThread.CurrentCulture = c;
-						MailFlowThread.IsBackground = true;
-						MailFlowThread.Priority = ThreadPriority.Normal;
-						MailFlowThread.Name = "MailFlowWorkerThread";
-						MailFlowThread.Start();
+                if (thisServer != null)
+                {
+                    Common.WriteDeviceHistoryEntry("All", "ExchangeMailProbe", "Scanning Server " + thisServer.Name);
+                    thisServer.IsBeingScanned = true;
+                    
+                    TestResults AllTestResults = new TestResults();
 
-					}
-				}
-				catch (Exception ex)
-				{
-					Common.WriteDeviceHistoryEntry("Exchange", "HeatMap", "Error Getting heatMap Data: " + ex.Message.ToString());
-				}
-				//how do we get the scan interval??
-				Common.WriteDeviceHistoryEntry("Exchange", "HeatMap", "Waiting for " + iInterval.ToString() + " seconds to restart the Loop ");
-				Thread.Sleep(1000 * 60 * iInterval);
+                    Thread MailFlowThread = new Thread(() =>
+                    {
+                        ExchangeMailFlow mailFlowTest = new ExchangeMailFlow();
+                        mailFlowTest.PrereqForWindows(thisServer, ref AllTestResults);
 
-				//if, after it sleeps the interval the test is not hung in remove-psssession, will keep sleeping another 5 minutes
-				int currSleepTimer = 0;
-				while (MailFlowThread != null && MailFlowThread.IsAlive)
-				{
-					Common.WriteDeviceHistoryEntry("Exchange", "HeatMap", "Sleeping for another 5 minutes to wait for test, it is not hung that we know of. Will sleep a max of another scan interval length. ");
-					Thread.Sleep(1000 * 60 * 5);
-					currSleepTimer += 1000 * 60 * 5;
-					if (currSleepTimer > totalWait)
-						break;
-				}
+                        DB.UpdateAllTests(AllTestResults, thisServer, thisServer.ServerType);
+                    });
+                    MailFlowThread.CurrentCulture = c;
+                    MailFlowThread.IsBackground = true;
+                    MailFlowThread.Priority = ThreadPriority.Normal;
+                    MailFlowThread.Name = "MailFlowWorkerThread";
+                    MailFlowThread.Start();
+
+                    if(!MailFlowThread.Join((int)(1000 * 60 * 5 *+thisServer.ExchangeServers.Count * thisServer.LatencyRedThreshold))){
+                        Common.WriteDeviceHistoryEntry("All", "ExchangeMailProbe", "Thread has exceded the time " + (thisServer.ExchangeServers.Count * thisServer.LatencyRedThreshold) + "ms and has exited");
+                        Common.WriteDeviceHistoryEntry(thisServer.ServerType, thisServer.Name, "Thread has exceded the time " + (thisServer.ExchangeServers.Count * thisServer.LatencyRedThreshold) + "ms and has exited");
+                    }
+
+                    thisServer.LastScan = DateTime.Now;
+                    thisServer.IsBeingScanned = false;                   
+                }
+
+
 
 				
 			}
 
 		}
-		public MonitoredItems.ExchangeServer SelectMailProbeServerToMonitor()
-		{
-
-			DateTime tNow = DateTime.Now;
-			DateTime tScheduled;
-
-			DateTime timeOne;
-			DateTime timeTwo;
-
-			MonitoredItems.ExchangeServer SelectedServer = null;
-
-			MonitoredItems.ExchangeServer ServerOne = null;
-			MonitoredItems.ExchangeServer ServerTwo = null;
-
-			RegistryHandler myRegistry = new RegistryHandler();
-
-			String ScanASAP = "";
-
-			try
-			{
-				ScanASAP = myRegistry.ReadFromRegistry("ScanExchangeASAP").ToString();
-			}
-			catch (Exception ex)
-			{
-				ScanASAP = "";
-			}
-
-			//Searches for the server marked as ScanASAP, if it exists
-			for (int n = 0; n < myExchangeMailProbes.Count; n++)
-			{
-				ServerOne = myExchangeMailProbes.get_Item(n);
-				if (ServerOne.Name == ScanASAP && ServerOne.IsBeingScanned == false && ServerOne.Enabled)
-				{
-					Common.WriteDeviceHistoryEntry("All", "Exchange", ScanASAP + " was marked 'Scan ASAP' so it will be scanned next.");
-					myRegistry.WriteToRegistry("ScanExchangeASAP", "n/a");
-
-					//ServerOne.ScanASAP = true;
-
-					return ServerOne;
-				}
-
-			}
-
-
-			//Searches for the first enounter of a Not Responding server that is due for a scan
-			for (int n = 0; n < myExchangeMailProbes.Count; n++)
-			{
-				ServerOne = myExchangeMailProbes.get_Item(n);
-				if (ServerOne.Status == "Not Responding" && ServerOne.IsBeingScanned == false && ServerOne.Enabled)
-				{
-					tScheduled = ServerOne.NextScan;
-					if (DateTime.Compare(tNow, tScheduled) > 0)
-					{
-						Common.WriteDeviceHistoryEntry("All", "Exchange", "Selecting " + ServerOne.Name + " because the status is " + ServerOne.Status + ".  Next scheduled scan is at " + tScheduled.ToString());
-						return ServerOne;
-					}
-				}
-			}
-
-
-			//Searches for the first encounter of a server that has not been scanned yet
-			for (int n = 0; n < myExchangeMailProbes.Count; n++)
-			{
-				ServerOne = myExchangeMailProbes.get_Item(n);
-                if ((ServerOne.Status == "Not Scanned" || ServerOne.Status == "Master Service Stopped." )&& ServerOne.IsBeingScanned == false && ServerOne.Enabled)
-				{
-					Common.WriteDeviceHistoryEntry("All", "Exchange", "Selecting " + ServerOne.Name + " because the status is " + ServerOne.Status + ".");
-					return ServerOne;
-				}
-			}
-
-
-			//Searches for all servers that are due for a scan
-			List<MonitoredItems.ExchangeServer> ScanCanidates = new List<MonitoredItems.ExchangeServer>();
-
-			foreach (MonitoredItems.ExchangeServer srv in myExchangeMailProbes)
-			{
-				if (srv.IsBeingScanned == false && ServerOne.Enabled)
-				{
-					tNow = DateTime.Now;
-					tScheduled = srv.NextScan;
-					if (DateTime.Compare(tNow, tScheduled) > 0)
-					{
-						ScanCanidates.Add(srv);
-					}
-				}
-			}
-
-			if (ScanCanidates.Count == 0)
-			{
-				Thread.Sleep(10000);
-				return null;
-			}
-
-
-
-			//Start with the first two servers
-			ServerOne = ScanCanidates.ElementAt(0);
-			if (ScanCanidates.Count > 1)
-				ServerTwo = ScanCanidates.ElementAt(1);
-
-			if (ScanCanidates.Count > 2)
-			{
-				try
-				{
-					for (int n = 2; n < ScanCanidates.Count - 1; n++)
-					{
-						timeOne = ServerOne.NextScan;
-						timeTwo = ServerTwo.NextScan;
-						if (DateTime.Compare(timeOne, timeTwo) < 0)
-						{
-							//time on one is earlier, so keep one
-							ServerTwo = ScanCanidates.ElementAt(n);
-						}
-						else
-						{
-							//time on two is ealier, so keep two
-							ServerOne = ScanCanidates.ElementAt(n);
-						}
-					}
-				}
-				catch (Exception ex)
-				{
-					Common.WriteDeviceHistoryEntry("All", "Exchange", "Error Selecting Exchange Server... " + ex.Message);
-				}
-			}
-
-			if (ServerTwo != null)
-			{
-				timeOne = ServerOne.NextScan;
-				timeTwo = ServerTwo.NextScan;
-
-				if (DateTime.Compare(timeOne, timeTwo) < 0)
-				{
-					SelectedServer = ServerOne;
-					tScheduled = ServerOne.NextScan;
-				}
-				else
-				{
-					SelectedServer = ServerTwo;
-					tScheduled = ServerTwo.NextScan;
-				}
-				tNow = DateTime.Now;
-			}
-			else
-			{
-				SelectedServer = ServerOne;
-				tScheduled = ServerOne.NextScan;
-			}
-
-			tScheduled = SelectedServer.NextScan;
-			if (DateTime.Compare(tNow, tScheduled) < 0)
-			{
-				if (SelectedServer.Status != "Not Scanned")
-				{
-					SelectedServer = null;
-				}
-			}
-			else
-			{
-				TimeSpan mySpan = tNow - tScheduled;
-			}
-
-			return SelectedServer;
-		}
-		//mail flow
-
 		#endregion
 		
 
