@@ -237,5 +237,36 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         [BsonRepresentation(BsonType.ObjectId)]
         public List<string> LogFileServers { get; set; }
+
+        //Exchange MailProbes
+
+        [DataMember]
+        [BsonElement("mailprobe_yellow_threshold")]
+        [BsonIgnoreIfNull]
+        public int? MailProbeYellowThreshold { get; set; }
+
+        [DataMember]
+        [BsonElement("mailprobe_red_threshold")]
+        [BsonIgnoreIfNull]
+        public int? MailProbeRedThreshold { get; set; }
+
+        [DataMember]
+        [BsonElement("exchange_mail_probe_servers")]
+        [BsonIgnoreIfNull]
+        public List<ExchangeMailProbeServer> ExchangeMailProbeServers { get; set; }
+    }
+
+    public class ExchangeMailProbeServer
+    {
+        [DataMember]
+        [BsonElement("device_id")]
+        [BsonIgnoreIfNull]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string DeviceId { get; set; }
+
+        [DataMember]
+        [BsonElement("device_name")]
+        [BsonIgnoreIfNull]
+        public string DeviceName { get; set; }
     }
 }
