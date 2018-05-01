@@ -5664,6 +5664,10 @@ CleanUp:
             Dim Password As String = myServer.Password
             Dim TestThreshold As Int32 = myServer.CreateCommunitiesThreshold
 
+            Dim docId As String = Nothing
+            Dim deleteString As String = Nothing
+            Dim createTime As Double = Nothing
+
             Dim Name As String = "VitalSigns Test Community"
             Dim URL As String = URLBase & "/communities/service/atom/communities/my"
             Dim Body As String = "<?xml version=""1.0"" encoding=""utf-8""?><entry xmlns=""http://www.w3.org/2005/Atom"" xmlns:app=""http://www.w3.org/2007/app""  xmlns:snx=""http://www.ibm.com/xmlns/prod/sn""><title type=""text"">" & Name & "</title><content type=""html"">Test Community</content><category term=""community"" scheme=""http://www.ibm.com/xmlns/prod/sn/type""></category><snx:communityType>private</snx:communityType></entry>"
@@ -5694,7 +5698,7 @@ CleanUp:
                 webResposne = httpWR.GetResponse()
                 Dim endTime As DateTime = DateTime.Now
                 Dim span As TimeSpan = endTime - startTime
-                Dim createTime As Double = Math.Round(span.TotalMilliseconds, 1)
+                createTime = Math.Round(span.TotalMilliseconds, 1)
 
                 If (webResposne.StatusCode = HttpStatusCode.Created) Then
                     'Created Correctly...do things
@@ -5728,139 +5732,10 @@ CleanUp:
 
                     'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Returned with headers of : " & String.Join(",", headers.AllKeys), LogUtilities.LogUtils.LogLevel.Normal)
                     'WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Returned with headers of : " & String.Join(",", headers.AllKeys), LogUtilities.LogUtils.LogLevel.Normal)
-                    Dim deleteString As String = headers.Get("Location")
+                    deleteString = headers.Get("Location")
 
                     Dim reg As Text.RegularExpressions.Regex = New Text.RegularExpressions.Regex("(?<=communityUuid=)[a-zA-Z0-9-]*")
-                    Dim docId = reg.Match(deleteString).Value.ToString()
-
-
-                    If (myServer.TestCreateActivity) Then
-                        TestCreateCommunityActivity(myServer, docId)
-                    Else
-
-                    End If
-
-                    If (myServer.TestCreateBlog) Then
-                        TestCreateCommunityBlog(myServer, docId)
-                    Else
-
-                    End If
-
-                    If (myServer.TestCreateBookmarks) Then
-                        TestCreateCommunityBookmarks(myServer, docId)
-                    Else
-
-                    End If
-
-                    If (myServer.TestCreateFiles) Then
-                        TestCreateCommunityFiles(myServer, docId)
-                    Else
-
-                    End If
-
-                    If (myServer.TestCreateWikis) Then
-                        TestCreateCommunityWiki(myServer, docId)
-                    Else
-
-                    End If
-
-                    If (myServer.TestCreateForums) Then
-                        TestCreateCommunityForumsTopic(myServer, docId)
-                    Else
-
-                    End If
-
-
-
-
-
-
-                    httpWR = WebRequest.Create(deleteString)
-                    httpWR.Timeout = 90000
-                    httpWR.Method = "DELETE"
-                    httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
-                    httpWR.ContentType = "application/atom+xml"
-                    httpWR.Accept = "*/*"
-                    'httpWR.Headers.Add("Authorization", "Basic d3N0YW51bGlzOldzMTMxNTU3MDIh")
-
-                    httpWR.CookieContainer = cookieContainer
-
-                    Dim webResponse2 As HttpWebResponse
-
-                    Try
-                        webResponse2 = httpWR.GetResponse()
-
-                        If (webResponse2.StatusCode = HttpStatusCode.OK) Then
-                            'It deleted...do nothing
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Deleted community.", LogUtilities.LogUtils.LogLevel.Normal)
-
-                            Try
-                                httpWR = WebRequest.Create(deleteString)
-                                httpWR.Timeout = 90000
-                                httpWR.Method = "DELETE"
-                                httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
-                                httpWR.ContentType = "application/atom+xml"
-                                httpWR.Accept = "*/*"
-                                'httpWR.Headers.Add("Authorization", "Basic d3N0YW51bGlzOldzMTMxNTU3MDIh")
-
-                                httpWR.CookieContainer = cookieContainer
-
-                                webResponse2 = httpWR.GetResponse()
-                                If (webResponse2.StatusCode = HttpStatusCode.OK) Then
-                                    'It deleted...do nothing
-                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " purgerd community.", LogUtilities.LogUtils.LogLevel.Normal)
-                                Else
-                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " failed to purge community.", LogUtilities.LogUtils.LogLevel.Normal)
-                                End If
-
-                            Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " exception tryign to purge the community. Error : " & ex.Message(), LogUtilities.LogUtils.LogLevel.Normal)
-                            End Try
-
-                            'If TestThreshold > createTime Then
-                            '    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The activity was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
-                            'Else
-                            '    myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The activity was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
-                            'End If
-                        Else
-                            'It failed to delete...send alert
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Failed to delete community.", LogUtilities.LogUtils.LogLevel.Normal)
-                            'myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The community was successfully created in " & createTime & " ms but failed to delete.")
-
-                            If myServer.StatusCode = "OK" Then
-                                'myServer.StatusCode = "Issue"
-                                'myServer.ResponseDetails = "The community was successfully created in " & createTime & " ms but failed to delete."
-                            End If
-                        End If
-
-                    Catch ex As Exception
-                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to delete community due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
-                        'myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The community was successfully created in " & createTime & " ms but failed to delete.")
-
-                        If myServer.StatusCode = "OK" Then
-                            'myServer.StatusCode = "Issue"
-                            'myServer.ResponseDetails = "The community was successfully created in " & createTime & " ms but failed to delete."
-                        End If
-
-                    Finally
-                        If webResponse2 IsNot Nothing Then
-                            webResponse2.Close()
-                        End If
-
-                        If TestThreshold < createTime Then
-                            myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The community was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
-
-                            If myServer.StatusCode = "OK" Then
-                                myServer.StatusCode = "Issue"
-                                myServer.Status = "Issue"
-                                myServer.ResponseDetails = "The community was successfully created in " & createTime & " ms but has a threshold of " & TestThreshold & " ms."
-                            End If
-
-                        Else
-                            myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The community was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
-                        End If
-
-                    End Try
+                    docId = reg.Match(deleteString).Value.ToString()
 
                 End If
             Catch ex As Exception
@@ -5879,6 +5754,140 @@ CleanUp:
                     webResposne.Close()
                 End If
             End Try
+
+            If docId IsNot Nothing Then
+
+                If (myServer.TestCreateActivity) Then
+                    TestCreateCommunityActivity(myServer, docId)
+                Else
+
+                End If
+
+                If (myServer.TestCreateBlog) Then
+                    TestCreateCommunityBlog(myServer, docId)
+                Else
+
+                End If
+
+                If (myServer.TestCreateBookmarks) Then
+                    TestCreateCommunityBookmarks(myServer, docId)
+                Else
+
+                End If
+
+                If (myServer.TestCreateFiles) Then
+                    TestCreateCommunityFiles(myServer, docId)
+                Else
+
+                End If
+
+                If (myServer.TestCreateWikis) Then
+                    TestCreateCommunityWiki(myServer, docId)
+                Else
+
+                End If
+
+                If (myServer.TestCreateForums) Then
+                    TestCreateCommunityForumsTopic(myServer, docId)
+                Else
+
+                End If
+
+            End If
+
+
+            If deleteString IsNot Nothing Then
+
+                httpWR = WebRequest.Create(deleteString)
+                httpWR.Timeout = 90000
+                httpWR.Method = "DELETE"
+                httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                httpWR.ContentType = "application/atom+xml"
+                httpWR.Accept = "*/*"
+                'httpWR.Headers.Add("Authorization", "Basic d3N0YW51bGlzOldzMTMxNTU3MDIh")
+
+                httpWR.CookieContainer = cookieContainer
+
+                Dim webResponse2 As HttpWebResponse
+
+                Try
+                    webResponse2 = httpWR.GetResponse()
+
+                    If (webResponse2.StatusCode = HttpStatusCode.OK) Then
+                        'It deleted...do nothing
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Deleted community.", LogUtilities.LogUtils.LogLevel.Normal)
+
+                        Try
+                            httpWR = WebRequest.Create(deleteString)
+                            httpWR.Timeout = 90000
+                            httpWR.Method = "DELETE"
+                            httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
+                            httpWR.ContentType = "application/atom+xml"
+                            httpWR.Accept = "*/*"
+                            'httpWR.Headers.Add("Authorization", "Basic d3N0YW51bGlzOldzMTMxNTU3MDIh")
+
+                            httpWR.CookieContainer = cookieContainer
+
+                            webResponse2 = httpWR.GetResponse()
+                            If (webResponse2.StatusCode = HttpStatusCode.OK) Then
+                                'It deleted...do nothing
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " purgerd community.", LogUtilities.LogUtils.LogLevel.Normal)
+                            Else
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " failed to purge community.", LogUtilities.LogUtils.LogLevel.Normal)
+                            End If
+
+                        Catch ex As Exception
+                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " exception tryign to purge the community. Error : " & ex.Message(), LogUtilities.LogUtils.LogLevel.Normal)
+                        End Try
+
+                        'If TestThreshold > createTime Then
+                        '    myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The activity was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
+                        'Else
+                        '    myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The activity was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
+                        'End If
+                    Else
+                        'It failed to delete...send alert
+                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Failed to delete community.", LogUtilities.LogUtils.LogLevel.Normal)
+                        'myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The community was successfully created in " & createTime & " ms but failed to delete.")
+
+                        If myServer.StatusCode = "OK" Then
+                            'myServer.StatusCode = "Issue"
+                            'myServer.ResponseDetails = "The community was successfully created in " & createTime & " ms but failed to delete."
+                        End If
+                    End If
+
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error!! Failed to delete community due to " & ex.Message.ToString(), LogUtilities.LogUtils.LogLevel.Normal)
+                    'myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The community was successfully created in " & createTime & " ms but failed to delete.")
+
+                    If myServer.StatusCode = "OK" Then
+                        'myServer.StatusCode = "Issue"
+                        'myServer.ResponseDetails = "The community was successfully created in " & createTime & " ms but failed to delete."
+                    End If
+
+                Finally
+                    If webResponse2 IsNot Nothing Then
+                        webResponse2.Close()
+                    End If
+
+                    If TestThreshold < createTime Then
+                        myAlert.QueueAlert(myServer.DeviceType, myServer.Name, AlertType, "The community was successfully created in " & createTime & " ms with a threshold value of " & TestThreshold & " ms.", myServer.Location)
+
+                        If myServer.StatusCode = "OK" Then
+                            myServer.StatusCode = "Issue"
+                            myServer.Status = "Issue"
+                            myServer.ResponseDetails = "The community was successfully created in " & createTime & " ms but has a threshold of " & TestThreshold & " ms."
+                        End If
+
+                    Else
+                        myAlert.ResetAlert(myServer.DeviceType, myServer.Name, AlertType, myServer.Location, "The community was successfully created in " & createTime & " ms but has a threshold value of " & TestThreshold & " ms.")
+                    End If
+
+                End Try
+            End If
+
+
+
         Catch ex As Exception
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error in TestCreateAllInOneCommunities. Error: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
         End Try

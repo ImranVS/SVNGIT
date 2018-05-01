@@ -933,7 +933,7 @@ Clear-Variable 'results' -ErrorAction SilentlyContinue";
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				String str = @"
 $users = Get-User -ResultSize Unlimited | select WhenChanged, AccountDisabled,ExternalDirectoryObjectId;
-$msolUsers = Get-MSOLUser -All | Select DisplayName,FirstName,LastName,UserPrincipalName,StrongPasswordRequired,PasswordNeverExpires,UserType,Title,IsLicensed,Department,{$_.Licenses.AccountSkuId},LastUpdated, ObjectId,LastDirSyncTime
+$msolUsers = Get-MSOLUser -All | Select DisplayName,FirstName,LastName,UserPrincipalName,StrongPasswordRequired,PasswordNeverExpires,UserType,Title,IsLicensed,Department,{$_.Licenses.AccountSkuId},LastUpdated, ObjectId,LastDirSyncTime, {$_.StrongAuthenticationRequirements.State}
 $msolUsers | % { $ObjectId = $_.ObjectId; $user = ($users | ? { $_.ExternalDirectoryObjectId -eq $ObjectId } )[0];  
 $_ | Add-Member -MemberType NoteProperty -Name AccountDisabled -Value $user.AccountDisabled -Force; 
 $_ | Add-Member -MemberType NoteProperty -Name WhenChanged -Value $user.WhenChanged -Force;
@@ -969,6 +969,7 @@ $msolUsers
                             string AccountDisabled = ps.Properties["AccountDisabled"].Value == null ? "" : ps.Properties["AccountDisabled"].Value.ToString();
                             string LastModified = ps.Properties["WhenChanged"].Value == null ? null : ps.Properties["WhenChanged"].Value.ToString();
                             string LastDirSyncTime = ps.Properties["LastDirSyncTime"].Value == null ? null : ps.Properties["LastDirSyncTime"].Value.ToString();
+                            string MFAStatus = ps.Properties["$_.StrongAuthenticationRequirements.State"].Value == null ? null : ps.Properties["$_.StrongAuthenticationRequirements.State"].Value.ToString();
                             string license = null;
 							if (StrongPasswordRequired.ToLower() == "true")
 							{
@@ -1009,6 +1010,7 @@ $msolUsers
                             Office365MSOLUsers.License = license != null ? license.Split(',').Select(x => x.Trim()).ToList() : null;
                             Office365MSOLUsers.Department = department;
                             Office365MSOLUsers.AccountDisabled = AccountDisabled.ToLower() == "true";
+                            Office365MSOLUsers.MFAStatus = MFAStatus;
                             DateTime dt;
                             DateTime.TryParse(LastModified, out dt);
                             Office365MSOLUsers.AccountLastModified = (dt == DateTime.MinValue) ? null : (DateTime?)dt;

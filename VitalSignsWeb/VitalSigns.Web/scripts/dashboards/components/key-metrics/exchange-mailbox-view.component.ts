@@ -109,18 +109,6 @@ export class ExchangemailstatisticsviewGrid implements OnInit {
     }
 
     PowerShellScripts() {
-    //    this.widgets = [
-    //        {
-    //            id: 'MicrosoftPowerShellScripts',
-    //            title: '',
-    //            name: 'MicrosoftPowerShellScripts',
-    //            css: 'col-xs-12',
-    //        }
-    //    ]
-
-    //    injectSVG();
-
-        //super.ReloadSidgets();
         var currRow = this.flex.collectionView.currentItem;
 
         var initParams: initSettings = {

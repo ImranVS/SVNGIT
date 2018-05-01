@@ -10,6 +10,7 @@ import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
 import * as wjFlexGridGroup from 'wijmo/wijmo.angular2.grid.grouppanel';
 import * as wjFlexInput from 'wijmo/wijmo.angular2.input';
 import * as helpers from '../../../core/services/helpers/helpers';
+import { MicrosoftPowerShellScripts, initSettings } from '../../../services/components/microsoft-powershell-scripts.component';
 
 declare var injectSVG: any;
 
@@ -28,6 +29,8 @@ export class Office365UsersGrid implements WidgetComponent, OnInit {
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     @ViewChild('flex1') flex1: wijmo.grid.FlexGrid;
     @ViewChild('moredetailsPopup') dlg: wijmo.input.Popup
+    @ViewChild('powershellPopup') powerscriptsPopup: wijmo.input.Popup
+    @ViewChild(MicrosoftPowerShellScripts) powershellWindow: MicrosoftPowerShellScripts
     @Input() settings: any;
     selectedrow: any = null;
     data: wijmo.collections.CollectionView;
@@ -36,6 +39,7 @@ export class Office365UsersGrid implements WidgetComponent, OnInit {
     currentPageSize: any = 10;
     DefaultValues?: Map<string, string>;
     isLoading: boolean = true;
+    showPowerScripts: boolean = false;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, protected toolTip: helpers.GridTooltip,
         protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService, protected datetimeHelpers: helpers.DateTimeHelper) {
@@ -90,7 +94,7 @@ export class Office365UsersGrid implements WidgetComponent, OnInit {
             },
             (error) => this.errorMessage = <any>error
             );
-        
+        this.showPowerScripts = this.authService.isCurrentUserInRole("PowerScripts");
     }
     moredetails() {
         this.selectedrow = this.flex.collectionView.currentItem;
@@ -104,5 +108,17 @@ export class Office365UsersGrid implements WidgetComponent, OnInit {
 
     gridSourceChanged() {
         this.flex.autoSizeColumns();
+    }
+
+    PowerShellScripts() {
+        var currRow = this.flex.collectionView.currentItem;
+
+        var initParams: initSettings = {
+            DeviceType: 'Office365',
+            DefaultValues: new Map([['UserPrincipalName', currRow.user_principal_name]]),
+            SubTypes: ["User"]
+        }
+        this.powershellWindow.initValues(initParams);
+        this.powerscriptsPopup.show();
     }
 }

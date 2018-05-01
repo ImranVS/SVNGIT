@@ -1080,60 +1080,44 @@ repo.Upsert(filterdef, updatedef);
 		{
 
 			Common.WriteDeviceHistoryEntry("All", serverType, " Hourly Task started.", Common.LogLevel.Normal);
-			MonitoredItems.Office365Server testServer = null;
             
             try
 			{
-				if (myOffice365Servers != null)
-					foreach (MonitoredItems.Office365Server server in myOffice365Servers)
-					{
-						if (server.Status != "Not Responding" && server.Status != "Maintenance" && server.Enabled)
-						{
+                if (myOffice365Servers != null)
+                { 
+                    foreach (MonitoredItems.Office365Server testServer in myOffice365Servers)
+                    {
+                        TestResults AllTestResults = new TestResults();
 
-							testServer = server;
-							Common.WriteDeviceHistoryEntry(testServer.ServerType, testServer.Name, " Hourly Task starting.", Common.LogLevel.Normal);
-						}
-					}
-			}
-			catch
-			{
-			}
-			try
-			{
-				if (testServer != null)
-				{
+                        Office365Common Office365Common = new Office365Common();
+                        bool isResponding = true;
+                        ReturnPowerShellObjects results = Office365Common.testO365ServerConnectivity(testServer, ref AllTestResults, ref isResponding);
+                        CommonDB DB = new CommonDB();
+                        if (!results.Connected) continue;
+                        using (results)
+                        {
+                            Common.WriteDeviceHistoryEntry(testServer.ServerType, testServer.Name, " Hourly Task started.", Common.LogLevel.Normal);
+                            //Office365Common.getMobileUsersHourly(testServer, ref AllTestResults, results);
+                            Office365Common.getUserswithLicencesandServices(testServer, ref AllTestResults, results);
+                            DB.ProcessMongoStatements(AllTestResults, DummyServerForLogs);
+                            AllTestResults = new TestResults();
+                            Office365Common.getMsolUsers(testServer, ref AllTestResults, results);
+                            DB.ProcessMongoStatements(AllTestResults, DummyServerForLogs);
+                            AllTestResults = new TestResults();
+                            Office365Common.getMsolGroups(testServer, ref AllTestResults, results);
+                            DB.ProcessMongoStatements(AllTestResults, DummyServerForLogs);
+                            AllTestResults = new TestResults();
+                            Office365Common.getServiceStatus(testServer, ref AllTestResults, results);
+                            DB.ProcessMongoStatements(AllTestResults, DummyServerForLogs);
+                            AllTestResults = new TestResults();
+                            Office365Common.getMailboxeDetails(testServer, ref AllTestResults, results);
+                            DB.ProcessMongoStatements(AllTestResults, DummyServerForLogs);
+                            //Office365Common.Deletesummarystatsdata(testServer, ref AllTestResults, testServer.ServerType);
+                            //Common.CommonDailyTasks(testServer, ref AllTestResults, testServer.ServerType);
+                            //Office365Common.getMailBoxInfo(testServer, ref AllTestResults, testServer.VersionNo.ToString(), DummyServerForLogs.Name, myOffice365Servers, results);
 
-
-					TestResults AllTestResults = new TestResults();
-
-					Office365Common Office365Common = new Office365Common();
-					bool isResponding = true;
-					ReturnPowerShellObjects results = Office365Common.testO365ServerConnectivity(testServer, ref AllTestResults, ref isResponding);
-                    CommonDB DB = new CommonDB();
-					using (results)
-					{
-						Common.WriteDeviceHistoryEntry(testServer.ServerType, testServer.Name, " Hourly Task started.", Common.LogLevel.Normal);
-						//Office365Common.getMobileUsersHourly(testServer, ref AllTestResults, results);
-						Office365Common.getUserswithLicencesandServices(testServer, ref AllTestResults, results);
-                        DB.ProcessMongoStatements(AllTestResults, DummyServerForLogs);
-                         AllTestResults = new TestResults();
-                        Office365Common.getMsolUsers(testServer, ref AllTestResults, results);
-                        DB.ProcessMongoStatements(AllTestResults, DummyServerForLogs);
-                         AllTestResults = new TestResults();
-                        Office365Common.getMsolGroups(testServer, ref AllTestResults, results);
-                        DB.ProcessMongoStatements(AllTestResults, DummyServerForLogs);
-                        AllTestResults = new TestResults();
-                        Office365Common.getServiceStatus(testServer, ref AllTestResults, results);
-                        DB.ProcessMongoStatements(AllTestResults, DummyServerForLogs);
-                        AllTestResults = new TestResults();
-                        Office365Common.getMailboxeDetails(testServer, ref AllTestResults, results);
-                        DB.ProcessMongoStatements(AllTestResults, DummyServerForLogs);
-						//Office365Common.Deletesummarystatsdata(testServer, ref AllTestResults, testServer.ServerType);
-						//Common.CommonDailyTasks(testServer, ref AllTestResults, testServer.ServerType);
-						//Office365Common.getMailBoxInfo(testServer, ref AllTestResults, testServer.VersionNo.ToString(), DummyServerForLogs.Name, myOffice365Servers, results);
-
-					}
-
+                        }
+                    }
 					GC.Collect();
                     //while (testServer.IsBeingScanned)
                     //{
@@ -1141,8 +1125,6 @@ repo.Upsert(filterdef, updatedef);
                     //}
 					
 					
-					
-					Common.WriteDeviceHistoryEntry(testServer.ServerType, testServer.Name, " Hourly Task Ended.", Common.LogLevel.Normal);
 				}
 				else
 				{
@@ -1156,85 +1138,75 @@ repo.Upsert(filterdef, updatedef);
 			}
 
 		}
-		private void DailyTasksMainThread(MonitoredItems.Office365Server DummyServerForLogs)
-		{
+        private void DailyTasksMainThread(MonitoredItems.Office365Server DummyServerForLogs)
+        {
 
-			Common.WriteDeviceHistoryEntry("All", serverType, " Daily Task started.", Common.LogLevel.Normal);
-			MonitoredItems.Office365Server testServer = null;
-			try
-			{
-				if (myOffice365Servers != null)
-					foreach (MonitoredItems.Office365Server server in myOffice365Servers)
-					{
-						if (server.Status != "Not Responding" && server.Status != "Maintenance" && server.Enabled)
-						{
+            Common.WriteDeviceHistoryEntry("All", serverType, " Daily Task started.", Common.LogLevel.Normal);
+            try
+            {
+                if (myOffice365Servers != null)
+                { 
+                    foreach (MonitoredItems.Office365Server testServer in myOffice365Servers)
+                    {
+                        if (testServer.Status != "Not Responding" && testServer.Status != "Maintenance" && testServer.Enabled)
+                        {
 
-							testServer = server;
-							Common.WriteDeviceHistoryEntry(testServer.ServerType, testServer.Name, " Daily Task starting.", Common.LogLevel.Normal);
-						}
-					}
-			}
-			catch
-			{
-			}
-			try
-			{
-				if (testServer != null)
-				{
 
-					
-					TestResults AllTestResults = new TestResults();
 
-					Office365Common Office365Common = new Office365Common();
-					bool isResponding = true;
-					ReturnPowerShellObjects results = Office365Common.testO365ServerConnectivity(testServer, ref AllTestResults, ref isResponding);
-                    CommonDB DB = new CommonDB();
-					using (results)
-					{
+                            TestResults AllTestResults = new TestResults();
 
-						Common.WriteDeviceHistoryEntry(testServer.ServerType, testServer.Name, " Daily Task started.", Common.LogLevel.Normal);
-						//Office365Common.getMailBoxInfo(testServer, ref AllTestResults, results);
-                        ////Office365Common.getMsolCompanyInfo(testServer, ref AllTestResults, results);
-                        //Office365Common.getMsolUsers(testServer, ref AllTestResults, results);
-                        //Office365Common.getMsolGroups(testServer, ref AllTestResults, results);
-                        //Office365Common.getServiceStatus(testServer, ref AllTestResults, results);
-						Office365Common.getMailboxes(testServer, ref AllTestResults, results);
-                        DB.ProcessMongoStatements(AllTestResults, DummyServerForLogs);
-                        AllTestResults = new TestResults();
-						Office365Common.getMailStatusInfo(testServer, ref AllTestResults, results);
-                        DB.ProcessMongoStatements(AllTestResults, DummyServerForLogs);
-					//	Office365Common.getUserswithLicencesandServices(testServer, ref AllTestResults, results);
+                            Office365Common Office365Common = new Office365Common();
+                            bool isResponding = true;
+                            ReturnPowerShellObjects results = Office365Common.testO365ServerConnectivity(testServer, ref AllTestResults, ref isResponding);
+                            CommonDB DB = new CommonDB();
+                            using (results)
+                            {
 
-					}
+                                Common.WriteDeviceHistoryEntry(testServer.ServerType, testServer.Name, " Daily Task started for " + testServer.Name, Common.LogLevel.Normal);
+                                //Office365Common.getMailBoxInfo(testServer, ref AllTestResults, results);
+                                ////Office365Common.getMsolCompanyInfo(testServer, ref AllTestResults, results);
+                                //Office365Common.getMsolUsers(testServer, ref AllTestResults, results);
+                                //Office365Common.getMsolGroups(testServer, ref AllTestResults, results);
+                                //Office365Common.getServiceStatus(testServer, ref AllTestResults, results);
+                                Office365Common.getMailboxes(testServer, ref AllTestResults, results);
+                                DB.ProcessMongoStatements(AllTestResults, DummyServerForLogs);
+                                AllTestResults = new TestResults();
+                                Office365Common.getMailStatusInfo(testServer, ref AllTestResults, results);
+                                DB.ProcessMongoStatements(AllTestResults, DummyServerForLogs);
+                                //	Office365Common.getUserswithLicencesandServices(testServer, ref AllTestResults, results);
 
-					GC.Collect();
-					//while (testServer.IsBeingScanned)
-					//{
-					//    string doSomething;
-					//}
-					//let the main thread sql get executed. 2 mins should be enough.
-					//Thread.Sleep(120 * 1000);
-					
-					
+                            }
 
-					Common.WriteDeviceHistoryEntry(testServer.ServerType, testServer.Name, " Daily Task Ended.", Common.LogLevel.Normal);
-					AllTestResults = new TestResults();
-					
-					Office365Common.doSummaryStats(testServer, ref AllTestResults, results);
-                    Common.CommonDailyTasks(testServer, ref AllTestResults, testServer.ServerType);
-					DB.UpdateSQLStatements(AllTestResults, DummyServerForLogs);
+                            GC.Collect();
+                            //while (testServer.IsBeingScanned)
+                            //{
+                            //    string doSomething;
+                            //}
+                            //let the main thread sql get executed. 2 mins should be enough.
+                            //Thread.Sleep(120 * 1000);
 
-				}
-				else
-				{
-					//no server was found to be used to scan
-					Common.WriteDeviceHistoryEntry("All", serverType, " Daily Task No server found to scan ", Common.LogLevel.Normal);
-				}
-			}
-			catch (Exception ex)
-			{
-				Common.WriteDeviceHistoryEntry("All", serverType, " Daily Task Ended with an error: " + ex.Message.ToString(), Common.LogLevel.Normal);
-			}
+
+
+                            Common.WriteDeviceHistoryEntry(testServer.ServerType, testServer.Name, " Daily Task Ended for " + testServer.Name, Common.LogLevel.Normal);
+                            AllTestResults = new TestResults();
+
+                            Office365Common.doSummaryStats(testServer, ref AllTestResults, results);
+                            Common.CommonDailyTasks(testServer, ref AllTestResults, testServer.ServerType);
+                            DB.UpdateSQLStatements(AllTestResults, DummyServerForLogs);
+
+                        }
+                        else
+                        {
+                            //no server was found to be used to scan
+                           // Common.WriteDeviceHistoryEntry("All", serverType, " Daily Task No server found to scan ", Common.LogLevel.Normal);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Common.WriteDeviceHistoryEntry("All", serverType, " Daily Task Ended with an error: " + ex.Message.ToString(), Common.LogLevel.Normal);
+            }
 
 		}
 

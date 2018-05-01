@@ -1,7 +1,6 @@
 ﻿    
 <button class="btn btn-primary" (click)="ExportExcel()">Export to Excel</button>
-<!--<button class="btn btn-primary" (click)="moredetails()">Mailbox Access</button>-->
-<!--<button class="btn btn-primary">PowerScripts</button>-->
+<button class="btn btn-primary" (click)="PowerShellScripts()" [ngStyle]="{'visibility': showPowerScripts?'visible':'hidden'}">PowerScripts</button>
 <wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" headersVisibility="Column" (dblclick)="moredetails()" #flex
                (itemsSourceChanged)="gridSourceChanged()" [frozenColumns]="1">
     <wj-flex-grid-filter></wj-flex-grid-filter>
@@ -64,6 +63,19 @@
                 <wj-flex-grid-column [header]="'Display Name'" [binding]="'display_name'" [width]="200"></wj-flex-grid-column>
                 <wj-flex-grid-column [header]="' Mailbox Size (GB)'" [binding]="'mailbox_size_gb'" [width]="250"></wj-flex-grid-column>
             </wj-flex-grid>
+        </div>
+    </div>
+</wj-popup>
+<wj-popup style="border: 0px; width: 820px; -webkit-user-select: text; -moz-user-select: text; -ms-user-select:text; user-select:text;" #powershellPopup>
+    <div class="modal-content">
+        <div class="modal-header">
+            PowerScripts
+            <button type="button" tabindex="-1" class="close wj-hide" (click)="closePopup()" name="cancel">&times;</button>
+        </div>
+        <div class="modal-body">
+
+            <powershell-scripts></powershell-scripts>
+
         </div>
     </div>
 </wj-popup>

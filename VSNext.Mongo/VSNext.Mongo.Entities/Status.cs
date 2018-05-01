@@ -1688,6 +1688,11 @@ namespace VSNext.Mongo.Entities
         [BsonElement("ad_last_sync")]
         [BsonIgnoreIfNull]
         public DateTime? ADLastSync { get; set; }
+
+        [DataMember]
+        [BsonElement("mfa_status")]
+        [BsonIgnoreIfNull]
+        public string MFAStatus { get; set; }
     }
 
     [DataContract]

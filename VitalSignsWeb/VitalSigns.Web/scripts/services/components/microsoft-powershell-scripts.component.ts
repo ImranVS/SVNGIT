@@ -167,6 +167,7 @@ export class MicrosoftPowerShellScripts implements WidgetComponent, OnInit  {
             this.subTypes = settings.SubTypes
         }
 
+        this.deviceTypeChanged(null)
         this.scriptChanged(null);
 
         this.response = "";
