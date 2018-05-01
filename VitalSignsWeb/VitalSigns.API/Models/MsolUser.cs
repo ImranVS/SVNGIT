@@ -52,5 +52,8 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("old_sync", NullValueHandling = NullValueHandling.Ignore)]
         public bool?  OldSync { get; set; }
+
+        [JsonProperty("mfa_status", NullValueHandling = NullValueHandling.Ignore)]
+        public string MFAStatus { get; set; }
     }
 }

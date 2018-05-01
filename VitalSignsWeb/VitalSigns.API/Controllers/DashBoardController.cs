@@ -3152,7 +3152,8 @@ namespace VitalSigns.API.Controllers
                     PasswordNeverExpires = x.PasswordNeverExpires,
                     StrongPasswordRequired = x.StrongPasswordRequired,
                     Title = x.Title,
-                    UserType = x.UserType                    
+                    UserType = x.UserType,
+                    MFAStatus = String.IsNullOrWhiteSpace(x.MFAStatus) ? "Inactive" : x.MFAStatus                        
                 }).ToList().OrderBy(x => x.DisplayName);
                 Response = Common.CreateResponse(results);
             }
