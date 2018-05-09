@@ -6232,6 +6232,138 @@ namespace VitalSigns.API.Controllers
         }
         #endregion
 
+        #region exchangemailprobe
+        [HttpGet("get_exchange_mail_probe")]
+        public APIResponse GetExchangeMailProbes()
+        {
+           
+            serverOtherRepository = new Repository<ServerOther>(ConnectionString);
+            serverRepository = new Repository<Server>(ConnectionString);
+            locationRepository = new Repository<Location>(ConnectionString);
+            List<ExchangeMailProbesModel> result = new List<ExchangeMailProbesModel>();
+            try
+            { 
+                result = serverOtherRepository.Find(x => x.Type == Enums.ServerType.ExchangeMailProbe.ToDescription())
+                     
+                    .Select(x => new ExchangeMailProbesModel
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        IsEnabled = x.IsEnabled.HasValue && x.IsEnabled != null ? x.IsEnabled : false,
+                        ScanInterval = x.ScanInterval,
+                        OffHoursInterval = x.OffHoursScanInterval,
+                        RedThreshold=x.MailProbeRedThreshold,
+                        YellowThreshold=x.MailProbeRedThreshold,  
+                        SelectedExchangeServers = x.ExchangeMailProbeServers.Select(y => y.DeviceId).ToList()
+                    }).OrderBy(x => x.Name).ToList();
+                foreach (var x in result)
+                {
+                    x.IsEnabled = x.IsEnabled.HasValue && x.IsEnabled != null ? x.IsEnabled : false;
+                }
+                var locationList = locationRepository.Find(x => true).ToList();
+                var exchnagedata = serverRepository.Find(x => x.DeviceType == Enums.ServerType.Exchange.ToDescription()).ToList()
+                    .Select(x => new ServerLocation
+                    {
+                        Id=x.Id,
+                        DeviceName=x.DeviceName,
+                       
+                       
+                       LocationName= locationList.Where(y => y.Id == x.LocationId).Count() > 0 ? locationList.Where(y => y.Id == x.LocationId).First().LocationName : ""
+
+                    }).OrderBy(x => x.DeviceName).ToList();
+                Response = Common.CreateResponse(new { mailprobes = result, exchangeservers = exchnagedata });
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Getting Exchange probes has failed.\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpPut("save_exchange_probes")]
+        public APIResponse UpdateexchangeMailPobes([FromBody]exchangemaillist exchangeMailProbe)
+        {
+            try
+            {
+
+                serverOtherRepository = new Repository<ServerOther>(ConnectionString);
+                if (string.IsNullOrEmpty(exchangeMailProbe.exchangemailprobe.Id))
+                {
+                    ServerOther exchangeMail = new ServerOther
+                    {
+                        Name = exchangeMailProbe.exchangemailprobe.Name,
+                        Type = Enums.ServerType.ExchangeMailProbe.ToDescription(),
+                        ScanInterval = exchangeMailProbe.exchangemailprobe.ScanInterval,
+                        OffHoursScanInterval = exchangeMailProbe.exchangemailprobe.OffHoursInterval,
+                        MailProbeRedThreshold = exchangeMailProbe.exchangemailprobe.RedThreshold,
+                        MailProbeYellowThreshold = exchangeMailProbe.exchangemailprobe.YellowThreshold,
+                        ExchangeMailProbeServers = new List<ExchangeMailProbeServer>(),
+                    };
+                   
+                    foreach (var sl in exchangeMailProbe.exchangeservers)
+                    {
+
+                        exchangeMail.ExchangeMailProbeServers.Add(new ExchangeMailProbeServer
+                        {
+                            DeviceName = sl.DeviceName,
+                            DeviceId = sl.Id,
+                        });
+                    }
+                        string id = serverOtherRepository.Insert(exchangeMail);
+                        Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Exchange Probe inserted successfully.");
+                    
+                }
+
+                else
+                {
+                    List<ExchangeMailProbeServer> exchnagemailservers = new List<ExchangeMailProbeServer>();
+                    FilterDefinition<ServerOther> filterDefination = Builders<ServerOther>.Filter.Where(p => p.Id == exchangeMailProbe.exchangemailprobe.Id);
+                    foreach (var sl in exchangeMailProbe.exchangeservers)
+                    {
+                        exchnagemailservers.Add(new ExchangeMailProbeServer
+                        {
+                            DeviceName = sl.DeviceName,
+                            DeviceId = sl.Id,
+                        });
+                    }
+                        var updateDefination = serverOtherRepository.Updater.Set(p => p.Id, exchangeMailProbe.exchangemailprobe.Id)
+                        .Set(p => p.ScanInterval, exchangeMailProbe.exchangemailprobe.ScanInterval)
+                        .Set(p => p.OffHoursScanInterval, exchangeMailProbe.exchangemailprobe.OffHoursInterval)
+                        .Set(p => p.MailProbeRedThreshold, exchangeMailProbe.exchangemailprobe.RedThreshold)
+                         .Set(p => p.MailProbeYellowThreshold, exchangeMailProbe.exchangemailprobe.YellowThreshold)
+                        .Set(p => p.ExchangeMailProbeServers, exchnagemailservers);
+                        
+
+
+                    var result = serverOtherRepository.Update(filterDefination, updateDefination);
+                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Exchange Mail Probe updated successfully.");
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Exchange Mail Probe update has failed.\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+            
+
+        [HttpDelete("delete_exchange_mail_probe/{Id}")]
+        public APIResponse DeleteExchangeMailProbe(string Id)
+        {
+            try
+            {
+                serverOtherRepository = new Repository<ServerOther>(ConnectionString);
+                Expression<Func<ServerOther, bool>> expression = (p => p.Id == Id);
+                serverOtherRepository.Delete(expression);
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Exchange Mail Probe deleted sucessfully");
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Exchange Mail Probe deletion has failed.\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+        #endregion
         /// <summary>
         /// 
         /// </summary>
