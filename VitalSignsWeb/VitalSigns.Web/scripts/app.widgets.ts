@@ -146,6 +146,8 @@ export * from './configurator/components/ibmDomino/Ibm-domino-log-file-scanning.
 export * from './configurator/components/ibmDomino/Ibm-save-domino-log-file-scanning.component'
 //windows
 export * from './configurator/components/MicrosoftSettings/windows-events-file-scanning.component'
+export * from './configurator/components/MicrosoftSettings/Exchange-mail-probe-scanning.component'
+
 export * from './configurator/components/MicrosoftSettings/windows-save-events-file-scanning.component'
 
 //mail

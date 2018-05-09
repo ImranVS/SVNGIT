@@ -64,14 +64,20 @@ export abstract class GridBase {
         }
     }
    
-    saveGridRow(saveUrl: any, dlg?: wijmo.input.Popup) {
+    saveGridRow(saveUrl: any, dlg?: wijmo.input.Popup, postdata?: any) {
+        console.log("executint save grid row");
+        console.log(this.currentEditItem);
+        
         if (this.currentEditItem.id == "") {
-            this.service.put(saveUrl, this.currentEditItem)
+           
+            this.service.put(saveUrl, postdata ? postdata : this.currentEditItem)
+           
                 .subscribe(
                 response => {
                     if (response.status == "Success") {
                         this.currentEditItem.id = response.data;
                         (<wijmo.collections.CollectionView>this.flex.collectionView).commitNew();
+                        
                         dlg.hide();
                         this.appComponentService.showSuccessMessage(response.message);
 
@@ -87,11 +93,14 @@ export abstract class GridBase {
         }
         else {
             this.flex.collectionView.currentItem = this.currentEditItem;
-            this.service.put(saveUrl, this.currentEditItem)
+            
+            this.service.put(saveUrl, postdata ? postdata : this.currentEditItem)
                 .subscribe(
                 response => {
+                    
                     if (response.status == "Success") {
                         (<wijmo.collections.CollectionView>this.flex.collectionView).commitEdit()
+                        
                         dlg.hide();
                         this.appComponentService.showSuccessMessage(response.message);
                     } else {

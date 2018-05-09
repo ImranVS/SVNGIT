@@ -43,7 +43,13 @@ export class WindowsLogSettings implements OnInit {
                 "component": "PowerScriptsAudit",
                 "path": "/app/configurator/components/microsoftsettings/powerscripts-audit.component",
                 "active": false
-            }      
+            },
+            {
+                "title": "Exchnage Mail Probe",
+                "component": "ExchnageMailProbe",
+                "path": "/app/configurator/components/microsoftsettings/Exchange-mail-probe-scanning.component",
+                "active": false
+            }       
         ];
         var tab:number = 0;
         this.route.queryParams.subscribe(params => {

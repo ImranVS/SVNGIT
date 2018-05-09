@@ -1,0 +1,150 @@
+﻿<div class="widgetWrapper">
+        <div class="widgetContent">
+            <div class="grid-sort-group" *ngIf="data">
+                <button class="btn btn-success" (click)="editGridRow(frmDialog)" [disabled]="data.itemCount==0">
+                    Edit
+                </button>
+                <button class="btn btn-success" (click)="showAddForm(frmDialog)">
+                    Add
+                </button>
+                <button class="btn btn-success" (click)="deleteExchangeMailProbes()" [disabled]="data.itemCount==0">
+                    Delete
+                </button>
+            </div>
+            <div>&nbsp;</div>
+            
+            <wj-flex-grid [itemsSource]="data" selectionMode="Row" headersVisibility="Column" [isReadOnly]="true" #flex id="grid" (itemsSourceChanged)="onItemsSourceChanged()">
+            <wj-flex-grid-filter></wj-flex-grid-filter>
+            <wj-flex-grid-column [header]="'Enabled'" [binding]="'is_enabled'" [width]="120" align="center"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="120"> </wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Scan Interval'" [binding]="'scan_interval'" align="right"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Off Hours Scan Interval'" [binding]="'off_hours_scan_interval'" [width]="200" align="right"></wj-flex-grid-column>
+            <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [visible]="false"></wj-flex-grid-column>
+        </wj-flex-grid>
+        <div class="btn-group" *ngIf="data != null">
+            <button type="button" class="btn btn-default"
+                    (click)="data.moveToFirstPage()"
+                    [disabled]="data.pageIndex <= 0">
+                <span class="glyphicon glyphicon-fast-backward"></span>
+            </button>
+            <button type="button" class="btn btn-default"
+                    (click)="data.moveToPreviousPage()"
+                    [disabled]="data.pageIndex <= 0">
+                <span class="glyphicon glyphicon-step-backward">
+                </span>
+            </button>
+            <button type="button" class="btn btn-default" disabled style="width:100px">
+                {{
+data.pageIndex + 1 | number
+                }} / {{data.pageCount | number}}
+            </button>
+            <button type="button" class="btn btn-default"
+                    (click)="data.moveToNextPage()"
+                    [disabled]="data.pageIndex >= data.pageCount - 1">
+                <span class="glyphicon glyphicon-step-forward"></span>
+            </button>
+            <button type="button" class="btn btn-default"
+                    (click)="data.moveToLastPage()"
+                    [disabled]="data.pageIndex >= data.pageCount - 1">
+                <span class="glyphicon glyphicon-fast-forward"></span>
+            </button>
+        </div>
+        <div class="pull-right" *ngIf="data != null">
+            <wj-menu [(value)]="pageSize" [header]="'Page size'">
+                <wj-menu-item [value]="10">10</wj-menu-item>
+                <wj-menu-item [value]="20">20</wj-menu-item>
+                <wj-menu-item [value]="50">50</wj-menu-item>
+            </wj-menu>
+        </div>
+        <div>&nbsp;</div>
+        <wj-popup style="border: 0px; width: 80%; height: 80%" #frmDialog>
+            <div class="modal-content">
+                <div class="modal-header">
+                    {{formTitle}}
+                    <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+                </div>
+                <form (ngSubmit)="saveExchangeMailProbes(frmDialog)" #frmUser="ngForm" class="form-horizontal">
+                    <div class="modal-body" *ngIf="currentEditItem">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label class="control-label col-sm-2">Event Definition Name</label>
+                                <div class="col-sm-2">
+                                    <input type="text" class="form-control" id="name" required name="name" [(ngModel)]="currentEditItem.name" />
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="panel panel-default">    
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="form-group col-sm-6">
+                                            <label for="scan_interval" class="control-label col-sm-5">Scan Interval</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" id="scan_interval" required name="scan_interval"
+                                                       [(ngModel)]="currentEditItem.scan_interval" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
+                                            </div>
+                                            <div class="control-label col-sm-1">minutes</div>
+                                        </div>
+                                        <div class="form-group col-sm-6">
+                                            <label for="off_hours_interval" class="control-label col-sm-5">Off-Hours Scan Interval</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" id="off_hours_scan_interval" required name="off_hours_scan_interval"
+                                                       [(ngModel)]="currentEditItem.off_hours_scan_interval" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
+                                            </div>
+                                            <div class="control-label col-sm-1">minutes</div>
+                                        </div> 
+                                   </div>
+                                    <div class="row">
+                                        <div class="form-group col-sm-6">
+                                            <label for="mailprobe_red_threshold" class="control-label col-sm-5">Mail Probe Red Threshold</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" id="mailprobe_red_threshold" required name="mailprobe_red_threshold"
+                                                       [(ngModel)]="currentEditItem.mailprobe_red_threshold" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
+                                            </div>
+                                            <div class="control-label col-sm-1">ms</div>
+                                        </div>
+                                        <div class="form-group col-sm-6">
+                                            <label for="mailprobe_yellow_threshold" class="control-label col-sm-5">Mail Probe Yellow Threshold</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" id="mailprobe_yellow_threshold" required name="mailprobe_yellow_threshold"
+                                                       [(ngModel)]="currentEditItem.mailprobe_yellow_threshold" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
+                                            </div>
+                                            <div class="control-label col-sm-1">ms</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    Servers
+                                </div>
+                                <div class="panel-body">
+                                    <div>
+                                        <div class="text-danger" *ngIf="devices.length==0"><b>* Please select at  least two server</b></div>
+                                        <div *ngIf="devices.length==0">&nbsp;</div>
+                                        <wj-flex-grid [itemsSource]="exchangedata" selectionMode="Row" headersVisibility="Column" #flex1 id="grid">
+                                            <wj-flex-grid-filter></wj-flex-grid-filter>
+                                            <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [visible]="false"></wj-flex-grid-column>
+                                            <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" [isReadOnly]="false"></wj-flex-grid-column>
+                                            <wj-flex-grid-column [header]="'DeviceName'" [binding]="'device_name'" [width]="120" [isReadOnly]="true"> </wj-flex-grid-column>
+                                            <wj-flex-grid-column [header]="'Location'" [binding]="'location_name'" align="right" [isReadOnly]="true"></wj-flex-grid-column>
+                                            
+                                        </wj-flex-grid>
+                                        
+                                    </div>
+                                </div>
+                            </div>   
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" type="submit" name="submit" [disabled]="!(frmUser.form.valid)">Save</button>
+                        <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </wj-popup>
+    </div>
+    </div>
