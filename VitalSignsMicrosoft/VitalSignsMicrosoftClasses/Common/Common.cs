@@ -1347,7 +1347,7 @@ namespace VitalSignsMicrosoftClasses
                         Server.AuthenticationTest = false;
                 }
                         
-                }
+                
                 if (result.Count != 1)
                     throw new Exception("Could not connect to the Office 365 Server");
                 //PSSession pssession = (PSSession)result[0];
