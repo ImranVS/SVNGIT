@@ -1023,7 +1023,8 @@ namespace VitalSignsMicrosoftClasses
                     .Include(x => x.ScanInterval)
                     .Include(x => x.ExchangeMailProbeServers)
                     .Include(x => x.MailProbeRedThreshold)
-                    .Include(x => x.MailProbeYellowThreshold);
+                    .Include(x => x.MailProbeYellowThreshold)
+                    .Include(x => x.CurrentNode);
                 
                 listOfExchangeMailProbes = repository.Find(filterDef, projectionDef).ToList();
 
