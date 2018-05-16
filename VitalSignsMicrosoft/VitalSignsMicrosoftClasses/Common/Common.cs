@@ -1346,7 +1346,10 @@ namespace VitalSignsMicrosoftClasses
                     if ((err.Exception.Message.ToLower().Contains("access denied")) || ((err.Exception.Message.ToLower().Contains("failed"))))
                         Server.AuthenticationTest = false;
                 }
-
+                        
+                }
+                if (result.Count != 1)
+                    throw new Exception("Could not connect to the Office 365 Server");
                 //PSSession pssession = (PSSession)result[0];
                 //PSObj.Session = pssession;
 

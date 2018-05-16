@@ -862,6 +862,11 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public string ProxyType { get; set; }
 
+        [DataMember]
+        [BsonElement("mailbox_statistics_last_scanned")]
+        [BsonIgnoreIfNull]
+        public string MailboxStatisticsLastScanned { get; set; }
+
         #endregion
 
         #region WebSphereCell
