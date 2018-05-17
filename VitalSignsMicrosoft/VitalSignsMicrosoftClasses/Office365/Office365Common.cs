@@ -743,6 +743,8 @@ Clear-Variable 'results' -ErrorAction SilentlyContinue";
                             }
                             try
                             {
+                                db.ProcessMongoStatements(AllTestsList, myServer);
+                                AllTestsList.MongoEntity.Clear();
                                 serverRepo.Update(serverRepo.Filter.Eq(x => x.Id, myServer.ServerObjectID), serverRepo.Updater.Set(x => x.MailboxStatisticsLastScanned, firstChar.ToString() + secondChar.ToString()));
                             }
                             catch (Exception ex)
@@ -764,7 +766,7 @@ Clear-Variable 'results' -ErrorAction SilentlyContinue";
 
                             ExceptionCount++;
                         }
-                        
+
                     }
                     secondStartingChar = 'a';
                 }
