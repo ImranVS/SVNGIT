@@ -223,7 +223,7 @@ namespace VitalSigns.API.Controllers
             statusRepository = new Repository<Status>(ConnectionString);
             serverRepository = new Repository<Server>(ConnectionString);
             serverOtherRepository = new Repository<ServerOther>(ConnectionString);
-            
+
             try
             {
                 var serverFilterDef = serverRepository.Filter.Empty;
@@ -241,7 +241,7 @@ namespace VitalSigns.API.Controllers
                         IsEnabled = x.IsEnabled,
                         Type = x.DeviceType,
                         Name = x.DeviceName,
-                    }).OrderBy(x=>x.Name).ToList();
+                    }).OrderBy(x => x.Name).ToList();
 
                 if (module == "configurator")
                 {
@@ -276,8 +276,8 @@ namespace VitalSigns.API.Controllers
 
                 //same filter restrictions are in GetStatusSummaryByType, GetAllServerServices and ServerStatusSummary
                 var serverOthers = serverOtherRepository
-                    .Find(serverOtherFilterDef & serverOtherRepository.Filter.Eq(x => x.Type, Enums.ServerType.NotesDatabase.ToDescription()))
-                    .ToList()
+                    .Find(serverOtherFilterDef & serverOtherRepository.Filter.In(x => x.Type, new string[] { Enums.ServerType.ExchangeMailProbe.ToDescription(), Enums.ServerType.NotesDatabase.ToDescription() }))
+                     .ToList()
                     .Select(x => new ServerStatus
                     {
                         Id = x.Id,
@@ -1358,7 +1358,7 @@ namespace VitalSigns.API.Controllers
 
 
         [HttpGet("status_list")]
-        public APIResponse GetStatusList(string type, string docfield = "", string sortby = "", bool isChart = false,string deviceId="")
+        public APIResponse GetStatusList(string type, string docfield = "", string sortby = "", bool isChart = false, bool heightBasedOnData = false,string deviceId="")
         {
             statusRepository = new Repository<Status>(ConnectionString);
             List<Status> statslist = null;
@@ -1500,6 +1500,8 @@ namespace VitalSigns.API.Controllers
                                     x.Add(statname, statvalue);
                                     result.Add(x);
                                 }
+                                
+                                    
                                 else
                                 {
                                     segment = new Segment();
@@ -1516,8 +1518,24 @@ namespace VitalSigns.API.Controllers
                         else
                         {
                             Serie serie = new Serie();
+                            var segmments2 = new List<Segment>();
+                            segmments2.AddRange(segments.Select(x=> new Segment()  { Color = x.Color, DrillDownName = x.DrillDownName + "1", Label = x.Label + "1",Label2  = x.Label2 + "1",Value=x.Value + 1,Value1=x.Value1 + 1,Value2=x.Value2 +1 }));
+                            segmments2.AddRange(segments.Select(x => new Segment() { Color = x.Color, DrillDownName = x.DrillDownName + "2", Label = x.Label + "2", Label2 = x.Label2 + "2", Value = x.Value + 2, Value1 = x.Value1 + 2, Value2 = x.Value2 + 2 }));
+                            segmments2.AddRange(segments.Select(x => new Segment() { Color = x.Color, DrillDownName = x.DrillDownName + "3", Label = x.Label + "3", Label2 = x.Label2 + "3", Value = x.Value + 3, Value1 = x.Value1 + 3, Value2 = x.Value2 + 3 }));
+                            segmments2.AddRange(segments.Select(x => new Segment() { Color = x.Color, DrillDownName = x.DrillDownName + "4", Label = x.Label + "4", Label2 = x.Label2 + "4", Value = x.Value + 4, Value1 = x.Value1 + 4, Value2 = x.Value2 + 4 }));
+                            segmments2.AddRange(segments.Select(x => new Segment() { Color = x.Color, DrillDownName = x.DrillDownName + "5", Label = x.Label + "5", Label2 = x.Label2 + "5", Value = x.Value + 5, Value1 = x.Value1 + 5, Value2 = x.Value2 + 5 }));
+                            segmments2.AddRange(segments.Select(x => new Segment() { Color = x.Color, DrillDownName = x.DrillDownName + "6", Label = x.Label + "6", Label2 = x.Label2 + "6", Value = x.Value + 6, Value1 = x.Value1 + 6, Value2 = x.Value2 + 6 }));
+                            segmments2.AddRange(segments.Select(x => new Segment() { Color = x.Color, DrillDownName = x.DrillDownName + "7", Label = x.Label + "7", Label2 = x.Label2 + "7", Value = x.Value + 7, Value1 = x.Value1 + 7, Value2 = x.Value2 + 7 }));
+                            segmments2.AddRange(segments.Select(x => new Segment() { Color = x.Color, DrillDownName = x.DrillDownName + "8", Label = x.Label + "8", Label2 = x.Label2 + "8", Value = x.Value + 8, Value1 = x.Value1 + 8, Value2 = x.Value2 + 8 }));
+                            segmments2.AddRange(segments.Select(x => new Segment() { Color = x.Color, DrillDownName = x.DrillDownName + "9", Label = x.Label + "9", Label2 = x.Label2 + "9", Value = x.Value + 9, Value1 = x.Value1 + 9, Value2 = x.Value2 + 9 }));
+                            segmments2.AddRange(segments.Select(x => new Segment() { Color = x.Color, DrillDownName = x.DrillDownName + "10", Label = x.Label + "10", Label2 = x.Label2 + "10", Value = x.Value + 10, Value1 = x.Value1 + 10, Value2 = x.Value2 + 10 }));
+                            segmments2.AddRange(segments.Select(x => new Segment() { Color = x.Color, DrillDownName = x.DrillDownName + "11", Label = x.Label + "11", Label2 = x.Label2 + "11", Value = x.Value + 11, Value1 = x.Value1 + 11, Value2 = x.Value2 + 11 }));
+                            segmments2.AddRange(segments.Select(x => new Segment() { Color = x.Color, DrillDownName = x.DrillDownName + "12", Label = x.Label + "12", Label2 = x.Label2 + "12", Value = x.Value + 12, Value1 = x.Value1 + 12, Value2 = x.Value2 + 12 }));
+                            segmments2.AddRange(segments.Select(x => new Segment() { Color = x.Color, DrillDownName = x.DrillDownName + "13", Label = x.Label + "13", Label2 = x.Label2 + "13", Value = x.Value + 13, Value1 = x.Value1 + 13, Value2 = x.Value2 + 13 }));
+                            segmments2.AddRange(segments.Select(x => new Segment() { Color = x.Color, DrillDownName = x.DrillDownName + "14", Label = x.Label + "14", Label2 = x.Label2 + "14", Value = x.Value + 14, Value1 = x.Value1 + 14, Value2 = x.Value2 + 14 }));
+
                             serie.Title = "";
-                            serie.Segments = segments;
+                            serie.Segments = segmments2;
                             List<Serie> series = new List<Serie>();
                             series.Add(serie);
                             Chart chart = new Chart();

@@ -3348,6 +3348,74 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
+
+
+        [HttpGet("exchange_mail_probe")]
+        public APIResponse GetExchnageMailProbe(string deviceId)
+        {
+
+            try
+            {
+                
+                //deviceId = "5ae20543d053fee4698ba06b";
+                List<dynamic> result = new List<dynamic>();
+                statusRepository = new Repository<Status>(ConnectionString);
+                serverOtherRepository = new Repository<ServerOther>(ConnectionString);
+                List <ExchangeMailprobe> exchnagemailprobedata= new List<ExchangeMailprobe>();
+                List <ServerOther> serverotherlist = serverOtherRepository.Find(x => x.Id == deviceId).ToList();
+                ServerOther server = new ServerOther();
+                if (serverotherlist.Count > 0)
+                {
+                    server = serverotherlist.First();
+
+                }
+                else
+                {
+                    throw new Exception("Unable to find servers");
+                }
+                List<LatencyResults> latencydata = new List<LatencyResults>();
+                var results = statusRepository.Find(x => x.DeviceType == Enums.ServerType.ExchangeMailProbe.ToDescription() && x.DeviceId == deviceId).ToList();
+
+                //check to be sure there is a 0th index
+                if (results.Count() > 0 ) {
+                    if (results.First().LatencyResults != null)
+                    {
+                        foreach (var curr in results.First().LatencyResults)
+                        {
+                            IDictionary<string, object> expandoObj = null;
+                            if (!result.Exists(x => x.source_server == curr.SourceServer))
+                            {
+                                expandoObj = new ExpandoObject() as IDictionary<string, object>;
+                                expandoObj["source_server"] = curr.SourceServer;
+                                result.Add(expandoObj);
+                            }
+
+                            if (expandoObj == null)
+                                expandoObj = result.Find(x => x.source_server == curr.SourceServer);
+
+                            expandoObj[curr.DestinationServer] = curr.Latency;
+                        
+                        }
+                        Response = Common.CreateResponse(new {latency_results = result,yellow_threshold =server.MailProbeYellowThreshold,red_threshold = server.MailProbeRedThreshold });
+                    }
+                    else { throw new Exception("Unable to find Latency Servers data"); }
+                }
+
+                else
+                {
+                    throw new Exception("Unable to find servers");
+                }
+                    return Response;
+                
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+            }
+            return Response;
+        }
+
+
     }
 }
 
