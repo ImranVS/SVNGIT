@@ -1,0 +1,10 @@
+﻿<div class="alert alert-info col-lg-12">
+    Source servers are listed along the left and the destination servers are listed across the top.
+    The numbers in the box is the time (in ms) it took to send mail from the source to the destination servers.
+</div>
+<div>
+    <wj-flex-grid [itemsSource]="data" [isReadOnly]="true" id="flex" [itemFormatter]="getRowHeaders" FormatItem="formatItem(s,e)" #flex>
+        <wj-flex-grid-filter></wj-flex-grid-filter>
+    </wj-flex-grid>
+</div>
+

@@ -79,3 +79,5 @@ export * from '../dashboards/components/key-metrics/office-365-mailbox-tab.compo
 export * from '../dashboards/components/key-metrics/office-365-users-grid.component';
 export * from '../dashboards/components/key-metrics/office-365-licenses-tab.component';
 export * from '../dashboards/components/key-metrics/office-365-reassignable-licenses-tab.component';
+
+export * from '../configurator/components/MicrosoftSettings/exchange-mail-probe-tab.component';

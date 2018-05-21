@@ -194,3 +194,5 @@ export * from './reports/components/disk/disk-space-widget.component'
 
 export * from './services/components/microsoft-powershell-scripts.component'
 export * from './configurator/components/MicrosoftSettings/powerscripts-audit.component'
+export * from './configurator/components/MicrosoftSettings/exchange-mail-probe-grid.component'
+

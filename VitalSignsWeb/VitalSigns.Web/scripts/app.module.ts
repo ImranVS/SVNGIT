@@ -514,6 +514,7 @@ import { LoadingIndicator } from './core/services/loading-indicator'
         widgets.ExchangemailstatisticsviewGrid,
         widgets.Office365ReassignableLicensesGrid,
         widgets.Office365LicensesGrid,
+        widgets.ExchangeMailProbeGrid,
         tabs.Office365ReassignableLicensesTab,
         tabs.Office365MailboxViewTab,
         tabs.Office365UsersGrid,
@@ -569,6 +570,7 @@ import { LoadingIndicator } from './core/services/loading-indicator'
         tabs.Office365ActiveDirectorySyncTab,
         tabs.Office365PasswordSettingsTab,
         tabs.MicrosoftPowerShellScriptsTab,
+        tabs.ExchangeMailProbeTab,
         wjFlexGrid.WjFlexGrid,
         wjFlexGrid.WjFlexGridColumn,
         wjFlexGrid.WjFlexGridCellTemplate,
@@ -736,6 +738,7 @@ import { LoadingIndicator } from './core/services/loading-indicator'
         widgets.PowerScriptsAudit,
         widgets.Office365ReassignableLicensesGrid,
         widgets.Office365LicensesGrid,
+        widgets.ExchangeMailProbeGrid,
         tabs.Office365ReassignableLicensesTab,
         tabs.Office365MailboxViewTab,
         tabs.Office365UsersGrid,
@@ -788,7 +791,8 @@ import { LoadingIndicator } from './core/services/loading-indicator'
         tabs.Office365ActiveDirectorySyncTab,
         tabs.Office365UserScenarioTestsTab,
         tabs.Office365PasswordSettingsTab,
-        tabs.MicrosoftPowerShellScriptsTab
+        tabs.MicrosoftPowerShellScriptsTab,
+        tabs.ExchangeMailProbeTab,
     ],
     bootstrap: [
         AppComponent
