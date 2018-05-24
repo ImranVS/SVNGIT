@@ -603,6 +603,30 @@ Public Class VitalSignsAlertService
                             Continue For
                         End If
 
+                        'Checks to see if it is a log ifle alert and it already sent one for the day (if one a day is selected)
+                        If currEvent.EventType.Contains("Log File - ") Then
+                            Dim notificationsSentFilterBuilder As New FilterDefinitionBuilder(Of NotificationsSent)
+
+                            filterEventsDetected = repoEventsDetected.Filter.Eq(Function(i) i.EventType, currEvent.EventType) And
+                                repoEventsDetected.Filter.Eq(Function(i) i.DeviceId, currEvent.DeviceId) And
+                                repoEventsDetected.Filter.Gt(Function(i) i.EventDetected, New DateTime(Now.Year, Now.Month, Now.Day)) And
+                                repoEventsDetected.Filter.Exists(Function(i) i.EventDismissed) And
+                                repoEventsDetected.Filter.ElemMatch(
+                                    Function(i) i.NotificationsSent,
+                                    notificationsSentFilterBuilder.Eq(Function(j) j.NotificationDestinationId, currDestination.DestinationId) And
+                                    notificationsSentFilterBuilder.Eq(Function(j) j.NotificationId, currAlertDefinition.NotificationId)
+                                )
+
+
+                            Dim tempList As List(Of EventsDetected) = repoEventsDetected.Find(filterEventsDetected).ToList()
+
+                            If (tempList.Count > 0) Then
+                                Dim filterDefForEventDismissed As FilterDefinition(Of EventsDetected) = repoEventsDetected.Filter.Eq(Function(x) x.Id, currEvent.Id)
+                                Dim updateDefForEventDismissed As UpdateDefinition(Of EventsDetected) = repoEventsDetected.Updater.Set(Function(x) x.EventDismissed, Now)
+                                bulkOps.Add(New MongoDB.Driver.UpdateOneModel(Of VSNext.Mongo.Entities.EventsDetected)(filterDefForEventDismissed, updateDefForEventDismissed))
+                                Continue For
+                            End If
+                        End If
 
                         'If all is finally good and can send, process the alert
                         Dim alertSent As Boolean = False
