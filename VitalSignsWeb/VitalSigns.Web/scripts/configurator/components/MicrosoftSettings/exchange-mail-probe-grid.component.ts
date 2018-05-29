@@ -32,12 +32,8 @@ export class ExchangeMailProbeGrid implements WidgetComponent, OnInit {
     source_servers: String[] = [];
     yellowthreshold: any;
     redthreshold: any;
-
-
     constructor(private service: RESTService, private widgetService: WidgetService, private route: ActivatedRoute, protected toolTip: helpers.GridTooltip,
         protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) { }
-
-
     ngOnInit() {
         this.route.params.subscribe(params => {
             if (params['service'])
@@ -48,7 +44,15 @@ export class ExchangeMailProbeGrid implements WidgetComponent, OnInit {
             }
         });
         this.loaddata();
+       
     }
+
+    itemsSourceChangedHandler() {
+        console.log(1)
+        this.flex.autoSizeColumn(0, true);
+       console.log(2)
+    }
+    
     getSourceServerobj(serverName, data) {
 
         let index = data.findIndex(s => s["source_server"] === serverName);
@@ -86,17 +90,21 @@ export class ExchangeMailProbeGrid implements WidgetComponent, OnInit {
 
 
                     }
+    
                     grid_data.push(obj);
+                    
 
                 }
 
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(grid_data));
+                console.log("Here")
                 this.serviceId = this.data.currentItem.device_id;
                 this.yellowthreshold = data.data.yellow_threshold;
                 this.redthreshold = data.data.red_threshold;
             },
             (error) => this.errorMessage = <any>error
             );
+
     }
 
     getRowHeaders = (p, r, c, cell) => {

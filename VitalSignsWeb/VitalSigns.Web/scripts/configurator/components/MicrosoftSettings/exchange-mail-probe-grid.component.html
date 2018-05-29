@@ -3,7 +3,7 @@
     The numbers in the box is the time (in ms) it took to send mail from the source to the destination servers.
 </div>
 <div>
-    <wj-flex-grid [itemsSource]="data" [isReadOnly]="true" id="flex" [itemFormatter]="getRowHeaders" FormatItem="formatItem(s,e)" #flex>
+    <wj-flex-grid [itemsSource]="data" [isReadOnly]="true" id="flex" [itemFormatter]="getRowHeaders" (itemsSourceChanged)="itemsSourceChangedHandler()" #flex>
         <wj-flex-grid-filter></wj-flex-grid-filter>
     </wj-flex-grid>
 </div>

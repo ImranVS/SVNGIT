@@ -132,9 +132,9 @@ export class ExchnageMailProbe extends GridBase implements OnInit {
                     exchange_mail_probe: this.currentEditItem,
                     exchange_servers: selectedExchangeServers
                 }
-                console.log(postdata)
+               
                 this.saveGridRow('/configurator/save_exchange_probes', dlg, postdata);
-                console.log(1)
+               
             
 
             
