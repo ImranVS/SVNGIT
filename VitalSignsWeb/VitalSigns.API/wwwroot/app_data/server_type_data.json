@@ -302,7 +302,7 @@
         "type": "Configurator",
         "component": "MicrosoftPowerShellScriptsTab",
         "path": "/app/services/components/microsoft-powershell-scripts-tab.component",
-        "roles":  ["PowerScripts"]
+        "roles": [ "PowerScripts" ]
       },
       {
         "tab_id": 1,
@@ -375,6 +375,21 @@
         "path": "/app/dashboards/components/ms-exchange/ms-exchange-queues-tab.component"
       }
     ]
+  },
+  {
+    "server_type": "Exchange Mail Probe",
+      "icon": "/img/servers/MSExchangeMailProbe.svg",
+    "tabs": [
+      {
+        "tab_id": 1,
+        "title": "Exchange Mail Probe",
+        "type": "Dashboard",
+        "component": "ExchangeMailProbeTab",
+        "path": "/configurator/components/MicrosoftSettings/exchange-mail-probe-tab.component"
+      }
+
+    ]
+
   },
   {
     "server_type": "IBM Connections",
