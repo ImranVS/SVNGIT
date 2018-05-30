@@ -2053,32 +2053,8 @@ namespace VitalSigns.API.Controllers
                     });
                 }
                 serverRepository = new Repository<Server>(ConnectionString);
-                credentialsRepository = new Repository<Credentials>(ConnectionString);
-                List<Credentials> listOfCreds = credentialsRepository.Find(x => true).ToList();
-                var l = serverRepository.Find(serverRepository.Filter.In(x => x.DeviceType, results.Select(y => y.DeviceType))).ToList();
-                var v1 = l.Select(x => new ServersModel()
-                {
-                    DeviceId = x.Id,
-                    DeviceName = x.DeviceName,
-                    DeviceType = x.DeviceType,
-                    Description = x.CredentialsId
-                }).ToList();
-                List <ServersModel> deviceList = serverRepository.Find(serverRepository.Filter.In(x => x.DeviceType, results.Select(y => y.DeviceType))).ToList()
-                    .Select(x => new ServersModel() {
-                        DeviceId = x.Id,
-                        DeviceName = x.DeviceName,
-                        DeviceType = x.DeviceType,
-                        CredentialId = x.CredentialsId,
+                List<ServersModel> deviceList = serverRepository.Find(serverRepository.Filter.In(x => x.DeviceType, results.Select(y => y.DeviceType))).ToList().Select(x => new ServersModel() { DeviceId = x.Id, DeviceName = x.DeviceName, DeviceType = x.DeviceType }).ToList() ;
                         
-                    }).ToList();
-                deviceList.ForEach(x => { if (listOfCreds.Exists(y => y.Id == x.CredentialId)) {
-                        x.Credential = new ServerCredentialsModel()
-                        {
-                            Alias = listOfCreds.Find(y => y.Id == x.CredentialId).Alias,
-                            UserId = listOfCreds.Find(y => y.Id == x.CredentialId).UserId,
-                            Id = x.CredentialId
-                        }; } });
-
                 Response = Common.CreateResponse(new { scripts = results, devices = deviceList });
             }
             catch (Exception exception)
@@ -2092,26 +2068,9 @@ namespace VitalSigns.API.Controllers
         [HttpPut("execute_powershell_script")]
         public APIResponse ExecutePowerShellScript([FromBody]PowerShellScriptModel obj)
         {
-            // Start the child process.
-            System.Diagnostics.Process p = new System.Diagnostics.Process();
-            // Redirect the output stream of the child process.
-            p.StartInfo.UseShellExecute = false;
-            p.StartInfo.RedirectStandardOutput = true;
-            p.StartInfo.FileName = "cmd.exe";
-            p.StartInfo.Arguments = "/C echo %ProgramFiles%";
-            p.Start();
-            // Do not wait for the child process to exit before
-            // reading to the end of its redirected stream.
-            // p.WaitForExit();
-            // Read the output stream first and then wait.
-            string output = p.StandardOutput.ReadToEnd();
-            p.WaitForExit();
-
-
             System.Management.Automation.PowerShell ps = null;
             try
             {
-                VSFramework.TripleDES tripleDes = new VSFramework.TripleDES();
 
                 if (string.IsNullOrWhiteSpace(obj.Path) || (obj.ParametersList == null || obj.ParametersList.Count() == 0) || String.IsNullOrWhiteSpace(obj.DeviceId))
                     Response = Common.CreateResponse(null, "Error", "Please ensure all fields are filled out.");
@@ -2128,27 +2087,16 @@ namespace VitalSigns.API.Controllers
                 Server server = listOfServers.First();
 
                 //Gets credential Info
-                //Uses the custom creds, or the default creds if none are defined
-                Credentials creds;
-                if (String.IsNullOrWhiteSpace(obj.UserId) || String.IsNullOrWhiteSpace(obj.Password))
-                {
-                    FilterDefinition<Credentials> filterDefCredentials = credentialsRepository.Filter.Eq(x => x.Id, server.CredentialsId);
-                    List<Credentials> listOfCredentials = credentialsRepository.Find(filterDefCredentials).ToList();
-                    if (listOfServers.Count() == 0)
-                    {
-                        Response = Common.CreateResponse(null, "Error", "Could not find the credentials in the database.");
-                        return Response;
-                    }
-                    creds = listOfCredentials.First();
+                FilterDefinition<Credentials> filterDefCredentials = credentialsRepository.Filter.Eq(x => x.Id, server.CredentialsId);
+                List<Credentials> listOfCredentials = credentialsRepository.Find(filterDefCredentials).ToList();
+                if (listOfServers.Count() == 0) {
+                    Response = Common.CreateResponse(null, "Error", "Could not find the credentials in the database.");
+                    return Response;
                 }
-                else
-                {
-                    creds = new Credentials() { UserId = obj.UserId, Password = String.Join(",",tripleDes.Encrypt(obj.Password)) };
-                }
-
+                Credentials creds = listOfCredentials.First();
 
                 //Calls the connect to server
-                
+                VSFramework.TripleDES tripleDes = new VSFramework.TripleDES();
                 
                 if (server.DeviceType == Enums.ServerType.Exchange.ToDescription().ToString())
                 {
@@ -2179,6 +2127,9 @@ namespace VitalSigns.API.Controllers
                 string response = "Output from PowerShell:\n";
 
                 System.Collections.ObjectModel.Collection<System.Management.Automation.PSObject> psOutput = ps.Invoke();
+                
+
+
                 
 
                 foreach (System.Management.Automation.PSObject psObject in psOutput)
