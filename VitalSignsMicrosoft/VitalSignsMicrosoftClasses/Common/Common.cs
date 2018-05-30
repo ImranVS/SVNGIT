@@ -2902,7 +2902,11 @@ if ($ModPath -ne '')
             DirSync_Export,
             URL,
             Authentication,
-            MAPI_Connectivity
+            MAPI_Connectivity,
+
+            //Exchange MailProbe
+            YellowThreshold,
+            RedThreshold
 
         }
 
@@ -2915,6 +2919,7 @@ if ($ModPath -ne '')
             Active_Directory,
             Database_Availability_Group,
             Exchange_Mail_Flow,
+            Exchange_Mail_Probe,
             Office365,
             Windows
         }
