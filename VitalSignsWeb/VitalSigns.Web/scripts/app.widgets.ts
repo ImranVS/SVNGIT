@@ -71,6 +71,7 @@ export * from './widgets/reports/components/o365-disabled-users-list.component';
 export * from './widgets/reports/components/ibm-connections-disabled-users-list.component';
 export * from './widgets/reports/components/o365-active-directory-sync-list.component';
 export * from './widgets/reports/components/ibm-connections-inctive-users-list.component';
+export * from './widgets/reports/components/powershell-list.component';
 export * from './widgets/reports/components/inactive-community-list.component';
 export * from './configurator/components/applicationSettings/application-settings-businesshours.component';
 export * from './configurator/components/applicationSettings/application-settings-servercredentials.component'

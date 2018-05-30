@@ -91,6 +91,7 @@ import { CostPerUserGridReport } from './reports/components/financial/cost-per-u
 import { TravelerAllocatedMemoryReport } from './reports/components/ibm-traveler/traveler-allocated-memory.component';
 import { TravelerStatsReport } from './reports/components/ibm-traveler/traveler-stats.component';
 import { OverallStatusReport } from './reports/components/servers/overall-status-report.component';
+import { powershellReport } from './reports/components/servers/powershell-report.component';
 import { DatabaseInventoryReport } from './reports/components/ibm-domino/database-inventory-report.component';
 import { LogFileReport } from './reports/components/ibm-domino/log-file-report.component';
 import { MailThresholdReport } from './reports/components/ibm-domino/mail-threshold-report.component';
@@ -482,6 +483,10 @@ const appRoutes: Routes = [
                     {
                         path: 'overallstatus',
                         component: OverallStatusReport
+                    },
+                    {
+                        path: 'powershell',
+                        component: powershellReport
                     },
                     {
                         path: 'travelerstats',
