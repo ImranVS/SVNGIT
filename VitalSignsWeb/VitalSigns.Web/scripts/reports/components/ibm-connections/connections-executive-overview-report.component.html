@@ -11,9 +11,10 @@
         </ul>
     </div>
     <div id="zeusContent" class="container-fluid">
-        <server-filter [(deviceType)]="currentDeviceType" [(widgetName)]="currentWidgetName" [(widgetURL)]="currentWidgetURL"
-                       [(hideServerControl)]="currentHideServerControl" [(hideDatePanel)]="currentHideDatePanel"
-                       [(showSingleDatePanel)]="currentShowSingleDatePanel"></server-filter>
+        <connections-server-filter [(widgetName)]="currentWidgetName" [(widgetURL)]="currentWidgetURL"
+                      
+                       [(showCommunityControl)]="currentShowCommunityControl"
+                                   [(deviceType)]="currentDeviceType" [(hideStatControl)]="currentHideStatControl"></connections-server-filter>
         <div class="reportsPage">
             
             <h1></h1>

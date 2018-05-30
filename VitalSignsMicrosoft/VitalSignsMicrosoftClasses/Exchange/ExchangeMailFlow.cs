@@ -315,7 +315,29 @@ namespace VitalSignsMicrosoftClasses
                     mongoInsert.listOfEntities = listOfStats;
                     AllTestsList.MongoEntity.Add(mongoInsert);
 
-				}
+
+                    if (listOfResults.Exists(x => x.Latency == -1))
+                    {
+                        AllTestsList.AlertDetails.Add(new Alerting() { AlertType = commonEnums.AlertType.YellowThreshold, Category = "Exchange Mail Probe", Details = "A server did not respond in the allowed time", DeviceName = myServer.Name, DeviceType = commonEnums.AlertDevice.Exchange_Mail_Probe, ResetAlertQueue = commonEnums.ResetAlert.No });
+                        AllTestsList.AlertDetails.Add(new Alerting() { AlertType = commonEnums.AlertType.RedThreshold, Category = "Exchange Mail Probe", Details = "A server did not respond in the allowed time", DeviceName = myServer.Name, DeviceType = commonEnums.AlertDevice.Exchange_Mail_Probe, ResetAlertQueue = commonEnums.ResetAlert.No });
+                    }
+                    else if(listOfResults.Max(x => x.Latency) > myServer.LatencyRedThreshold)
+                    {
+                        AllTestsList.AlertDetails.Add(new Alerting() { AlertType = commonEnums.AlertType.YellowThreshold, Category = "Exchange Mail Probe", Details = "A server did not respond below the yellow threshold value", DeviceName = myServer.Name, DeviceType = commonEnums.AlertDevice.Exchange_Mail_Probe, ResetAlertQueue = commonEnums.ResetAlert.No });
+                        AllTestsList.AlertDetails.Add(new Alerting() { AlertType = commonEnums.AlertType.RedThreshold, Category = "Exchange Mail Probe", Details = "A server did not respond below the red threshold value", DeviceName = myServer.Name, DeviceType = commonEnums.AlertDevice.Exchange_Mail_Probe, ResetAlertQueue = commonEnums.ResetAlert.No });
+                    }
+                    else if (listOfResults.Max(x => x.Latency) > myServer.LatencyYellowThreshold && listOfResults.Max(x => x.Latency) <= myServer.LatencyRedThreshold)
+                    {
+                        AllTestsList.AlertDetails.Add(new Alerting() { AlertType = commonEnums.AlertType.YellowThreshold, Category = "Exchange Mail Probe", Details = "A server did not respond below the yellow threshold value", DeviceName = myServer.Name, DeviceType = commonEnums.AlertDevice.Exchange_Mail_Probe, ResetAlertQueue = commonEnums.ResetAlert.No });
+                        AllTestsList.AlertDetails.Add(new Alerting() { AlertType = commonEnums.AlertType.RedThreshold, Category = "Exchange Mail Probe", Details = "All servers responded within the red threshold value", DeviceName = myServer.Name, DeviceType = commonEnums.AlertDevice.Exchange_Mail_Probe, ResetAlertQueue = commonEnums.ResetAlert.Yes });
+                    }
+                    else if (listOfResults.Max(x => x.Latency) <= myServer.LatencyYellowThreshold)
+                    {
+                        AllTestsList.AlertDetails.Add(new Alerting() { AlertType = commonEnums.AlertType.YellowThreshold, Category = "Exchange Mail Probe", Details = "All servers responded within the yellow threshold value", DeviceName = myServer.Name, DeviceType = commonEnums.AlertDevice.Exchange_Mail_Probe, ResetAlertQueue = commonEnums.ResetAlert.Yes });
+                        AllTestsList.AlertDetails.Add(new Alerting() { AlertType = commonEnums.AlertType.RedThreshold, Category = "Exchange Mail Probe", Details = "All servers responded within the red threshold value", DeviceName = myServer.Name, DeviceType = commonEnums.AlertDevice.Exchange_Mail_Probe, ResetAlertQueue = commonEnums.ResetAlert.Yes });
+                    }
+
+                }
 			}
 			catch (Exception ex)
 			{

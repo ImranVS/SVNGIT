@@ -25,6 +25,7 @@ export class ConnectionsUserActivityReport extends WidgetController {
     currentDeviceType: string = "IBM Connections";
     currentWidgetName: string = `connectionsUserActivityReport`;
     currentWidgetURL: string = `/reports/connections/user_activity`;
+    currentShowCommunityControl: boolean = true;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
 

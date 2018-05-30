@@ -1667,8 +1667,17 @@ namespace VitalSigns.API.Controllers
                     .Select(x => new UserList
                     {
                         Id = x.Id,
-                        Name = x.Name
+                        Name = x.Name,
+                        CommunityIds = new List<string>(),
+                        DeviceId = x.DeviceId
                     }).OrderBy(x => x.Name).ToList();
+
+                connectionsRepository.Find(x => x.Type == "Community").ToList().
+                    ForEach(x =>
+                    result.Where(y => x.users.Contains(y.Id))
+                        .ToList().ForEach(y => y.CommunityIds.Add(x.Id)));
+                result.Insert(0, new UserList{ Name = "All", DeviceId = "", Id = "", CommunityIds = null });
+
                 Response = Common.CreateResponse(result);
                 return Response;
             }

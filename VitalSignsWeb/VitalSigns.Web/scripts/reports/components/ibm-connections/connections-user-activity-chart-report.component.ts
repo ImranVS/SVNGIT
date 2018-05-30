@@ -22,6 +22,14 @@ export class ConnectionsUserActivityChartReport extends WidgetController {
     errorMessage: string;
     widgets: WidgetContract[];
 
+    currentHideServerControl: boolean = false;
+    currentHideDatePanel: boolean = true;
+    currentHideStatControl: boolean = true;
+    currentDeviceType: string = "IBM Connections";
+    currentWidgetName: string = `connectionsUserActivityChartReport`;
+    currentWidgetURL: string = `/reports/connections/user_activity?isChart=true&topX=10`;
+    currentShowCommunityControl: boolean = true;
+
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
 
         super(resolver, widgetService);

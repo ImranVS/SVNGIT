@@ -19,6 +19,7 @@ export class ConnectionsServerFilter {
     @Input() statType: string;
     @Input() hideDatePanel: boolean;
     @Input() hideServerControl: boolean;
+    @Input() showCommunityControl: boolean = false;
     @Input() hideStatControl: boolean;
     endDate: Date = new Date();
     startDate: Date = new Date(this.endDate.getFullYear(), this.endDate.getMonth(), this.endDate.getDate() - 7);
@@ -28,6 +29,8 @@ export class ConnectionsServerFilter {
     deviceNameData: any;
     statNameData: any;
     errorMessage: any;
+    communitiesData: any;
+    allCommunitiesData: any[];
 
     constructor(private service: RESTService, private router: Router, private route: ActivatedRoute, private widgetService: WidgetService) { }
     ngOnInit() {
@@ -42,6 +45,7 @@ export class ConnectionsServerFilter {
             },
             (error) => this.errorMessage = <any>error
         );
+        
         this.service.get(`/services/stats_list_dropdown?type=${this.deviceType}&statType=${this.statType}`)
             .subscribe(
             (response) => {
@@ -65,20 +69,26 @@ export class ConnectionsServerFilter {
             var v2 = <HTMLDivElement>document.getElementById("dtStat");
             v2.style.display = "none";
         }
+        if (this.showCommunityControl == true) {
+            var v2 = <HTMLDivElement>document.getElementById("dtCommunity");
+            v2.style.display = "inline-block";
+
+            this.service.get(`/services/ibm_connections_community_list_dropdown`)
+                .subscribe(
+                    (response) => {
+                        this.allCommunitiesData = response.data;
+                    },
+                    (error) => this.errorMessage = <any>error
+                );
+        }
         //Set a selected value of the Status drop down box to the passed query parameter or -All- if no parameter is available
         //this.deviceStatus = paramstatus;
     }
-    applyFilters(multisel1: wijmo.input.MultiSelect, multisel2: wijmo.input.ComboBox) {
+    applyFilters(multisel1: wijmo.input.MultiSelect, multisel2: wijmo.input.ComboBox, multiSelectCommunity : wijmo.input.MultiSelect) {
      
         //var v = multisel1.checkedItems;
-        var selectedServers = "";
-        for (var item of multisel1.checkedItems) {
-            if (selectedServers == "") 
-                selectedServers = item.id;
-            else 
-                selectedServers += "," + item.id;
-        }
 
+        var selectedServers = multisel1.checkedItems.map(x => x.id).toString();
         var selectedStats = multisel2.selectedValue;
         //for (var item of multisel2.checkedItems) {
         //    if (selectedStats == "")
@@ -109,10 +119,13 @@ export class ConnectionsServerFilter {
         var newEndDate = new Date(this.endDate.getFullYear(), this.endDate.getMonth(), this.endDate.getDate());
 
         var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + selectedServers;
-        if (this.hideStatControl != true) {
+        if (this.hideDatePanel != true) {
             URL += `&startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString();
             if (selectedStats != "")
                 URL += "&statName=" + selectedStats;
+        }
+        if (this.showCommunityControl) {
+            URL += "&communityIds=" + multiSelectCommunity.checkedItems.map(x => x.id).toString();
         }
      
         //});
@@ -123,4 +136,16 @@ export class ConnectionsServerFilter {
 
     }
 
+
+    communitiesChanged(e) {
+        if (this.showCommunityControl) {
+            if (this.deviceNameData.find(x => x.name == "All" && x.selected == true)) {
+                var selectedData = this.deviceNameData.map(y => y.id);
+                this.communitiesData = this.allCommunitiesData.filter(x => selectedData.indexOf(x.device_id) >= 0 || x.device_id == "")
+            } else {
+                var selectedData = this.deviceNameData.filter(y => y.selected === true).map(y => y.id);
+                this.communitiesData = this.allCommunitiesData.filter(x => selectedData.indexOf(x.device_id) >= 0 || x.device_id == "")
+            }
+        }
+    }
 }

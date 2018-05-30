@@ -45,7 +45,7 @@ export class WindowsLogSettings implements OnInit {
                 "active": false
             },
             {
-                "title": "Exchnage Mail Probe",
+                "title": "Exchange Mail Probe",
                 "component": "ExchnageMailProbe",
                 "path": "/app/configurator/components/microsoftsettings/Exchange-mail-probe-scanning.component",
                 "active": false

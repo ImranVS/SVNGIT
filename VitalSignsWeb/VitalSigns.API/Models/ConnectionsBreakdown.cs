@@ -31,6 +31,9 @@ namespace VitalSigns.API.Models
         [JsonProperty("type")]
         public string Type { get; set; }
 
+        [JsonProperty("base_type")]
+        public string BaseType { get; set; }
+
         [JsonProperty("total")]
         public int Total { get; set; }
 

@@ -24,6 +24,8 @@ export class ConnectionsUserActivityMonthlyChartReport extends WidgetController 
     currentWidgetName: string = `connectionsUserActivityMonthlyChartReport`;
     currentWidgetURL: string = `/reports/connections/user_activity_monthly`;
     currentShowTopX: boolean = true;
+    currentShowCommunityControl: boolean = true;
+    currentShowServerControl: boolean = true;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
 

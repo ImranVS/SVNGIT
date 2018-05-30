@@ -58,6 +58,12 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("name")]
         public string Name { get; set; }
+
+        [JsonProperty("community_ids")]
+        public List<string> CommunityIds { get; set; }
+
+        [JsonProperty("device_id")]
+        public string DeviceId { get; set; }
     }
 
     public class CommunityUserList

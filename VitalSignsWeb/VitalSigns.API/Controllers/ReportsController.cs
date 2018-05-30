@@ -1534,7 +1534,7 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("connections/user_activity")]
-        public APIResponse ConnectionsUserActivity(string deviceId = "", bool isChart = false, int topX = 0)
+        public APIResponse ConnectionsUserActivity(string deviceId = "", bool isChart = false, int topX = 0, string communityIds = "")
         {
             List<UserAdoptionPivot> result = new List<UserAdoptionPivot>();
             List<UserActivityBubble> resultchart = new List<UserActivityBubble>();
@@ -1560,10 +1560,12 @@ namespace VitalSigns.API.Controllers
                     lastXDays = DateTime.Now.AddYears(-5);
 
                 connectionsObjectsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
-
+                if (deviceId != null && deviceId.Split(',').Contains("")) deviceId = "";
+                if (communityIds != null && communityIds.Split(',').Contains("")) communityIds = "";
                 //Iterate through the list of users and collect information about each user's activity level for each of the object types above
                 if (!string.IsNullOrEmpty(deviceId))
                 {
+                    listOfDevices = deviceId.Split(',').ToList();
                     filterDef = connectionsObjectsRepository.Filter.Eq(i => i.Type, "Users") & connectionsObjectsRepository.Filter.In(x => x.DeviceId, listOfDevices);
                 }
                 else
@@ -1581,6 +1583,14 @@ namespace VitalSigns.API.Controllers
                     filterDef = filterDef & connectionsObjectsRepository.Filter.In(x => x.DeviceId, listOfDevices);
                 }
 
+                if (!string.IsNullOrWhiteSpace(communityIds))
+                {
+                    List<IbmConnectionsObjects> communities = connectionsObjectsRepository.Find(filterDef & connectionsObjectsRepository.Filter.In(x => x.Id, communityIds.Split(',').ToList())).ToList();
+                    List<String> communityChildrenIds = communities.Where(x => x.Children != null).SelectMany(x => x.Children.Where(y => y.Ids != null).SelectMany(y => y.Ids)).ToList();
+                    filterDef = filterDef & connectionsObjectsRepository.Filter.In(x => x.Id, communityIds.Split(',').ToList().Concat(communityChildrenIds)); 
+                }
+                
+                
                 var res = connectionsObjectsRepository.Collection.Aggregate()
                     .Match(filterDef)
                     .Group(
@@ -1783,7 +1793,7 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("connections/user_activity_monthly")]
-        public APIResponse ConnectionsUserActivityMonthly(string userNames = "", string topX = "25")
+        public APIResponse ConnectionsUserActivityMonthly(string userNames = "", string topX = "25", string deviceIds="", string communityIds = "")
         {
             List<UserAdoptionPivot> result = new List<UserAdoptionPivot>();
             List<UserActivityBubble> resultchart = new List<UserActivityBubble>();
@@ -1794,7 +1804,6 @@ namespace VitalSigns.API.Controllers
             List<string> userList = new List<string>();
             List<string> objectList = new List<string>();
             List<string> users = new List<string>();
-            List<string> listOfUserNames = new List<string>();
             List<IbmConnectionsObjects> listOfUsers = new List<IbmConnectionsObjects>();
             DateTime lastXDays = new DateTime();
             UserAdoptionPivot ua = new UserAdoptionPivot();
@@ -1808,28 +1817,47 @@ namespace VitalSigns.API.Controllers
                 UtilsController uc = new UtilsController();
                 if (uc.isRPRWyattMachine())
                     lastXDays = DateTime.Now.AddYears(-5);
+                if (deviceIds != null && deviceIds.Split(',').Contains("")) deviceIds = "";
+                if (communityIds != null && communityIds.Split(',').Contains("")) communityIds = "";
+
                 //Find all communities
                 connectionsObjectsRepository = new Repository<IbmConnectionsObjects>(ConnectionString);
                 var listOfCommunity = connectionsObjectsRepository.Find(i => i.Type == "Community").ToList();
 
                 //Iterate through the list of users and collect information about each user's activity level for each of the object types above
+                filterDef = connectionsObjectsRepository.Filter.Eq(i => i.Type, "Users");
                 if (!string.IsNullOrWhiteSpace(userNames))
                 {
                     users = userNames.Replace("[", "").Replace("]", "").Split(',').ToList();
-                    filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.Eq(i => i.Type, "Users"),
-                        connectionsObjectsRepository.Filter.In(i => i.Name, users));
-                    listOfUsers = connectionsObjectsRepository.Find(filterDef).ToList();
-                    listOfUserNames = users;
-                }
-                else
-                {
-                    filterDef = connectionsObjectsRepository.Filter.Eq(i => i.Type, "Users");
-                    listOfUsers = connectionsObjectsRepository.Find(filterDef).ToList();
-                    listOfUserNames = connectionsObjectsRepository.Collection.Distinct(i => i.Name, filterDef).ToList();
+                    filterDef = filterDef & connectionsObjectsRepository.Filter.In(i => i.Name, users);
                 }
 
-                filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.In(i => i.OwnerId, listOfUsers.Select(x => x.Id)),
-                        connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays));
+                if (!string.IsNullOrEmpty(deviceIds))
+                {
+                    filterDef = filterDef & connectionsObjectsRepository.Filter.In(x => x.DeviceId, deviceIds.Split(','));
+                }
+
+                listOfUsers = connectionsObjectsRepository.Find(filterDef).ToList();
+
+
+                filterDef = connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays) & connectionsObjectsRepository.Filter.Exists(x => x.OwnerId);
+
+                if(!string.IsNullOrWhiteSpace(userNames))
+                {
+                    filterDef = filterDef & connectionsObjectsRepository.Filter.In(i => i.OwnerId, listOfUsers.Select(x => x.Id));
+                }
+
+                if (!string.IsNullOrEmpty(deviceIds))
+                {
+                    filterDef = filterDef & connectionsObjectsRepository.Filter.In(x => x.DeviceId, deviceIds.Split(','));
+                }
+
+                if (!string.IsNullOrWhiteSpace(communityIds))
+                {
+                    List<IbmConnectionsObjects> communities = connectionsObjectsRepository.Find(filterDef & connectionsObjectsRepository.Filter.In(x => x.Id, communityIds.Split(',').ToList())).ToList();
+                    List<String> communityChildrenIds = communities.Where(x => x.Children != null).SelectMany(x => x.Children.Where(y => y.Ids != null).SelectMany(y => y.Ids)).ToList();
+                    filterDef = filterDef & connectionsObjectsRepository.Filter.In(x => x.Id, communityIds.Split(',').ToList().Concat(communityChildrenIds));
+                }
 
                 var res = connectionsObjectsRepository.Find(filterDef)
                         .GroupBy(row => new
@@ -1845,9 +1873,9 @@ namespace VitalSigns.API.Controllers
                             ObjectName = x.Key.Type,
                             ObjectValue = x.Count(),
                             ObjectCreatedDate = new DateTime(x.Key.Year, x.Key.Month, 1),
-                            UserName = listOfUsers.Find(y => y.Id == x.Key.OwnerId).Name
+                            UserName = listOfUsers.Exists(y => y.Id == x.Key.OwnerId) ? listOfUsers.Find(y => y.Id == x.Key.OwnerId).Name : null
                         }).ToList();
-                objectTypes = res.Select(x => x.ObjectName).Distinct().ToList();
+                objectTypes = res.Where(x => x.UserName != null).Select(x => x.ObjectName).Distinct().ToList();
                 foreach(var curr in res)
                 {
 
@@ -1879,8 +1907,8 @@ namespace VitalSigns.API.Controllers
                     }
                 }
                 
-                DateTime dtFrom = result.Where(x => x.ObjectCreatedDate >= lastXDays).Min(x => x.ObjectCreatedDate);
-                DateTime dtTo = result.Max(x => x.ObjectCreatedDate);
+                DateTime dtFrom = result.Exists(x => x.ObjectCreatedDate >= lastXDays) ? result.Where(x => x.ObjectCreatedDate >= lastXDays).Min(x => x.ObjectCreatedDate) : lastXDays;
+                DateTime dtTo = result.Count != 0 ? result.Max(x => x.ObjectCreatedDate) : DateTime.Now;
                 dtFrom = new DateTime(dtFrom.Year, dtFrom.Month, 1);
                 dtTo = new DateTime(dtTo.Year, dtTo.Month, 1);
                 for (DateTime currDt = dtFrom; currDt <= dtTo; currDt = currDt.AddMonths(1))
@@ -2260,7 +2288,7 @@ namespace VitalSigns.API.Controllers
 
 
         [HttpGet("connections/executive_overview")]
-        public APIResponse ConnectionsExecutiveOverview(string date = "")
+        public APIResponse ConnectionsExecutiveOverview(string date = "", string communityIds = "", string deviceId = "", string startDate = "", string endDate="")
         {
             try
             {
@@ -2269,11 +2297,48 @@ namespace VitalSigns.API.Controllers
                 serverRepository = new Repository<Server>(ConnectionString);
                 summaryRepository = new Repository<SummaryStatistics>(ConnectionString);
 
+                Dictionary<string, string> typeToBase = new Dictionary<string, string>() {
+                    { "Activity", "Activity" },
+                    {"Community Activity", "Activity" },
+                    { "Blog", "Blog" },
+                    { "Community Blog", "Blog" },
+                    { "Blog Entry", "Entry" },
+                    { "Community Blog Entry", "Entry" },
+                    { "Bookmark", "Bookmark" },
+                    { "Community Bookmark", "Bookmark" },
+                    { "Community", "Community" },
+                    { "Forum", "Forum" },
+                    { "Community Forum", "Forum" },
+                    { "Forum Topic", "Forum" },
+                    { "Community Forum Topic", "Forum" },
+                    { "Wiki", "Wiki" },
+                    { "Wiki Entry", "Wiki" },
+                    { "Community Wiki", "Wiki" },
+                    { "Community Wiki Entry", "Wiki" },
+                    { "Users", "Users" },
+                };
+
                 if (date == "")
                     date = DateTime.UtcNow.AddDays(-7).ToString(DateFormat);
 
                 DateTime dtStart = DateTime.ParseExact(date, DateFormat, CultureInfo.InvariantCulture).ToUniversalTime();
                 DateTime dtEnd = dtStart.AddDays(7);
+
+                if (!string.IsNullOrWhiteSpace(startDate))
+                {
+                    dtStart = DateTime.ParseExact(startDate, DateFormat, CultureInfo.InvariantCulture).ToUniversalTime();
+                    if (!string.IsNullOrWhiteSpace(endDate))
+                    {
+                        dtEnd = DateTime.ParseExact(endDate, DateFormat, CultureInfo.InvariantCulture).ToUniversalTime();
+                    }
+                    else
+                    {
+                        dtEnd = dtStart.AddDays(7);
+                    }
+                }
+
+                if (deviceId != null && deviceId.Split(',').Contains("")) deviceId = "";
+                if (communityIds != null && communityIds.Split(',').Contains("")) communityIds = "";
 
                 //group aggregation string since cannot use expressions
                 //groups on type nad device_name, aggregates the total count, if it has a parent (in a community), new objects in a community and new objects not in a community
@@ -2312,8 +2377,8 @@ namespace VitalSigns.API.Controllers
              } } }");
 
                 //creates a filter def
-                var types = new List<string>() { "Community", "Blog", "Wiki", "Forum", "Activity" };
-                var filterDef = connectionsObjectsRepository.Filter.In(x => x.Type, types) & connectionsObjectsRepository.Filter.Lte(x => x.ObjectCreatedDate, dtEnd);
+                var excludeTypes = new List<string>() { "User" };
+                var filterDef = connectionsObjectsRepository.Filter.Nin(x => x.Type, excludeTypes) & connectionsObjectsRepository.Filter.Lte(x => x.ObjectCreatedDate, dtEnd);
                 
                 //excludes the user ID which VS uses to test simulation tests
                 try
@@ -2337,6 +2402,18 @@ namespace VitalSigns.API.Controllers
                 }
                 catch (Exception) { }
 
+                if (!string.IsNullOrEmpty(deviceId))
+                {
+                    filterDef = filterDef & connectionsObjectsRepository.Filter.In(x => x.DeviceId, deviceId.Split(','));
+                }
+
+                if (!string.IsNullOrWhiteSpace(communityIds))
+                {
+                    List<IbmConnectionsObjects> communities = connectionsObjectsRepository.Find(filterDef & connectionsObjectsRepository.Filter.In(x => x.Id, communityIds.Split(',').ToList())).ToList();
+                    List<String> communityChildrenIds = communities.Where(x => x.Children != null).SelectMany(x => x.Children.Where(y => y.Ids != null).SelectMany(y => y.Ids)).ToList();
+                    filterDef = filterDef & connectionsObjectsRepository.Filter.In(x => x.Id, communityIds.Split(',').ToList().Concat(communityChildrenIds));
+                }
+
                 //does the call to mongo and outputs the data into usable objects from BSONDocuments
                 var resultsFromMongo = connectionsObjectsRepository.Collection.Aggregate()
                     .Match(filterDef)
@@ -2352,12 +2429,14 @@ namespace VitalSigns.API.Controllers
                         CountNewNotInCommunity = x["new_objects_not_in_community"].AsInt32
                     }).ToList();
 
-                List<SummaryStatistics> summaryStats = summaryRepository.Find(
+                List<SummaryStatistics> summaryStats = new List<SummaryStatistics>();
+                if (String.IsNullOrWhiteSpace(communityIds)) {
+                    summaryStats = summaryRepository.Find(
                     summaryRepository.Filter.Eq(x => x.StatName, "NUM_OF_PROFILES_LOGIN_PAST_WEEK") &
                     summaryRepository.Filter.Gte(x => x.StatDate, dtEnd.AddDays(-1)) &
                     summaryRepository.Filter.Lte(x => x.StatDate, dtEnd)
                     ).ToList();
-
+                }
                 //loops through the results and creates a return reponse
                 List<ConnectionsBreakdown> results = new List<ConnectionsBreakdown>();
                 foreach(string deviceName in resultsFromMongo.Select(x => x.DeviceName).Distinct())
@@ -2370,7 +2449,7 @@ namespace VitalSigns.API.Controllers
                     result.EndDate = dtEnd;
                     result.Types = new List<ConnectionsBreakdownType>();
                     result.NumOfLogins = summaryStats.Exists(x => x.DeviceName == deviceName) ? summaryStats.Find(x => x.DeviceName == deviceName).StatValue.ToString() : "UNKNOWN";
-                    foreach(string type in types)
+                    foreach(string type in resultsFromMongo.Select(x => x.Type).Distinct().OrderBy(x => x))
                     {
                         var currTypeFromMongoList = resultsFromMongo.Where(x => x.DeviceName == deviceName && x.Type == type).ToList();
                         if (currTypeFromMongoList.Count() == 0)
@@ -2427,6 +2506,9 @@ namespace VitalSigns.API.Controllers
 
                     results.Insert(0, totalBreakdown);
                 }
+
+
+                results.ForEach(x => x.Types.ForEach(y => y.BaseType = typeToBase.Keys.Contains(y.Type) ? typeToBase[y.Type] : y.Type));
 
                 Response = Common.CreateResponse(results);
                 return Response;

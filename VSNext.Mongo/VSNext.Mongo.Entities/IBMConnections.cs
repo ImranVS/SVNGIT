@@ -137,6 +137,12 @@ namespace VSNext.Mongo.Entities
         public string ParentDB2Guid { get; set; }
 
         [DataMember]
+        [BsonElement("community_id")]
+        [BsonIgnoreIfNull]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string CommunityId { get; set; }
+
+        [DataMember]
         [BsonElement("children")]
         [BsonIgnoreIfNull]
         public List<IbmConnectionChildren> Children { get; set; }
@@ -184,6 +190,14 @@ namespace VSNext.Mongo.Entities
         [BsonElement("count")]
         [BsonIgnoreIfNullAttribute]
         public int? Count { get; set; }
+
+        [DataMember]
+        [BsonElement("ids")]
+        [BsonIgnoreIfNullAttribute]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public List<String> Ids { get; set; }
+
+
 
     }
 

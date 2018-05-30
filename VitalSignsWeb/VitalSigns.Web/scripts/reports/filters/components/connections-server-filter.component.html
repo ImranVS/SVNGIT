@@ -37,9 +37,21 @@
                                                                           displayMemberPath="name" selectedValuePath="id"
                                                                           [headerFormat]="'{count} Servers selected'"
                                                                           [checkedMemberPath]="'selected'"
+                                                                          (checkedItemsChanged)="communitiesChanged($event)"
                                                                           [(ngModel)]="selectedServers" style="width:150px;">
                 </wj-multi-select>
             </div>
+        <div id="dtCommunity" style="display:none">
+            <span class="headerBlock">Communities:</span><wj-multi-select #multiSelectCommunity
+                                                                      [placeholder]="'Select Communities'"
+                                                                      class="multiselect"
+                                                                      [itemsSource]="communitiesData"
+                                                                      displayMemberPath="name" selectedValuePath="id"
+                                                                      [headerFormat]="'{count} Communites Selected'"
+                                                                      [checkedMemberPath]="'selected'"
+                                                                      style="width:150px;">
+            </wj-multi-select>
+        </div>
             <div id="dtStat" style="display:inline-block">
                 <span class="headerBlock">Select Stat:</span>
                 <wj-combo-box name="statList" [itemsSource]="statNameData" #multisel2 style="width:310px;"
@@ -56,7 +68,7 @@
             </wj-multi-select>-->
             </div>
             <div id="dtFilter" style="display:inline-block">
-                <button class="btn btn-success" (click)="applyFilters(multisel1,multisel2)">Filter</button>
+                <button class="btn btn-success" (click)="applyFilters(multisel1,multisel2, multiSelectCommunity)">Filter</button>
             </div>
     </div>
 </div>

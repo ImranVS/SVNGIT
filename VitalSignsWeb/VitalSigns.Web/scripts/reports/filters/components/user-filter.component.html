@@ -1,5 +1,30 @@
 ﻿<div class="widgetWrapper noprint">
     <div class="widgetContent">
+        <div id="dtServer" [ngStyle]="{'display': showServerControl ? 'inline-block' : 'none'}">
+            <span class="headerBlock">Servers:</span><wj-multi-select #multiSelectServer
+                                                                      [placeholder]="'Select Servers'"
+                                                                      class="multiselect"
+                                                                      [itemsSource]="deviceNameData"
+                                                                      displayMemberPath="name" selectedValuePath="id"
+                                                                      [headerFormat]="'{count} Servers selected'"
+                                                                      [checkedMemberPath]="'selected'"
+                                                                      (checkedItemsChanged)="serversChanged($event)"
+                                                                      [(ngModel)]="selectedServers" style="width:150px;">
+            </wj-multi-select>
+        </div>
+        <div id="dtCommunity" [ngStyle]="{'display': showCommunityControl ? 'inline-block' : 'none'}">
+            <span class="headerBlock">Communities:</span><wj-multi-select #multiSelectCommunity
+                                                                          [placeholder]="'Select Communities'"
+                                                                          class="multiselect"
+                                                                          [itemsSource]="communitiesData"
+                                                                          displayMemberPath="name" selectedValuePath="id"
+                                                                          [headerFormat]="'{count} Communites Selected'"
+                                                                          [checkedMemberPath]="'selected'"
+                                                                          (checkedItemsChanged)="communitiesChanged($event)"
+                                                                          style="width:150px;">
+            </wj-multi-select>
+        </div>
+
         <div id="users" style="display:inline-block">
             <span class="headerBlock">Users:</span> <wj-multi-select #multisel1
                 [placeholder]="'Select Users'"
@@ -20,7 +45,7 @@
                 </wj-combo-box>
                 </div>
         <div id="dtFilter" style="display:inline-block">
-            <button class="btn btn-success" (click)="applyFilters(multisel1)">Filter</button>
+            <button class="btn btn-success" (click)="applyFilters(multisel1, multiSelectServer, multiSelectCommunity)">Filter</button>
         </div>
     </div>
 </div>

@@ -14,23 +14,52 @@ export class UserFilter {
     @Input() widgetName: string;
     @Input() widgetURL: string;
     @Input() showTopX: boolean = false;
+    @Input() showServerControl: boolean = false;
+    @Input() showCommunityControl: boolean = false;
+    @Input() showDateRangeControl: boolean = false;
+
+    deviceType = "IBM Connections"
     errorMessage: any;
-    userData: any;
-    topXData = ["10", "25", "50", "100", "All"]
+    topXData = ["1", "3", "5", "10", "25", "50", "100", "All"]
     selectedTopX = "25"
+
+    allCommunitiesData: any[];
+    communitiesData: any[];
+    allUserData: any[];
+    userData: any[];
+    deviceNameData: any[];
 
     constructor(private service: RESTService, private router: Router, private route: ActivatedRoute, private widgetService: WidgetService) { }
     ngOnInit() {
-        this.service.get(`/dashboard/connections/users`)
-            .subscribe(
-            (response) => {
-                this.userData = response.data;
-            },
-            (error) => this.errorMessage = <any>error
-            ); 
+        if (this.showCommunityControl)
+            this.service.get(`/services/ibm_connections_community_list_dropdown?users=true`)
+                .subscribe(
+                    (response) => {
+                        this.allCommunitiesData = response.data;
+                    },
+                    (error) => this.errorMessage = <any>error
+            );
+
+        if (this.showServerControl)
+            this.service.get(`/services/server_list_dropdown?type=${this.deviceType}`)
+                .subscribe(
+                    (response) => {
+                        this.deviceNameData = response.data.deviceNameData;
+                    },
+                    (error) => this.errorMessage = <any>error
+                );
+        
+            this.service.get(`/dashboard/connections/users?server=true`)
+                .subscribe(
+                    (response) => {
+                        this.allUserData = response.data;
+                        this.userData = response.data;
+                    },
+                    (error) => this.errorMessage = <any>error
+                );
     }
 
-    applyFilters(multisel1: wijmo.input.MultiSelect) {
+    applyFilters(multisel1: wijmo.input.MultiSelect, multiSelectServer: wijmo.input.MultiSelect, multiSelectCommunity: wijmo.input.MultiSelect) {
         var selectedUsers = "";
         for (var item of multisel1.checkedItems) {
             if (selectedUsers == "") 
@@ -41,9 +70,68 @@ export class UserFilter {
         var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `userNames=` + selectedUsers;
         if (this.showTopX)
             URL = URL += "&topX=" + this.selectedTopX;
+        if (this.showCommunityControl)
+            URL += "&communityIds=" + multiSelectCommunity.checkedItems.map(x => x.id).toString();
+        if (this.showServerControl)
+            URL += "&deviceIds=" + multiSelectServer.checkedItems.map(x => x.id).toString();
         this.widgetService.refreshWidget(this.widgetName, URL )
             .catch(error => console.log(error));
 
+    }
+
+    serversChanged(e) {
+        if (this.showCommunityControl) {
+            if (this.deviceNameData.find(x => x.name == "All" && x.selected == true)) {
+                var selectedData = this.deviceNameData.map(y => y.id);
+                this.communitiesData = this.allCommunitiesData.filter(x => selectedData.indexOf(x.device_id) >= 0 || x.device_id == "")
+            } else {
+                var selectedData = this.deviceNameData.filter(y => y.selected === true).map(y => y.id);
+                this.communitiesData = this.allCommunitiesData.filter(x => selectedData.indexOf(x.device_id) >= 0 || x.device_id == "")
+            }
+        } 
+
+        this.updateUsers();
+        
+    }
+
+    communitiesChanged(e) {
+        if (this.showCommunityControl) {
+            if (this.deviceNameData.find(x => x.name == "All" && x.selected == true)) {
+                var selectedData = this.deviceNameData.map(y => y.id);
+                this.communitiesData = this.allCommunitiesData.filter(x => selectedData.indexOf(x.device_id) >= 0 || x.device_id == "")
+            } else {
+                var selectedData = this.deviceNameData.filter(y => y.selected === true).map(y => y.id);
+                this.communitiesData = this.allCommunitiesData.filter(x => selectedData.indexOf(x.device_id) >= 0 || x.device_id == "")
+            }
+        }
+        this.updateUsers();
+    }
+
+    updateUsers() {
+        var tempData: any[];
+        if (this.showServerControl) {
+            if (this.deviceNameData.find(x => x.name == "All" && x.selected == true) || this.deviceNameData.find(x => x.selected == true) == null) {
+                var selectedData = this.deviceNameData.map(y => y.id);
+                tempData = this.allUserData.filter(x => selectedData.indexOf(x.device_id) >= 0 || x.device_id == "")
+            } else {
+                var selectedData = this.deviceNameData.filter(y => y.selected === true).map(y => y.id);
+                tempData = this.allUserData.filter(x => selectedData.indexOf(x.device_id) >= 0 || x.device_id == "")
+            }
+        } else {
+            tempData = this.allUserData;
+        }
+        if (this.showCommunityControl) {
+            if (this.communitiesData.find(x => x.name == "All" && x.selected == true) || this.communitiesData.find(x => x.selected == true) == null) {
+                var selectedData = this.communitiesData.map(y => y.id);
+                tempData = tempData.filter(x => x.community_ids && x.community_ids.some(y => selectedData.indexOf(y) >= 0) || x.device_id == "")
+            } else {
+                var selectedData = this.communitiesData.filter(y => y.selected === true).map(y => y.id);
+                tempData = tempData.filter(x => x.community_ids && x.community_ids.some(y => selectedData.indexOf(y) >= 0) || x.device_id == "")
+            }
+        } else {
+            tempData = tempData;
+        }
+        this.userData = tempData;
     }
 
 }

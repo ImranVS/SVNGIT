@@ -9868,10 +9868,11 @@ CleanUp:
                             End If
 
                             If childrenList.Where(Function(x) x.Type = entity.Type).Count = 0 Then
-                                childrenList.Add(New VSNext.Mongo.Entities.IbmConnectionChildren() With {.Count = 0, .Type = entity.Type})
+                                childrenList.Add(New VSNext.Mongo.Entities.IbmConnectionChildren() With {.Count = 0, .Type = entity.Type, .Ids = New List(Of String)})
                             End If
 
                             childrenList.Find(Function(x) x.Type = entity.Type).Count += 1
+                            childrenList.Find(Function(x) x.Type = entity.Type).Ids.Add(entity.Id)
 
                             parentEntity.Children = childrenList
                             currEntity = parentEntity
@@ -9886,10 +9887,20 @@ CleanUp:
                 End Try
             Next
 
+            For Each entity As VSNext.Mongo.Entities.IbmConnectionsObjectsTemp In entities.Where(Function(x) x.Type = "Community")
+                Try
+                    For Each childEntity In entities.Where(Function(x) x.ParentGUID = x.Id)
+
+                    Next
+                Catch ex As Exception
+
+                End Try
+            Next
+
             repository.Replace(entities)
 
-        Catch ex As Exception
-            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error in ConsolidateConnectionObjects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                Catch ex As Exception
+                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Error in ConsolidateConnectionObjects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
         End Try
 
     End Sub

@@ -20,12 +20,16 @@ export class ConnectionsExecutiveOverviewReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
 
-    currentHideServerControl: boolean = true;
+    currentShowCommunityControl: boolean = true;
+    currentShowServerControl: boolean = true;
     currentHideDatePanel: boolean = true;
     currentShowSingleDatePanel: boolean = true;
-    currentDeviceType: string = "IBM Connections";
     currentWidgetName: string = `connectionsExecutiveOverviewList`;
     currentWidgetURL: string = `/reports/connections/executive_overview`;
+    currentShowDateRangeControl: boolean = true;
+    currentHideUserControl: boolean = true;
+    currentDeviceType = "IBM Connections"
+    currentHideStatControl: boolean = true;
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService) {
 

@@ -1,10 +1,16 @@
 ﻿
 <div *ngIf="data">
     <h1 >Executive Summary</h1>
-    <h3 style="position: relative; top: -40px;">Week of {{data[0].start_date|date:'MM/dd/yyyy'}}</h3>
+    <h3 style="position: relative; top: -40px;">{{data[0].start_date|date:'MM/dd/yyyy'}} - {{data[0].end_date|date:'MM/dd/yyyy'}}</h3>
     <div *ngFor="let curr of data">
-        <h2><b>{{curr.device_name}}</b></h2>
-        <p *ngFor="let currType of curr.types">{{currType.type}} = {{currType.total}}, {{currType.new_count}} new in the past week</p>
-        <p *ngIf="curr.num_of_logins">There were {{curr.num_of_logins}} users who logged in during the week</p>
+        <h2 style="color:#337ab7;"><b>{{curr.device_name}}</b></h2>
+        <div *ngFor="let currBaseType of curr.base_types">
+            <p style="color:#658ac6;"><b>{{currBaseType.base_type}}</b></p>
+            <p *ngFor="let currType of currBaseType.types">{{currType.type}} = {{currType.total}}, {{currType.new_count}} new in the past week</p>
+        </div>
+        <div *ngIf="curr.num_of_logins">
+            <p style="color:#337ab7;"><b>Users</b></p>
+            <p>There were {{curr.num_of_logins}} users who logged in during the week</p>
+        </div>
     </div>
 </div>

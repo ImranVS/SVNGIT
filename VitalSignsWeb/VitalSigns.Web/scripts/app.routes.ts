@@ -521,7 +521,7 @@ const appRoutes: Routes = [
                         component: ServerAvailabilityIndexReport
                     },
                     {
-                        path: 'community',
+                        path: 'communityusers',
                         component: CommunityUsersReport
                     },
                     {
