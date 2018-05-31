@@ -49,7 +49,7 @@ export class ExchangeMailProbeGrid implements WidgetComponent, OnInit {
 
     itemsSourceChangedHandler() {
         console.log(1)
-        this.flex.autoSizeColumn(0, true);
+        this.flex.autoSizeColumn(0, true,100);
        console.log(2)
     }
     
