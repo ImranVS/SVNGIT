@@ -1604,7 +1604,7 @@ namespace VitalSigns.API.Controllers
                         ObjectValue = x.Count,
                         UserName = listOfUsers.Find(y => y.Id == x.Key.OwnerId).Name
                     }).ToList();
-                objectTypes = res.Select(x => x.ObjectName).Distinct().ToList();
+                objectTypes = res.Select(x => x.ObjectName).Distinct().OrderByDescending(x => x).ToList();
                 if (!isChart)
                 {
                     foreach (var curr in res)
@@ -1648,7 +1648,7 @@ namespace VitalSigns.API.Controllers
                         {
                             var currResult = new UserActivityBubble()
                             {
-                                Y = ycoord,
+                                Y = objectTypes.IndexOf(curr.ObjectName),
                                 X = xcoord,
                                 Z = curr.Count,
                                 Name = user,
@@ -1874,7 +1874,7 @@ namespace VitalSigns.API.Controllers
                             ObjectValue = x.Count(),
                             ObjectCreatedDate = new DateTime(x.Key.Year, x.Key.Month, 1),
                             UserName = listOfUsers.Exists(y => y.Id == x.Key.OwnerId) ? listOfUsers.Find(y => y.Id == x.Key.OwnerId).Name : null
-                        }).ToList();
+                        }).Where(x => x.UserName != null).ToList();
                 objectTypes = res.Where(x => x.UserName != null).Select(x => x.ObjectName).Distinct().ToList();
                 foreach(var curr in res)
                 {

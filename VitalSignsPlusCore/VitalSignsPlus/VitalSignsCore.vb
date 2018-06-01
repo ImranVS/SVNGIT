@@ -9180,15 +9180,26 @@ CleanUp:
                         Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp)(connectionString)
                         Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp))()
 
+                        Dim allUsers As List(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp) = repo.Find(
+                            repo.Filter.Eq(Function(x) x.Type, "Users") And
+                            repo.Filter.Eq(Function(x) x.DeviceName, myServer.Name)
+                        ).ToList()
+
                         For Each row As DataRow In ds.Tables(0).Rows()
                             Try
+                                Dim ownerId As String = Nothing
+                                Try
+                                    ownerId = allUsers.Where(Function(x) x.GUID = row("MEMBER_ID").ToString()).First().Id
+                                Catch ex As Exception
+
+                                End Try
 
                                 Dim IbmConnectionsObjectsTemp As New VSNext.Mongo.Entities.IbmConnectionsObjectsTemp
                                 IbmConnectionsObjectsTemp.Name = row("TITLE").ToString()
                                 IbmConnectionsObjectsTemp.DeviceName = myServer.Name
                                 IbmConnectionsObjectsTemp.DeviceId = myServer.ServerObjectID
                                 IbmConnectionsObjectsTemp.Type = "Bookmark"
-                                IbmConnectionsObjectsTemp.OwnerId = getObjectUser(myServer.Name, row("MEMBER_ID").ToString())
+                                IbmConnectionsObjectsTemp.OwnerId = ownerId
                                 IbmConnectionsObjectsTemp.ObjectCreatedDate = Convert.ToDateTime(row("DATE").ToString())
                                 IbmConnectionsObjectsTemp.ObjectModifiedDate = Convert.ToDateTime(row("MODIFIED").ToString())
                                 IbmConnectionsObjectsTemp.GUID = row("LINK_ID").ToString()
@@ -9428,6 +9439,11 @@ CleanUp:
                     Try
                         'Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp))()
                         Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp)(connectionString)
+                        Dim allUsers As List(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp) = repo.Find(
+                            repo.Filter.Eq(Function(x) x.Type, "Users") And
+                            repo.Filter.Eq(Function(x) x.DeviceName, myServer.Name)
+                        ).ToList()
+
                         For Each row As DataRow In ds.Tables(1).Rows()
                             Try
                                 Dim type As String = ""
@@ -9468,6 +9484,13 @@ CleanUp:
                                     parentObjectId = Nothing
                                 End Try
 
+                                Dim ownerId As String = Nothing
+                                Try
+                                    ownerId = allUsers.Where(Function(x) x.GUID = row("EXID").ToString()).First().Id
+                                Catch ex As Exception
+
+                                End Try
+
                                 'com.COMMUNITYUUID, node.NODEUUID, node.TOPICID, node.PARENTUUID, node.NODETYPE, node.NAME, users.EXID, node.LASTMOD
                                 Dim entity As New VSNext.Mongo.Entities.IbmConnectionsObjectsTemp() With {
                                     .Name = row("NAME").ToString(),
@@ -9475,7 +9498,7 @@ CleanUp:
                                     .ObjectModifiedDate = Convert.ToDateTime(row("LASTMOD").ToString()),
                                     .DeviceId = myServer.ServerObjectID,
                                     .DeviceName = myServer.Name,
-                                    .OwnerId = getObjectUser(myServer.Name, row("EXID").ToString()),
+                                    .OwnerId = ownerId,
                                     .GUID = row("NODEUUID").ToString(),
                                     .Type = type,
                                     .ParentGUID = parentObjectId,
