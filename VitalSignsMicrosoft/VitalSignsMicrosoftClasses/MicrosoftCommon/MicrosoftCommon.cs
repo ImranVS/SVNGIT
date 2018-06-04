@@ -655,7 +655,7 @@ namespace VitalSignsMicrosoftClasses
 		{
 			winThread.CurrentCulture = Thread.CurrentThread.CurrentCulture;
 			winThread.Start();
-			if (!winThread.Join(TimeSpan.FromSeconds(60)))
+			if (!winThread.Join(TimeSpan.FromSeconds(180)))
 			{
 				//If the thread takes longer than 60 seconds
 				Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, winThread.Name + " Thread is hung.  Will now abort the thread and continue.", commonEnums.ServerRoles.Windows, Common.LogLevel.Normal);
@@ -663,49 +663,56 @@ namespace VitalSignsMicrosoftClasses
 			}
 			
 		}
-		private void GetEventLog(PSCredential creds, MonitoredItems.MicrosoftServer myServer, TestResults AllTestsList, ReturnPowerShellObjects PSO)
+        private void GetEventLog(PSCredential creds, MonitoredItems.MicrosoftServer myServer, TestResults AllTestsList, ReturnPowerShellObjects PSO) 
 		{
-            Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "**************In GetEventLog AND EXITING **************", commonEnums.ServerRoles.Windows, Common.LogLevel.Normal);
-            return;
-            CommonDB DB = new CommonDB();
-			string sSQL = "select distinct AliasName,EventName,ELSM.EventId EventId,EventKey,EventLevel,Source,TaskCategory  from ELSDetail ELSD,Servers S,ELSMaster ELSM where S.ID=ELSD.ServerId and ELSD.ELSId=ELSM.ID and S.ServerName='" + myServer.Name + "'";
+            //Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "**************In GetEventLog AND EXITING **************", commonEnums.ServerRoles.Windows, Common.LogLevel.Normal);
+            //return;
+
+            MongoStatementsFind<VSNext.Mongo.Entities.WindowsEvents> findStatement = new MongoStatementsFind<VSNext.Mongo.Entities.WindowsEvents>();
+            findStatement.FilterDefinition = findStatement.repo.Filter.Exists(x => x.DeviceIds, true);
+            List<VSNext.Mongo.Entities.WindowsEvents> listOfEvents = findStatement.Execute().Where(x => x.DeviceIds.Contains(myServer.ServerObjectID)).ToList();
+   //         CommonDB DB = new CommonDB();
+			//string sSQL = "select distinct AliasName,EventName,ELSM.EventId EventId,EventKey,EventLevel,Source,TaskCategory  from ELSDetail ELSD,Servers S,ELSMaster ELSM where S.ID=ELSD.ServerId and ELSD.ELSId=ELSM.ID and S.ServerName='" + myServer.Name + "'";
             
-			DataTable dtServers = DB.GetData(sSQL.ToString());
+			//DataTable dtServers = DB.GetData(sSQL.ToString());
 			//Loop through servers
 			string logScript = "";
-			if (dtServers.Rows.Count > 0)
+			if (listOfEvents.Count > 0)
 			{
-				for (int i = 0; i < dtServers.Rows.Count; i++)
+                foreach (VSNext.Mongo.Entities.WindowsEvents entity in listOfEvents)
 				{
-					DataRow DR = dtServers.Rows[i];
-					logScript += Environment.NewLine;
-					logScript += "Get-EventLog -After (Get-Date).AddMinutes(-" + myServer.ScanInterval.ToString() + ")";
-					//logScript += "Get-EventLog -After (Get-Date).AddMinutes(-600)";
+                    foreach (VSNext.Mongo.Entities.WindowsEvents.EventKeyword currEvent in entity.EventKeywords)
+                    {
+                        //DataRow DR = dtServers.Rows[i];
+                        logScript += Environment.NewLine;
+                        logScript += "Get-EventLog -After (Get-Date).AddMinutes(-" + myServer.ScanInterval.ToString() + ")";
+                        //logScript += "Get-EventLog -After (Get-Date).AddMinutes(-600)";
 
-					if (DR["EventName"].ToString() != "")
-						logScript += " -LogName " + DR["EventName"].ToString();
-					if (DR["EventLevel"].ToString() != "")
-						logScript += " -EntryType " + DR["EventLevel"].ToString();
-					if (DR["EventKey"].ToString() != "")
-						logScript += " -Message " + "*" + DR["EventKey"].ToString() + "*";
-					if (DR["Source"].ToString() != "")
-						logScript += " -Source " + DR["Source"].ToString();
-					if (DR["EventId"].ToString() != "")
-						logScript += " -InstanceId " + DR["EventId"].ToString();
+                        if (currEvent.EventName.ToString() != "")
+                            logScript += " -LogName " + currEvent.EventName.ToString();
+                        if (currEvent.EventLevel.ToString() != "")
+                            logScript += " -EntryType " + currEvent.EventLevel.ToString();
+                        if (currEvent.Message.ToString() != "")
+                            logScript += " -Message " + "'*" + currEvent.Message.ToString() + "*'";
+                        if (currEvent.Source.ToString() != "")
+                            logScript += " -Source '" + currEvent.Source.ToString() + "'";
+                        if (currEvent.EventId.ToString() != "")
+                            logScript += " -InstanceId " + currEvent.EventId.ToString();
 
-					logScript += "| select  @{Name='AliasName';Expression={'" + DR["AliasName"].ToString() + "'}} ,  @{Name='LogName';Expression={'" + DR["EventName"].ToString() + "'}}, Index,TimeGenerated,EntryType,Source,InstanceId,Message";
-				}
+                        logScript += "| select  @{Name='AliasName';Expression={'" + currEvent.AliasName.ToString() + "'}} ,  @{Name='LogName';Expression={'" + currEvent.EventName.ToString() + "'}}, Index,TimeGenerated,EntryType,Source,InstanceId,Message";
+
+                    }
+}
 			}
 			Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "In GetEventLog.", commonEnums.ServerRoles.Windows, Common.LogLevel.Normal);
-			Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "In GetEventLog. logScript" + logScript, commonEnums.ServerRoles.Windows, Common.LogLevel.Normal);
-
 			try
 			{
-				GetWMIPowerShell(ref PSO, creds, myServer.IPAddress, logScript, false);
-				
 
-				Collection<PSObject> results = PSO.PS.Invoke();
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "GetComputerVersion output results: " + results.Count.ToString(), commonEnums.ServerRoles.Windows, Common.LogLevel.Normal);
+                GetWMIPowerShell(ref PSO, creds, myServer.IPAddress, logScript, false);
+
+
+                Collection<PSObject> results = PSO.PS.Invoke();
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "GetComputerVersion output results: " + results.Count.ToString(), commonEnums.ServerRoles.Windows, Common.LogLevel.Normal);
 
 				if (results.Count == 1 && results[0] == null)
 				{
@@ -713,29 +720,42 @@ namespace VitalSignsMicrosoftClasses
 				}
 				else
 				{
+                    List<VSNext.Mongo.Entities.WindowsEventsHistory> listOfResults = new List<VSNext.Mongo.Entities.WindowsEventsHistory>();
 					foreach (PSObject ps in results)
 					{
 						if (ps != null)
 						{
 							string indx = ps.Properties["Index"].Value.ToString();
-							string aliasName = ps.Properties["AliasName"].Value.ToString();
-							string LogName = ps.Properties["LogName"].Value.ToString();
-							string time = ps.Properties["TimeGenerated"].Value.ToString();
-							string entryType = ps.Properties["EntryType"].Value.ToString();
-							string source = ps.Properties["Source"].Value.ToString();
-							string instanceId = ps.Properties["InstanceId"].Value.ToString();
-							string msg = ps.Properties["Message"].Value.ToString();
-							msg = msg.Replace("'", "`");
+                            string aliasName = ps.Properties["AliasName"].Value.ToString();
+                            string LogName = ps.Properties["LogName"].Value.ToString();
+                            string time = ps.Properties["TimeGenerated"].Value.ToString();
+                            string entryType = ps.Properties["EntryType"].Value.ToString();
+                            string source = ps.Properties["Source"].Value.ToString();
+                            string instanceId = ps.Properties["InstanceId"].Value.ToString();
+                            string msg = ps.Properties["Message"].Value.ToString();
+                            msg = msg.Replace("'", "`");
 							if (msg.Length > 1999)
 								msg = msg.Substring(0, 1999);
-							string sql = "INSERT INTO EventHistory(AliasName,LogName,IndexNo,EventTime,EntryType,Source,InstanceId,MessageDetails,DeviceName,DeviceType,LastUpdated) values('" + aliasName + "','" + LogName +"',"+ indx + ",'" + time + "','" + entryType + "','" + source + "'," + instanceId + ",'" + msg + "','" + myServer.Name + "','" + myServer.ServerType + "',getdate())";
 
-							AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sql, DatabaseName = "VitalSigns" });
-
-						}
-						
-
+                            listOfResults.Add(new VSNext.Mongo.Entities.WindowsEventsHistory()
+                            {
+                                AliasName = aliasName,
+                                LogName = LogName,
+                                EventTime = DateTime.Parse(time),
+                                EntryType = entryType,
+                                Source = source,
+                                InstanceId = instanceId,
+                                Message = msg,
+                                DeviceId = myServer.ServerObjectID,
+                                DeviceName = myServer.Name
+                            });
+                            
+                            //string sql = "INSERT INTO EventHistory(AliasName,LogName,IndexNo,EventTime,EntryType,Source,InstanceId,MessageDetails,DeviceName,DeviceType,LastUpdated) values('" + aliasName + "','" + LogName +"',"+ indx + ",'" + time + "','" + entryType + "','" + source + "'," + instanceId + ",'" + msg + "','" + myServer.Name + "','" + myServer.ServerType + "',getdate())";
+                            //AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sql, DatabaseName = "VitalSigns" });
+                            Common.makeAlert(false, myServer, commonEnums.AlertType.Advertising_Test, ref AllTestsList, "The event for " + source + " - " + msg + " was detected at " + time, "Windows");
+                        }
 					}
+                    AllTestsList.MongoEntity.Add(new MongoStatementsInsert<VSNext.Mongo.Entities.WindowsEventsHistory>() { listOfEntities = listOfResults });
 				}
 
 			}

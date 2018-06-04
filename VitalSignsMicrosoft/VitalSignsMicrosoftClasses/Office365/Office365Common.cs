@@ -771,7 +771,14 @@ Clear-Variable 'results' -ErrorAction SilentlyContinue";
                     secondStartingChar = 'a';
                 }
 
+                try
+                {
+                    serverRepo.Update(serverRepo.Filter.Eq(x => x.Id, myServer.ServerObjectID), serverRepo.Updater.Set(x => x.MailboxStatisticsLastScanned, "aa"));
+                }
+                catch (Exception ex)
+                {
 
+                }
 				
 			}
 			catch (Exception ex)
@@ -782,14 +789,7 @@ Clear-Variable 'results' -ErrorAction SilentlyContinue";
 			}
             finally
             {
-                try
-                {
-                    serverRepo.Update(serverRepo.Filter.Eq(x => x.Id, myServer.ServerObjectID), serverRepo.Updater.Set(x => x.MailboxStatisticsLastScanned, "aa"));
-                }
-                catch (Exception ex)
-                {
-
-                }
+               
             }
 
 		}

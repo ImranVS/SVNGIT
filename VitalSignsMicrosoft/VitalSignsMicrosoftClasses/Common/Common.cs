@@ -2415,6 +2415,32 @@ namespace VitalSignsMicrosoftClasses
 
     }
 
+    public class MongoStatementsFind<T> : MongoStatementsWrapper<T> where T : IEntity
+    {
+        public FilterDefinition<T> FilterDefinition = null;
+
+        public List<T> Execute()
+        {
+            try
+            {
+                return repo.Find(FilterDefinition).ToList();
+                //return true;
+            }
+            catch (Exception ex)
+            {
+                //return false;
+                return new List<T>();
+            }
+
+        }
+
+        public override string ToString()
+        {
+            return base.ToString();
+            //return "Insert. Documents: " + String.Join("\n", listOfEntities.Select(x => x.ToBsonDocument().ToString()));
+        }
+    }
+
     public class MongoStatementsInsert<T> : MongoStatementsWrapper<T> where T : IEntity
     {
         public List<T> listOfEntities = new List<T>();

@@ -70,4 +70,69 @@ namespace VSNext.Mongo.Entities
             public String EventLevel { get; set; }
         }
     }
+
+
+    [DataContract]
+    [Serializable]
+    [CollectionName("windows_events_history")]
+    public class WindowsEventsHistory : Entity
+    {
+
+        [DataMember]
+        [BsonElement("alias_name")]
+        [BsonIgnoreIfNull]
+        public string AliasName { get; set; }
+
+        [DataMember]
+        [BsonElement("log_name")]
+        [BsonIgnoreIfNull]
+        public string LogName { get; set; }
+
+        [DataMember]
+        [BsonElement("index")]
+        [BsonIgnoreIfNull]
+        public string Index { get; set; }
+
+        [DataMember]
+        [BsonElement("event_time")]
+        [BsonIgnoreIfNull]
+        public DateTime? EventTime { get; set; }
+
+        [DataMember]
+        [BsonElement("entry_type")]
+        [BsonIgnoreIfNull]
+        public string EntryType { get; set; }
+
+        [DataMember]
+        [BsonElement("source")]
+        [BsonIgnoreIfNull]
+        public string Source { get; set; }
+
+        [DataMember]
+        [BsonElement("instance_id")]
+        [BsonIgnoreIfNull]
+        public string InstanceId { get; set; }
+
+        [DataMember]
+        [BsonElement("message")]
+        [BsonIgnoreIfNull]
+        public string Message { get; set; }
+
+        [DataMember]
+        [BsonElement("device_id")]
+        [BsonIgnoreIfNull]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string DeviceId { get; set; }
+
+        [DataMember]
+        [BsonElement("device_name")]
+        [BsonIgnoreIfNull]
+        public string DeviceName { get; set; }
+
+        [DataMember]
+        [BsonElement("windows_event_id")]
+        [BsonIgnoreIfNull]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string WindowsEventId { get; set; }
+    }
 }
