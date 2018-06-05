@@ -3389,7 +3389,7 @@ namespace VitalSigns.API.Controllers
                 if (results.Count() > 0 ) {
                     if (results.First().LatencyResults != null)
                     {
-                        foreach (var curr in results.First().LatencyResults)
+                        foreach (var curr in results.First().LatencyResults.OrderBy(x => x.SourceServer).ThenBy(x=>x.DestinationServer))
                         {
                             IDictionary<string, object> expandoObj = null;
                             if (!result.Exists(x => x.source_server == curr.SourceServer))
@@ -3405,7 +3405,7 @@ namespace VitalSigns.API.Controllers
                             expandoObj[curr.DestinationServer] = curr.Latency;
                         
                         }
-                        Response = Common.CreateResponse(new {latency_results = result,yellow_threshold =server.MailProbeYellowThreshold,red_threshold = server.MailProbeRedThreshold });
+                         Response = Common.CreateResponse(new {latency_results = result,yellow_threshold =server.MailProbeYellowThreshold,red_threshold = server.MailProbeRedThreshold });
                     }
                     else { throw new Exception("Unable to find Latency Servers data"); }
                 }
