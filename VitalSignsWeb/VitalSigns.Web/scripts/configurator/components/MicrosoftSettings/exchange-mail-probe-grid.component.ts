@@ -115,18 +115,19 @@ export class ExchangeMailProbeGrid implements WidgetComponent, OnInit {
             if (cell.textContent.trim().length > 0) {
                 const value = parseInt(cell.textContent);
                 //cell.style.fontclour = 'blue';
-                if (value > 0 && value <= this.yellowthreshold) {
-                    cell.style.color = 'black';
-                    cell.style.backgroundColor = 'green';
+                if (value >= 0 && value <= this.yellowthreshold) {
+                    cell.style.color = 'white';
+                    cell.style.backgroundColor = '#5CB85C';
                 }
                 else if (value > this.yellowthreshold && value <= this.redthreshold) {
                     cell.style.color = 'black';
                     cell.style.backgroundColor = 'yellow';
                 }
-                else {
+                else  {
                     cell.style.color = 'white';
                     cell.style.backgroundColor = 'red';
                 }
+                 
             } else {
                 cell.style.backgroundColor = 'gray';
             }
