@@ -378,7 +378,7 @@
   },
   {
     "server_type": "Exchange Mail Probe",
-      "icon": "/img/servers/MSExchangeMailProbe.svg",
+      "icon": "/img/servers/MSExchange.svg",
     "tabs": [
       {
         "tab_id": 1,
