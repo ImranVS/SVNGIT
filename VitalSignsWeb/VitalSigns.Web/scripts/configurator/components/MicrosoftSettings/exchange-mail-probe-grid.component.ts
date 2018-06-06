@@ -48,9 +48,7 @@ export class ExchangeMailProbeGrid implements WidgetComponent, OnInit {
     }
 
     itemsSourceChangedHandler() {
-        console.log(1)
-        this.flex.autoSizeColumn(0, true,100);
-       console.log(2)
+        this.flex.autoSizeColumn(0, true, 100);
     }
     
     getSourceServerobj(serverName, data) {
@@ -66,6 +64,7 @@ export class ExchangeMailProbeGrid implements WidgetComponent, OnInit {
             .subscribe(
             (data) => {
                 for (let rec of data.data.latency_results) {
+                    console.log(data.data.latency_results);
                     let sourceValue = rec["source_server"];
                     if (this.source_servers.indexOf(sourceValue) == -1) {
                         this.source_servers.push(rec["source_server"]);
@@ -82,22 +81,19 @@ export class ExchangeMailProbeGrid implements WidgetComponent, OnInit {
                     let obj = {};
                     let s_server_obj = this.getSourceServerobj(s_server, data.data.latency_results);
                     for (let d_server of destination_servers) {
-                        if (s_server_obj[d_server]) {
+                        let s = s_server_obj[d_server];
+                        s = (s === 0 ? s + '' : s);
+                        if (s) {
                             obj[d_server] = s_server_obj[d_server];
                         } else {
                             obj[d_server] = "";
                         }
-
-
                     }
     
                     grid_data.push(obj);
-                    
-
                 }
 
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(grid_data));
-                console.log("Here")
                 this.serviceId = this.data.currentItem.device_id;
                 this.yellowthreshold = data.data.yellow_threshold;
                 this.redthreshold = data.data.red_threshold;
