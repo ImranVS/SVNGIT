@@ -528,7 +528,26 @@ namespace VitalSignsDailyStats
                         myFile = myFile_loopVariable;
                         string dest = Path.Combine(appPath + "\\Log_Files\\backup\\", Path.GetFileName(myFile));
                         WriteAuditEntry(DateTime.Now.ToString() + " Moving " + myFile + " to " + dest);
-                        File.Move(myFile, dest);
+                        for (int i = 0; i < 10; i++)
+                        {
+                            try
+                            {
+                                File.Move(myFile, dest);
+                                break;
+                            }
+                            catch (Exception ex)
+                            {
+                                if (i == 9)
+                                {
+                                    WriteAuditEntry(DateTime.Now.ToString() + " Failed Moving " + myFile + " to " + dest + ". Exception: " + ex.Message);
+                                }
+                                else
+                                {
+                                    System.Threading.Thread.Sleep(1000);
+                                }
+                            }
+                        }
+                        
                         if (Array.IndexOf(LogFilesToBeRecreated, Path.GetFileName(myFile)) > -1)
                         {
                             File.Create(Path.GetFileName(myFile));
@@ -550,14 +569,50 @@ namespace VitalSignsDailyStats
                         string destFolder = appPath + "\\Log_Files\\backup\\" + Path.GetFileName(folder) + "";
                         if ((Directory.Exists(destFolder) == false))
                         {
-                            Directory.Move(folder, destFolder);
-                            Directory.CreateDirectory(destFolder);
+                            for (int i = 0; i < 10; i++)
+                            {
+                                try
+                                {
+                                    Directory.Move(folder, destFolder);
+                                    break;
+                                }
+                                catch (Exception ex)
+                                {
+                                    if (i == 9)
+                                    {
+                                        WriteAuditEntry(DateTime.Now.ToString() + " Failed Moving " + folder + " to " + destFolder + ". Exception: " + ex.Message);
+                                    }
+                                    else
+                                    {
+                                        System.Threading.Thread.Sleep(1000);
+                                    }
+                                }
+                            }
+                            
                         }
                         else
                         {
 
-                            Directory.Delete(destFolder);
-                            Directory.Move(folder, destFolder);
+                            for (int i = 0; i < 10; i++)
+                            {
+                                try
+                                {
+                                    Directory.Delete(destFolder);
+                                    Directory.Move(folder, destFolder);
+                                    break;
+                                }
+                                catch (Exception ex)
+                                {
+                                    if (i == 9)
+                                    {
+                                        WriteAuditEntry(DateTime.Now.ToString() + " Failed Moving " + folder + " to " + destFolder + ". Exception: " + ex.Message);
+                                    }
+                                    else
+                                    {
+                                        System.Threading.Thread.Sleep(1000);
+                                    }
+                                }
+                            }
                         }
 
                         WriteAuditEntry(DateTime.Now.ToString() + " Moving folder " + folder + " to " + destFolder);
