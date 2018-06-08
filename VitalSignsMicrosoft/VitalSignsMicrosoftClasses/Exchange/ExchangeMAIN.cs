@@ -442,42 +442,65 @@ namespace VitalSignsMicrosoftClasses
                     {
 
                         if (entity.SimulationTests.Where(x => x.Name == "SMTP").Count() > 0)
+                        {
                             myExchangeServer.CASSmtp = true;
+                            myExchangeServer.SMTPURLs = myExchangeServer.IPAddress;
+                        }
                         else
                             myExchangeServer.CASSmtp = false;
 
                         if (entity.SimulationTests.Where(x => x.Name == "Outlook Anywhere").Count() > 0)
+                        {
                             myExchangeServer.CASEWS = true;
+                        }
                         else
                             myExchangeServer.CASEWS = false;
 
                         if (entity.SimulationTests.Where(x => x.Name == "OWA").Count() > 0)
+                        {
                             myExchangeServer.CASOWA = true;
+                            myExchangeServer.OWAURLs = myExchangeServer.IPAddress;
+                        }
                         else
                             myExchangeServer.CASOWA = false;
 
                         if (entity.SimulationTests.Where(x => x.Name == "POP3").Count() > 0)
+                        {
                             myExchangeServer.CASPop3 = true;
+                            myExchangeServer.POP3URLs = myExchangeServer.IPAddress;
+                        }
                         else
                             myExchangeServer.CASPop3 = false;
 
                         if (entity.SimulationTests.Where(x => x.Name == "Auto Discovery").Count() > 0)
+                        {
                             myExchangeServer.CASAutoDiscovery = true;
+                            myExchangeServer.AutoDiscoveryURLs = myExchangeServer.IPAddress;
+                        }
                         else
                             myExchangeServer.CASAutoDiscovery = false;
 
                         if (entity.SimulationTests.Where(x => x.Name == "Outlook Native RPC").Count() > 0)
+                        {
                             myExchangeServer.CASOARPC = true;
+                            myExchangeServer.RPCURLs = myExchangeServer.IPAddress;
+                        }
                         else
                             myExchangeServer.CASOARPC = false;
 
                         if (entity.SimulationTests.Where(x => x.Name == "IMAP").Count() > 0)
+                        {
                             myExchangeServer.CASImap = true;
+                            myExchangeServer.IMAPURLs = myExchangeServer.IPAddress;
+                        }
                         else
                             myExchangeServer.CASImap = false;
 
                         if (entity.SimulationTests.Where(x => x.Name == "Active Sync").Count() > 0)
+                        {
                             myExchangeServer.CASActiveSync = true;
+                            myExchangeServer.ActiveSyncURLs = myExchangeServer.IPAddress;
+                        }
                         else
                             myExchangeServer.CASActiveSync = false;
 

@@ -723,7 +723,7 @@ namespace VitalSignsMicrosoftClasses
                 //    userId = myServer.ActiveSyncUserName;
                 //    pwd = myServer.ActiveSyncPassword;
                 //}
-                if (myServer.ActiveSyncUserName.ToString() == "")
+                if (String.IsNullOrWhiteSpace(myServer.ActiveSyncUserName))
                 {
                     userId = myServer.UserName;
                     pwd = myServer.Password;

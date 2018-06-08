@@ -752,7 +752,7 @@ namespace VitalSignsMicrosoftClasses
                             
                             //string sql = "INSERT INTO EventHistory(AliasName,LogName,IndexNo,EventTime,EntryType,Source,InstanceId,MessageDetails,DeviceName,DeviceType,LastUpdated) values('" + aliasName + "','" + LogName +"',"+ indx + ",'" + time + "','" + entryType + "','" + source + "'," + instanceId + ",'" + msg + "','" + myServer.Name + "','" + myServer.ServerType + "',getdate())";
                             //AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = sql, DatabaseName = "VitalSigns" });
-                            Common.makeAlert(false, myServer, commonEnums.AlertType.Advertising_Test, ref AllTestsList, "The event for " + source + " - " + msg + " was detected at " + time, "Windows");
+                            Common.makeAlert(false, myServer, commonEnums.AlertType.Windows_Event_Log, ref AllTestsList, "The event for " + source + " - " + msg + " was detected at " + time, "Windows");
                         }
 					}
                     AllTestsList.MongoEntity.Add(new MongoStatementsInsert<VSNext.Mongo.Entities.WindowsEventsHistory>() { listOfEntities = listOfResults });

@@ -1669,19 +1669,19 @@ namespace VitalSignsMicrosoftClasses
             {
                 if (threshold == 0)
                 {
-                    AllTestsList.AlertDetails.Add(new Alerting() { DeviceType = (commonEnums.AlertDevice)Enum.Parse(typeof(commonEnums.AlertDevice), server.ServerType.Replace(" ", "_").Replace(" ", "_"), true), DeviceName = server.Name, AlertType = AlertType, Details = "The " + AlertType.ToString() + " has a threshold set of 0, so will not send alerts.", Location = server.Location, ResetAlertQueue = commonEnums.ResetAlert.Yes, Category = category });
+                    AllTestsList.AlertDetails.Add(new Alerting() { DeviceType = (commonEnums.AlertDevice)Enum.Parse(typeof(commonEnums.AlertDevice), server.ServerType.Replace(" ", "_").Replace(" ", "_"), true), DeviceName = server.Name, AlertType = AlertType, Details = "The " + AlertType.ToString().Replace(" ", "_") + " has a threshold set of 0, so will not send alerts.", Location = server.Location, ResetAlertQueue = commonEnums.ResetAlert.Yes, Category = category });
                 }
                 else if (threshold < 0)
                 {
-                    AllTestsList.AlertDetails.Add(new Alerting() { DeviceType = (commonEnums.AlertDevice)Enum.Parse(typeof(commonEnums.AlertDevice), server.ServerType.Replace(" ", "_"), true), DeviceName = server.Name, AlertType = AlertType, Details = "The " + AlertType.ToString() + " threshold is not set.  Please set a value in the configurator if you would like to receive alerts.", Location = server.Location, ResetAlertQueue = commonEnums.ResetAlert.Yes, Category = category });
+                    AllTestsList.AlertDetails.Add(new Alerting() { DeviceType = (commonEnums.AlertDevice)Enum.Parse(typeof(commonEnums.AlertDevice), server.ServerType.Replace(" ", "_"), true), DeviceName = server.Name, AlertType = AlertType, Details = "The " + AlertType.ToString().Replace(" ", "_") + " threshold is not set.  Please set a value in the configurator if you would like to receive alerts.", Location = server.Location, ResetAlertQueue = commonEnums.ResetAlert.Yes, Category = category });
                 }
                 else if (threshold > Actual)
                 {
-                    AllTestsList.AlertDetails.Add(new Alerting() { DeviceType = (commonEnums.AlertDevice)Enum.Parse(typeof(commonEnums.AlertDevice), server.ServerType.Replace(" ", "_"), true), DeviceName = server.Name, AlertType = AlertType, Details = "The " + AlertType.ToString() + " is normal", Location = server.Location, ResetAlertQueue = commonEnums.ResetAlert.Yes, Category = category });
+                    AllTestsList.AlertDetails.Add(new Alerting() { DeviceType = (commonEnums.AlertDevice)Enum.Parse(typeof(commonEnums.AlertDevice), server.ServerType.Replace(" ", "_"), true), DeviceName = server.Name, AlertType = AlertType, Details = "The " + AlertType.ToString().Replace(" ", "_") + " is normal", Location = server.Location, ResetAlertQueue = commonEnums.ResetAlert.Yes, Category = category });
                 }
                 else
                 {
-                    AllTestsList.AlertDetails.Add(new Alerting() { DeviceType = (commonEnums.AlertDevice)Enum.Parse(typeof(commonEnums.AlertDevice), server.ServerType.Replace(" ", "_"), true), DeviceName = server.Name, AlertType = AlertType, Details = "The " + AlertType.ToString() + " Failed. The threshold was set at " + threshold.ToString() + " , but the actual was:" + Actual.ToString(), Location = server.Location, ResetAlertQueue = commonEnums.ResetAlert.No, Category = category });
+                    AllTestsList.AlertDetails.Add(new Alerting() { DeviceType = (commonEnums.AlertDevice)Enum.Parse(typeof(commonEnums.AlertDevice), server.ServerType.Replace(" ", "_"), true), DeviceName = server.Name, AlertType = AlertType, Details = "The " + AlertType.ToString().Replace(" ", "_") + " Failed. The threshold was set at " + threshold.ToString() + " , but the actual was:" + Actual.ToString(), Location = server.Location, ResetAlertQueue = commonEnums.ResetAlert.No, Category = category });
                 }
             }
             catch (Exception ex)
@@ -2932,7 +2932,8 @@ if ($ModPath -ne '')
 
             //Exchange MailProbe
             YellowThreshold,
-            RedThreshold
+            RedThreshold,
+            Windows_Event_Log
 
         }
 

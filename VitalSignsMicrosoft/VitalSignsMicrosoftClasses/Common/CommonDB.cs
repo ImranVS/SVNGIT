@@ -332,8 +332,17 @@ namespace VitalSignsMicrosoftClasses
 					Server.FastScan = false;
                 }
 
-				Server.Status = OverallStatus;
-				Server.StatusCode = OverallStatus;
+                if(Server.ServerType != Enums.ServerType.ExchangeMailProbe.ToDescription())
+                {
+                    Server.Status = OverallStatus;
+				    Server.StatusCode = OverallStatus;
+                }
+                else
+                {
+                    OverallStatus = Server.Status;
+                    Details = Server.ResponseDetails;
+                }
+				
 				Server.LastScan = DateTime.Now;
 
 				if (Details.Length > 255)

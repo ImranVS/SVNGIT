@@ -337,6 +337,33 @@ namespace VitalSignsMicrosoftClasses
                         AllTestsList.AlertDetails.Add(new Alerting() { AlertType = commonEnums.AlertType.RedThreshold, Category = "Exchange Mail Probe", Details = "All servers responded within the red threshold value", DeviceName = myServer.Name, DeviceType = commonEnums.AlertDevice.Exchange_Mail_Probe, ResetAlertQueue = commonEnums.ResetAlert.Yes });
                     }
 
+                    if(listOfResults.Exists(x => x.Latency == -1))
+                    {
+                        int intOver = listOfResults.Count(x => x.Latency == -1);
+                        myServer.ResponseDetails = "There " + (intOver > 1 ? "were" : "are") + " " + intOver + " mail test" + (intOver > 1 ? "s" : "") + " which did not respond.";
+                        myServer.Status = "Not Responding";
+                        myServer.StatusCode = "Not Responding";
+                    }
+                    else if (listOfResults.Exists(x => x.Latency > myServer.LatencyRedThreshold))
+                    {
+                        int intOver = listOfResults.Count(x => x.Latency > myServer.LatencyRedThreshold);
+                        myServer.ResponseDetails = "There " + (intOver > 1 ? "were" : "are") + " " + intOver + " mail test" + (intOver > 1 ? "s" : "") + " over the red threshold value, with the longest taking " + listOfResults.Max(x => x.Latency).ToString() + " milliseconds (" + Math.Round(listOfResults.Max(x => x.Latency).Value, 1) + "seconds).";
+                        myServer.Status = "Issue";
+                        myServer.StatusCode = "Issue";
+                    }
+                    else if (listOfResults.Exists(x => x.Latency > myServer.LatencyYellowThreshold))
+                    {
+                        int intOver = listOfResults.Count(x => x.Latency > myServer.LatencyYellowThreshold);
+                        myServer.ResponseDetails = "There " + (intOver > 1 ? "were" : "are") + " " + intOver + " mail test" + (intOver > 1 ? "s" : "") + " over the yellow threshold value, with the longest taking " + listOfResults.Max(x => x.Latency).ToString() + " milliseconds (" + Math.Round(listOfResults.Max(x => x.Latency).Value, 1) + "seconds).";
+                        myServer.Status = "Issue";
+                        myServer.StatusCode = "Issue";
+                    }
+                    else
+                    {
+                        myServer.ResponseDetails = "All of the mail tests responded within the yellow threshold value, with the longest taking " + listOfResults.Max(x => x.Latency).ToString() + " milliseconds (" + Math.Round(listOfResults.Max(x => x.Latency).Value, 1) + "seconds).";
+                        myServer.Status = "OK";
+                        myServer.StatusCode = "OK";
+                    }
                 }
 			}
 			catch (Exception ex)
