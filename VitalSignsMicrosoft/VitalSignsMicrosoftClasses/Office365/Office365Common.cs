@@ -743,7 +743,6 @@ Clear-Variable 'results' -ErrorAction SilentlyContinue";
                             }
                             try
                             {
-                                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxes: Resetting DB value", Common.LogLevel.Normal);
                                 db.ProcessMongoStatements(AllTestsList, myServer);
                                 AllTestsList.MongoEntity.Clear();
                                 serverRepo.Update(serverRepo.Filter.Eq(x => x.Id, myServer.ServerObjectID), serverRepo.Updater.Set(x => x.MailboxStatisticsLastScanned, firstChar.ToString() + secondChar.ToString()));
@@ -774,6 +773,7 @@ Clear-Variable 'results' -ErrorAction SilentlyContinue";
 
                 try
                 {
+                    Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxes: Resetting DB value", Common.LogLevel.Normal);
                     serverRepo.Update(serverRepo.Filter.Eq(x => x.Id, myServer.ServerObjectID), serverRepo.Updater.Set(x => x.MailboxStatisticsLastScanned, "aa"));
                 }
                 catch (Exception ex)
