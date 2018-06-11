@@ -1,15 +1,21 @@
-﻿import { Component, ViewChild, ElementRef, ContentChild, } from '@angular/core';
+﻿import { Component, ViewChild, ElementRef, ContentChild, ContentChildren } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Router, NavigationStart, NavigationEnd, NavigationError, NavigationCancel, RoutesRecognized } from '@angular/router';
+import { ChartComponent } from '../../widgets/charts/components/chart.component';
+import { BubbleChartComponent } from '../../widgets/charts/components/bubblechart.component';
+import { WidgetService } from '../../core/widgets/services/widget.service';
 
 @Component({
     selector: 'reports-browser',
     templateUrl: '/app/reports/components/reports-browser.component.html',
+    providers:[WidgetService]
 })
 export class ReportsBrowser {
     @ViewChild('exportButton') exportButton: ElementRef;
-    hideButton: boolean = true
-    constructor(private router: Router, private activatedRoute: ActivatedRoute) {
+    @ContentChildren('exportButton') temp: ElementRef;
+    hideButton: boolean = true;
+    childComponent: any;
+    constructor(private router: Router, private activatedRoute: ActivatedRoute, private widgetService: WidgetService) {
         //Creates a listener on the router and hides/dispalys export button
         router.events.subscribe(event => {
             //console.log(event)
@@ -17,7 +23,7 @@ export class ReportsBrowser {
                 this.hideButton = true;
             }
             if (event instanceof NavigationEnd) {
-                this.hideButton = this.canExport() == -1;
+                this.hideButton = this.canExport() == "None";
             }
             //if (event instanceof NavigationCancel) {
             //    console.log(3);
@@ -48,29 +54,53 @@ export class ReportsBrowser {
     }
 
     ngAfterViewInit() {
-        this.hideButton = this.canExport() == -1;
+        this.hideButton = this.canExport() == "None";
+    }
+
+    onActivate(componentRef) {
+        this.childComponent = componentRef;
     }
 
     //Tests to see if you can export the report. Returns a integer for the given report type, or -1 if it cannot be exported
     canExport() {
+        
         if (<HTMLTableElement>document.querySelector('#htmlTable'))
-            return 1;
-        return -1;
+            return "HtmlTable";
+        try {
+            if (this.widgetService && this.childComponent) {
+                var childsChild = this.widgetService.findWidget(this.childComponent.widgets[0].id).component;
+                if (childsChild) {
+                    if (childsChild instanceof BubbleChartComponent)
+                        return "BubbleChart";
+                    if (childsChild instanceof ChartComponent)
+                        return "Chart";
+                }
+            }
+        } catch (ex) { console.log(ex) }
+        return "None";
     }
 
     //case statement which gets called when Export is clicked.
     export() {
-        var exportNumber = this.canExport();
-        switch(exportNumber) {
-            case 1:
+        var exportType = this.canExport();
+        switch (exportType) {
+            case "HtmlTable":
                 this.exportHtmlTable();
+                break;
+
+            case "BubbleChart":
+                this.exportBubbleChart();
+                break;
+
+            case "Chart":
+                this.exportChart();
                 break;
         }
     }
 
     exportHtmlTable() {
         var htmlTable = <HTMLTableElement>document.querySelector('#htmlTable');
-        var reportTitle = document.querySelector('.list-group-item.selected').textContent;
+        
         //Goes through the HTML Table and constructs the CSV File
         var tableAsCsv = ""
         for (var i = 0; i < htmlTable.tHead.rows.length; i++) {
@@ -90,8 +120,48 @@ export class ReportsBrowser {
         }
 
         //Makes a download link and downloads the CSV file
+        this.downloadFile(tableAsCsv)
+
+    }
+
+    exportBubbleChart() {
+        try {
+            var series = (this.widgetService.findWidget(this.childComponent.widgets[0].id).component as BubbleChartComponent).getSeries();// this.bubbleChartReference.getSeries();
+            var csvData = ""
+            csvData = "Series,X,Y,Value\r\n";
+            for (var k = 0; k < series.length; k++) {
+                for (var i = 0; i < series[k].data.length; i++) {
+                    if (series[k].name && series[k].data[i].name.x && series[k].data[i].name.y && series[k].data[i].z)
+                        csvData += series[k].name + "," + series[k].data[i].name.x + "," + series[k].data[i].name.y + "," + series[k].data[i].z + "\r\n"
+                }
+            }
+            this.downloadFile(csvData);
+        } catch (ex) { console.log(ex) }
+
+    }
+
+    exportChart() {
+        try {
+            var series = (this.widgetService.findWidget(this.childComponent.widgets[0].id).component as ChartComponent).getSeries();// this.bubbleChartReference.getSeries();
+            var csvData = ""
+            csvData = "Series,X,Y\r\n";
+            for (var k = 0; k < series.length; k++) {
+                for (var i = 0; i < series[k].data.length; i++) {
+                    if (series[k].name && series[k].data[i].name && series[k].data[i].y !== undefined)
+                        csvData += series[k].name + "," + series[k].data[i].name + "," + series[k].data[i].y + "\r\n"
+                }
+            }
+            this.downloadFile(csvData);
+        } catch (ex) { console.log(ex) }
+
+    }
+
+
+
+    downloadFile(csvData) {
+        var reportTitle = document.querySelector('.list-group-item.selected').textContent;
         var csvContent = "data:text/csv;charset=utf-8,";
-        csvContent += tableAsCsv
+        csvContent += csvData;
         var encodedUri = encodeURI(csvContent);
         var link = document.createElement("a");
         link.setAttribute("href", encodedUri);
@@ -102,7 +172,6 @@ export class ReportsBrowser {
         link.click();
 
         document.body.removeChild(link);
-
     }
 
 

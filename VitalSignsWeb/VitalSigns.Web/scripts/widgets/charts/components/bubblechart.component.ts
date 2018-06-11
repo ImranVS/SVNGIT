@@ -117,10 +117,10 @@ export class BubbleChartComponent implements WidgetComponent, OnInit {
                         }
                         if (!found) {
                             this.settings.chart.series[length - 1].data.push({
-                                name: category,
+                                name: { x: category, y: null },
                                 y: null,
                                 x: null,
-                                z: null
+                                z: 0
                             });
                         }
                     });
@@ -151,5 +151,9 @@ export class BubbleChartComponent implements WidgetComponent, OnInit {
             },
             error => { this.errorMessage = <any>error; this.isLoading = false; });
 
+    }
+
+    public getSeries() {
+        return this.settings.chart.series;
     }
 }

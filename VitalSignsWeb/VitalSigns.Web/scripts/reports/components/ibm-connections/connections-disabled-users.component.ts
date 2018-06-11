@@ -14,7 +14,6 @@ declare var injectSVG: any;
 @Component({
     templateUrl: '/app/reports/components/ibm-connections/connections-disabled-users.component.html',
     providers: [
-        WidgetService,
         RESTService,
         helpers.UrlHelperService
     ]

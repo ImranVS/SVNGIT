@@ -189,4 +189,8 @@ export class ChartComponent implements WidgetComponent, OnInit {
             error => { this.errorMessage = <any>error; this.isLoading = false; });
 
     }
+
+    public getSeries() {
+        return this.settings.chart.series;
+    }
 }

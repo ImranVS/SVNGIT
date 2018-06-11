@@ -13,7 +13,6 @@ declare var injectSVG: any;
 @Component({
     templateUrl: '/app/reports/components/ibm-connections/connections-wiki-report.component.html',
     providers: [
-        WidgetService,
         RESTService,
         helpers.UrlHelperService
     ]

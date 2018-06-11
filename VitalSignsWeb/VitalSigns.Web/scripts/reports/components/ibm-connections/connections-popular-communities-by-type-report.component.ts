@@ -12,7 +12,6 @@ declare var injectSVG: any;
 @Component({
     templateUrl: '/app/reports/components/ibm-connections/connections-popular-communities-by-type-report.component.html',
     providers: [
-        WidgetService,
         RESTService
     ]
 })
