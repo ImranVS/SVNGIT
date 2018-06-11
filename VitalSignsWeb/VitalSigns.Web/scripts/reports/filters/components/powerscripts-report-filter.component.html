@@ -1,0 +1,17 @@
+﻿<div class="widgetWrapper noprint">
+    <div class="widgetContent">
+        <div id="dtSort" style="display:inline-block">
+            <span class="headerBlock">Sort by: </span>
+            <wj-multi-select #multisel1
+                             [placeholder]="'Select Device Types'"
+                             class="multiselect"
+                             [itemsSource]="data"
+                             displayMemberPath="device_type" selectedValuePath="device_type"
+                             [headerFormat]="'{count} Types Selected'"
+                             [checkedMemberPath]="'selected'"
+                             (checkedItemsChanged)="checkedDeviceTypesChanged($event,multisel1)"
+                             [(ngModel)]="selectedDeviceTypes" style="width:250px;">
+            </wj-multi-select>
+        </div>
+    </div>
+</div>

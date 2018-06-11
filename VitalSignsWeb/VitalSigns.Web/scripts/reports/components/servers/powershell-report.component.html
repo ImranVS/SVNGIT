@@ -11,6 +11,7 @@
         </ul>
     </div>
     <div class="container-fluid">
+        <powerscripts-report-filter [(widgetName)]="currentWidgetName"></powerscripts-report-filter>
         <div class="reportsPage">
             <h1>PowerScripts Library</h1>
             <div *ngFor="let widget of widgets">

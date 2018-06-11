@@ -135,7 +135,7 @@ import { Office365MailLatencyReport } from './reports/components/office365/offic
 import { Office365OneDriveReport } from './reports/components/office365/office365-onedrive.component';
 import { Office365MailboxReport } from './reports/components/office365/office365-mailbox.component';
 import { O365GroupCollectionReport } from './reports/components/office365/office365-group-collection.component';
-
+import { PowerScriptsReportFilter } from './reports/filters/components/powerscripts-report-filter.component'
 import { Office365UserTypeReport } from './reports/components/office365/office365-usertype.component';
 
 

@@ -1,8 +1,8 @@
-﻿<table class="table table-condensed small table-striped" id="htmlTable">
+﻿<table class="table table-condensed small table-striped" style="table-layout: fixed" id="htmlTable">
     <thead>
         <tr>
-            <th> Device Type  </th>
-            <th> Name</th>
+            <th>Device Type</th>
+            <th>Name</th>
             <th>Description</th>
             <th>Path</th>
             
@@ -10,11 +10,11 @@
     </thead>
     <tbody *ngIf="data">
         <tr *ngFor="let entry of data">
-               <td>{{entry.device_type}}</td>
+            <td>{{entry.device_type}}</td>
             <td>{{entry.name}}</td>
             <td>{{entry.description}}</td>
             <td>{{entry.path}}</td>
            
-</tr>
+        </tr>
     </tbody>
 </table>

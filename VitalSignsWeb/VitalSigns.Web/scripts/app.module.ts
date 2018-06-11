@@ -150,7 +150,7 @@ import { Office365DisabledUsersReport } from './reports/components/office365/off
 import { Office365SharedMailboxesConsumingLicensesReport } from './reports/components/office365/office365-shared-mailboxes-consuming-licenses.component';
 import { IBMConnectionsDisabledusersReport } from './reports/components/ibm-connections/connections-disabled-users.component';
 import { Office365ActiveDirectorySyncReport } from './reports/components/office365/office365-active-directory-sync.component';
-
+import { PowerScriptsReportFilter } from './reports/filters/components/powerscripts-report-filter.component'
 import { ibmconnectionsinactiveUsersReport } from './reports/components/ibm-connections/inactive-users.component';
 
 import { MobileDevicesSummaryOS } from './reports/components/mobile-users/mobile-users-os-summary.component';
@@ -319,6 +319,7 @@ import { LoadingIndicator } from './core/services/loading-indicator'
         exchnagemaillistreport,
         LoadingIndicator,
         Office365SharedMailboxesConsumingLicensesReport,
+        PowerScriptsReportFilter,
         dashboards.SampleDashboard,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
