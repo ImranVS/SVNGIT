@@ -3279,7 +3279,7 @@ namespace VitalSignsMicrosoftClasses
                     MailFlowThread.Name = "MailFlowWorkerThread";
                     MailFlowThread.Start();
 
-                    if(!MailFlowThread.Join((int)(1000 * 60 * 5 *+thisServer.ExchangeServers.Count * thisServer.LatencyRedThreshold))){
+                    if(!MailFlowThread.Join((int)(1000 * 60 * 5 * thisServer.ExchangeServers.Count * thisServer.LatencyRedThreshold))){
                         Common.WriteDeviceHistoryEntry("All", "ExchangeMailProbe", "Thread has exceded the time " + (thisServer.ExchangeServers.Count * thisServer.LatencyRedThreshold) + "ms and has exited");
                         Common.WriteDeviceHistoryEntry(thisServer.ServerType, thisServer.Name, "Thread has exceded the time " + (thisServer.ExchangeServers.Count * thisServer.LatencyRedThreshold) + "ms and has exited");
                     }

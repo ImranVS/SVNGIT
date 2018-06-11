@@ -196,12 +196,16 @@ namespace VitalSignsMicrosoftClasses
                         if (s1 == s2)
                             continue;
                         Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailFlowHeatMap from Server:" + s1.Name + " To Server:" + s2.Name, commonEnums.ServerRoles.MailFlow, Common.LogLevel.Normal);
-                        PowerShellCmd += "$arr += Test-Mailflow " + s1.Name + " -TargetMailboxServer " + s2.Name + " -ExecutionTimeout " + (myServer.LatencyRedThreshold / 1000 + 60) + " -ErrorAction SilentlyContinue|Foreach-Object{New-Object PSObject -Property @{\n " +
+                        PowerShellCmd += "$arr +=try { Test-Mailflow " + s1.Name + " -TargetMailboxServer " + s2.Name + " -ExecutionTimeout " + (myServer.LatencyRedThreshold / 1000 + 60) + " -ErrorAction SilentlyContinue -warningaction stop |Foreach-Object{New-Object PSObject -Property @{\n " +
                                             "SourceServer='" + s1.Name + "'\n" +
                                             "TargetServer='" + s2.Name + "'\n" +
                                             "TestMailflowResult=$_.TestMailflowResult\n" +
                                             "MessageLatencyTime=$_.MessageLatencyTime\n" +
-                                            "}}\n\n";
+                                            "}}\n} catch { New-Object PSObject -Property @{\n " +
+                                            "SourceServer='" + s1.Name + "'\n" +
+                                            "TargetServer='" + s2.Name + "'\n" +
+                                            "TestMailflowResult=$_\n" +
+                                            "MessageLatencyTime=$null\n}}\n\n";
                     }
 				}
 
@@ -242,16 +246,28 @@ namespace VitalSignsMicrosoftClasses
                                 {
                                     string psTarget = results[i].Properties["TargetServer"] == null ? "" : results[i].Properties["TargetServer"].Value.ToString();
                                     string psSource = results[i].Properties["SourceServer"] == null ? "" : results[i].Properties["SourceServer"].Value.ToString();
-                                    string psStatus = results[i].Properties["TestMailflowResult"] == null ? "Fail" : results[i].Properties["TestMailflowResult"].Value.ToString();
-                                    string psTime = results[i].Properties["MessageLatencyTime"] == null ? "" : results[i].Properties["MessageLatencyTime"].Value.ToString();
+                                    string psStatus = results[i].Properties["TestMailflowResult"] == null || results[i].Properties["TestMailflowResult"].Value == null ? "Fail" : results[i].Properties["TestMailflowResult"].Value.ToString();
+                                    string psTime = results[i].Properties["MessageLatencyTime"] == null || results[i].Properties["MessageLatencyTime"].Value == null ? "" : results[i].Properties["MessageLatencyTime"].Value.ToString();
 
                                     if (psTarget == target && psSource == source)
                                     {
                                         i++;
-                                        int sHour = Convert.ToInt32(psTime.Split(':')[0]) * 60 * 60;
-                                        int sMin = Convert.ToInt32(psTime.Split(':')[1]) * 60;
-                                        double sSec = Convert.ToDouble(psTime.Split(':')[2]);
-                                        int iFinalSec = Convert.ToInt32((sHour + sMin + sSec) * 1000);
+                                        double? iFinalSec = null;
+                                        if (psTime != "")
+                                        {
+                                            int sHour = Convert.ToInt32(psTime.Split(':')[0]) * 60 * 60;
+                                            int sMin = Convert.ToInt32(psTime.Split(':')[1]) * 60;
+                                            double sSec = Convert.ToDouble(psTime.Split(':')[2]);
+                                            iFinalSec = Convert.ToInt32((sHour + sMin + sSec) * 1000);
+                                        }
+                                        else if (psStatus.Contains("Exchange can't perform the mail flow test because currently there are no mailbox databases"))
+                                        {
+                                            iFinalSec = null;
+                                        }
+                                        else
+                                        {
+                                            iFinalSec = -1;
+                                        }
 
                                         listOfResults.Add(new VSNext.Mongo.Entities.LatencyResults()
                                         {
