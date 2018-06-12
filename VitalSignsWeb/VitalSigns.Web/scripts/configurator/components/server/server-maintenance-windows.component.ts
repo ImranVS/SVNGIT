@@ -58,6 +58,20 @@ export class MaintenanceWindows implements OnInit {
         this.dataProvider.get('/Configurator/get_server_maintenancedata?id=' + this.deviceId)
             .subscribe(
             response => {
+                response.data.forEach(function (entry) {
+                    var dt = new Date(entry.StartDate);
+                    if (dt.getUTCHours() == 0 && dt.getUTCMinutes() == 0 && dt.getUTCSeconds() == 0 && dt.getUTCMilliseconds() == 0) {
+                        var dt2 = new Date(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate());
+                        entry.StartDate = dt2.toISOString();
+                    }
+
+                    dt = new Date(entry.EndDate);
+                    if (dt.getUTCHours() == 0 && dt.getUTCMinutes() == 0 && dt.getUTCSeconds() == 0 && dt.getUTCMilliseconds() == 0) {
+                        var dt2 = new Date(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate());
+                        entry.EndDate = dt2.toISOString();
+                    }
+                });
+                
                 this.datetimeHelpers.nameToFormat['StartDate'] = "date";
                 this.datetimeHelpers.nameToFormat['EndDate'] = "date";
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
