@@ -821,13 +821,14 @@
         "component": "ServerAdvancedSettings",
         "path": "/app/configurator/components/server/server-advanced-settings.component"
       },
-      //{
-      //  "tab_id": 6,
-      //  "title": "PowerScripts",
-      //  "type": "Configurator",
-      //  "component": "MicrosoftPowerShellScripts",
-      //  "path": "/app/services/components/microsoft-powershell-scripts.component"
-      //},
+      {
+        "tab_id": 5,
+        "title": "PowerScripts",
+        "type": "Configurator",
+        "component": "MicrosoftPowerShellScriptsTab",
+        "path": "/app/services/components/microsoft-powershell-scripts-tab.component",
+        "roles": [ "PowerScripts" ]
+      },
       {
         "tab_id": 1,
         "title": "Overall",
