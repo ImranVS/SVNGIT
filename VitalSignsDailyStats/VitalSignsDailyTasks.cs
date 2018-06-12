@@ -407,8 +407,17 @@ namespace VitalSignsDailyStats
                 {
 
                 }
-                   
-                    WriteAuditEntry("Daily Task is finished....");
+
+                try
+                {
+                    CheckMongoBackupStatus();
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                WriteAuditEntry("Daily Task is finished....");
 
             }
             catch (Exception ex)
@@ -1795,5 +1804,39 @@ namespace VitalSignsDailyStats
             }
         }
 
+        public void CheckMongoBackupStatus()
+        {
+            WriteAuditEntry("In CheckMongoBackupStatus");
+            string alertMessage = "The Mongo database does not appear to have been backed up recently.";
+            AlertLibrary.Alertdll alertDll = new AlertLibrary.Alertdll();
+            try
+            {
+                RegistryHandler myRegistry = new RegistryHandler();
+                DirectoryInfo dirInfo = new DirectoryInfo(myRegistry.ReadFromRegistry("MongoBackupPath").ToString());
+                FileInfo[] files = dirInfo.GetFiles();
+                if (files.Count() < 1)
+                {
+                    WriteAuditEntry("There were no files found in the backup folder");
+                    alertDll.QueueSysMessage(alertMessage);
+                    return;
+
+                }
+                if (files.Min(x => x.CreationTime) < DateTime.Now.AddDays(-2))
+                {
+                    WriteAuditEntry("There were fiels found older then 48 hours");
+                    alertDll.QueueSysMessage(alertMessage);
+                    return;
+                }
+
+                WriteAuditEntry("Resetting message since all looks good");
+                alertDll.ResetSysMessage(alertMessage);
+                return;
+            }
+            catch(Exception ex)
+            {
+                WriteAuditEntry("An exception was thrown. Exception: " + ex.Message);
+                alertDll.QueueSysMessage(alertMessage);
+            }
+        }
     }
 }
