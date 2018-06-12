@@ -94,6 +94,10 @@
     <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AlertService\AlertLibrary\AlertLibrary\AlertLibrary.vbproj">
+      <Project>{bda12085-9e5c-456d-ba3d-2d509b0cad92}</Project>
+      <Name>AlertLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VSFramework\VSFramework\VSFramework.vbproj">
       <Project>{6c0ffc43-9f5b-4832-820b-d274d0fbac09}</Project>
       <Name>VSFramework</Name>
