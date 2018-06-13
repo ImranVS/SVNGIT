@@ -989,7 +989,7 @@ namespace VitalSigns.API
             try
             {
                 ps.Commands.Clear();
-                string script = "Stop-process -Id $PID";
+                string script = "get-process -id $PID | ? { $_.ProcessName -like '*powershell*' } | Stop-Process";
                 ps.Commands = new System.Management.Automation.PSCommand();
                 ps.Commands.AddScript(script);
                 var v = ps.Invoke();
