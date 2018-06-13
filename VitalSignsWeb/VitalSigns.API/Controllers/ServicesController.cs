@@ -151,7 +151,8 @@ namespace VitalSigns.API.Controllers
                                                         .Select(x => x.Id).ToList();
 
                 //same filter restrictions are in GetStatusSummaryByType, GetAllServerServices and ServerStatusSummary
-                deviceIds.AddRange(serverOtherRepository.Find(x => x.IsEnabled == true && x.Type == Enums.ServerType.NotesDatabase.ToDescription()).Select(x => x.Id).ToList());
+                string[] serverothertypes = new string[] { Enums.ServerType.NotesDatabase.ToDescription(), Enums.ServerType.ExchangeMailProbe.ToDescription() };
+                deviceIds.AddRange(serverOtherRepository.Find(x => x.IsEnabled == true && serverothertypes.Contains(x.Type)).Select(x => x.Id).ToList());
 
                 foreach (var server in deviceIds)
                 {
