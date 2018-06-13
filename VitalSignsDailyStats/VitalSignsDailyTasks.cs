@@ -1813,7 +1813,7 @@ namespace VitalSignsDailyStats
             {
                 RegistryHandler myRegistry = new RegistryHandler();
                 DirectoryInfo dirInfo = new DirectoryInfo(myRegistry.ReadFromRegistry("MongoBackupPath").ToString());
-                FileInfo[] files = dirInfo.GetFiles();
+                FileInfo[] files = dirInfo.GetFiles("*.*", SearchOption.AllDirectories);
                 if (files.Count() < 1)
                 {
                     WriteAuditEntry("There were no files found in the backup folder");
