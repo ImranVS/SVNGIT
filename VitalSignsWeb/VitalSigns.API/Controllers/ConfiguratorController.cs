@@ -6332,11 +6332,9 @@ namespace VitalSigns.API.Controllers
                         .Set(p => p.MailProbeRedThreshold, exchangeMailProbe.exchangemailprobe.RedThreshold)
                          .Set(p => p.MailProbeYellowThreshold, exchangeMailProbe.exchangemailprobe.YellowThreshold)
                         .Set(p => p.ExchangeMailProbeServers, exchnagemailservers);
-                        
-
-
                     var result = serverOtherRepository.Update(filterDefination, updateDefination);
-                    Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "Exchange Mail Probe updated successfully.");
+                    Response = Common.CreateResponse(GetExchangeMailProbes().Data, Common.ResponseStatus.Success.ToDescription(), "Exchange Mail Probe updated successfully.");
+                    
                 }
             }
             catch (Exception exception)
@@ -6345,8 +6343,7 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
-            
-
+          
         [HttpDelete("delete_exchange_mail_probe/{Id}")]
         public APIResponse DeleteExchangeMailProbe(string Id)
         {
