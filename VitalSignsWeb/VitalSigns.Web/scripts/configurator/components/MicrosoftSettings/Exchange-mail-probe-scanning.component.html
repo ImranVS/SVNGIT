@@ -57,7 +57,7 @@ data.pageIndex + 1 | number
             </wj-menu>
         </div>
         <div>&nbsp;</div>
-        <wj-popup style="border: 0px; width: 80%; height: 80%" #frmDialog>
+        <wj-popup style="border: 0px; width: 80%; height: 80%" #frmDialog (gotFocus)="handleShownEvent($event)">
             <div class="modal-content">
                 <div class="modal-header">
                     {{formTitle}}
@@ -82,7 +82,7 @@ data.pageIndex + 1 | number
                                             <label for="scan_interval" class="control-label col-sm-5">Scan Interval</label>
                                             <div class="col-sm-6">
                                                 <input type="text" class="form-control" id="scan_interval" required name="scan_interval"
-                                                       [(ngModel)]="currentEditItem.scan_interval" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
+                                                       [(ngModel)]="currentEditItem.scan_interval" />
                                             </div>
                                             <div class="control-label col-sm-1">minutes</div>
                                         </div>
@@ -90,28 +90,37 @@ data.pageIndex + 1 | number
                                             <label for="off_hours_interval" class="control-label col-sm-5">Off-Hours Scan Interval</label>
                                             <div class="col-sm-6">
                                                 <input type="text" class="form-control" id="off_hours_scan_interval" required name="off_hours_scan_interval"
-                                                       [(ngModel)]="currentEditItem.off_hours_scan_interval" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
+                                                       [(ngModel)]="currentEditItem.off_hours_scan_interval"/>
                                             </div>
                                             <div class="control-label col-sm-1">minutes</div>
                                         </div> 
                                    </div>
                                     <div class="row">
-                                        <div class="form-group col-sm-6">
-                                            <label for="mailprobe_red_threshold" class="control-label col-sm-5">Mail Probe Red Threshold</label>
-                                            <div class="col-sm-6">
-                                                <input type="text" class="form-control" id="mailprobe_red_threshold" required name="mailprobe_red_threshold"
-                                                       [(ngModel)]="currentEditItem.mailprobe_red_threshold" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
-                                            </div>
-                                            <div class="control-label col-sm-1">ms</div>
-                                        </div>
+
                                         <div class="form-group col-sm-6">
                                             <label for="mailprobe_yellow_threshold" class="control-label col-sm-5">Mail Probe Yellow Threshold</label>
                                             <div class="col-sm-6">
                                                 <input type="text" class="form-control" id="mailprobe_yellow_threshold" required name="mailprobe_yellow_threshold"
-                                                       [(ngModel)]="currentEditItem.mailprobe_yellow_threshold" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
+                                                       [(ngModel)]="currentEditItem.mailprobe_yellow_threshold"  #yellowThreshold="ngModel" />
+
+                                                <div *ngIf="yellowThreshold.invalid">
+                                                    Yellow threshold value should be less than red threshold
+                                                </div>
+                                            </div>
+                                          <div class="control-label col-sm-1">ms</div>
+                                        </div>
+                                        <div class="form-group col-sm-6">
+                                            <label for="mailprobe_red_threshold" class="control-label col-sm-5">Mail Probe Red Threshold</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" class="form-control" id="mailprobe_red_threshold" required name="mailprobe_red_threshold"
+                                                       [(ngModel)]="currentEditItem.mailprobe_red_threshold"  #redThreshold="ngModel"/>
+                                                <div *ngIf="redThreshold.invalid">
+                                                    Red threshold should be greater than yellow
+                                                </div>
                                             </div>
                                             <div class="control-label col-sm-1">ms</div>
                                         </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -122,8 +131,8 @@ data.pageIndex + 1 | number
                                     Servers
                                 </div>
                                 <div class="panel-body">
+                                    <div class="text-danger" *ngIf="devices.length==0"><b>* Please select at  least two server</b></div>
                                     <div>
-                                        <div class="text-danger" *ngIf="devices.length==0"><b>* Please select at  least two server</b></div>
                                         <div *ngIf="devices.length==0">&nbsp;</div>
                                         <wj-flex-grid [itemsSource]="exchangedata" selectionMode="Row" headersVisibility="Column" #flex1 id="grid">
                                             <wj-flex-grid-filter></wj-flex-grid-filter>
