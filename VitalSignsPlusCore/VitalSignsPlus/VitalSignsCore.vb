@@ -6649,7 +6649,8 @@ CleanUp:
             httpWR.Timeout = 90000
             httpWR.Method = "POST"
             httpWR.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"
-            httpWR.ContentType = "text/plain"
+            'This broke the request at SNC. Removing this line made it work. If it fails elsewhere, add in another attempt with it and see if it works?
+            'httpWR.ContentType = "text/plain"
             httpWR.Accept = "*/*"
             httpWR.CookieContainer = cookieContainer
             httpWR.Headers.Add("X-Update-Nonce", response)

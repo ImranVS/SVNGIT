@@ -326,6 +326,14 @@
         "path": "/app/services/components/service-exchange-mail-tab.component"
       },
       {
+        "tab_id": 4,
+        "title": "PowerScripts",
+        "type": "Configurator",
+        "component": "MicrosoftPowerShellScriptsTab",
+        "path": "/app/services/components/microsoft-powershell-scripts-tab.component",
+        "roles": [ "PowerScripts" ]
+      },
+      {
         "tab_id": 7,
         "title": "Maintenance",
         "type": "Dashboard",
@@ -723,6 +731,14 @@
       },
       {
         "tab_id": 7,
+        "title": "PowerScripts",
+        "type": "Configurator",
+        "component": "MicrosoftPowerShellScriptsTab",
+        "path": "/app/services/components/microsoft-powershell-scripts-tab.component",
+        "roles": [ "PowerScripts" ]
+      },
+      {
+        "tab_id": 8,
         "title": "Events",
         "type": "Dashboard",
         "component": "ServiceEventsTab",
@@ -842,6 +858,14 @@
         "type": "Dashboard",
         "component": "ServiceMainHealthTab",
         "path": "/app/services/components/service-mainhealth-tab.component"
+      },
+      {
+        "tab_id": 3,
+        "title": "PowerScripts",
+        "type": "Configurator",
+        "component": "MicrosoftPowerShellScriptsTab",
+        "path": "/app/services/components/microsoft-powershell-scripts-tab.component",
+        "roles": [ "PowerScripts" ]
       },
       {
         "tab_id": 7,

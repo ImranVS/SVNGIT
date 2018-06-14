@@ -666,6 +666,14 @@ Clear-Variable 'results' -ErrorAction SilentlyContinue";
                             results = powershellobj.PS.Invoke();
 
                             Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxes Results for " + firstChar.ToString() + secondChar.ToString() + ": " + results.Count.ToString(), Common.LogLevel.Normal);
+                            if (powershellobj.PS.Streams.Error.Count > 0)
+                            {
+                                //print errors
+                                foreach(ErrorRecord er in powershellobj.PS.Streams.Error)
+                                    Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxes. PowerShell Error: " + er.Exception.ToString(), Common.LogLevel.Normal);
+                                //after all printed, thrown new exception
+                                throw new Exception("There was a PowerShell error so we will throw an exception and to retry and/or move on.");
+                            }
                             DateTime dtNow = DateTime.Now;
                             int weekNumber = culture.Calendar.GetWeekOfYear(dtNow, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday);
                             if (results.Count > 0)
@@ -755,15 +763,21 @@ Clear-Variable 'results' -ErrorAction SilentlyContinue";
                         }
                         catch (Exception ex)
                         {
+                            Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailboxes. Inside For Loop Exception: " + ex.Message.ToString(), Common.LogLevel.Normal);
                             bool test = false;
 
                             powershellobj = Office365Common.testO365ServerConnectivity(myServer, ref AllTestsList, ref test);
-                            if (ExceptionCount < 2)
+                            //Retry the last script up to 5 times
+                            if (ExceptionCount < 5)
                             {
                                 secondChar--;
-                                ExceptionCount = 0;
+                                //ExceptionCount = 0;
                             }
-
+                            //if it totals 10 errors, stop for the day
+                            if(ExceptionCount >= 10)
+                            {
+                                throw new Exception("Error count exceded 10 consecutive errors. Will stop for the day.");
+                            }
                             ExceptionCount++;
                         }
 
