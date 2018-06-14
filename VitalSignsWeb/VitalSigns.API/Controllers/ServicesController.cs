@@ -277,7 +277,9 @@ namespace VitalSigns.API.Controllers
 
 
                 //same filter restrictions are in GetStatusSummaryByType, GetAllServerServices and ServerStatusSummary
-                var serverOthers = serverOtherRepository
+                if (module != "configurator")
+                {
+                    var serverOthers = serverOtherRepository
                     .Find(serverOtherFilterDef & serverOtherRepository.Filter.In(x => x.Type, new string[] { Enums.ServerType.ExchangeMailProbe.ToDescription(), Enums.ServerType.NotesDatabase.ToDescription() }))
                      .ToList()
                     .Select(x => new ServerStatus
@@ -288,8 +290,8 @@ namespace VitalSigns.API.Controllers
                         Name = x.Name,
                         ServerOther = true
                     });
-                servers.AddRange(serverOthers);
-
+                    servers.AddRange(serverOthers);
+                }
                 servers = servers.OrderBy(x => x.Name).ToList();
 
                 foreach (var server in servers)
