@@ -25,16 +25,10 @@ declare var injectSVG: any;
 export class ExchnageMailProbe extends GridBase implements OnInit{
     @ViewChild('flex') flex: wijmo.grid.FlexGrid;
     @ViewChild('flex1') flex1: wijmo.grid.FlexGrid;
-
     @ViewChild('redThreshold')
     redFormControl: NgModel;
-
-    @ViewChild('frmUser')
-    userForm: NgForm;
-
     @ViewChild('yellowThreshold')
     yellowFormControl: NgModel;
-
     exchangedata: wijmo.collections.CollectionView;
     EventsName: any;
     errorMessage: string;
@@ -61,9 +55,10 @@ export class ExchnageMailProbe extends GridBase implements OnInit{
     }
 
     handleShownEvent(event) {
+        console.log(1);
         this.redFormControl.control.valueChanges.subscribe((value) => {
-            this.currentEditItem.mailprobe_red_threshold = parseInt('' + this.currentEditItem.mailprobe_red_threshold);
-            if (parseInt(value) > this.currentEditItem.mailprobe_yellow_threshold) {
+            this.currentEditItem.mailprobe_red_threshold = '' + this.currentEditItem.mailprobe_red_threshold;
+            if (value > this.currentEditItem.mailprobe_yellow_threshold) {
                 this.yellowFormControl.control.setErrors(null);
             } else {
                 this.yellowFormControl.control.setErrors({ 'invalid': true });
@@ -71,8 +66,8 @@ export class ExchnageMailProbe extends GridBase implements OnInit{
         });
 
         this.yellowFormControl.control.valueChanges.subscribe((value) => {
-            this.currentEditItem.mailprobe_red_threshold = parseInt('' + this.currentEditItem.mailprobe_red_threshold);
-            if (parseInt(value) < this.currentEditItem.mailprobe_red_threshold) {
+            this.currentEditItem.mailprobe_red_threshold = '' + this.currentEditItem.mailprobe_red_threshold;
+            if (value < this.currentEditItem.mailprobe_red_threshold) {
                 this.redFormControl.control.setErrors(null);
             } else {
                 this.redFormControl.control.setErrors({ 'invalid': true });
@@ -173,11 +168,8 @@ export class ExchnageMailProbe extends GridBase implements OnInit{
     } 
 
     saveGridRow(saveUrl: any, dlg?: wijmo.input.Popup, postdata?: any) {
-
         if (this.currentEditItem.id == "") {
-
             this.service.put(saveUrl, postdata ? postdata : this.currentEditItem)
-
                 .subscribe(
                 response => {
                     this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data.mailprobes));
@@ -235,9 +227,6 @@ export class ExchnageMailProbe extends GridBase implements OnInit{
 
     }
     editGridRow(dlg: wijmo.input.Popup) {
-
-        console.log("Inside Edit Popup");
-        console.log(this.redFormControl);
 
             this.formTitle = "Edit " + this.formName;
             var mainThis = this;

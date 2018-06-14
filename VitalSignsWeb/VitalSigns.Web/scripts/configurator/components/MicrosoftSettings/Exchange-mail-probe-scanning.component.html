@@ -66,93 +66,107 @@ data.pageIndex + 1 | number
                 <form (ngSubmit)="saveExchangeMailProbes(frmDialog)" #frmUser="ngForm" class="form-horizontal">
                     <div class="modal-body" *ngIf="currentEditItem">
                         <div class="col-sm-12">
-                            <div class="form-group">
-                                <label class="control-label col-sm-2">Event Definition Name</label>
-                                <div class="col-sm-2">
-                                    <input type="text" class="form-control" id="name" required name="name" [(ngModel)]="currentEditItem.name" />
-                                </div>
-                            </div>
-                            
-                        </div>
-                        <div class="col-sm-12">
-                            <div class="panel panel-default">    
-                                <div class="panel-body">
-                                    <div class="row">
-                                        <div class="form-group col-sm-6">
-                                            <label for="scan_interval" class="control-label col-sm-5">Scan Interval</label>
-                                            <div class="col-sm-6">
-                                                <input type="text" class="form-control" id="scan_interval" required name="scan_interval"
-                                                       [(ngModel)]="currentEditItem.scan_interval" />
-                                            </div>
-                                            <div class="control-label col-sm-1">minutes</div>
-                                        </div>
-                                        <div class="form-group col-sm-6">
-                                            <label for="off_hours_interval" class="control-label col-sm-5">Off-Hours Scan Interval</label>
-                                            <div class="col-sm-6">
-                                                <input type="text" class="form-control" id="off_hours_scan_interval" required name="off_hours_scan_interval"
-                                                       [(ngModel)]="currentEditItem.off_hours_scan_interval"/>
-                                            </div>
-                                            <div class="control-label col-sm-1">minutes</div>
-                                        </div> 
-                                   </div>
-                                    <div class="row">
-
-                                        <div class="form-group col-sm-6">
-                                            <label for="mailprobe_yellow_threshold" class="control-label col-sm-5">Mail Probe Yellow Threshold</label>
-                                            <div class="col-sm-6">
-                                                <input type="text" class="form-control" id="mailprobe_yellow_threshold" required name="mailprobe_yellow_threshold"
-                                                       [(ngModel)]="currentEditItem.mailprobe_yellow_threshold"  #yellowThreshold="ngModel" />
-
-                                                <div *ngIf="yellowThreshold.invalid">
-                                                    Yellow threshold value should be less than red threshold
-                                                </div>
-                                            </div>
-                                          <div class="control-label col-sm-1">ms</div>
-                                        </div>
-                                        <div class="form-group col-sm-6">
-                                            <label for="mailprobe_red_threshold" class="control-label col-sm-5">Mail Probe Red Threshold</label>
-                                            <div class="col-sm-6">
-                                                <input type="text" class="form-control" id="mailprobe_red_threshold" required name="mailprobe_red_threshold"
-                                                       [(ngModel)]="currentEditItem.mailprobe_red_threshold"  #redThreshold="ngModel"/>
-                                                <div *ngIf="redThreshold.invalid">
-                                                    Red threshold should be greater than yellow
-                                                </div>
-                                            </div>
-                                            <div class="control-label col-sm-1">ms</div>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
                             <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    Servers
-                                </div>
                                 <div class="panel-body">
-                                    <div class="text-danger" *ngIf="devices.length==0"><b>* Please select at  least two server</b></div>
-                                    <div>
-                                        <div *ngIf="devices.length==0">&nbsp;</div>
-                                        <wj-flex-grid [itemsSource]="exchangedata" selectionMode="Row" headersVisibility="Column" #flex1 id="grid">
-                                            <wj-flex-grid-filter></wj-flex-grid-filter>
-                                            <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [visible]="false"></wj-flex-grid-column>
-                                            <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" [isReadOnly]="false"></wj-flex-grid-column>
-                                            <wj-flex-grid-column [header]="'DeviceName'" [binding]="'device_name'" [width]="120" [isReadOnly]="true"> </wj-flex-grid-column>
-                                            <wj-flex-grid-column [header]="'Location'" [binding]="'location_name'" align="right" [isReadOnly]="true"></wj-flex-grid-column>
-                                            
-                                        </wj-flex-grid>
-                                        
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-2">Event Definition Name</label>
+                                        <div class="col-sm-3">
+                                            <input type="text" [(ngModel)]="currentEditItem.name" class="form-control" id="name" required name="name">
+                                        </div>
+                                        <div class="col-sm-2">&nbsp;</div>
+                                        <div class="col-sm-3">
+                                            <div class="funkyradio">
+                                                <div class="funkyradio-default">
+                                                    <input type="checkbox" id="currentEditItem.is_enabled" name="currentEditItem.is_enabled" [(ngModel)]="currentEditItem.is_enabled">
+                                                    <label for="currentEditItem.is_enabled">Enable for scanning</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     </div>
                                 </div>
-                            </div>   
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-primary" type="submit" name="submit" [disabled]="!(frmUser.form.valid)">Save</button>
-                        <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
-                    </div>
-                </form>
+                                </div>
+
+
+                                <div class="col-sm-12">
+                                    <div class="panel panel-default">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="form-group col-sm-6">
+                                                    <label for="scan_interval" class="control-label col-sm-5">Scan Interval</label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" class="form-control" id="scan_interval" required name="scan_interval"
+                                                               [(ngModel)]="currentEditItem.scan_interval" />
+                                                    </div>
+                                                    <div class="control-label col-sm-1">minutes</div>
+                                                </div>
+                                                <div class="form-group col-sm-6">
+                                                    <label for="off_hours_interval" class="control-label col-sm-5">Off-Hours Scan Interval</label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" class="form-control" id="off_hours_scan_interval" required name="off_hours_scan_interval"
+                                                               [(ngModel)]="currentEditItem.off_hours_scan_interval" />
+                                                    </div>
+                                                    <div class="control-label col-sm-1">minutes</div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+
+                                                <div class="form-group col-sm-6">
+                                                    <label for="mailprobe_yellow_threshold" class="control-label col-sm-5">Mail Probe Yellow Threshold</label>
+                                                    <div class="col-sm-6">
+                                                        <input type="number" class="form-control" id="mailprobe_yellow_threshold" required name="mailprobe_yellow_threshold"
+                                                               [(ngModel)]="currentEditItem.mailprobe_yellow_threshold" #yellowThreshold="ngModel" />
+
+                                                        <div *ngIf="yellowThreshold.invalid">
+                                                            Yellow threshold value should be less than red threshold
+                                                        </div>
+                                                    </div>
+                                                    <div class="control-label col-sm-1">ms</div>
+                                                </div>
+                                                <div class="form-group col-sm-6">
+                                                    <label for="mailprobe_red_threshold" class="control-label col-sm-5">Mail Probe Red Threshold</label>
+                                                    <div class="col-sm-6">
+                                                        <input type="number" class="form-control" id="mailprobe_red_threshold" required name="mailprobe_red_threshold"
+                                                               [(ngModel)]="currentEditItem.mailprobe_red_threshold" #redThreshold="ngModel" />
+                                                        <div *ngIf="redThreshold.invalid">
+                                                            Red threshold should be greater than yellow
+                                                        </div>
+                                                    </div>
+                                                    <div class="control-label col-sm-1">ms</div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            Servers
+                                        </div>
+                                        <div class="panel-body">
+                                            <div class="text-danger" *ngIf="devices.length==0"><b>* Please select at  least two server</b></div>
+                                            <div>
+                                                <div *ngIf="devices.length==0">&nbsp;</div>
+                                                <wj-flex-grid [itemsSource]="exchangedata" selectionMode="Row" headersVisibility="Column" #flex1 id="grid">
+                                                    <wj-flex-grid-filter></wj-flex-grid-filter>
+                                                    <wj-flex-grid-column [header]="'Id'" [binding]="'id'" [visible]="false"></wj-flex-grid-column>
+                                                    <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'" [isReadOnly]="false"></wj-flex-grid-column>
+                                                    <wj-flex-grid-column [header]="'DeviceName'" [binding]="'device_name'" [width]="120" [isReadOnly]="true"> </wj-flex-grid-column>
+                                                    <wj-flex-grid-column [header]="'Location'" [binding]="'location_name'" align="right" [isReadOnly]="true"></wj-flex-grid-column>
+
+                                                </wj-flex-grid>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-primary" type="submit" name="submit" [disabled]="!(frmUser.form.valid)">Save</button>
+                                <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+                            </div>
+</form>
             </div>
         </wj-popup>
     </div>
