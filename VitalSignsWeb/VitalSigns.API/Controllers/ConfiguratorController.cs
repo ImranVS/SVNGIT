@@ -6250,15 +6250,17 @@ namespace VitalSigns.API.Controllers
                         Id = x.Id,
                         Name = x.Name,
                         IsEnabled = x.IsEnabled.HasValue && x.IsEnabled != null ? x.IsEnabled : false,
+                       
                         ScanInterval = x.ScanInterval,
                         OffHoursInterval = x.OffHoursScanInterval,
                         RedThreshold=x.MailProbeRedThreshold,
-                        YellowThreshold=x.MailProbeRedThreshold,  
+                        YellowThreshold=x.MailProbeYellowThreshold,  
                         SelectedExchangeServers = x.ExchangeMailProbeServers.Select(y => y.DeviceId).ToList()
                     }).OrderBy(x => x.Name).ToList();
                 foreach (var x in result)
                 {
                     x.IsEnabled = x.IsEnabled.HasValue && x.IsEnabled != null ? x.IsEnabled : false;
+                   
                 }
                 var locationList = locationRepository.Find(x => true).ToList();
                 var exchnagedata = serverRepository.Find(x => x.DeviceType == Enums.ServerType.Exchange.ToDescription()).ToList()
@@ -6293,6 +6295,7 @@ namespace VitalSigns.API.Controllers
                     {
                         Name = exchangeMailProbe.exchangemailprobe.Name,
                         Type = Enums.ServerType.ExchangeMailProbe.ToDescription(),
+                        IsEnabled= exchangeMailProbe.exchangemailprobe.IsEnabled,
                         ScanInterval = exchangeMailProbe.exchangemailprobe.ScanInterval,
                         OffHoursScanInterval = exchangeMailProbe.exchangemailprobe.OffHoursInterval,
                         MailProbeRedThreshold = exchangeMailProbe.exchangemailprobe.RedThreshold,
@@ -6327,6 +6330,7 @@ namespace VitalSigns.API.Controllers
                         });
                     }
                         var updateDefination = serverOtherRepository.Updater.Set(p => p.Id, exchangeMailProbe.exchangemailprobe.Id)
+                         .Set(p => p.IsEnabled, exchangeMailProbe.exchangemailprobe.IsEnabled)
                         .Set(p => p.ScanInterval, exchangeMailProbe.exchangemailprobe.ScanInterval)
                         .Set(p => p.OffHoursScanInterval, exchangeMailProbe.exchangemailprobe.OffHoursInterval)
                         .Set(p => p.MailProbeRedThreshold, exchangeMailProbe.exchangemailprobe.RedThreshold)
