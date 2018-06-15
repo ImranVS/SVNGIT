@@ -8961,6 +8961,10 @@ namespace VitalSigns.API.Controllers
                     Category = serverData.Category
                 };
 
+                if(serverData.DeviceType == VSNext.Mongo.Entities.Enums.ServerType.Domino.ToDescription())
+                {
+                    servers.ServerTasks = new List<DominoServerTask>();
+                }
 
                 string id = serversRepository.Insert(servers);
                 Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "Server created successfully");
