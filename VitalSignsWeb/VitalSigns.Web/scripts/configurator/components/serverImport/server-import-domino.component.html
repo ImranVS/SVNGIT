@@ -60,7 +60,10 @@
             are trying to use in the Import Wizard.<br />
             7. The server connection document for the server above is missing or incorrect.
             Check the Domino connection documents to ensure the server document exists and is
-            configured correctly.
+            configured correctly.<br />
+            8. If you are running the browser on the same machine where VitalSigns is installed, try
+            running from your own computer using the actual hostname.  <br />
+            9. Check the browser's network tab and look for error messages.
         </div>
         <div *ngIf="dominoServerImportData.servers.length>0">
             <div class="panel panel-default">
@@ -97,7 +100,7 @@
                 <div class="panel-footer">
                     <button class="btn btn-primary" type="button" name="next" (click)="step1Click()">Next</button>
                 </div>
-            </div>           
+            </div>
         </div>
     </div>
 
@@ -182,12 +185,12 @@
                             </div>
                         </div>
                     </div>
-                </div>            
+                </div>
             </div>
             <div class="panel-footer">
-                    <button class="btn btn-primary" type="button" name="next" (click)="step2Click()">Next</button>
-                </div>
-        </div>       
+                <button class="btn btn-primary" type="button" name="next" (click)="step2Click()">Next</button>
+            </div>
+        </div>
     </div>
 
     <!--Step 3-->
@@ -246,7 +249,7 @@
                             <label *ngIf="server.is_selected" class="col-sm-3">{{server.device_name}}</label>
                         </div>
                     </div>
-                </div>        
+                </div>
             </div>
             <div class="panel-footer">
                 <button class="btn btn-primary" type="button" name="next" (click)="step4Click()">Finish</button>
