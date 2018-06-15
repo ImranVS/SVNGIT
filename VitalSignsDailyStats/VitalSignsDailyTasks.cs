@@ -1821,9 +1821,11 @@ namespace VitalSignsDailyStats
                     return;
 
                 }
-                if (files.Min(x => x.CreationTime) < DateTime.Now.AddDays(-2))
+                if (files.Min(x => x.LastWriteTime) < DateTime.Now.AddDays(-2))
                 {
-                    WriteAuditEntry("There were fiels found older then 48 hours");
+
+                    WriteAuditEntry("There were files found older then 48 hours");
+                    WriteAuditEntry("Oldest date is " + files.Min(x => x.LastWriteTime).ToString() + ". The file is " + files.Where(x => x.LastWriteTime == files.Min(y => y.LastWriteTime)));
                     alertDll.QueueSysMessage(alertMessage);
                     return;
                 }
