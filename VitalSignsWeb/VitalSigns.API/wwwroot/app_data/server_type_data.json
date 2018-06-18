@@ -328,7 +328,7 @@
       {
         "tab_id": 4,
         "title": "PowerScripts",
-        "type": "Configurator",
+        "type": "Dashboard",
         "component": "MicrosoftPowerShellScriptsTab",
         "path": "/app/services/components/microsoft-powershell-scripts-tab.component",
         "roles": [ "PowerScripts" ]
@@ -732,7 +732,7 @@
       {
         "tab_id": 7,
         "title": "PowerScripts",
-        "type": "Configurator",
+        "type": "Dashboard",
         "component": "MicrosoftPowerShellScriptsTab",
         "path": "/app/services/components/microsoft-powershell-scripts-tab.component",
         "roles": [ "PowerScripts" ]
@@ -862,7 +862,7 @@
       {
         "tab_id": 3,
         "title": "PowerScripts",
-        "type": "Configurator",
+        "type": "Dashboard",
         "component": "MicrosoftPowerShellScriptsTab",
         "path": "/app/services/components/microsoft-powershell-scripts-tab.component",
         "roles": [ "PowerScripts" ]
