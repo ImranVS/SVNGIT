@@ -28,28 +28,18 @@ namespace VitalSignsMicrosoftClasses
         public void PrereqForWindows(MonitoredItems.ExchangeMailProbe Server, ref TestResults AllTestsList)
         {
             string cmdlets = "-CommandName Test-Mailflow";
-		    foreach(MonitoredItems.ExchangeServer exchangeServer in Server.ExchangeServers)
-            {
-                using (ReturnPowerShellObjects results = Common.PrereqForExchangeWithCmdlets(exchangeServer.Name, exchangeServer.UserName, exchangeServer.Password, "Exchange", exchangeServer.IPAddress, commonEnums.ServerRoles.MailFlow, cmdlets, exchangeServer.AuthenticationType))
-                {
-                    if (!results.Connected)
-                        continue;
+
                     try
                     {
                         //getMailFlow(Server.MailProbeSourceServer,  Server, ref AllTestsList, results);
-                        getMailFlowHeatMap(Server, exchangeServer, ref AllTestsList, results);
+                        getMailFlowHeatMap(Server, ref AllTestsList);
 
-                        results.PS.Commands.Clear();
                     }
                     catch (Exception ex)
                     {
                         Common.WriteDeviceHistoryEntry(Server.ServerType, Server.Name, "Error in PrereqForWindows: " + ex.Message, commonEnums.ServerRoles.MailFlow, Common.LogLevel.Normal);
                     }
-                    break;
-                }
-                //Thread.Sleep(10 * 60 * 1000);
-                GC.Collect();
-            }
+                    
         }
 
 		public void getMailFlow(string Sourceservername, MonitoredItems.ExchangeServer myServer, ref TestResults AllTestsList, ReturnPowerShellObjects powershellobj)
@@ -178,47 +168,49 @@ namespace VitalSignsMicrosoftClasses
 
 		}
 
-		public void getMailFlowHeatMap(MonitoredItems.ExchangeMailProbe myServer, MonitoredItems.ExchangeServer exchangeServer, ref TestResults AllTestsList, ReturnPowerShellObjects powershellobj)
+		public void getMailFlowHeatMap(MonitoredItems.ExchangeMailProbe myServer, ref TestResults AllTestsList)
 		{
 
 			Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "In getMailFlowHeatMap.", commonEnums.ServerRoles.MailFlow, Common.LogLevel.Normal);
-			PowerShell powershell = powershellobj.PS;
 
-			try
+            ReturnPowerShellObjects powershellobj = new ReturnPowerShellObjects();
+
+            try
 			{
-				//AllTestsList.SQLStatements.Add(new SQLstatements() { SQL = "DELETE  FROM dbo.MailLatencyStats", DatabaseName = "VSS_Statistics" });
-				string dtNow = DateTime.Now.ToString();
-				string PowerShellCmd = "$arr = @() \n\n";
-				foreach (MonitoredItems.ExchangeServer s1 in myServer.ExchangeServers)
-				{
-                    foreach (MonitoredItems.ExchangeServer s2 in myServer.ExchangeServers)
+                Runspace runspace = RunspaceFactory.CreateOutOfProcessRunspace(new TypeTable(new string[0]));
+
+                PowerShell powershell = PowerShell.Create();
+
+                powershell.Runspace = runspace;
+                powershell.Runspace.Open();
+                powershellobj.PS = powershell;
+                
+                
+                List<object> listOfServerParam = new List<object>();
+                foreach (MonitoredItems.ExchangeServer server in myServer.ExchangeServers)
+                {
+                    listOfServerParam.Add(new
                     {
-                        if (s1 == s2)
-                            continue;
-                        Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "getMailFlowHeatMap from Server:" + s1.Name + " To Server:" + s2.Name, commonEnums.ServerRoles.MailFlow, Common.LogLevel.Normal);
-                        PowerShellCmd += "$arr +=try { Test-Mailflow " + s1.Name + " -TargetMailboxServer " + s2.Name + " -ExecutionTimeout " + (myServer.LatencyRedThreshold / 1000 + 60) + " -ErrorAction SilentlyContinue -warningaction stop |Foreach-Object{New-Object PSObject -Property @{\n " +
-                                            "SourceServer='" + s1.Name + "'\n" +
-                                            "TargetServer='" + s2.Name + "'\n" +
-                                            "TestMailflowResult=$_.TestMailflowResult\n" +
-                                            "MessageLatencyTime=$_.MessageLatencyTime\n" +
-                                            "}}\n} catch { New-Object PSObject -Property @{\n " +
-                                            "SourceServer='" + s1.Name + "'\n" +
-                                            "TargetServer='" + s2.Name + "'\n" +
-                                            "TestMailflowResult=$_\n" +
-                                            "MessageLatencyTime=$null\n}}\n\n";
-                    }
-				}
+                        ServerName = server.Name,
+                        Uri = server.IPAddress,
+                        Username = server.UserName,
+                        Password = server.Password,
+                        Authentication = server.AuthenticationType
+                    });
+                }
 
-				PowerShellCmd += "$arr";
-
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, "HeatMap", "getMailFlowHeatMap PS Script:" +PowerShellCmd, commonEnums.ServerRoles.MailFlow, Common.LogLevel.Normal);
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
-				powershell.Streams.Error.Clear();
+                System.IO.StreamReader sr = new System.IO.StreamReader(AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\EMF_Mail_Flow_Test.ps1");
+                String str = sr.ReadToEnd();
+                powershell.Streams.Error.Clear();
                 powershell.Commands.Clear();
-				powershell.AddScript(PowerShellCmd);
-
-				results = powershell.Invoke();
-				Common.WriteDeviceHistoryEntry(myServer.ServerType, "HeatMap", "getMailFlowHeatMap result count:" + results.Count.ToString(), commonEnums.ServerRoles.MailFlow, Common.LogLevel.Normal);
+                PSCommand cmd = new PSCommand();
+                cmd.AddScript(str);
+                cmd.AddParameter("serverArray", listOfServerParam);
+                cmd.AddParameter("timeout", Math.Floor(myServer.LatencyRedThreshold * 1.1));
+                powershell.Commands = cmd;
+                results = powershell.Invoke();
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, "HeatMap", "getMailFlowHeatMap result count:" + results.Count.ToString(), commonEnums.ServerRoles.MailFlow, Common.LogLevel.Normal);
 
                 List<VSNext.Mongo.Entities.LatencyResults> listOfResults = new List<VSNext.Mongo.Entities.LatencyResults>();
                 MongoStatementsUpsert<VSNext.Mongo.Entities.Status> mongoUpsert = new MongoStatementsUpsert<VSNext.Mongo.Entities.Status>();
@@ -228,7 +220,6 @@ namespace VitalSignsMicrosoftClasses
 				{
 
 					int i = 0;
-					string sql = "";
 
                     foreach (MonitoredItems.ExchangeServer s1 in myServer.ExchangeServers)
                     {
@@ -363,20 +354,20 @@ namespace VitalSignsMicrosoftClasses
                     else if (listOfResults.Exists(x => x.Latency > myServer.LatencyRedThreshold))
                     {
                         int intOver = listOfResults.Count(x => x.Latency > myServer.LatencyRedThreshold);
-                        myServer.ResponseDetails = "There " + (intOver > 1 ? "were" : "are") + " " + intOver + " mail test" + (intOver > 1 ? "s" : "") + " over the red threshold value, with the longest taking " + listOfResults.Max(x => x.Latency).ToString() + " milliseconds (" + Math.Round(listOfResults.Max(x => x.Latency).Value, 1) + "seconds).";
+                        myServer.ResponseDetails = "There " + (intOver > 1 ? "were" : "are") + " " + intOver + " mail test" + (intOver > 1 ? "s" : "") + " over the red threshold value, with the longest taking " + listOfResults.Max(x => x.Latency).ToString() + " milliseconds (" + Math.Round(listOfResults.Max(x => x.Latency).Value/1000, 1) + " seconds).";
                         myServer.Status = "Issue";
                         myServer.StatusCode = "Issue";
                     }
                     else if (listOfResults.Exists(x => x.Latency > myServer.LatencyYellowThreshold))
                     {
                         int intOver = listOfResults.Count(x => x.Latency > myServer.LatencyYellowThreshold);
-                        myServer.ResponseDetails = "There " + (intOver > 1 ? "were" : "are") + " " + intOver + " mail test" + (intOver > 1 ? "s" : "") + " over the yellow threshold value, with the longest taking " + listOfResults.Max(x => x.Latency).ToString() + " milliseconds (" + Math.Round(listOfResults.Max(x => x.Latency).Value, 1) + "seconds).";
+                        myServer.ResponseDetails = "There " + (intOver > 1 ? "were" : "are") + " " + intOver + " mail test" + (intOver > 1 ? "s" : "") + " over the yellow threshold value, with the longest taking " + listOfResults.Max(x => x.Latency).ToString() + " milliseconds (" + Math.Round(listOfResults.Max(x => x.Latency).Value / 1000, 1) + " seconds).";
                         myServer.Status = "Issue";
                         myServer.StatusCode = "Issue";
                     }
                     else
                     {
-                        myServer.ResponseDetails = "All of the mail tests responded within the yellow threshold value, with the longest taking " + listOfResults.Max(x => x.Latency).ToString() + " milliseconds (" + Math.Round(listOfResults.Max(x => x.Latency).Value, 1) + "seconds).";
+                        myServer.ResponseDetails = "All of the mail tests responded within the yellow threshold value, with the longest taking " + listOfResults.Max(x => x.Latency).ToString() + " milliseconds (" + Math.Round(listOfResults.Max(x => x.Latency).Value / 1000, 1) + " seconds).";
                         myServer.Status = "OK";
                         myServer.StatusCode = "OK";
                     }
@@ -386,6 +377,14 @@ namespace VitalSignsMicrosoftClasses
 			{
 				Common.WriteDeviceHistoryEntry(myServer.ServerType, "HeatMap", "Error in getMailFlowHeatMap: " + ex.Message, commonEnums.ServerRoles.MailFlow, Common.LogLevel.Normal);
 			}
+            finally
+            {
+                if(powershellobj != null)
+                {
+                    powershellobj.Dispose();
+                }
+            }
+                
 		}
 	}
 }
