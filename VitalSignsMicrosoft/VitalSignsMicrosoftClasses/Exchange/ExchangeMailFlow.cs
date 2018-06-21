@@ -210,7 +210,7 @@ namespace VitalSignsMicrosoftClasses
                 cmd.AddParameter("timeout", Math.Floor(myServer.LatencyRedThreshold * 1.1));
                 powershell.Commands = cmd;
                 results = powershell.Invoke();
-                Common.WriteDeviceHistoryEntry(myServer.ServerType, "HeatMap", "getMailFlowHeatMap result count:" + results.Count.ToString(), commonEnums.ServerRoles.MailFlow, Common.LogLevel.Normal);
+                 Common.WriteDeviceHistoryEntry(myServer.ServerType, "HeatMap", "getMailFlowHeatMap result count:" + results.Count.ToString(), commonEnums.ServerRoles.MailFlow, Common.LogLevel.Normal);
 
                 List<VSNext.Mongo.Entities.LatencyResults> listOfResults = new List<VSNext.Mongo.Entities.LatencyResults>();
                 MongoStatementsUpsert<VSNext.Mongo.Entities.Status> mongoUpsert = new MongoStatementsUpsert<VSNext.Mongo.Entities.Status>();
@@ -244,7 +244,7 @@ namespace VitalSignsMicrosoftClasses
                                     {
                                         i++;
                                         double? iFinalSec = null;
-                                        if (psTime != "")
+                                        if (psTime != "" && psStatus == "Success")
                                         {
                                             int sHour = Convert.ToInt32(psTime.Split(':')[0]) * 60 * 60;
                                             int sMin = Convert.ToInt32(psTime.Split(':')[1]) * 60;
