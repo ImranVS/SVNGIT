@@ -27,6 +27,7 @@ export class ExchangeMailProbeGrid implements WidgetComponent, OnInit {
     data: wijmo.collections.CollectionView;
     errorMessage: string;
     deviceId: any;
+    timer: any;
     serviceId: string;
     rowHeaders: String[] = [];
     source_servers: String[] = [];
@@ -44,9 +45,16 @@ export class ExchangeMailProbeGrid implements WidgetComponent, OnInit {
             }
         });
         this.loaddata();
+        this.timer = window.setInterval(() => {
+            console.log(this.serviceId);
+            this.loaddata();
+
+        }, 30000);
        
     }
-
+    ngOnDestroy() {
+        clearInterval(this.timer);
+    }
     itemsSourceChangedHandler() {
         this.flex.autoSizeColumn(0, true, 100);
     }
@@ -94,7 +102,7 @@ export class ExchangeMailProbeGrid implements WidgetComponent, OnInit {
                 }
 
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(grid_data));
-                this.serviceId = this.data.currentItem.device_id;
+                //this.serviceId = this.data.currentItem.device_id;
                 this.yellowthreshold = data.data.yellow_threshold;
                 this.redthreshold = data.data.red_threshold;
             },
