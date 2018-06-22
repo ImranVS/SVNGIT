@@ -75,7 +75,8 @@ export class Office365MailboxViewTab implements OnInit {
         this.service.get(`/dashboard/office_365_mailboxes`)
             .subscribe(
             (response) => {
-                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data)));
+
+                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDateTime(response.data, [ "last_logon_time" ])));
                 this.data.pageSize = this.currentPageSize;
                 this.isLoading = false;
             },

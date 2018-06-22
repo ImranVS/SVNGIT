@@ -3,39 +3,44 @@
 @Injectable()
 export class DateTimeHelper {
 
-    toLocalDate(data) {
-        return this.toLocalFormat(data, "date");
+    toLocalDate(data, properties: Array<string> = undefined) {
+        return this.toLocalFormat(data, "date", properties);
     }
 
-    toLocalDateTime(data) {
+    toLocalDateTime(data, properties: Array<string> = undefined) {
 
-        return this.toLocalFormat(data, "datetime");
+        return this.toLocalFormat(data, "datetime", properties);
        
     }
 
-    toLocalTime(data) {
+    toLocalTime(data, properties: Array<string> = undefined) {
 
-        return this.toLocalFormat(data, "time");
-
-    }
-
-    toLocalHour(data) {
-
-        return this.toLocalFormat(data, "hour");
+        return this.toLocalFormat(data, "time", properties);
 
     }
 
-    toLocal(data) {
-        return this.toLocalFormat(data, "datetime")
+    toLocalHour(data, properties: Array<string> = undefined) {
+
+        return this.toLocalFormat(data, "hour", properties);
+
     }
 
+    toLocal(data, properties: Array<string> = undefined) {
+        return this.toLocalFormat(data, "datetime", properties)
+    }
+
+
+
+    
     public nameToFormat: any[] = [];
 
-    private toLocalFormat(data, format) {
+    private toLocalFormat(data, format, properties: Array<string>) {
+        if (properties)
+            return this.toLocalFormatWithProperties(data, format, properties);
         for (var obj in data) {
             if (data.hasOwnProperty(obj)) {
                 if (typeof (data[obj]) == "object") {
-                    obj = this.toLocalFormat(data[obj], format);
+                    obj = this.toLocalFormat(data[obj], format, null);
                 } else {
                     //obj is a property
                     var dtNum = NaN;
@@ -73,6 +78,29 @@ export class DateTimeHelper {
             }
         }
 
+        return data
+    }
+
+    private toLocalFormatWithProperties(data, format, properties: Array<string>) {
+        for (var i = 0; i < data.length; i++) {
+            var obj: any = data[i];
+            for (var j = 0; j < properties.length; j++) {
+                var prop = properties[j]
+                var dtNum = NaN;
+
+                //check to see if property value is a datetime
+                if (typeof obj[prop] == "string") {
+                    if (obj[prop].endsWith("Z"))
+                        dtNum = Date.parse(obj[prop]);
+                }
+
+                if (isNaN(dtNum) == false) {
+                    var dt = new Date(dtNum);
+                    obj[prop] = this.toLocalValue(dt, format, prop);
+
+                }
+            }
+        }
         return data
     }
 
