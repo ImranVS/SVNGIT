@@ -3546,7 +3546,7 @@ Partial Public Class VitalSignsPlusCore
                         If entity.ObjectsToGather Is Nothing Then
                             .ObjectsToGather = Nothing
                         Else
-                            .ObjectsToGather = entity.ObjectsToGather
+                            .ObjectsToGather = entity.ObjectsToGather.ToDictionary(Of String, String)(Function(x) x.Name, Function(x) x.Value)
                         End If
                     Catch ex As Exception
                         .ObjectsToGather = Nothing

@@ -1050,7 +1050,8 @@ namespace VSNext.Mongo.Entities
         [DataMember]
         [BsonIgnoreIfNull]
         [BsonElement("objects_to_gather")]
-        public List<string> ObjectsToGather { get; set; }
+        [BsonSerializer(typeof(CustomSerializers.ListStringToListNameValuePair))]
+        public List<NameValuePair> ObjectsToGather { get; set; }
 
         #endregion
 

@@ -84,6 +84,7 @@ namespace VSNext.Mongo.Entities
             NotesMailProbe,
             [LicenseCost(0)]
             [Description("Exchange Mail Flow")]
+            [ServerOtherCollection(true)]
             ExchangeMailFlow,
             [LicenseCost(0.33)]
             [BaseServerType("Microsoft")]
@@ -123,6 +124,7 @@ namespace VSNext.Mongo.Entities
             [Description("Notes Database Replica")]
             NotesDatabaseReplica,
             [LicenseCost(0)]
+            [ServerOtherCollection(true)]
             [Description("Exchange Mail Probe")]
             ExchangeMailProbe,
             [LicenseCost(1)]

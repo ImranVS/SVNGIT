@@ -4301,7 +4301,7 @@ Public Class IBMConnect
     Public CommunityUUID As String
     Public TestUrl As String
 
-    Public ObjectsToGather As List(Of String)
+    Public ObjectsToGather As Dictionary(Of String, String)
 
 End Class
 
