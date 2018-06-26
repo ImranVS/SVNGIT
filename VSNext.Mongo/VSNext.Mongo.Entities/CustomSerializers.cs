@@ -12,54 +12,54 @@ namespace VSNext.Mongo.Entities
 {
     class CustomSerializers
     {
-        //public class StringToListStringSerializer : EnumerableSerializerBase<List<String>>
-        //{
-        //    public override List<String> Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
-        //    {
-        //        if (context.Reader.CurrentBsonType == BsonType.String)
-        //        {
-        //            var s = context.Reader.ReadString();
-        //            return new List<String>() { s };//null;
-        //        }
+        public class StringToListStringSerializer : EnumerableSerializerBase<List<String>>
+        {
+            public override List<String> Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+            {
+                if (context.Reader.CurrentBsonType == BsonType.String)
+                {
+                    var s = context.Reader.ReadString();
+                    return new List<String>() { s };//null;
+                }
 
-        //        return base.Deserialize(context, args);
-        //    }
+                return base.Deserialize(context, args);
+            }
 
-        //    protected override void AddItem(object accumulator, object item)
-        //    {
-        //        ((List<String>)accumulator).Add((String)item);
-        //    }
+            protected override void AddItem(object accumulator, object item)
+            {
+                ((List<String>)accumulator).Add((String)item);
+            }
 
-        //    protected override object CreateAccumulator()
-        //    {
-        //        return new List<String>();
-        //    }
+            protected override object CreateAccumulator()
+            {
+                return new List<String>();
+            }
 
-        //    protected override IEnumerable EnumerateItemsInSerializationOrder(List<String> value)
-        //    {
-        //        return value;
-        //    }
+            protected override IEnumerable EnumerateItemsInSerializationOrder(List<String> value)
+            {
+                return value;
+            }
 
-        //    protected override List<String> FinalizeResult(object accumulator)
-        //    {
-        //        return (List<String>)accumulator;
-        //    }
-        //}
+            protected override List<String> FinalizeResult(object accumulator)
+            {
+                return (List<String>)accumulator;
+            }
+        }
 
-        //public class StringToObjectIdSerializer : MongoDB.Bson.Serialization.Serializers.SerializerBase<ObjectId>
-        //{
-        //    public override ObjectId Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
-        //    {
-        //        if (context.Reader.CurrentBsonType == BsonType.String)
-        //        {
-        //            var s = context.Reader.ReadString();
-        //            return new ObjectId(s);//null;
-        //        }
+        public class StringToObjectIdSerializer : MongoDB.Bson.Serialization.Serializers.SerializerBase<ObjectId>
+        {
+            public override ObjectId Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+            {
+                if (context.Reader.CurrentBsonType == BsonType.String)
+                {
+                    var s = context.Reader.ReadString();
+                    return new ObjectId(s);//null;
+                }
 
-        //        return base.Deserialize(context, args);
-        //    }
-        //}
-        
+                return base.Deserialize(context, args);
+            }
+        }
+
 
         //Converts a List<String> to a List<NameValuePair> with the String being the Name and the Value being set to Null
         public class ListStringToListNameValuePair : EnumerableSerializerBase<List<NameValuePair>>
