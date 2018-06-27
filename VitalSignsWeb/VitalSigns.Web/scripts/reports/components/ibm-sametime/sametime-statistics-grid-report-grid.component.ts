@@ -34,6 +34,7 @@ export class SametimeStatisticGridReportGrid implements WidgetComponent, OnInit 
     data: wijmo.collections.CollectionView;
     errorMessage: string;
     currentPageSize: any = 20;
+    isLoading: boolean = true;
 
     constructor(private service: RESTService, private widgetService: WidgetService, protected datetimeHelpers: helpers.DateTimeHelper,
         protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) { }
@@ -66,8 +67,9 @@ export class SametimeStatisticGridReportGrid implements WidgetComponent, OnInit 
     ngOnInit() {
 
         var displayDate = (new Date()).toISOString().slice(0, 10);
-
+		this.isLoading = true;
         this.service.get(this.gridUrl)
+            .finally(() => this.isLoading = false)
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDate(data.data)));
@@ -91,8 +93,9 @@ export class SametimeStatisticGridReportGrid implements WidgetComponent, OnInit 
         if (key === 'gridUrl') {
 
             this.gridUrl = value;
-
+            this.isLoading = true;
             this.service.get(this.gridUrl)
+                .finally(() => this.isLoading = false)
                 .subscribe(
                 (data) => {
                     this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDate(data.data)));

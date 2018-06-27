@@ -20,14 +20,17 @@ export class Office365ActiveDirectorySyncList implements WidgetComponent, OnInit
     errorMessage: string;
 
     data: any;
+    isLoading: Boolean = true;
 
     constructor(private service: RESTService) { }
 
     loadData() {
+        this.isLoading = true;
         this.service.get('/reports/active_directory_sync_report')
+            .finally(() => this.isLoading = false)
             .subscribe(
-            data => this.data = data.data,
-            error => this.errorMessage = <any>error
+                data => this.data = data.data,
+                error => this.errorMessage = <any>error
             );
     }
 

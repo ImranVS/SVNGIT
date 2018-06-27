@@ -2124,9 +2124,16 @@ namespace VitalSigns.API.Controllers
                 foreach (System.Management.Automation.PSObject psObject in psOutput)
                 {
                     response += "\n\n";
-                    foreach (System.Management.Automation.PSPropertyInfo psPropertyInfo in psObject.Properties)
+                    if (psObject.Properties.Count() == 1 && psObject.Properties.Where(x => x.Name == "Length").Count() > 0)
                     {
-                        response += psPropertyInfo.Name + " : " + psPropertyInfo.Value + "\n";
+                        response += psObject.ImmediateBaseObject + "\n";
+                    }
+                    else
+                    {
+                        foreach (System.Management.Automation.PSPropertyInfo psPropertyInfo in psObject.Properties)
+                        {
+                            response += psPropertyInfo.Name + " : " + psPropertyInfo.Value + "\n";
+                        }
                     }
                 }
 

@@ -20,13 +20,15 @@ export class MailboxList implements WidgetComponent, OnInit {
     errorMessage: string;
 
     data: any;
-
+    isLoading: boolean = true;
     constructor(private service: RESTService) { }
 
     loadData() {
+        this.isLoading = true;
         let deviceType = this.settings.deviceType;
         let mailboxType = this.settings.mailboxType;
         this.service.get(`/reports/mailboxes?deviceType=${deviceType}&mailboxType=${mailboxType}`)
+            .finally(() => this.isLoading = false)
             .subscribe(
             data => this.data = data.data,
             error => this.errorMessage = <any>error

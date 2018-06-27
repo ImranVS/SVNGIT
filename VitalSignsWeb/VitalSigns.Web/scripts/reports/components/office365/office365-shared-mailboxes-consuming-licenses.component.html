@@ -14,6 +14,7 @@
         <office365-disabled-users-sort [(widgetName)]="currentWidgetName"></office365-disabled-users-sort>
         <div class="reportsPage">
             <h1>Shared Mailboxes Consuming Licenses</h1>
+            <loading-indicator [isLoading]="isLoading"></loading-indicator>
             <div *ngIf="data && data.length == 0">
                 There are no Shared Mailboxes Consuming Licenses.
             </div>

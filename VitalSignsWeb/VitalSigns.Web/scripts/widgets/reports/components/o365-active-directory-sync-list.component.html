@@ -6,6 +6,7 @@
             <th>Active Directory Sync</th>
         </tr>
     </thead>
+    <loading-indicator [isLoading]="isLoading"></loading-indicator>
     <tbody *ngIf="data">
 
         <tr *ngFor="let entry of data">

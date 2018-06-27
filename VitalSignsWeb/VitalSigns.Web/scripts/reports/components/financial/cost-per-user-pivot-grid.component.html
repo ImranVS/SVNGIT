@@ -45,6 +45,7 @@
             <th>Daily Operating Cost</th>
         </tr>
     </thead>
+    <loading-indicator [isLoading]="isLoading"></loading-indicator>
     <tbody *ngIf="data">
         <tr *ngFor="let entry of data">
             <td>{{entry.device_name}}</td>

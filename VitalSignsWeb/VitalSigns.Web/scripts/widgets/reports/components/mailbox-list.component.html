@@ -11,6 +11,7 @@
             <th style='text-align:right'>Last Logon Time</th>
         </tr>
     </thead>
+    <loading-indicator [isLoading]="isLoading"></loading-indicator>
     <tbody *ngIf="data">
         <tr *ngFor="let entry of data">
             <td>{{entry.display_name}}</td>

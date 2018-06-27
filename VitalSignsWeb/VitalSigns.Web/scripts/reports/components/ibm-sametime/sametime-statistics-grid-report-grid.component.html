@@ -1,6 +1,7 @@
 ﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" #flex (itemsSourceChanged)="itemsSourceChangedHandler()" >
 
 </wj-flex-grid>
+<loading-indicator [isLoading]="isLoading"></loading-indicator>
 <div class="btn-group" *ngIf="data != null">
     <button type="button" class="btn btn-default"
             (click)="data.moveToFirstPage()"

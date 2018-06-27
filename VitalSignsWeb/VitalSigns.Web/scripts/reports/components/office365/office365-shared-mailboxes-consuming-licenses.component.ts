@@ -22,7 +22,7 @@ declare var injectSVG: any;
 export class Office365SharedMailboxesConsumingLicensesReport extends WidgetController {
     contextMenuSiteMap: any;
     widgets: WidgetContract[];
-
+    isLoading: boolean = true;
     data: any[];
 
     constructor(
@@ -38,7 +38,7 @@ export class Office365SharedMailboxesConsumingLicensesReport extends WidgetContr
     }
 
     ngOnInit() {
-
+        this.isLoading = true;
         super.ngOnInit();
         this.service.get('/navigation/sitemaps/office365_reports')
             .subscribe
@@ -46,8 +46,9 @@ export class Office365SharedMailboxesConsumingLicensesReport extends WidgetContr
             data => this.contextMenuSiteMap = data,
             error => console.log(error)
         );
-
+        
         this.service.get('/reports/office365_shared_mailboxes_consuming_license')
+            .finally(() => this.isLoading = false )
             .subscribe(
             data => this.data = data.data,
             error => console.log(error)

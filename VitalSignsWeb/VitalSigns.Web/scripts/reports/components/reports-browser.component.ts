@@ -63,11 +63,10 @@ export class ReportsBrowser {
 
     //Tests to see if you can export the report. Returns a integer for the given report type, or -1 if it cannot be exported
     canExport() {
-        
         if (<HTMLTableElement>document.querySelector('#htmlTable'))
             return "HtmlTable";
         try {
-            if (this.widgetService && this.childComponent) {
+            if (this.widgetService && this.childComponent && this.widgetService && this.widgetService.findWidget) {
                 var childsChild = this.widgetService.findWidget(this.childComponent.widgets[0].id).component;
                 if (childsChild) {
                     if (childsChild instanceof BubbleChartComponent)
@@ -76,7 +75,7 @@ export class ReportsBrowser {
                         return "Chart";
                 }
             }
-        } catch (ex) { console.log(ex) }
+        } catch (ex) { console.warn(ex) }
         return "None";
     }
 

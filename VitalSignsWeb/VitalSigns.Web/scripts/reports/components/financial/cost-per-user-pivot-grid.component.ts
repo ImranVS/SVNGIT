@@ -26,7 +26,7 @@ export class CostPerUserPivotGrid implements WidgetComponent, OnInit {
     @Input() settings: any;
 
     @Output() select: EventEmitter<string> = new EventEmitter<string>();
-
+    isLoading: boolean = true;
     data: wijmo.collections.CollectionView;
     errorMessage: string;
     currentPageSize: any = 20;
@@ -59,6 +59,7 @@ export class CostPerUserPivotGrid implements WidgetComponent, OnInit {
     }
 
     ngOnInit() {
+        this.isLoading = true;
         this.service.get('/reports/cost_per_user?statName=Server.Users&isChart=false')
             .subscribe(
             (data) => {
@@ -69,6 +70,7 @@ export class CostPerUserPivotGrid implements WidgetComponent, OnInit {
             (error) => this.errorMessage = <any>error
             );
         this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("CostPerUserPivotGrid", this.authService.CurrentUser.email)}`)
+            .finally(() => this.isLoading = false )
             .subscribe(
             (data) => {
                 this.currentPageSize = Number(data.data.value);

@@ -21,9 +21,10 @@ export class DiskSpaceWidgetReport implements WidgetComponent, OnInit {
     serviceId: any;
     private data: any[];
     private drives: any[] = [];
-
+    isLoading: boolean = true;
 
    
+
 
     constructor(protected resolver: ComponentFactoryResolver, private service: RESTService, protected widgetService: WidgetService,
         protected urlHelpers: helpers.UrlHelperService) {
@@ -94,11 +95,12 @@ export class DiskSpaceWidgetReport implements WidgetComponent, OnInit {
         new Highcharts.Chart(driveChart);
 
     }
-    loaddata(url: string) {
+    loaddata(url: string){ 
         let i = 0;
-
+        this.isLoading = true;
         //http://private-f4c5b-vitalsignssandboxserver.apiary-mock.com/reports/disk-space-consumption
         this.service.get(url)
+            .finally(() => this.isLoading = false)
             .subscribe((response) => {
                 this.drives = []
                 //data: any[];

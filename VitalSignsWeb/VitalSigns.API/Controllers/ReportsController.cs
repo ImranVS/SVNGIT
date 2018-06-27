@@ -2661,7 +2661,7 @@ namespace VitalSigns.API.Controllers
                     UserPrincipalName = x.UserPrincipalName,
                     UserType = x.UserType,
                     Title = x.Title,
-                    Licensed = String.Join(", ", x.License.Select(y => dictOfLicense.ContainsKey(y) ? dictOfLicense[y] : y)),
+                    Licensed = x.IsLicensed == true ? String.Join(", ", x.License.Select(y => dictOfLicense.ContainsKey(y) ? dictOfLicense[y] : y)) : "",
                     Department=x.Department,
                     AccountLastModified  = x.AccountLastModified
                 }).ToList().OrderBy(x => x.DisplayName);

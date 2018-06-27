@@ -30,7 +30,7 @@ export class AnyStatisticReportGrid implements WidgetComponent, OnInit {
     gridUrl: string = this.baseUrl +`?type=Domino&aggregationType=sum&statName=[Mail.Transferred,Mail.TotalRouted,Mail.Delivered]`;
 
     @Output() select: EventEmitter<string> = new EventEmitter<string>();
-
+    isLoading: boolean = true;
     data: wijmo.collections.CollectionView;
     errorMessage: string;
     columns: any;
@@ -61,7 +61,9 @@ export class AnyStatisticReportGrid implements WidgetComponent, OnInit {
         this.loaddata();
     }
     loaddata() {
+        this.isLoading = true;
         this.service.get(this.gridUrl)
+            .finally(() => this.isLoading = false)
             .subscribe(
             (data) => {
                 var newData = this.datetimeHelpers.toLocalDate(data);

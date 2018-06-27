@@ -29,7 +29,7 @@ export class MobileUsersReportGrid implements WidgetComponent, OnInit {
     @Input() settings: any;
 
     gridUrl: string = `/dashboard/mobile_user_devices`
-
+    isLoading: boolean = true;
     @Output() select: EventEmitter<string> = new EventEmitter<string>();
 
     data: wijmo.collections.CollectionView;
@@ -59,7 +59,9 @@ export class MobileUsersReportGrid implements WidgetComponent, OnInit {
         });
         this.gridUrl = `/dashboard/mobile_user_devices?isInactive=${this.paramtype}`;
         var displayDate = (new Date()).toISOString().slice(0, 10);
+        this.isLoading = true;
         this.service.get(this.gridUrl)
+            .finally(() => this.isLoading = false)
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDate(data.data)));
@@ -77,10 +79,11 @@ export class MobileUsersReportGrid implements WidgetComponent, OnInit {
     onPropertyChanged(key: string, value: any) {
 
         if (key === 'gridUrl') {
-
+			this.isLoading = true;
             this.gridUrl = value;
 
             this.service.get(this.gridUrl)
+            	.finally(() => this.isLoading = false)
                 .subscribe(
                 (data) => {
                     this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(this.datetimeHelpers.toLocalDate(data.data)));

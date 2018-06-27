@@ -23,7 +23,7 @@ export class UserTypeList implements WidgetComponent, OnInit {
     @Input() settings: any;
 
     errorMessage: string;
-
+    isLoading: boolean = true;
     data: any;
 
     constructor(private service: RESTService) { }
@@ -32,12 +32,14 @@ export class UserTypeList implements WidgetComponent, OnInit {
 
     
     loadData() {
+        this.isLoading = true;
         let deviceType = this.settings.deviceType;
         let inactive = this.settings.inactive;
         this.service.get(`/reports/usertype?inactive=${inactive}`)
+            .finally(() => this.isLoading = false)
             .subscribe(
-            data => this.data = data.data,
-            error => this.errorMessage = <any>error
+                data => this.data = data.data,
+                error => this.errorMessage = <any>error
             );
     }
     ngOnInit() {
