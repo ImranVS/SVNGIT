@@ -8259,7 +8259,7 @@ CleanUp:
             Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
             repo.Update(
                 repo.Filter.Eq(Function(x) x.Id, myServer.ServerObjectID),
-                repo.Updater.Set(Function(x) x.ObjectsToGather, myServer.ObjectsToGather.Select(Function(y) New NameValuePair With {.Name = y.Key, .Value = y.Value}))
+                repo.Updater.Set(Function(x) x.ObjectsToGather, myServer.ObjectsToGather.Select(Function(y) New NameValuePair With {.Name = y.Key, .Value = y.Value}).ToList())
                 )
         Catch ex As Exception
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error in UpdateConnectionsObjectsToScan. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
