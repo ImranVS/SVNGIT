@@ -68,13 +68,16 @@ namespace VSNext.Mongo.Entities
             {
                 //Sets a bookmark to the front of the Reader so we can go back if its already converted
                 var bookmark = context.Reader.GetBookmark();
+                //Checks the type of the elemet. It SHOULD be an array
                 switch (context.Reader.CurrentBsonType)
                 {
                     case BsonType.Array:
                         context.Reader.ReadStartArray();
                         var accumulator = CreateAccumulator();
+                        //loop through each element in the array
                         do
                         {
+                            //Checks the type of the first element in the array
                             var v = context.Reader.ReadBsonType();
                             switch (v)
                             {
@@ -99,6 +102,7 @@ namespace VSNext.Mongo.Entities
                 return base.Deserialize(context, args);
             }
 
+            //When using the base serializer, it passes "item" as an ExpandoObject. The if statement will convert item to a BSON document, then back to a NameValuePair
             protected override void AddItem(object accumulator, object item)
             {
                 if(item.GetType() == typeof(System.Dynamic.ExpandoObject))

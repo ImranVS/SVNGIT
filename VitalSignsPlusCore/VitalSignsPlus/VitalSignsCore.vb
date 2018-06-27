@@ -1368,7 +1368,7 @@ Public Class VitalSignsPlusCore
                             Dim serverRepo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Server)(connectionString)
                             serverRepo.Update(
                                 serverRepo.Filter.Eq(Function(y) y.DeviceType, VSNext.Mongo.Entities.Enums.ServerType.IBMConnections.ToDescription()),
-                                serverRepo.Updater.Set(Function(y) y.ObjectsToGather, ObjectsToGather.Select(Function(x) New NameValuePair() With {.Name = x.Key, .Value = x.Value}))
+                                serverRepo.Updater.Set(Function(y) y.ObjectsToGather, ObjectsToGather.Select(Function(x) New NameValuePair() With {.Name = x.Key, .Value = x.Value}).ToList())
                             )
                             For Each server As MonitoredItems.IBMConnect In MyIBMConnectServers
                                 server.ObjectsToGather = ObjectsToGather
@@ -8266,14 +8266,17 @@ CleanUp:
         End Try
     End Sub
 
+    'Grabs the Activities Data from the DB2 Database
     Public Sub GetActivityObjects(ByRef myServer As MonitoredItems.IBMConnect)
         Dim oWatch As New System.Diagnostics.Stopwatch
         oWatch.Start()
         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects.", LogUtilities.LogUtils.LogLevel.Normal)
         GetCommunityId(myServer, Nothing)
+        'SQL to be used later while looping through the letters. And initalies the letter to start at
         Dim activitesSqlWithArg As String = "SELECT node.Name, 'Activity' as Type, node.CREATED, node.LASTMOD, mp.EXID, node.ACTIVITYUUID FROM ACTIVITIES.OA_NODE node INNER JOIN ACTIVITIES.OA_MEMBERPROFILE mp ON mp.MEMBERID = node.CREATEDBY WHERE node.ISDELETED = 0 AND UPPER(node.Name) LIKE '{0}%';"
         Dim startingChar As String = myServer.ObjectsToGather("Activities")
 
+        'SQL for the data which will be used across all the letters
         Dim sql As String = "SELECT NODEUUID, NAME FROM ACTIVITIES.OA_TAG;" &
          "Select node.ACTIVITYUUID, mp.EXID, ac.ROLEID FROM ACTIVITIES.OA_NODE node INNER JOIN ACTIVITIES.OA_ACLENTRY ac On node.ACTIVITYUUID = ac.OBJECTUUID INNER JOIN ACTIVITIES.OA_MEMBERPROFILE mp On mp.MEMBERID = ac.MEMBERID WHERE node.ISDELETED = 0 And mp.MEMBERTYPE <> 3;" &
          "Select mp.exid, node.nodeuuid from (Select exid, memberid from activities.oa_memberprofile where exid In ('" & String.Join("','", dictOfCommunityIds.Keys) & "')) mp inner join activities.oa_memberprofile mp2 on mp2.exid =  mp.memberid || '+owner' inner join activities.OA_ACLENTRY al on mp2.memberid = al.memberid inner join activities.oa_node node on node.nodeuuid = al.objectuuid and node.isdeleted = 0;"
@@ -8281,6 +8284,7 @@ CleanUp:
         Dim Category As String = "Activity"
         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After query made: " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
         Try
+            'Grabs the data to be used across all the letters. Such as tags, users, ect
             Dim con As IBM.Data.DB2.DB2Connection
             Dim ds As New DataSet
             Try
@@ -8305,6 +8309,8 @@ CleanUp:
 
             End Try
             WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After DB call made: " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+
+            'Prints out the col/row count for each table
             Try
                 For Each table As DataTable In ds.Tables
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Category: " & Category & " Table " & ds.Tables.IndexOf(table) & " Rows " & table.Rows.Count & " Columns " & table.Columns.Count, LogUtilities.LogUtils.LogLevel.Normal)
@@ -8324,139 +8330,158 @@ CleanUp:
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " Could not get " & Category & " Objects.", LogUtilities.LogUtils.LogLevel.Normal)
                 Else
 
-                    ClearConnectionObjectTables(myServer, "Activity")
+
                     WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After cleaning made: " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
 
                     Dim myServerName As String = myServer.Name
                     Dim myServerId As String = myServer.ServerObjectID
-                    'Dim IbmConnectionsObjects As New VSNext.Mongo.Entities.IbmConnectionsObjects
                     Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp)(connectionString)
-                    'Dim filterdef As MongoDB.Driver.FilterDefinition(Of VSNext.Mongo.Entities.IbmConnectionsObjects) = repo.Filter.Where(Function(j) j.Type.Equals("Activity") And j.DeviceId.Equals(myServerId))
-                    ' repo.Delete(filterdef)
                     Dim repoIbmConnectionsUsers As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp)(connectionString)
                     Try
 
+                        'Grabs users out and prints some debugging info
                         Dim bulkOps As New List(Of WriteModel(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp))
                         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. Before users made: " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
                         Dim allUsers As List(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp) = repoIbmConnectionsUsers.Find(repoIbmConnectionsUsers.Filter.Eq(Function(x) x.Type, "Users") And repoIbmConnectionsUsers.Filter.Eq(Function(x) x.DeviceId, myServerId)).ToList()
                         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After users made: " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
                         Dim counter = 0
                         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. Starting char: " & IIf(String.IsNullOrWhiteSpace(startingChar), "N/A", startingChar), LogUtilities.LogUtils.LogLevel.Normal)
+
+                        'If the starting character is null, clear the collection. 
+                        'This happens after a successful (or the first iteration) scan
+                        If String.IsNullOrWhiteSpace(startingChar) Then
+                            ClearConnectionObjectTables(myServer, "Activity")
+                        End If
+
+                        'Loops through each letter to grab the activities
                         For Each c In "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray()
-                            If String.IsNullOrWhiteSpace(startingChar) AndAlso c <= startingChar.ToUpper().Chars(0) Then
-                                Continue For
-                            End If
-                            Dim actSql As String = String.Format(activitesSqlWithArg, c)
-                            Dim actDS As New DataSet
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. Executing query for '" & c & "'", LogUtilities.LogUtils.LogLevel.Normal)
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. Executing query " & actSql, LogUtilities.LogUtils.LogLevel.Normal)
                             Try
-                                con = New IBM.Data.DB2.DB2Connection("Database=OPNACT;UserID=" & myServer.DBUserName & ";Password=" & myServer.DBPassword & ";Server=" & myServer.DBHostName & ":" & myServer.DBPort & ";Connect Timeout=60;")
-                                con.Open()
-                                Dim cmd As New IBM.Data.DB2.DB2Command(actSql, con)
-                                Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
-                                cmd.CommandTimeout = getConnectionsTimeout()
-                                adapter.Fill(actDS)
+                                'Moves to the next letter if the startingChar is "less then" the current one
+                                If Not String.IsNullOrWhiteSpace(startingChar) AndAlso (c <= startingChar.ToUpper().Chars(0)) Then
+                                    Continue For
+                                End If
+                                Dim actSql As String = String.Format(activitesSqlWithArg, c)
+                                Dim actDS As New DataSet
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. Executing query for '" & c & "'", LogUtilities.LogUtils.LogLevel.Normal)
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. Executing query " & actSql, LogUtilities.LogUtils.LogLevel.Normal)
 
-
-                            Catch ex As Exception
-                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error getting Activity Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                            Finally
+                                'Executes the SQL for the letter
                                 Try
-                                    If con.IsOpen Then
-                                        con.Close()
-                                    End If
+                                    con = New IBM.Data.DB2.DB2Connection("Database=OPNACT;UserID=" & myServer.DBUserName & ";Password=" & myServer.DBPassword & ";Server=" & myServer.DBHostName & ":" & myServer.DBPort & ";Connect Timeout=60;")
+                                    con.Open()
+                                    Dim cmd As New IBM.Data.DB2.DB2Command(actSql, con)
+                                    Dim adapter As New IBM.Data.DB2.DB2DataAdapter(cmd)
+                                    cmd.CommandTimeout = getConnectionsTimeout()
+                                    adapter.Fill(actDS)
+
+
                                 Catch ex As Exception
-
-                                End Try
-
-                            End Try
-
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. Executed query for '" & c & "'. Found " & actDS.Tables(0).Rows().Count() & " rows.", LogUtilities.LogUtils.LogLevel.Normal)
-
-                            For Each row As DataRow In actDS.Tables(0).Rows()
-                                Try
-                                    Dim print = counter Mod 1000 = 0
-                                    counter += 1
-                                    'Counter X. Elapsed time Y seconds
-                                    If print Then
-                                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. Start " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
-                                    End If
-                                    Dim connectionsUserId As String = allUsers.Where(Function(x) x.GUID = row("EXID").ToString()).FirstOrDefault().Id
-                                    If print Then
-                                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After User Found " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
-                                    End If
-                                    Dim IbmConnectionsObjectsTemp2 As New VSNext.Mongo.Entities.IbmConnectionsObjectsTemp
-                                    IbmConnectionsObjectsTemp2.Name = row("NAME").ToString()
-                                    IbmConnectionsObjectsTemp2.DeviceName = myServerName
-                                    IbmConnectionsObjectsTemp2.DeviceId = myServerId
-                                    IbmConnectionsObjectsTemp2.Type = "Activity"
-                                    IbmConnectionsObjectsTemp2.ObjectCreatedDate = Convert.ToDateTime(row("CREATED").ToString())
-                                    IbmConnectionsObjectsTemp2.ObjectModifiedDate = Convert.ToDateTime(row("LASTMOD").ToString())
-                                    IbmConnectionsObjectsTemp2.OwnerId = connectionsUserId
-                                    IbmConnectionsObjectsTemp2.GUID = row("ACTIVITYUUID").ToString()
-                                    If print Then
-                                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After Object Made " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
-                                    End If
+                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "Error getting Activity Objects. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                                Finally
                                     Try
-                                        If (ds.Tables(2).Select("NODEUUID = '" + row("ACTIVITYUUID").ToString() + "'").Count > 0) Then
-                                            Dim parentGUID As String = ds.Tables(2).Select("NODEUUID = '" + row("ACTIVITYUUID").ToString() + "'").First()("exid").ToString()
-                                            IbmConnectionsObjectsTemp2.ParentDB2Guid = parentGUID
-                                            IbmConnectionsObjectsTemp2.ParentGUID = GetCommunityId(myServer, parentGUID)
+                                        If con.IsOpen Then
+                                            con.Close()
                                         End If
                                     Catch ex As Exception
-                                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " GetActivityObjects. Exception findign activity parent. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
-                                    End Try
-                                    If print Then
-                                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After ParentGUID " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
-                                    End If
-                                    Try
-                                        Dim tags As New List(Of String)
-                                        For Each tagRow As DataRow In ds.Tables(0).Select("NODEUUID = '" & row("ACTIVITYUUID").ToString() & "'")
-                                            If Not tags.Contains(tagRow("NAME").ToString()) Then
-                                                tags.Add(tagRow("NAME").ToString())
-                                            End If
 
-                                        Next
-                                        IbmConnectionsObjectsTemp2.tags = tags
-                                    Catch ex As Exception
-                                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " GetActivityObjects. Exception getting activitry tags. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
                                     End Try
-                                    If print Then
-                                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After Tags Made " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
-                                    End If
-                                    Dim users As New List(Of String)
-                                    For Each userRow As DataRow In ds.Tables(1).Select("ACTIVITYUUID = '" & row("ACTIVITYUUID").ToString() & "'")
+
+                                End Try
+
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. Executed query for '" & c & "'. Found " & actDS.Tables(0).Rows().Count() & " rows.", LogUtilities.LogUtils.LogLevel.Normal)
+
+                                'Loops through the rows and processes each into a entity for mongo
+                                For Each row As DataRow In actDS.Tables(0).Rows()
+                                    Try
+                                        Dim print = counter Mod 1000 = 0
+                                        counter += 1
+                                        'Counter X. Elapsed time Y seconds
+                                        If print Then
+                                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. Start " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                                        End If
+                                        Dim connectionsUserId As String = allUsers.Where(Function(x) x.GUID = row("EXID").ToString()).FirstOrDefault().Id
+                                        If print Then
+                                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After User Found " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                                        End If
+                                        Dim IbmConnectionsObjectsTemp2 As New VSNext.Mongo.Entities.IbmConnectionsObjectsTemp
+                                        IbmConnectionsObjectsTemp2.Name = row("NAME").ToString()
+                                        IbmConnectionsObjectsTemp2.DeviceName = myServerName
+                                        IbmConnectionsObjectsTemp2.DeviceId = myServerId
+                                        IbmConnectionsObjectsTemp2.Type = "Activity"
+                                        IbmConnectionsObjectsTemp2.ObjectCreatedDate = Convert.ToDateTime(row("CREATED").ToString())
+                                        IbmConnectionsObjectsTemp2.ObjectModifiedDate = Convert.ToDateTime(row("LASTMOD").ToString())
+                                        IbmConnectionsObjectsTemp2.OwnerId = connectionsUserId
+                                        IbmConnectionsObjectsTemp2.GUID = row("ACTIVITYUUID").ToString()
+                                        If print Then
+                                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After Object Made " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                                        End If
                                         Try
-                                            Dim objIbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsObjectsTemp = allUsers.Where(Function(x) x.GUID = userRow("EXID").ToString()).FirstOrDefault()
-                                            If Not users.Contains(objIbmConnectionsUsers.Id) Then
-                                                users.Add(objIbmConnectionsUsers.Id)
+                                            If (ds.Tables(2).Select("NODEUUID = '" + row("ACTIVITYUUID").ToString() + "'").Count > 0) Then
+                                                Dim parentGUID As String = ds.Tables(2).Select("NODEUUID = '" + row("ACTIVITYUUID").ToString() + "'").First()("exid").ToString()
+                                                IbmConnectionsObjectsTemp2.ParentDB2Guid = parentGUID
+                                                IbmConnectionsObjectsTemp2.ParentGUID = GetCommunityId(myServer, parentGUID)
                                             End If
                                         Catch ex As Exception
-                                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " GetActivityObjects. Exception getting owner. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
+                                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " GetActivityObjects. Exception findign activity parent. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
                                         End Try
+                                        If print Then
+                                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After ParentGUID " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                                        End If
+                                        Try
+                                            Dim tags As New List(Of String)
+                                            For Each tagRow As DataRow In ds.Tables(0).Select("NODEUUID = '" & row("ACTIVITYUUID").ToString() & "'")
+                                                If Not tags.Contains(tagRow("NAME").ToString()) Then
+                                                    tags.Add(tagRow("NAME").ToString())
+                                                End If
 
-                                    Next
-                                    If print Then
-                                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After Users added " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
-                                    End If
+                                            Next
+                                            IbmConnectionsObjectsTemp2.tags = tags
+                                        Catch ex As Exception
+                                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " GetActivityObjects. Exception getting activitry tags. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
+                                        End Try
+                                        If print Then
+                                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After Tags Made " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                                        End If
+                                        Dim users As New List(Of String)
+                                        For Each userRow As DataRow In ds.Tables(1).Select("ACTIVITYUUID = '" & row("ACTIVITYUUID").ToString() & "'")
+                                            Try
+                                                Dim objIbmConnectionsUsers As VSNext.Mongo.Entities.IbmConnectionsObjectsTemp = allUsers.Where(Function(x) x.GUID = userRow("EXID").ToString()).FirstOrDefault()
+                                                If Not users.Contains(objIbmConnectionsUsers.Id) Then
+                                                    users.Add(objIbmConnectionsUsers.Id)
+                                                End If
+                                            Catch ex As Exception
+                                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " GetActivityObjects. Exception getting owner. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Verbose)
+                                            End Try
 
-                                    IbmConnectionsObjectsTemp2.users = users
+                                        Next
+                                        If print Then
+                                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After Users added " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                                        End If
 
-                                    'repo.Insert(IbmConnectionsObjectsTemp2)
-                                    bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp)(IbmConnectionsObjectsTemp2))
-                                Catch ex As Exception
-                                    WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " GetActivityObjeGet Activity Objectscts. Exception in Activities Loop. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
-                                End Try
-                            Next
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. Before bulk insert " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
-                            repoIbmConnectionsUsers.BulkInsert(bulkOps)
-                            bulkOps.Clear()
-                            WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After Bulk insert " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                                        IbmConnectionsObjectsTemp2.users = users
 
-                            myServer.ObjectsToGather("Activities") = c
-                            UpdateConnectionsObjectsToScan(myServer)
+                                        'repo.Insert(IbmConnectionsObjectsTemp2)
+                                        bulkOps.Add(New MongoDB.Driver.InsertOneModel(Of VSNext.Mongo.Entities.IbmConnectionsObjectsTemp)(IbmConnectionsObjectsTemp2))
+                                    Catch ex As Exception
+                                        WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " GetActivityObjeGet Activity Objectscts. Exception in Activities Loop. Exception: " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                                    End Try
+                                Next
 
+                                'Does a bulk insert to mongo. Then updates the last scanned letter
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. Before bulk insert " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+                                If (bulkOps.Count() > 0) Then
+                                    repoIbmConnectionsUsers.BulkInsert(bulkOps)
+                                End If
+
+                                bulkOps.Clear()
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & " In GetActivityObjects. After Bulk insert " & counter & ": " & oWatch.Elapsed.TotalSeconds, LogUtilities.LogUtils.LogLevel.Normal)
+
+                                myServer.ObjectsToGather("Activities") = c
+                                UpdateConnectionsObjectsToScan(myServer)
+                                Thread.Sleep(1000)
+                            Catch ex As Exception
+                                WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "GetActivityObjects Error looping through the letters. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
+                            End Try
                         Next
                     Catch ex As Exception
                         WriteDeviceHistoryEntry(myServer.DeviceType, myServer.Name, Now.ToString & "GetActivityObjects Error trying to get table 6. Error : " & ex.Message, LogUtilities.LogUtils.LogLevel.Normal)
