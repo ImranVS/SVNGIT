@@ -27,6 +27,7 @@ export class IBMDominoGrid implements WidgetComponent, OnInit {
     data: wijmo.collections.CollectionView;
     errorMessage: string;
     currentPageSize: any = 20;
+    dateNow: any = (new Date()).getTime();
 
     constructor(private service: RESTService, protected toolTip: helpers.GridTooltip, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) { }
 
@@ -59,6 +60,7 @@ export class IBMDominoGrid implements WidgetComponent, OnInit {
         this.service.get('/services/status_list?type=Domino')
             .subscribe(
             (data) => {
+                data.data.forEach(s => s.startup_date = s.elapsed_days ? new Date(this.dateNow - (s.elapsed_days * 24 * 60 * 60 * 1000)):null) 
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
                 this.data.pageSize = this.currentPageSize;
                 this.data.refresh();
