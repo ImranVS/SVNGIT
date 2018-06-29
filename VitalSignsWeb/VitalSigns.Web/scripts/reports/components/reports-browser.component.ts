@@ -67,12 +67,15 @@ export class ReportsBrowser {
             return "HtmlTable";
         try {
             if (this.widgetService && this.childComponent && this.widgetService && this.widgetService.findWidget) {
-                var childsChild = this.widgetService.findWidget(this.childComponent.widgets[0].id).component;
-                if (childsChild) {
-                    if (childsChild instanceof BubbleChartComponent)
-                        return "BubbleChart";
-                    if (childsChild instanceof ChartComponent)
-                        return "Chart";
+                var widget = this.widgetService.findWidget(this.childComponent.widgets[0].id)
+                if (widget) {
+                    var childsChild = widget.component;
+                    if (childsChild) {
+                        if (childsChild instanceof BubbleChartComponent)
+                            return "BubbleChart";
+                        if (childsChild instanceof ChartComponent)
+                            return "Chart";
+                    }
                 }
             }
         } catch (ex) { console.warn(ex) }

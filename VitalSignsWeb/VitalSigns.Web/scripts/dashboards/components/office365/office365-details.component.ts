@@ -64,6 +64,8 @@ export class Office365Details implements OnInit {
                 .subscribe(
                 data => {
                     this.service = data.data;
+                    this.service.tabs.splice(this.service.tabs.findIndex(x => x.title == "Mail Stats"), 1)
+
                     this.selectTab(this.service.tabs[0]);
                 },
                 error => this.errorMessage = <any>error

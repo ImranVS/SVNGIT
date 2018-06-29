@@ -1,4 +1,4 @@
-﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" id="flex" headersVisibility="Column" (selectionChanged)="onSelectionChanged($event)" #flex style="height: 475px">
+﻿<wj-flex-grid [itemsSource]="data" selectionMode="Row" [isReadOnly]="true" id="flex" headersVisibility="Column" (selectionChanged)="onSelectionChanged($event)" #flex>
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'Name'" [binding]="'device_name'" [width]="150"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Node Name'" [binding]="'category'" [width]="150"></wj-flex-grid-column>
@@ -16,27 +16,6 @@
                 {{cell.item.details}}
             </div>
         </template>
-    </wj-flex-grid-column>
-    <wj-flex-grid-column header="Tests" [binding]="headerText" [minWidth]="550" [width]="'*'">
-        <template wjFlexGridCellTemplate [cellType]="'Cell'" let-item="item" let-cell="cell">
-            <!--<div  class="list-group">
-                <div *ngFor="let htext of cell.item.headerText; let i = index">
-                    <div *ngIf="cell.item.dataKey[i] == 'Pass'" class="list-group-item list-group-item-action list-group-item-success">{{htext}}</div>
-                    <div *ngIf="cell.item.dataKey[i] == 'Fail'" class="list-group-item list-group-item-action list-group-item-danger">{{htext}}</div>
-                </div>
-                <div *ngIf="cell.item.dataKey[i] == 'Pass'" class="label label-pill label-success" style="float: left; width: 150px">{{htext}}</div>
-                <div *ngIf="cell.item.dataKey[i] == 'Fail'" class="label label-pill label-danger" style="float: left; width: 150px">{{htext}}</div>
-                
-            </div>-->
-            <div *ngFor="let htext of cell.item.headerText; let i = index">
-                <a *ngIf="cell.item.dataKey[i] == 'Pass'" class="btn btn-primary btn-circle text-uppercase" 
-                   style="float: left; width: 180px; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" 
-                   title="{{htext}}"><span class="glyphicon glyphicon-ok-circle" style="text-align: left"></span> {{htext}}</a>
-                <a *ngIf="cell.item.dataKey[i] == 'Fail'" class="btn btn-danger btn-circle text-uppercase" 
-                   style="float: left; width: 180px; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" 
-                   title="{{htext}}"><span class="glyphicon glyphicon-remove-circle" style="text-align: left"></span> {{htext}}</a>
-            </div>
-</template>
     </wj-flex-grid-column>
 </wj-flex-grid>
 <div class="btn-group" *ngIf="data != null">

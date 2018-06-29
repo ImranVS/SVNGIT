@@ -3,7 +3,7 @@ import {ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 
 import {RESTService} from '../../../core/services';
-
+import { WidgetService } from '../../../core/widgets/services/widget.service';
 import * as ServiceTabs from '../../../services/service-tab.collection';
 //import * as ServiceTabs from './office-365-mail-users-tabs.collection';
 declare var injectSVG: any;
@@ -12,7 +12,8 @@ declare var injectSVG: any;
     templateUrl: '/app/dashboards/components/key-metrics/office-365-mail-user-tabs.component.html',
     providers: [
         HttpModule,
-        RESTService
+        RESTService,
+        WidgetService
     ]
 })
 export class Office365MailUserTabs implements OnInit {
@@ -47,17 +48,23 @@ export class Office365MailUserTabs implements OnInit {
     ngOnInit() {
         this.tabsData = [
             {
+                "title": "Users",
+                "component": "Office365UsersGrid",
+                "path": "/app/dashboards/components/key-metrics/office-365-users-grid.component",
+                "active": false
+            }, 
+            {
                 "title": "Mailboxes",
                 "component": "Office365MailboxViewTab",
                 "path": "/app/dashboards/components/key-metrics/office-365-mailbox-grid.component",
                 "active": false
             },
             {
-                "title": "Users",
-                "component": "Office365UsersGrid",
-                "path": "/app/dashboards/components/key-metrics/office-365-users-grid.component",
-                "active": false
-            },   
+                "title": "Mail Stats",
+                "type": "Dashboard",
+                "component": "Office365MailStatsTab",
+                "path": "/app/dashboards/components/office365/office365-mail-stats-tab.component"
+            },  
             {
                 "title": "Licenses",
                 "component": "Office365LicensesTab",

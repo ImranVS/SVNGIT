@@ -32,6 +32,7 @@ export class Office365MailStatsTab extends WidgetController implements OnInit {
                 this.serviceId = params['service'].split(';');
             }
             else {
+                this.serviceId = ''
                 //var res: string[] = this.serviceId.split(';');
                 //if (res.length > 1) {
                 //    this.nodeName = res[1];
