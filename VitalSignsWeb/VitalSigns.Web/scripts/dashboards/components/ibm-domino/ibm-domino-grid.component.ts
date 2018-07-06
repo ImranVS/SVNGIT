@@ -57,7 +57,7 @@ export class IBMDominoGrid implements WidgetComponent, OnInit {
 
     ngOnInit() {
 
-        this.service.get('/services/status_list?type=Domino')
+        this.service.get('/services/status_list?type=Domino&isenabled=true')
             .subscribe(
             (data) => {
                 data.data.forEach(s => s.startup_date = s.elapsed_days ? new Date(this.dateNow - (s.elapsed_days * 24 * 60 * 60 * 1000)):null) 
