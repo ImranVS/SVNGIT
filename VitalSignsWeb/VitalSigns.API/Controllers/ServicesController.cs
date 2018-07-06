@@ -1362,9 +1362,10 @@ namespace VitalSigns.API.Controllers
 
 
         [HttpGet("status_list")]
-        public APIResponse GetStatusList(string type, string docfield = "", string sortby = "", bool isChart = false, bool heightBasedOnData = false,string deviceId="")
+        public APIResponse GetStatusList(string type, string docfield = "", string sortby = "", bool isChart = false, bool heightBasedOnData = false,string deviceId="", string isenabled = "")
         {
             statusRepository = new Repository<Status>(ConnectionString);
+            serverRepository = new Repository<Server>(ConnectionString);
             List<Status> statslist = null;
             Expression<Func<Status, bool>> expression;
             List<dynamic> result = new List<dynamic>();
@@ -1376,9 +1377,17 @@ namespace VitalSigns.API.Controllers
             List<string> dataList = new List<string>();
             Segment segment = new Segment();
             FilterDefinition<Status> FilterdefStatus = statusRepository.Filter.Where(x => true);
+           
+           
             if (deviceId != "")
             {
                 FilterdefStatus = statusRepository.Filter.Eq(x => x.DeviceId,deviceId);
+            }
+            if (isenabled == "true")
+            {
+                FilterDefinition<Server> FilterEnable = serverRepository.Filter.Where(x => x.IsEnabled == true);
+                var filterid = serverRepository.Find(FilterEnable).ToList().Select(x => x.Id).ToList();
+                FilterdefStatus = FilterdefStatus & statusRepository.Filter.In(x => x.DeviceId, filterid);
             }
             try
             {
