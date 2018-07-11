@@ -56,7 +56,7 @@ export class IBMTravelerGrid implements WidgetComponent, OnInit {
     }
 
     ngOnInit() {
-        this.service.get(`/dashboard/traveler-health`)
+        this.service.get('/dashboard/traveler-health?isenabled=true')
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
