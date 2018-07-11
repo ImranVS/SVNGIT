@@ -57,7 +57,7 @@ export class IBMWebsphereServerGrid implements WidgetComponent, OnInit {
         this.appComponentService.showProgressBar();
         this.serviceId = this.widgetService.getProperty('serviceId');
 
-        this.service.get(`/services/websphere_devices?parentid=${this.serviceId}&devicetype=WebSphere`)
+        this.service.get('/services/websphere_devices?isenabled=true&parentid=${this.serviceId}&devicetype=WebSphere')
             .subscribe(
             (data) => {
                 this.appComponentService.hideProgressBar();
@@ -111,7 +111,7 @@ export class IBMWebsphereServerGrid implements WidgetComponent, OnInit {
 
             this.serviceId = value;
 
-            this.service.get(`/services/websphere_devices?parentid=${this.serviceId}&devicetype=WebSphere`)
+            this.service.get(`/services/websphere_devices?isenabled=true&parentid=${this.serviceId}&devicetype=WebSphere`)
                 .subscribe(
                 (data) => {
                     this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
