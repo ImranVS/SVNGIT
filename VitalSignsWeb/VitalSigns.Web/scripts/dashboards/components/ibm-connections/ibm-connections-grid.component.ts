@@ -73,7 +73,7 @@ export class IBMConnectionsGrid implements WidgetComponent, OnInit {
     }
 
     ngOnInit() {
-        this.service.get('/services/status_list?type=IBM%20Connections')
+        this.service.get('/services/status_list?type=IBM%20Connections&isenabled=true')
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));

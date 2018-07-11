@@ -76,9 +76,6 @@ export class IBMDominoGrid implements WidgetComponent, OnInit {
             },
             (error) => this.errorMessage = <any>error
             );
-        //this.flex.autoSizeRow(0);
-
-        // Create custom tooltip
         this.toolTip.getTooltip(this.flex, 0, 8);
     }
     

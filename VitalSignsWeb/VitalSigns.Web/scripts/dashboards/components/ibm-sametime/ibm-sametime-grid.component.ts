@@ -77,7 +77,7 @@ export class IBMSametimeGrid implements WidgetComponent, OnInit {
     }
 
     ngOnInit() { 
-        this.service.get('/services/status_list?type=Sametime')
+        this.service.get('/services/status_list?type=Sametime&isenabled=true')
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
