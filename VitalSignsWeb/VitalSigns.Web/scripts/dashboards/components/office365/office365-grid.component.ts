@@ -71,7 +71,7 @@ export class Office365Grid implements WidgetComponent, OnInit {
     }
 
     ngOnInit() {
-        this.service.get('/services/status_list?type=Office365')
+        this.service.get('/services/status_list?type=Office365&isenabled=true')
             .subscribe(
             (data) => {
                 this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
