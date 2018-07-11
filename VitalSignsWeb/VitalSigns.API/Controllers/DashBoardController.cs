@@ -701,16 +701,24 @@ namespace VitalSigns.API.Controllers
         /// <author>Sowjanya</author>
         /// <returns>List of traveler health  details</returns>
         [HttpGet("traveler-health")]
-        public APIResponse GetTravelerHealth(string deviceid = "")
+        public APIResponse GetTravelerHealth(string deviceid = "", string isenabled = "")
         {
             List<TravelerHealth> result = null;
             try
             {
                 statusRepository = new Repository<Status>(ConnectionString);
+                serverRepository = new Repository<Server>(ConnectionString);
+                FilterDefinition<Status> FilterdefStatus = statusRepository.Filter.Where(x => true);
                 if (string.IsNullOrEmpty(deviceid))
                 {
+                if (isenabled == "true")
+                {
+                    FilterDefinition<Server> FilterEnable = serverRepository.Filter.Where(x => x.IsEnabled == true);
+                    var filterid = serverRepository.Find(FilterEnable).ToList().Select(x => x.Id).ToList();
+                    FilterdefStatus = FilterdefStatus & statusRepository.Filter.In(x => x.DeviceId, filterid);
+                 }
                     FilterDefinition<Status> filterDef = statusRepository.Filter.Exists(p => p.TravelerStatus);
-                    result = statusRepository.Find(filterDef).Select(x => new TravelerHealth
+                    result = statusRepository.Find(filterDef & FilterdefStatus).Select(x => new TravelerHealth
                     {
                         DeviceId = x.DeviceId,
                         DeviceName = x.DeviceName,
