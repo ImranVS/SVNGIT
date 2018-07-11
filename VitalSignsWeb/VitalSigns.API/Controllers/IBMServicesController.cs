@@ -26,7 +26,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<DailyStatistics> dailyRepository;
 
         [HttpGet("websphere_devices")]
-        public APIResponse GetWebsphereDevices(string parentid, string devicetype)
+        public APIResponse GetWebsphereDevices(string parentid, string devicetype, string isenabled = "")
         {
             Expression<Func<Status, bool>> expressionStatus;
             statusRepository = new Repository<Status>(ConnectionString);
@@ -37,6 +37,7 @@ namespace VitalSigns.API.Controllers
             List<WebSphereServer> servers = new List<WebSphereServer>();
             BsonDocument bsondoc = new BsonDocument();
             FilterDefinition<DailyStatistics> filterdefStats;
+            FilterDefinition<Status> FilterdefStatus = statusRepository.Filter.Where(x => true);
 
             try
             {
@@ -51,13 +52,19 @@ namespace VitalSigns.API.Controllers
                         {
                             if (node.WebSphereServers.Count > 0)
                             {
+                                if (isenabled == "true")
+                                {
+                                    FilterDefinition<Server> FilterEnable = serverRepository.Filter.Where(x => x.IsEnabled == true);
+                                    var filterid = serverRepository.Find(FilterEnable).ToList().Select(x => x.Id).ToList();
+                                    FilterdefStatus = FilterdefStatus & statusRepository.Filter.In(x => x.DeviceId, filterid);
+                                }
                                 servers = node.WebSphereServers.ToList();
                                 List<String> ids = node.WebSphereServers.Select(x => x.ServerId).ToList();
                                 FilterDefinition<Status> filterdefStatus = statusRepository.Filter.And(statusRepository.Filter.Eq(x => x.DeviceType, devicetype),
                                     statusRepository.Filter.In(x => x.DeviceId, ids));
                                 filterdefStats = dailyRepository.Filter.And(dailyRepository.Filter.In(x => x.DeviceId, ids),
                                     dailyRepository.Filter.Gte(x => x.CreatedOn, DateTime.Now.Date));
-                                var statuslist = statusRepository.Find(filterdefStatus).AsQueryable().OrderBy(x => x.DeviceName);
+                                var statuslist = statusRepository.Find(filterdefStatus & FilterdefStatus).AsQueryable().OrderBy(x => x.DeviceName);
                                 var statsList = dailyRepository.Collection.Aggregate()
                                         .Match(filterdefStats)
                                         .Group(r => new { statName = r.StatName, deviceId = r.DeviceId }, g =>
