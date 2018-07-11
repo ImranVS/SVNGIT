@@ -56,7 +56,7 @@ export class MSExchangeGrid implements WidgetComponent, OnInit {
     
 
     ngOnInit() {
-        this.service.get('/services/status_list?type=Exchange')
+        this.service.get('/services/status_list?type=Exchange&isenabled=true')
 
             .subscribe(
             (data) => {

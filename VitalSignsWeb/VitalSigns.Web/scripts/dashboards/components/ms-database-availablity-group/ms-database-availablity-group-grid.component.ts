@@ -64,7 +64,7 @@ export class DAGHealthGrid implements WidgetComponent, OnInit {
     }
 
     ngOnInit() {
-        this.service.get('/services/status_list?type=Database Availability Group')
+        this.service.get('/services/status_list?type=Database Availability Group&isenabled=true')
             .subscribe(
             (data) => {
                     for (var i = 0; i < data.data.length; i++) {
