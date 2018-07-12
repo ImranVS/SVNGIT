@@ -71,6 +71,7 @@ export class ServicesView implements OnInit, AfterViewChecked {
     module: string;
     status: string;
     services: any[];
+    timer: any;
     addServersForm: FormGroup;
     deviceLocationData: any;
     selectedLocation: string;
@@ -164,10 +165,16 @@ export class ServicesView implements OnInit, AfterViewChecked {
         this.route.params.subscribe(params => {
             this.module = params['module'];
             this.loadData(); 
+            this.timer = window.setInterval(() => {
+                this.loadData();
+
+            }, 30000);
         });
         
     }
-
+    ngOnDestroy() {
+        clearInterval(this.timer);
+    }
     ngAfterViewChecked() {
         injectSVG();
     }
