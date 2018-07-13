@@ -62,7 +62,8 @@ namespace VitalSigns.API.Controllers
                                                         }).OrderBy(x => x.Name).ToList();
 
                 //same filter restrictions are in GetStatusSummaryByType, GetAllServerServices and ServerStatusSummary
-                servers.AddRange(serverOtherRepository.Find(x => x.IsEnabled == true && x.Type == Enums.ServerType.NotesDatabase.ToDescription()).ToList()
+                string[] serverothertypes = new string[] { Enums.ServerType.NotesDatabase.ToDescription(), Enums.ServerType.ExchangeMailProbe.ToDescription() };
+                servers.AddRange(serverOtherRepository.Find(x => x.IsEnabled == true && serverothertypes.Contains(x.Type)).ToList()
                                                         .Select(x => new ServerStatus
                                                         {
                                                             Id = x.Id,
@@ -1383,7 +1384,7 @@ namespace VitalSigns.API.Controllers
             {
                 FilterdefStatus = statusRepository.Filter.Eq(x => x.DeviceId,deviceId);
             }
-            if (isenabled == "true")
+             if (isenabled == "true")
             {
                 FilterDefinition<Server> FilterEnable = serverRepository.Filter.Where(x => x.IsEnabled == true);
                 var filterid = serverRepository.Find(FilterEnable).ToList().Select(x => x.Id).ToList();
