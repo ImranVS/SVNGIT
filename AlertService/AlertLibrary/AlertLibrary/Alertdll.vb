@@ -221,16 +221,7 @@ Public Class Alertdll
                 End If
 
 
-                Dim DeviceTypelist() As String = {"Mail", "NotesMail Probe", "Notes Database", "Mobile Users"}
 
-                For Each Type As String In DeviceTypelist
-                    If Type = DeviceType Then
-                        DeviceList = False
-                    End If
-                Next
-                If DeviceList Then
-                    UpdateStatusDetails(DeviceType, DeviceName, AlertType, Details, Location, Category, "Fail", NowTime)
-                End If
             Catch ex As Exception
                 WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Error searching events: " & ex.Message)
                 WriteAuditEntry(NowTime & " Error searching events: " & ex.Message)
@@ -238,6 +229,21 @@ Public Class Alertdll
 
             GC.Collect()
         End If
+        Try
+            Dim DeviceTypelist() As String = {"Mail", "NotesMail Probe", "Notes Database", "Mobile Users"}
+
+            For Each Type As String In DeviceTypelist
+                If Type = DeviceType Then
+                    DeviceList = False
+                End If
+            Next
+            If DeviceList Then
+                UpdateStatusDetails(DeviceType, DeviceName, AlertType, Details, Location, Category, "Fail", NowTime)
+            End If
+        Catch ex As Exception
+            WriteDeviceHistoryEntry("All", "Alerts", NowTime & " Error updating status details: " & ex.Message)
+            WriteAuditEntry(NowTime & " Error status details: " & ex.Message)
+        End Try
     End Sub
     'Mukund 14Jul14, VSPLUS-814 - StatusDetail insert/update sql
     Private Sub UpdateStatusDetails(ByVal DeviceType As String, ByVal DeviceName As String, ByVal AlertType As String, ByVal Details As String, ByVal Location As String,
