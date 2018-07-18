@@ -258,6 +258,8 @@ WaitHere:
                     myURL.Description = "The URL is not responding. Either the monitoring station has lost connectivity or the URL is down."
                 End If
 
+                myURL.Status = "Not Responding"
+                myURL.StatusCode = "Not Responding"
                 myURL.AlertCondition = True
                 WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " " & StatusDetails, LogLevel.Normal)
                 myAlert.QueueAlert("URL", myURL.Name, "Not Responding", Now.ToString & " " & StatusDetails, myURL.Location)
@@ -353,7 +355,7 @@ Update:
 
 
             Dim repo As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Status)(connectionString)
-            Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Where(Function(i) i.TypeAndName.Equals(Typeandname))
+            Dim filterdef As FilterDefinition(Of VSNext.Mongo.Entities.Status) = repo.Filter.Eq(Function(i) i.TypeAndName, Typeandname)
             Dim updatedef As UpdateDefinition(Of VSNext.Mongo.Entities.Status) = repo.Updater _
                                                                                  .Set(Function(i) i.DeviceName, myURL.Name) _
                                                                                  .[Set](Function(i) i.CurrentStatus, myURL.Status) _
@@ -361,14 +363,13 @@ Update:
                                                                                  .[Set](Function(i) i.LastUpdated, DateTime.Now) _
                                                                                  .[Set](Function(i) i.Location, myURL.Location) _
                                                                                  .[Set](Function(i) i.Category, myURL.Category) _
-                                                                                 .[Set](Function(i) i.TypeAndName, Typeandname) _
                                                                                  .[Set](Function(i) i.Description, StatusDetails) _
                                                                                  .[Set](Function(i) i.ResponseTime, Integer.Parse(myURL.ResponseTime.ToString())) _
                                                                                  .[Set](Function(i) i.ResponseThreshold, Integer.Parse(myURL.ResponseThreshold.ToString())) _
                                                                                  .[Set](Function(i) i.Details, StatusDetails) _
                                                                                  .[Set](Function(i) i.DeviceType, myURL.ServerType) _
                                                                                  .[Set](Function(i) i.UpCount, Integer.Parse(myURL.UpCount)) _
-                                                                                 .[Set](Function(i) i.UpPercent, Integer.Parse(myURL.UpPercentCount)) _
+                                                                                 .[Set](Function(i) i.UpPercent, Double.Parse(myURL.UpPercentCount)) _
                                                                                  .[Set](Function(i) i.DeviceId, myURL.ServerObjectID)
             repo.Upsert(filterdef, updatedef)
 
@@ -649,15 +650,22 @@ Update:
                 ' h.Credentials = c
             End If
 
-            Dim n As Integer
+            Dim n As Integer = 0
             'Dim r As System.Net.HttpWebResponse
-            Do While myURL.HTML = ""
+            Do While myURL.HTML IsNot Nothing AndAlso myURL.HTML = ""
                 'myURL.HTML = ChilkatHTTP.QuickGetStr(myURL.URL)
                 Try
                     WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " before getting chilkat response ")
                     myURL.HTML = ChilkatHTTP.QuickGetStr(myURL.URL)
                     WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " after getting chilkat response code: " + ChilkatHTTP.LastStatus.ToString())
-                    WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " after getting chilkat response " + Left(myURL.HTML.ToString(), 100))
+                    If myURL.HTML IsNot Nothing Then
+                        WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " after getting chilkat response " + Left(myURL.HTML.ToString(), 100))
+                    Else
+                        WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " after getting chilkat response. HTML is NOTHING")
+                    End If
+                    If myURL.HTML Is Nothing Then
+                        myURL.HTML = ""
+                    End If
                     'WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " before getting other response ")
                     'r = h.GetResponse
                     'WriteDeviceHistoryEntry("URL", myURL.Name, Now.ToString & " after getting response ")
@@ -674,7 +682,7 @@ Update:
                 'myURL.HTML = s.ReadToEnd()
                 n += 1
                 Thread.Sleep(500)
-                If n > 15 Then Exit Do
+                If n > 5 Then Exit Do
             Loop
             If (myURL.HTML = "") Then
                 If (ChilkatHTTP.LastStatus <> 200) Then
