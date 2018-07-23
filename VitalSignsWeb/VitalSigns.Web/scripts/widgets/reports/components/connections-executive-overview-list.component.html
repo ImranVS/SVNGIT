@@ -8,9 +8,10 @@
             <p style="color:#658ac6;"><b>{{currBaseType.base_type}}</b></p>
             <p *ngFor="let currType of currBaseType.types">{{currType.type}} = {{currType.total}}, {{currType.new_count}} new in the past week</p>
         </div>
-        <div *ngIf="curr.num_of_logins">
+        <div *ngIf="curr.num_of_logins  || curr.percent_of_active_users">
             <p style="color:#337ab7;"><b>Users</b></p>
             <p>There were {{curr.num_of_logins}} users who logged in during the week</p>
+            <p>Percent of active users in the past month: {{curr.percent_of_active_users}}%</p>
         </div>
     </div>
 </div>
