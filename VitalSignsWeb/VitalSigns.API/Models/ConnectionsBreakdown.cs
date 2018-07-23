@@ -21,6 +21,9 @@ namespace VitalSigns.API.Models
         [JsonProperty("num_of_logins")]
         public string NumOfLogins { get; set; }
 
+        [JsonProperty("percent_of_active_users")]
+        public double ActiveUsersPercentage { get; set; }
+
         [JsonProperty("types")]
         public List<ConnectionsBreakdownType> Types { get; set; }
     }

@@ -2288,7 +2288,7 @@ namespace VitalSigns.API.Controllers
 
 
         [HttpGet("connections/executive_overview")]
-        public APIResponse ConnectionsExecutiveOverview(string date = "", string communityIds = "", string deviceId = "", string startDate = "", string endDate="")
+        public APIResponse ConnectionsExecutiveOverview(string date = "", string communityIds = "", string deviceId = "", string startDate = "", string endDate = "")
         {
             try
             {
@@ -2345,7 +2345,8 @@ namespace VitalSigns.API.Controllers
                 var bsonStr = BsonDocument.Parse(@"{ 
         ""_id"" : {
                     ""type"" : ""$type"", 
-            ""device_name"" : ""$device_name""
+                    ""device_name"" : ""$device_name"",
+                    ""device_id"" : ""$device_id""
         },
         ""count"" : { ""$sum"" : 1 }, 
         ""has_parent"" : {
@@ -2379,12 +2380,13 @@ namespace VitalSigns.API.Controllers
                 //creates a filter def
                 var excludeTypes = new List<string>() { "User" };
                 var filterDef = connectionsObjectsRepository.Filter.Nin(x => x.Type, excludeTypes) & connectionsObjectsRepository.Filter.Lte(x => x.ObjectCreatedDate, dtEnd);
-                
+
                 //excludes the user ID which VS uses to test simulation tests
                 try
                 {
                     var credIds = serverRepository.Find(serverRepository.Filter.Eq(x => x.DeviceType, Enums.ServerType.IBMConnections.ToDescription())).Select(x => new { x.CredentialsId, x.Id }).ToList();
                     var creds = credentialsRepository.Find(credentialsRepository.Filter.In(x => x.Id, credIds.Select(y => y.CredentialsId))).ToList();
+
                     foreach (var curr in credIds)
                     {
                         try
@@ -2423,6 +2425,7 @@ namespace VitalSigns.API.Controllers
                     {
                         Type = x["_id"]["type"].AsString,
                         DeviceName = x["_id"]["device_name"].AsString,
+                        DeviceId = x["_id"]["device_id"].AsObjectId.ToString(),
                         Count = x["count"].AsInt32,
                         CountInCommunity = x["has_parent"].AsInt32,
                         CountNewInCommunity = x["new_objects_in_community"].AsInt32,
@@ -2430,26 +2433,54 @@ namespace VitalSigns.API.Controllers
                     }).ToList();
 
                 List<SummaryStatistics> summaryStats = new List<SummaryStatistics>();
-                if (String.IsNullOrWhiteSpace(communityIds)) {
+                if (String.IsNullOrWhiteSpace(communityIds))
+                {
                     summaryStats = summaryRepository.Find(
                     summaryRepository.Filter.Eq(x => x.StatName, "NUM_OF_PROFILES_LOGIN_PAST_WEEK") &
                     summaryRepository.Filter.Gte(x => x.StatDate, dtEnd.AddDays(-1)) &
                     summaryRepository.Filter.Lte(x => x.StatDate, dtEnd)
                     ).ToList();
                 }
+
+                //Grab data from DB for Active User %
+                FilterDefinition<IbmConnectionsObjects> activeUsersFilterDef = connectionsObjectsRepository.Filter.Or(new FilterDefinition<IbmConnectionsObjects>[] {
+                    connectionsObjectsRepository.Filter.Gte(x => x.ObjectCreatedDate, dtEnd.AddMonths(-1)),
+                    connectionsObjectsRepository.Filter.Gte(x => x.ObjectCreatedDate, dtEnd.AddMonths(-1))
+                });
+                var activeList = connectionsObjectsRepository.Collection.Aggregate()
+                    .Match(activeUsersFilterDef)
+                    .Group(x => new { OwnerId = x.OwnerId, DeviceId = x.DeviceId }, g => new { Key = g.Key, Count = g.Count() })
+                    .Match(x => x.Count >= 1)
+                    .ToList();
+
+                var totalList = connectionsObjectsRepository.Collection.Aggregate()
+                    .Match(connectionsObjectsRepository.Filter.Eq(x => x.Type, "Users"))
+                    .Group(x => new { DeviceId = x.DeviceId }, g => new { Key = g.Key, Count = g.Count() })
+                    .ToList();
+
+
                 //loops through the results and creates a return reponse
                 List<ConnectionsBreakdown> results = new List<ConnectionsBreakdown>();
-                foreach(string deviceName in resultsFromMongo.Select(x => x.DeviceName).Distinct())
+                foreach (string deviceName in resultsFromMongo.Select(x => x.DeviceName).Distinct())
                 {
                     ConnectionsBreakdown result;
-                   
+
                     result = new ConnectionsBreakdown();
                     result.DeviceName = deviceName;
                     result.StartDate = dtStart;
                     result.EndDate = dtEnd;
                     result.Types = new List<ConnectionsBreakdownType>();
                     result.NumOfLogins = summaryStats.Exists(x => x.DeviceName == deviceName) ? summaryStats.Find(x => x.DeviceName == deviceName).StatValue.ToString() : "UNKNOWN";
-                    foreach(string type in resultsFromMongo.Select(x => x.Type).Distinct().OrderBy(x => x))
+
+                    string currDeviceId = resultsFromMongo.First(x => x.DeviceName == deviceName).DeviceId;
+                    int active = activeList.Exists(x => x.Key.DeviceId == currDeviceId) ? activeList.Find(x => x.Key.DeviceId == currDeviceId).Count : 0;
+                    int total = totalList.Exists(x => x.Key.DeviceId == currDeviceId) ? totalList.Find(x => x.Key.DeviceId == currDeviceId).Count : 0;
+                    result.ActiveUsersPercentage = total != 0 ? Math.Round(((double)active / total) * 100, 1) : 0;
+                    //if (total != 0)
+                    //{
+                    //    result.ActiveUsersPercentage = (((double)active / total) * 100);
+                    //}
+                    foreach (string type in resultsFromMongo.Select(x => x.Type).Distinct().OrderBy(x => x))
                     {
                         var currTypeFromMongoList = resultsFromMongo.Where(x => x.DeviceName == deviceName && x.Type == type).ToList();
                         if (currTypeFromMongoList.Count() == 0)
@@ -2458,6 +2489,7 @@ namespace VitalSigns.API.Controllers
                             {
                                 Type = type,
                                 DeviceName = deviceName,
+                                DeviceId = deviceId,
                                 Count = 0,
                                 CountInCommunity = 0,
                                 CountNewInCommunity = 0,
@@ -2480,7 +2512,7 @@ namespace VitalSigns.API.Controllers
                             currType.Type = "Community " + type;
                             result.Types.Add(currType);
                         }
-                        
+
 
                     }
                     results.Add(result);
@@ -2501,7 +2533,7 @@ namespace VitalSigns.API.Controllers
                         currType.Total = results.Sum(x => x.Types.Where(y => y.IsInCommunity == currType.IsInCommunity && y.Type == type).First().Total);
                         currType.Type = type;
                         totalBreakdown.Types.Add(currType);
-                        
+
                     }
 
                     results.Insert(0, totalBreakdown);
