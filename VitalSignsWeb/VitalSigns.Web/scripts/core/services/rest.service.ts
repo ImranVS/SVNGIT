@@ -55,11 +55,11 @@ export class RESTService {
 
     }
 
-    put(path: string, body: any) {
+    put(path: string, body: any, requestOptions: RequestOptions = new RequestOptions()) {
 
         let serviceUrl: string = path.indexOf('://') > -1 ? path : this.serverUrl + path;
 
-        return this.http.put(serviceUrl, body, this.requestOptions)
+        return this.http.put(serviceUrl, body, this.requestOptions.merge(requestOptions))
             .map(res => res.json())
             .catch(this.handleError);
 

@@ -2,7 +2,7 @@
 import {FormBuilder, FormGroup, FormControl, Validators} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {HttpModule}    from '@angular/http';
+import {HttpModule, Headers, RequestOptions}    from '@angular/http';
 import {RESTService} from '../../../core/services';
 import {Router, ActivatedRoute} from '@angular/router';
 import { AppComponentService } from '../../../core/services';
@@ -117,7 +117,10 @@ export class DominoServerImport implements OnInit{
      uploadFiles(fileInput: any): void {
          //this.dataProvider.post(this.url, this.formData);
          this.errorMessage = "";
-         this.dataProvider.put(this.url, this.formData)
+         let headers = new Headers({ 'Content-Type': 'multipart/form-data' });
+         let requestOptions = new RequestOptions({ headers: headers });
+         
+         this.dataProvider.put(this.url, this.formData, requestOptions)
              .subscribe(
              response => {
                  if (response.status != "OK") {
