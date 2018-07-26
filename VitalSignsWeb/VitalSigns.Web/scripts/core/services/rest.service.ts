@@ -58,6 +58,7 @@ export class RESTService {
     put(path: string, body: any, requestOptions: RequestOptions = null  ) {
         
         let serviceUrl: string = path.indexOf('://') > -1 ? path : this.serverUrl + path;
+        console.log(requestOptions)
         if (requestOptions) {
             if (requestOptions.headers) {
 
@@ -68,6 +69,7 @@ export class RESTService {
         } else {
             requestOptions = this.requestOptions
         }
+        console.log(requestOptions)
         return this.http.put(serviceUrl, body, this.requestOptions)
             .map(res => res.json())
             .catch(this.handleError);
