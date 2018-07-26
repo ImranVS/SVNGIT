@@ -120,7 +120,7 @@ export class DominoServerImport implements OnInit{
          let headers = new Headers({ 'Content-Type': 'multipart/form-data' });
          let requestOptions = new RequestOptions({ headers: headers });
          
-         this.dataProvider.put(this.url, this.formData, requestOptions)
+         this.dataProvider.put(this.url, this.formData)
              .subscribe(
              response => {
                  if (response.status != "OK") {
