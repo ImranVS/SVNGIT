@@ -95,7 +95,8 @@ export class WidgetService {
     }
 
     loadController(controller: WidgetController) {
-
+        console.log("widget-service.loadController")
+        console.log(controller)
         this._controllers.push(controller);
 
     }
