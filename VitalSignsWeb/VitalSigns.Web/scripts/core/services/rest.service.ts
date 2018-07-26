@@ -70,7 +70,7 @@ export class RESTService {
             requestOptions = this.requestOptions
         }
         console.log(requestOptions)
-        return this.http.put(serviceUrl, body, this.requestOptions)
+        return this.http.put(serviceUrl, body, requestOptions)
             .map(res => res.json())
             .catch(this.handleError);
 
