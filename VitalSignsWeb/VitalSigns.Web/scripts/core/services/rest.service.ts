@@ -55,11 +55,20 @@ export class RESTService {
 
     }
 
-    put(path: string, body: any, requestOptions: RequestOptions = new RequestOptions()) {
-
+    put(path: string, body: any, requestOptions: RequestOptions = null  ) {
+        
         let serviceUrl: string = path.indexOf('://') > -1 ? path : this.serverUrl + path;
+        if (requestOptions) {
+            if (requestOptions.headers) {
 
-        return this.http.put(serviceUrl, body, this.requestOptions.merge(requestOptions))
+                this.requestOptions.headers.forEach(function (values, name, headers) {
+                    requestOptions.headers.append(name, values[0]);
+                });
+            }
+        } else {
+            requestOptions = this.requestOptions
+        }
+        return this.http.put(serviceUrl, body, this.requestOptions)
             .map(res => res.json())
             .catch(this.handleError);
 
