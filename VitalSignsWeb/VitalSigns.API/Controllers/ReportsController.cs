@@ -2450,7 +2450,7 @@ namespace VitalSigns.API.Controllers
                 var activeList = connectionsObjectsRepository.Collection.Aggregate()
                     .Match(activeUsersFilterDef)
                     .Group(x => new { OwnerId = x.OwnerId, DeviceId = x.DeviceId }, g => new { Key = g.Key, Count = g.Count() })
-                    .Match(x => x.Count >= 1)
+                    .Match(x => x.Count >= 20)
                     .ToList();
 
                 var totalList = connectionsObjectsRepository.Collection.Aggregate()
@@ -2471,15 +2471,10 @@ namespace VitalSigns.API.Controllers
                     result.EndDate = dtEnd;
                     result.Types = new List<ConnectionsBreakdownType>();
                     result.NumOfLogins = summaryStats.Exists(x => x.DeviceName == deviceName) ? summaryStats.Find(x => x.DeviceName == deviceName).StatValue.ToString() : "UNKNOWN";
-
                     string currDeviceId = resultsFromMongo.First(x => x.DeviceName == deviceName).DeviceId;
                     int active = activeList.Exists(x => x.Key.DeviceId == currDeviceId) ? activeList.Find(x => x.Key.DeviceId == currDeviceId).Count : 0;
                     int total = totalList.Exists(x => x.Key.DeviceId == currDeviceId) ? totalList.Find(x => x.Key.DeviceId == currDeviceId).Count : 0;
                     result.ActiveUsersPercentage = total != 0 ? Math.Round(((double)active / total) * 100, 1) : 0;
-                    //if (total != 0)
-                    //{
-                    //    result.ActiveUsersPercentage = (((double)active / total) * 100);
-                    //}
                     foreach (string type in resultsFromMongo.Select(x => x.Type).Distinct().OrderBy(x => x))
                     {
                         var currTypeFromMongoList = resultsFromMongo.Where(x => x.DeviceName == deviceName && x.Type == type).ToList();
