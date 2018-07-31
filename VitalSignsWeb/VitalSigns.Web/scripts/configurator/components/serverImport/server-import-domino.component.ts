@@ -32,6 +32,8 @@ export class DominoServerImport implements OnInit{
     isSelected: any;
     selObj: { isChecked: false };
     loading = false;
+    fileReading: boolean = false;
+    fileText: string = "";
 
     constructor(
         private formBuilder: FormBuilder,
@@ -114,44 +116,49 @@ export class DominoServerImport implements OnInit{
          this.ngOnInit();
 
      }
-     uploadFiles(fileInput: any): void {
-         //this.dataProvider.post(this.url, this.formData);
-         this.errorMessage = "";
-         let headers = new Headers({ 'Content-Type': 'multipart/form-data' });
-         let requestOptions = new RequestOptions({ headers: headers });
-         
-         this.dataProvider.put(this.url, this.formData)
-             .subscribe(
-             response => {
-                 if (response.status != "OK") {
-                     this.errorMessage = response.message;
-                 }
-                 else {
-                     this.dominoServerImportData.servers = response.data.serverList;
-                     this.deviceLocationData = response.data.locationList;
+    uploadFiles(fileInput: any): void {
 
-                 }
 
-             },
-             (error) => this.errorMessage = <any>error
+        let headers = new Headers({ 'Content-Type': 'application/json' });
+        let requestOptions = new RequestOptions({ headers: headers });
+        this.dataProvider.put('/configurator/load_domino_servers_file_content', "\"" + this.fileText + "\"", requestOptions)
+            .subscribe(
+                response => {
+                    if (response.status != "OK") {
+                        this.errorMessage = response.message;
+                    }
+                    else {
+                        this.dominoServerImportData.servers = response.data.serverList;
+                        this.deviceLocationData = response.data.locationList;
 
-         );
+                    }
+                },
+                (error) => this.errorMessage = <any>error
 
-         this.formData = null;
+            );
+        //this.formData = null;
+        this.formData = new FormData();
      }
 
-     changeListener(fileInput: any) {
-         this.postFile(fileInput);
+    changeListener(fileInput: any) {
 
-     }
+        this.postFile(fileInput);
+    }
      //send post file to server 
-     postFile(inputValue: any): void {
-         var formData = new FormData();
-         for (let i = 0; i < inputValue.target.files.length; i++) {
-             formData.append("file-" + i.toString(), inputValue.target.files[i]);
-             this.formData.append("file-" + i.toString(), inputValue.target.files[i]);
-         }
-     } 
+    postFile(inputValue: any): void {
+        this.fileText = "";
+        this.fileReading = true;
+        let reader = new FileReader();
+        reader.onload = () => {
+            this.fileText += reader.result + '\n';
+            this.fileReading = false;
+        }
+
+        for (let i = 0; i < inputValue.target.files.length; i++) {
+            reader.readAsText(inputValue.target.files[i]);
+            this.formData.append("file-" + i.toString(), inputValue.target.files[i]);
+        }
+    }
 
      selectAll() {
          for (let server of this.dominoServerImportData.servers) {

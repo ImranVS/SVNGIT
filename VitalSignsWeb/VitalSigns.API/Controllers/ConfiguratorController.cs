@@ -7653,6 +7653,40 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
+
+        [HttpPut("load_domino_servers_file_content")]
+        public APIResponse LoadDominoServersFileContent([FromBody]string serverListStr)
+        {
+            try
+            {
+                string servers = "";
+                locationRepository = new Repository<Location>(ConnectionString);
+                var locationList = locationRepository.Collection.AsQueryable().Select(x => new ComboBoxListItem { DisplayText = x.LocationName, Value = x.Id }).ToList().OrderBy(x => x.DisplayText).ToList();
+                List<ServersModel> serverList = new List<ServersModel>();
+                foreach (string serverName in serverListStr.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None))
+                {
+                    if (String.IsNullOrWhiteSpace(serverName)) continue;
+
+                    ServersModel server = new ServersModel();
+                    server.DeviceName = serverName;
+                    server.DeviceType = "Domino";
+                    server.IpAddress = "dummyaddress.yourdomain.com";
+                    serverList.Add(server);
+
+                    
+                }
+                Response = Common.CreateResponse(new { locationList = locationList, serverList = serverList }, "OK", servers);
+                return Response;
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, "Error", exception.Message);
+                return Response;
+            }
+
+        }
+
+
         //  [FunctionAuthorize("DominoServerImport")]
         /// <summary>
         /// 
@@ -9002,7 +9036,6 @@ namespace VitalSigns.API.Controllers
                 foreach (var fi in Request.Form.Files)
                 {
                     System.IO.Stream f = fi.OpenReadStream();
-                    System.Net.Mime.ContentDisposition c = new System.Net.Mime.ContentDisposition();
                     string fileName = fi.ContentDisposition.Substring(fi.ContentDisposition.IndexOf("filename=") + 10).Replace("\\", "");
                     fileName = fileName.Substring(0, fileName.Length - 1);
                     System.IO.FileStream fs = new System.IO.FileStream(filePath + fileName, System.IO.FileMode.Create, System.IO.FileAccess.Write);
