@@ -1576,8 +1576,7 @@ namespace VitalSigns.API.Controllers
                 var listOfUsers = connectionsObjectsRepository.Find(filterDef).ToList();
                 //var listOfUserNames = connectionsObjectsRepository.Collection.Distinct(i => i.Name, filterDef).ToList();
 
-                filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.In(i => i.OwnerId, listOfUsers.Select(x => x.Id)),
-                        connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays));
+                filterDef = connectionsObjectsRepository.Filter.And(connectionsObjectsRepository.Filter.In(i => i.OwnerId, listOfUsers.Select(x => x.Id)));
                 if (!string.IsNullOrEmpty(deviceId))
                 {
                     filterDef = filterDef & connectionsObjectsRepository.Filter.In(x => x.DeviceId, listOfDevices);
@@ -1589,8 +1588,10 @@ namespace VitalSigns.API.Controllers
                     List<String> communityChildrenIds = communities.Where(x => x.Children != null).SelectMany(x => x.Children.Where(y => y.Ids != null).SelectMany(y => y.Ids)).ToList();
                     filterDef = filterDef & connectionsObjectsRepository.Filter.In(x => x.Id, communityIds.Split(',').ToList().Concat(communityChildrenIds)); 
                 }
-                
-                
+
+				//This has to be done at the end so it does not prevent old communities from being grabbed
+                filterDef = filterDef & connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays);
+
                 var res = connectionsObjectsRepository.Collection.Aggregate()
                     .Match(filterDef)
                     .Group(
@@ -1840,7 +1841,7 @@ namespace VitalSigns.API.Controllers
                 listOfUsers = connectionsObjectsRepository.Find(filterDef).ToList();
 
 
-                filterDef = connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays) & connectionsObjectsRepository.Filter.Exists(x => x.OwnerId);
+                filterDef = connectionsObjectsRepository.Filter.Exists(x => x.OwnerId);
 
                 if(!string.IsNullOrWhiteSpace(userNames))
                 {
@@ -1858,6 +1859,9 @@ namespace VitalSigns.API.Controllers
                     List<String> communityChildrenIds = communities.Where(x => x.Children != null).SelectMany(x => x.Children.Where(y => y.Ids != null).SelectMany(y => y.Ids)).ToList();
                     filterDef = filterDef & connectionsObjectsRepository.Filter.In(x => x.Id, communityIds.Split(',').ToList().Concat(communityChildrenIds));
                 }
+
+                //This has to be done at the end so it does not prevent old communities from being grabbed
+                filterDef = filterDef & connectionsObjectsRepository.Filter.Gte(i => i.ObjectCreatedDate, lastXDays);
 
                 var res = connectionsObjectsRepository.Find(filterDef)
                         .GroupBy(row => new
@@ -2460,7 +2464,7 @@ namespace VitalSigns.API.Controllers
 
 
                 //loops through the results and creates a return reponse
-                List<ConnectionsBreakdown> results = new List<ConnectionsBreakdown>();
+                    List<ConnectionsBreakdown> results = new List<ConnectionsBreakdown>();
                 foreach (string deviceName in resultsFromMongo.Select(x => x.DeviceName).Distinct())
                 {
                     ConnectionsBreakdown result;
