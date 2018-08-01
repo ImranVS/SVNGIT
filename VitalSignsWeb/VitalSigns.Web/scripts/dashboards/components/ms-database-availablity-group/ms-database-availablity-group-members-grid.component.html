@@ -9,7 +9,7 @@
             <span *ngIf="cell.item.cluster_service_test == 'Fail'" class="label label-pill label-danger">Fail</span>
         </template>
     </wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Relay Service'" [binding]="'replay_service_test'" [width]="120" align="center">
+    <wj-flex-grid-column [header]="'Replay Service'" [binding]="'replay_service_test'" [width]="120" align="center">
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
             <span *ngIf="cell.item.replay_service_test == 'Passed'" class="label label-pill label-success">Passed</span>
             <span *ngIf="cell.item.replay_service_test == 'Fail'" class="label label-pill label-danger">Fail</span>
