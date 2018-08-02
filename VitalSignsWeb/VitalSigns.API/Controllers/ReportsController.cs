@@ -1156,39 +1156,15 @@ namespace VitalSigns.API.Controllers
                                  {
                                      ServerName = x.DeviceName,
                                      Name = x.Name,
-                                     users = x.users,
                                      CommunityType = x.CommunityType,
                                      NumOfOwners = x.NumOfOwners,
                                      NumOfMembers = x.NumOfMembers.Value,
-                                     NumOfFollowers = x.NumOfFollowers.Value
+                                     NumOfFollowers = x.NumOfFollowers.Value,
+                                     URL = x.ObjectUrl
                                  }).ToList();
 
-                var listOfUsers = connectionsRepository.Find(connectionsRepository.Filter.Eq(x => x.Type, "Users")).ToList();
 
-                List<IBMConnCommunityUsersList> result2 = new List<IBMConnCommunityUsersList>();
-                foreach (IBMConnCommunityUsersList l in result)
-                {
-                    if (l.users != null)
-                    {
-                        foreach (string s in l.users)
-                        {
-                            IBMConnCommunityUsersList ibm2 = new IBMConnCommunityUsersList();
-                            ibm2.ServerName = l.ServerName;
-                            ibm2.Name = l.Name;
-                            List<string> us = listOfUsers.Where(x => x.Id == s).Select(x => x.Name).ToList();
-
-                            foreach (string s1 in us)
-                                ibm2.user = s1;
-                            ibm2.users = us;
-                            ibm2.CommunityType = l.CommunityType;
-                            ibm2.NumOfOwners = l.NumOfOwners;
-                            ibm2.NumOfMembers = l.NumOfMembers;
-                            ibm2.NumOfFollowers = l.NumOfFollowers;
-                            result2.Add(ibm2);
-                        }
-                    }
-                }
-                Response = Common.CreateResponse(result2.OrderBy(x => x.Name));
+                Response = Common.CreateResponse(result.OrderBy(x => x.Name));
                 return Response;
             }
             catch (Exception exception)

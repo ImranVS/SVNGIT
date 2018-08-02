@@ -28,11 +28,13 @@ export class UserFilter {
     allUserData: any[];
     userData: any[];
     deviceNameData: any[];
-
+    usersTimestamp: Date;
+    
     constructor(private service: RESTService, private router: Router, private route: ActivatedRoute, private widgetService: WidgetService) { }
     ngOnInit() {
         if (this.showCommunityControl)
-            this.service.get(`/services/ibm_connections_community_list_dropdown?users=true`)
+            //this.service.get(`/services/ibm_connections_community_list_dropdown?users=true`)
+            this.service.get(`/services/ibm_connections_community_list_dropdown?users=false`)
                 .subscribe(
                     (response) => {
                         this.allCommunitiesData = response.data;
@@ -108,6 +110,44 @@ export class UserFilter {
     }
 
     updateUsers() {
+        let queryString: string[]= [];
+        if (this.showServerControl) {
+            if (this.deviceNameData.find(x => x.name == "All" && x.selected == true) || this.deviceNameData.find(x => x.selected == true) == null) {
+                //no filter is applied
+            }
+            else {
+                var selectedData = this.deviceNameData.filter(y => y.selected === true).map(y => y.id);
+                queryString.push("deviceIds=" + selectedData.join(','));
+            }
+        }
+
+        if (this.showCommunityControl) {
+            if (this.communitiesData.find(x => x.name == "All" && x.selected == true) || this.communitiesData.find(x => x.selected == true) == null) {
+                //no filter is applied
+            } else {
+                var selectedData = this.communitiesData.filter(y => y.selected === true).map(y => y.id);
+                queryString.push("communityIds=" + selectedData.join(','));
+            }
+        }
+
+        this.usersTimestamp = new Date();
+        let currCallDate = new Date(this.usersTimestamp);
+
+        this.service.get(`/dashboard/connections/users${queryString.length != 0 ? '?' : ''}${queryString.join('&')}`)
+            .subscribe(
+            (response) => {
+                if (currCallDate.getTime() >= this.usersTimestamp.getTime()) {
+                    console.log("Refreshing");
+                    this.userData = response.data;
+                }
+                else { console.log("Not Refreshing") }
+                    
+                },
+                (error) => this.errorMessage = <any>error
+        );
+
+        return;
+//The stuff below this can probably be deleted but leaving it for another patch or 2 incase its needed. If you are reading this comment and dont know what its talking about, you can delete it if you wish
         var tempData: any[];
         if (this.showServerControl) {
             if (this.deviceNameData.find(x => x.name == "All" && x.selected == true) || this.deviceNameData.find(x => x.selected == true) == null) {

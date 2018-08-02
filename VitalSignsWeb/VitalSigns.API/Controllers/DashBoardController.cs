@@ -1654,7 +1654,7 @@ namespace VitalSigns.API.Controllers
         }
 
         [HttpGet("connections/users")]
-        public APIResponse ConnectionsUsers(string deviceid)
+        public APIResponse ConnectionsUsers(string deviceid, string deviceIds = null, string communityIds = null)
         {
             List<UserList> result = new List<UserList>();
             FilterDefinition<IbmConnectionsObjects> filterDef;
@@ -1671,19 +1671,31 @@ namespace VitalSigns.API.Controllers
                 {
                     filterDef = connectionsRepository.Filter.Eq(x => x.Type, "Users");
                 }
+
+
+                if (deviceIds != null && deviceIds.Split(',').Contains("")) deviceIds = "";
+                if (communityIds != null && communityIds.Split(',').Contains("")) communityIds = "";
+                
+                if (!string.IsNullOrWhiteSpace(deviceIds))
+                {
+                    filterDef = filterDef & connectionsRepository.Filter.In(x => x.DeviceId, deviceIds.Split(','));
+                }
+                if (!string.IsNullOrWhiteSpace(communityIds))
+                {
+                    List<IbmConnectionsObjects> communities = connectionsRepository.Find(connectionsRepository.Filter.In(x => x.Id, communityIds.Split(',').ToList())).ToList();
+                    List<String> communityUsers = communities.Where(x => x.users != null).SelectMany(x => x.users).Distinct().ToList();
+                    filterDef = filterDef & connectionsRepository.Filter.In(x => x.Id, communityUsers);
+                }
+
+
                 result = connectionsRepository.Find(filterDef)
                     .Select(x => new UserList
                     {
                         Id = x.Id,
                         Name = x.Name,
-                        CommunityIds = new List<string>(),
                         DeviceId = x.DeviceId
                     }).OrderBy(x => x.Name).ToList();
 
-                connectionsRepository.Find(x => x.Type == "Community").ToList().
-                    ForEach(x =>
-                    result.Where(y => x.users.Contains(y.Id))
-                        .ToList().ForEach(y => y.CommunityIds.Add(x.Id)));
                 result.Insert(0, new UserList{ Name = "All", DeviceId = "", Id = "", CommunityIds = null });
 
                 Response = Common.CreateResponse(result);
