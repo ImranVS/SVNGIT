@@ -50,7 +50,7 @@ namespace VitalSignsMicrosoftClasses
 			{
 				try
 				{
-					TestAutoDiscovery(myServer, ref AllTestResults);
+					TestAutoDiscovery(powerShellObjects.PS, myServer, ref AllTestResults);
 				}
 				catch (Exception ex)
 				{
@@ -1056,106 +1056,58 @@ namespace VitalSignsMicrosoftClasses
 
         }
 
-        private void TestAutoDiscovery(MonitoredItems.ExchangeServer myServer, ref TestResults AutoDiscoveryIssueList)
+        private void TestAutoDiscovery(PowerShell powershell, MonitoredItems.ExchangeServer myServer, ref TestResults AutoDiscoveryIssueList)
         {
 
-            string strResponse = "";
-            string strURL = myServer.AutoDiscoveryURLs + "/autodiscover/autodiscover.xml";
-           // string strURL = myServer.IPAddress + "/autodiscover/autodiscover.xml";
             try
             {
-				Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Attempting to verify Auto discovery service.", commonEnums.ServerRoles.CAS);
-				Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Using address " + strURL, commonEnums.ServerRoles.CAS);
-			}
-            catch (Exception ex)
-            {
-            }
+                List<indvMailboxes> list = new List<indvMailboxes>();
 
-          
-            Chilkat.Http WebPage = new Chilkat.Http();
-            bool success = false;
-            try
-            {
-                //WebPage.Password = myServer.Password;
-                //WebPage.Login = myServer.UserName;
-                WebPage.Password = myServer.AutoDiscoveryCASPassword;
-                WebPage.Login = myServer.AutoDiscoveryCASUserName;
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "In TestAutoDiscovery.", commonEnums.ServerRoles.CAS, Common.LogLevel.Normal);
 
-                success = WebPage.UnlockComponent("MZLDADHttp_efwTynJYYR3X");
-                if ((success != true))
+                System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
+                String script = AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\EX_TestAutoDiscovery.ps1";
+
+                PSCommand cmd = new PSCommand();
+                cmd.AddCommand(script);
+                cmd.AddParameter("ServerName", myServer.Name);
+                cmd.AddParameter("MailboxIdentity", myServer.UserName);
+                cmd.AddParameter("MailboxCreds", new PSCredential(myServer.UserName, Common.String2SecureString(myServer.Password)));
+                powershell.Commands = cmd;
+
+                results = powershell.Invoke();
+
+
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "TestAutoDiscovery output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
+                foreach (ErrorRecord err in powershell.Streams.Error)
                 {
-                   // myServer.ResponseDetails = "Failed to unlock component";
-					Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Failed to unlock Chilkat HTTP component in TestAutoDiscovery.", commonEnums.ServerRoles.CAS);
-                }
-                else
-                {
-					Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Unlocked Chilkat HTTP component for TestAutoDiscovery.", commonEnums.ServerRoles.CAS);
+                    Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "TestAutoDiscovery PS errors: " + err.Exception, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                    Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "TestAutoDiscovery PS errors: " + err.ErrorDetails, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
                 }
 
-            }
-            catch (Exception ex)
-            {
-            }
-
-
-
-            try
-            {
-
-                if ((success != true))
+                foreach (PSObject ps in results)
                 {
-                    strResponse = WebPage.LastErrorText;
-                  
-                    myServer.Description = "Unable to connect to the auto discovery URL  at " + DateTime.Now.ToString("HH:mm:ss tt") + " because " + strResponse;
-                    myServer.ResponseDetails = "Unable to connect to the auto discovery service. ";
-					Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Failed to connect because " + strResponse, commonEnums.ServerRoles.CAS);
-                    //myServer.ResponseTime = -1;
-                    //AutoDiscoveryIssueList.StatusDetails.Add(new TestList() { Details = "Unable to connect to the CAS auto discovery service at " + DateTime.Now.ToString("HH:mm:ss tt") + " because " + strResponse, TestName = "IMAP", Category = commonEnums.ServerRoles.CAS, Result = commonEnums.ServerResult.Fail });
-                    // Common.WriteTestResults(myServer.Name, "Client Access", "IMAP", "Fail", myServer.Description);
-                    Common.makeAlert(false, myServer, commonEnums.AlertType.Auto_Discovery, ref AutoDiscoveryIssueList, "Unable to connect to the CAS auto discovery service  because" + strResponse, "CAS");
-                }
-                else
-                {
-                   
+                    string Result = ps.Properties["Result"].Value == null ? "" : ps.Properties["Result"].Value.ToString();
 
-                    try
+                    if (Result == "Success")
                     {
-                        strResponse = WebPage.QuickGetStr(strURL) ;
-						Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Auto Discovery Status:" + strResponse, commonEnums.ServerRoles.CAS);
-                        if (!String.IsNullOrWhiteSpace(strResponse) && strResponse.IndexOf("ErrorCode") > 1)
-                        {
-							Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Auto Discovery Status:" + "PASS", commonEnums.ServerRoles.CAS);
-                            //AutoDiscoveryIssueList.StatusDetails.Add(new TestList() { Details = "Auto discover service responded.", TestName = "Discovery Service", Category = commonEnums.ServerRoles.CAS, Result = commonEnums.ServerResult.Pass });
-							Common.makeAlert(true, myServer, commonEnums.AlertType.Auto_Discovery, ref AutoDiscoveryIssueList, "The Auto discovery service responded", "CAS");
-                        }
-                        else
-                        {
-							Common.WriteDeviceHistoryEntry("Exchange", myServer.Name, "Auto Discovery Status:" + "FAIL", commonEnums.ServerRoles.CAS);
-                            //AutoDiscoveryIssueList.StatusDetails.Add(new TestList() { Details = "Auto discover service did not respond.", TestName = "Discovery Service", Category = commonEnums.ServerRoles.CAS, Result = commonEnums.ServerResult.Fail });
-                            Common.makeAlert(false, myServer, commonEnums.AlertType.Auto_Discovery, ref AutoDiscoveryIssueList, "The Auto discovery service did not responded", "CAS"); 
-                        }
-                       // Common.WriteTestResults(myServer.Name, "CAS", "IMAP", "Pass",  "Service answered with  " + strResponse.Trim() + " at " + System.DateTime.Now.ToShortTimeString());
-                       
+                        Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Auto Discovery Status:" + "PASS", commonEnums.ServerRoles.CAS);
+                        Common.makeAlert(true, myServer, commonEnums.AlertType.Auto_Discovery, ref AutoDiscoveryIssueList, "The Auto discovery service responded", "CAS");
                     }
-                    catch (Exception ex)
+                    else
                     {
+                        Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Auto Discovery Status:" + "FAIL", commonEnums.ServerRoles.CAS);
+                        Common.makeAlert(false, myServer, commonEnums.AlertType.Auto_Discovery, ref AutoDiscoveryIssueList, "The Auto discovery service responded with the following value: " + Result, "CAS");
                     }
-
-
-                  
                 }
 
             }
             catch (Exception ex)
             {
+                Common.makeAlert(false, myServer, commonEnums.AlertType.Auto_Discovery, ref AutoDiscoveryIssueList, "The Auto discovery service did not responded", "CAS");
+                Common.WriteDeviceHistoryEntry(myServer.ServerType, myServer.Name, "Error in getMailStats : " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
             }
-            finally
-            {
-                WebPage.Dispose();
-
-            }
-
-
 
         }
 
