@@ -29,14 +29,14 @@ export class IBMDominoDashboard extends WidgetController implements OnInit {
             id: 'serverRoles',
             title: 'Roles',
             name: 'ChartComponent',
-            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-3',
+            css: 'col-xs-12 col-sm-3 col-md-3 col-lg-3',
             settings: {
                 url: '/services/status_count?type=Domino&docfield=secondary_role',
                 chart: {
                     chart: {
                         renderTo: 'serverRoles',
                         type: 'pie',
-                        height: 240
+                        height: 145
                     },
                     title: { text: '' },
                     subtitle: { text: '' },
@@ -59,7 +59,8 @@ export class IBMDominoDashboard extends WidgetController implements OnInit {
                                 enabled: false
                             },
                             showInLegend: true,
-                            innerSize: '70%'
+                            innerSize: '70%',
+                            size: '200%'
                         }
                     },
                     legend: {
@@ -81,14 +82,14 @@ export class IBMDominoDashboard extends WidgetController implements OnInit {
             id: 'serverStatus',
             title: 'Status',
             name: 'ChartComponent',
-            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-3',
+            css: 'col-xs-12 col-sm-3 col-md-3 col-lg-3',
             settings: {
                 url: '/services/status_count?type=Domino&docfield=status_code',
                 chart: {
                     chart: {
                         renderTo: 'serverStatus',
                         type: 'pie',
-                        height: 240
+                        height: 145
                     },
                     title: { text: '' },
                     subtitle: { text: '' },
@@ -111,7 +112,61 @@ export class IBMDominoDashboard extends WidgetController implements OnInit {
                                 enabled: false
                             },
                             showInLegend: true,
-                            innerSize: '70%'
+                            innerSize: '70%',
+                            size: '260%'
+                        }
+                    },
+                    legend: {
+                        labelFormatter: function () {
+                            return '<div style="font-size: 10px; font-weight: normal;">' + this.name + '</div>';
+                        }
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    exporting: {
+                        enabled: false
+                    },
+                    series: []
+                }
+            }
+        },
+        {
+            id: 'category',
+            title: 'Category',
+            name: 'ChartComponent',
+            css: 'col-xs-12 col-sm-3 col-md-3 col-lg-3',
+            settings: {
+                url: '/services/status_count?type=Domino&docfield=category',
+                chart: {
+                    chart: {
+                        renderTo: 'category',
+                        type: 'pie',
+                        height: 145
+                    },
+                    title: { text: '' },
+                    subtitle: { text: '' },
+                    xAxis: {
+                        categories: []
+                    },
+                    yAxis: {
+                        min: 0,
+                        endOnTick: false,
+                        allowDecimals: false,
+                        title: {
+                            enabled: false
+                        }
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: false
+                            },
+                            showInLegend: true,
+                            innerSize: '70%',
+                            size: '200%'
                         }
                     },
                     legend: {
@@ -133,14 +188,14 @@ export class IBMDominoDashboard extends WidgetController implements OnInit {
             id: 'serverOs',
             title: 'Operating Systems',
             name: 'ChartComponent',
-            css: 'col-xs-12 col-sm-6 col-md-6 col-lg-3',
+            css: 'col-xs-12 col-sm-3 col-md-3 col-lg-3',
             settings: {
                 url: '/services/status_count?type=Domino&docfield=operating_system',
                 chart: {
                     chart: {
                         renderTo: 'serverOs',
                         type: 'pie',
-                        height: 240
+                        height: 145
                     },
                     title: { text: '' },
                     subtitle: { text: '' },
@@ -148,7 +203,7 @@ export class IBMDominoDashboard extends WidgetController implements OnInit {
                         categories: []
                     },
                     yAxis: {
-                        min: 0,
+                        min: 500,
                         endOnTick: false,
                         allowDecimals: false,
                         title: {
@@ -163,7 +218,8 @@ export class IBMDominoDashboard extends WidgetController implements OnInit {
                                 enabled: false
                             },
                             showInLegend: true,
-                            innerSize: '70%'
+                            innerSize: '70%',
+                            size:'260%'
                         }
                     },
                     legend: {
@@ -181,6 +237,7 @@ export class IBMDominoDashboard extends WidgetController implements OnInit {
                 }
             }
         }
+
     ]
     
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService) {
