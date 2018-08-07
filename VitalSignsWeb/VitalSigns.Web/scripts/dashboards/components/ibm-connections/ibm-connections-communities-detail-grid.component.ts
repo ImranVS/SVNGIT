@@ -31,6 +31,7 @@ export class IBMConnectionsCommunitiesDetailGrid implements WidgetComponent, OnI
     data: wijmo.collections.CollectionView;
     errorMessage: string;
     _serviceId: string;
+    isLoading: boolean = true;
     
     get serviceId(): string {
 
@@ -40,10 +41,6 @@ export class IBMConnectionsCommunitiesDetailGrid implements WidgetComponent, OnI
 
     set serviceId(id: string) {
         this._serviceId = id;
-        this.widgetService.setProperty('serviceId', id);
-
-        this.select.emit(this.widgetService.getProperty('serviceId'));
-
     }
 
 
@@ -70,29 +67,29 @@ export class IBMConnectionsCommunitiesDetailGrid implements WidgetComponent, OnI
             }
         });
 
-        var displayDate = (new Date()).toISOString().slice(0, 10);
-        this.service.get(`/reports/community_users?deviceId=${this.serviceId}`)
-            .subscribe(
-            (data) => {
-                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
-                this.data.pageSize = 500;
-            },
-            (error) => this.errorMessage = <any>error
-            );
+        this.loadData();
 
     }
 
-    onPropertyChanged(key: string, value: any) {
-        if (key === 'serviceId') {
-            var url = '';
-            this.service.get(`/reports/community_users?deviceId=${this.serviceId}`)
-                .subscribe(
+    loadData() {
+        this.data = null;
+        this.isLoading = true;
+        this.service.get(`/reports/community_users?deviceId=${this.serviceId}`)
+            .finally(() => {
+                this.isLoading = false;
+            })
+            .subscribe(
                 (data) => {
                     this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
-                    this.data.pageSize = 10;
+                    this.data.pageSize = 500;
                 },
                 (error) => this.errorMessage = <any>error
-                );
+            );
+    }
+    onPropertyChanged(key: string, value: any) {
+        if (key === 'serviceId') {
+            this.serviceId = value;
+            this.loadData();
 
         }
 

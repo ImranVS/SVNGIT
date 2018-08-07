@@ -33,9 +33,9 @@ export class ChartComponent implements WidgetComponent, OnInit {
     constructor(private service: RESTService, private widgetService: WidgetService, protected datetimeHelpers: helpers.DateTimeHelper) { }
 
     refresh(serviceUrl?: string) {
-
+        this.chart.showLoading('<img src="/img/loading-64.gif">');
         this.loadData(serviceUrl);
-
+        //this.chart.hideLoading();//('<img src="/images/spinner.gif">');
     }
 
     ngOnInit() {
@@ -47,6 +47,7 @@ export class ChartComponent implements WidgetComponent, OnInit {
     private loadData(serviceUrl?: string) {
         this.isLoading = true;
         this.service.get(serviceUrl || this.settings.url)
+            .finally(() => { if (this.chart) { this.chart.hideLoading() }})
             .subscribe(data => {
                 try {
 

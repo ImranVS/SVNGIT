@@ -233,7 +233,7 @@ export class IBMConnectionsOverviewTab extends WidgetController implements OnIni
 
             this.serviceId = value;
 
-            this.widgetService.refreshWidget('responseTimes', `/services/statistics?statName=ResponseTime&deviceId=${this.serviceId}&operation=hourly`)
+            this.widgetService.refreshWidget('responseTime', `/services/statistics?statName=ResponseTime&deviceId=${this.serviceId}&operation=hourly`)
                 .catch(error => console.log(error));
 
             this.widgetService.refreshWidget('dailyActivities', `/services/summarystats?statName=*_CREATED_LAST_DAY&deviceid=${this.serviceId}`)

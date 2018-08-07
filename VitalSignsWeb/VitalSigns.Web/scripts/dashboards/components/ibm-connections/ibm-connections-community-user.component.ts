@@ -45,17 +45,29 @@ export class IBMConnectionsCommunityUser implements WidgetComponent, OnInit {
 
     ngOnInit() {
         this.serviceId = this.widgetService.getProperty('serviceId');
+        this.loadData();
+    }
+
+    loadData() {
         this.url = `/dashboard/connections/community_user?deviceid=${this.serviceId}`;
         this.service.get(this.url)
             .subscribe(
-            (data) => {
-                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
-                var groupDesc = new wijmo.collections.PropertyGroupDescription('community');
-                this.data.groupDescriptions.push(groupDesc);
-                this.data.pageSize = 10;
-            },
-            (error) => this.errorMessage = <any>error
+                (data) => {
+                    this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(data.data));
+                    var groupDesc = new wijmo.collections.PropertyGroupDescription('community');
+                    this.data.groupDescriptions.push(groupDesc);
+                    this.data.pageSize = 10;
+                },
+                (error) => this.errorMessage = <any>error
             );
+    }
+
+    onPropertyChanged(key: string, value: any) {
+
+        if (key === 'serviceId') {
+            this.serviceId = value;
+            this.loadData()
+        }
 
     }
 
