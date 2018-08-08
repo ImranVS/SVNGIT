@@ -27,7 +27,7 @@ export class ConnectionsWikiReport extends WidgetController {
     currentHideDatePanel: boolean = false;
     currentDeviceType: string = "IBM Connections";
     currentWidgetName: string = `connectionsWiki`;
-    currentWidgetURL: string = `/reports/summarystats_chart`;
+    currentWidgetURL: string = `/reports/summarystats_chart?statName=NUM_OF_WIKIS_WIKIS`;
 
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, private route: ActivatedRoute, protected urlHelpers: helpers.UrlHelperService) {

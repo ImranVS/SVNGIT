@@ -35,7 +35,6 @@ export class ChartComponent implements WidgetComponent, OnInit {
     refresh(serviceUrl?: string) {
         this.chart.showLoading('<img src="/img/loading-64.gif">');
         this.loadData(serviceUrl);
-        //this.chart.hideLoading();//('<img src="/images/spinner.gif">');
     }
 
     ngOnInit() {

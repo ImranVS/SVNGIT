@@ -30,9 +30,8 @@ export class BubbleChartComponent implements WidgetComponent, OnInit {
     constructor(private service: RESTService, private widgetService: WidgetService, protected datetimeHelpers: helpers.DateTimeHelper) { }
 
     refresh(serviceUrl?: string) {
-
+        this.chart.showLoading('<img src="/img/loading-64.gif">');
         this.loadData(serviceUrl);
-
     }
 
     ngOnInit() {
@@ -43,6 +42,9 @@ export class BubbleChartComponent implements WidgetComponent, OnInit {
     private loadData(serviceUrl?: string) {
         this.isLoading = true;
         this.service.get(serviceUrl || this.settings.url)
+            .finally(() => {
+                if (this.chart) { this.chart.hideLoading() }
+            })
             .subscribe(
             (data) => {
                 this.activitiesList = data.data[1];

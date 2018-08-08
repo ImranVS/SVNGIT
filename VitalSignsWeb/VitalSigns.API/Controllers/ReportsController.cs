@@ -1831,7 +1831,7 @@ namespace VitalSigns.API.Controllers
 
                 if (!string.IsNullOrWhiteSpace(communityIds))
                 {
-                    List<IbmConnectionsObjects> communities = connectionsObjectsRepository.Find(filterDef & connectionsObjectsRepository.Filter.In(x => x.Id, communityIds.Split(',').ToList())).ToList();
+                    List<IbmConnectionsObjects> communities = connectionsObjectsRepository.Find(connectionsObjectsRepository.Filter.In(x => x.Id, communityIds.Split(',').ToList())).ToList();
                     List<String> communityChildrenIds = communities.Where(x => x.Children != null).SelectMany(x => x.Children.Where(y => y.Ids != null).SelectMany(y => y.Ids)).ToList();
                     filterDef = filterDef & connectionsObjectsRepository.Filter.In(x => x.Id, communityIds.Split(',').ToList().Concat(communityChildrenIds));
                 }
@@ -1887,7 +1887,7 @@ namespace VitalSigns.API.Controllers
                     }
                 }
                 
-                DateTime dtFrom = result.Exists(x => x.ObjectCreatedDate >= lastXDays) ? result.Where(x => x.ObjectCreatedDate >= lastXDays).Min(x => x.ObjectCreatedDate) : lastXDays;
+                DateTime dtFrom = result.Min(x => x.ObjectCreatedDate);
                 DateTime dtTo = result.Count != 0 ? result.Max(x => x.ObjectCreatedDate) : DateTime.Now;
                 dtFrom = new DateTime(dtFrom.Year, dtFrom.Month, 1);
                 dtTo = new DateTime(dtTo.Year, dtTo.Month, 1);

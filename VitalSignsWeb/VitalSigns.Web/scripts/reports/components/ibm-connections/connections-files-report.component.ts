@@ -27,7 +27,7 @@ export class ConnectionsFilesReport extends WidgetController {
     currentHideDatePanel: boolean = false;
     currentDeviceType: string = "IBM Connections";
     currentWidgetName: string = `connectionsFiles`;
-    currentWidgetURL: string = `/reports/summarystats_chart`;
+    currentWidgetURL: string = `/reports/summarystats_chart?statName=TOTAL_NUM_OF_FILES`;
 
 
     constructor(protected resolver: ComponentFactoryResolver, protected widgetService: WidgetService, private service: RESTService, private route: ActivatedRoute, protected urlHelpers: helpers.UrlHelperService) {

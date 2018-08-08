@@ -20,7 +20,7 @@ export class ConnectionsServerFilter {
     @Input() hideDatePanel: boolean;
     @Input() hideServerControl: boolean;
     @Input() showCommunityControl: boolean = false;
-    @Input() hideStatControl: boolean;
+    @Input() hideStatControl: boolean = true;
     endDate: Date = new Date();
     startDate: Date = new Date(this.endDate.getFullYear(), this.endDate.getMonth(), this.endDate.getDate() - 7);
 
@@ -121,9 +121,9 @@ export class ConnectionsServerFilter {
         var URL = ((this.widgetURL.includes("?")) ? (this.widgetURL + "&") : (this.widgetURL + "?")) + `deviceId=` + selectedServers;
         if (this.hideDatePanel != true) {
             URL += `&startDate=` + newStartDate.toISOString() + `&endDate=` + newEndDate.toISOString();
-            if (selectedStats != "")
-                URL += "&statName=" + selectedStats;
         }
+        if (!this.hideStatControl && selectedStats != null && selectedStats != "")
+            URL += "&statName=" + selectedStats;
         if (this.showCommunityControl) {
             URL += "&communityIds=" + multiSelectCommunity.checkedItems.map(x => x.id).toString();
         }
