@@ -77,7 +77,9 @@ export class ChartComponent implements WidgetComponent, OnInit {
                     let categories: string[] = []
 
                     chart.series.map(serie => {
-
+                        if (this.settings.chart.chart.type.toLowerCase() == "pie" && serie.segments.length > 25) {
+                            serie.segments = serie.segments.sort((x, y) => y.value - x.value).splice(0, 20);
+                        }
                         let length = this.settings.chart.series.push({
                             name: null,
                             data: []
@@ -99,12 +101,10 @@ export class ChartComponent implements WidgetComponent, OnInit {
                         });
 
                         this.settings.chart.xAxis.categories = categories;
-
+                        
                         // Second loop to build data points with actual value or null if missing 
                         categories.map(category => {
-
                             let segment = serie.segments.find(s => s.label == category);
-
                             if (segment)
                                 this.settings.chart.series[length - 1].data.push({
                                     name: category,
@@ -138,8 +138,9 @@ export class ChartComponent implements WidgetComponent, OnInit {
                     if (chart.series2 != null) {
                         let chart2 = <Chart>data.data;
                         this.settings.chart.xAxis.categories = null;
-
+                        let drilldownNames: string[] = [].concat.apply([], chart.series.map(x => x.segments.map(y => y.drilldownname)));
                         chart2.series2.map(serie => {
+                            serie.segments = serie.segments.filter(x => drilldownNames.indexOf(x.drilldownname) >= 0);
                             let categories2: string[] = []
 
                             // First loop to gather all data points labels
