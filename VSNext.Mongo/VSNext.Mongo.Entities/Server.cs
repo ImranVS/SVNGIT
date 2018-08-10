@@ -16,6 +16,10 @@ namespace VSNext.Mongo.Entities
 
         public Server()
         {
+            if (!MongoDB.Bson.Serialization.BsonClassMap.IsClassMapRegistered(typeof(NameValuePair)))
+            {
+                MongoDB.Bson.Serialization.BsonClassMap.RegisterClassMap<NameValuePair>();
+            }
             System.Reflection.PropertyInfo[] props = this.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly);
             foreach(var property in props)
             {
