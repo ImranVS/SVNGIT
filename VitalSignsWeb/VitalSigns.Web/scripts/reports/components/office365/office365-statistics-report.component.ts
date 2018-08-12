@@ -89,7 +89,8 @@ export class Office365StatisticsReport extends WidgetController {
                             endOnTick: false,
                             allowDecimals: false,
                             title: {
-                                enabled: false
+                                enabled: true,
+                                text: 'Milliseconds (ms)'
                             }
                         },
                         plotOptions: {
