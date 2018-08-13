@@ -1,0 +1,1 @@
+﻿Get-Mailbox -ResultSize Unlimited | select DisplayName,RecipientTypeDetails,ProhibitSendQuota,ProhibitSendReceiveQuota,IssueWarningQuota,IsInactiveMailbox,Database,ServerName
