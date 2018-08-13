@@ -16,7 +16,7 @@ declare var injectSVG: any;
 export class ExecutiveSummaryWidget implements WidgetComponent, OnInit {
     @Input() deviceType: any;
     @Input() settings: any;
-
+    timer: any;
     errorMessage: string;
     data: any;
 
@@ -42,7 +42,14 @@ export class ExecutiveSummaryWidget implements WidgetComponent, OnInit {
 
     ngOnInit() {
         this.loadData();
+        this.timer = window.setInterval(() => {
+            this.loadData();
+
+        }, 30000);
       
+    }
+    ngOnDestroy() {
+        clearInterval(this.timer);
     }
     refresh() {
         this.loadData();
