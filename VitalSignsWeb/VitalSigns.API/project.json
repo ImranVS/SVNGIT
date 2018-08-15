@@ -21,7 +21,9 @@
     "System.IdentityModel.Tokens": "5.0.0-rc1-211161024",
     "System.IdentityModel.Tokens.Jwt": "5.0.0-rc1-211161024",
     "Microsoft.AspNet.Diagnostics": "1.0.0-rc1-final",
-    "Microsoft.PowerShell.4.ReferenceAssemblies": "1.0.0"
+    "Microsoft.PowerShell.4.ReferenceAssemblies": "1.0.0",
+    "System.DirectoryServices": "4.5.0",
+    "System.DirectoryServices.AccountManagement": "4.5.0"
   },
 
   "commands": {
@@ -32,6 +34,7 @@
     "dnx451": {
       "dependencies": {
         "AlertLibrary": "1.0.0-*",
+      
         "Ionic.Zip": "1.0.0-*",
         "LogUtil": "1.0.0-*",
         "VitalSignsLicensing": "1.0.0-*",
@@ -41,6 +44,7 @@
         "VSNext.Mongo.Repository": "1.0.0-*"
       },
       "frameworkAssemblies": {
+     
         "System.Runtime.Serialization": "4.0.0.0",
         "System.Web": "4.0.0.0"
       }
