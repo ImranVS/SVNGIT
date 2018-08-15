@@ -1,4 +1,4 @@
-﻿import {Component, OnInit} from '@angular/core';
+﻿import {Component, OnInit, OnDestroy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {HttpModule}    from '@angular/http';
 import {RESTService} from '../../../core/services';
@@ -7,6 +7,8 @@ import {AppNavigator} from '../../../navigation/app.navigator.component';
 import { AppComponentService } from '../../../core/services';
 import { AuthenticationService } from '../../../profiles/services/authentication.service';
 import * as gridHelpers from '../../../core/services/helpers/gridutils';
+import { Subscription } from 'rxjs';
+import { NgForm } from '@angular/forms';
 
 
 @Component({
@@ -17,7 +19,7 @@ import * as gridHelpers from '../../../core/services/helpers/gridutils';
         gridHelpers.CommonUtils
     ]
 })
-export class MaintainUser extends GridBase implements OnInit {
+export class MaintainUser extends GridBase implements OnInit, OnDestroy {
     errorMessage: any;
     status: any;
     maintainRoles: any;
@@ -25,6 +27,10 @@ export class MaintainUser extends GridBase implements OnInit {
     checkedItems: any[];
     loading = false;
     currentPageSize: any = 20;
+    adPreferenceSubscription: Subscription = null;
+    findAdUserSubscription: Subscription = null;
+    adEnabled = false;
+    searchProfiles = [];
 
     constructor(service: RESTService, appComponentService: AppComponentService, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) {
         super(service, appComponentService);
@@ -53,15 +59,12 @@ export class MaintainUser extends GridBase implements OnInit {
         }
     }
     ngOnInit() {
-        //this.service.get('/configurator/get_maintain_users')
-        //    .subscribe(
-        //    (response) => {
-        //        this.maintainRoles = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
-        //        console.log(response.data);
-        //    },
-        //    (error) => this.errorMessage = <any>error
-        //    );
-        this.initialGridBind('/configurator/get_maintain_users');
+        const nameValue = "AD Enabled";
+        this.adPreferenceSubscription = this.service.get(`/services/get_name_value?name=${nameValue}`).subscribe(response =>{
+            this.adEnabled = response.data.ad_enabled;
+        });
+       
+       this.initialGridBind('/configurator/get_maintain_users');
         this.maintainRoles = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(["Configurator", "UserManager", "RemoteConsole", "PowerScripts"]));
         this.service.get(`/services/get_name_value?name=${this.gridHelpers.getGridPageName("MaintainUser", this.authService.CurrentUser.email)}`)
             .subscribe(
@@ -73,12 +76,23 @@ export class MaintainUser extends GridBase implements OnInit {
             (error) => this.errorMessage = <any>error
             );
     }
+
+    ngOnDestroy() {
+        if (this.adPreferenceSubscription) {
+            this.adPreferenceSubscription.unsubscribe();
+        }
+        if (this.findAdUserSubscription) {
+            this.findAdUserSubscription.unsubscribe();
+        }
+    }
+
     rolesChecked(userrole: wijmo.input.MultiSelect) {
         this.usersRoles = [];
         for (var item of userrole.checkedItems) {
             this.usersRoles.push(item);
         }
     }
+
     resetPassWord() {
         this.loading = true;
         this.service.get(`/Token/reset_password/?emailId=${this.flex.collectionView.currentItem.email}`)
@@ -106,6 +120,14 @@ export class MaintainUser extends GridBase implements OnInit {
             }
             );
     }
+
+    saveAdUser(dlg: wijmo.input.Popup, profile) {
+        this.currentEditItem["ad_user"] = true;
+        this.currentEditItem["full_name"] = profile.full_name;
+        this.currentEditItem["email"] = profile.email;
+        this.saveMaintainUser(dlg);
+    }
+
     saveMaintainUser(dlg: wijmo.input.Popup) {
         this.loading = true;
         this.currentEditItem.roles = this.usersRoles;  
@@ -168,7 +190,9 @@ export class MaintainUser extends GridBase implements OnInit {
             }
         }
     }
-    addMaintainUser(dlg: wijmo.input.Popup, userrole: wijmo.input.MultiSelect) {
+    addMaintainUser(dlg: wijmo.input.Popup) {
+        this.usersRoles = [];
+        this.searchProfiles = [];
         this.addGridRow(dlg);
         this.currentEditItem.email = "";
         this.currentEditItem.full_name = "";
@@ -176,6 +200,18 @@ export class MaintainUser extends GridBase implements OnInit {
         this.currentEditItem.status = true;
         this.checkedItems = [];
     }
+
+    handleSubmit(adForm: NgForm) {
+        adForm.value.name = adForm.value.name === null ? "" : adForm.value.name;
+        adForm.value.email = adForm.value.email === null ? "" : adForm.value.email;
+
+        this.findAdUserSubscription = this.service.get(`/configurator/search_ad_user?adEmail=${adForm.value.email}&name=${adForm.value.name}`)
+            .subscribe(response => {
+                this.searchProfiles = response.data;
+                adForm.reset();
+        });
+    }
+
 }
 
 

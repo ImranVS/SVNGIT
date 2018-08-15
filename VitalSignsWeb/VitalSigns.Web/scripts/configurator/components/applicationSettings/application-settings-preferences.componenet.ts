@@ -34,10 +34,10 @@ export class PreferencesForm implements OnInit {
     installType: any;
     licenseType: any;
     public formData = new FormData();
+    adEnabled = false;
 
     appComponentService: AppComponentService;
     constructor(
-        protected service: RESTService,
         private formBuilder: FormBuilder,
         private dataProvider: RESTService,
         private router: Router,
@@ -49,10 +49,15 @@ export class PreferencesForm implements OnInit {
             'currency_symbol': ['', Validators.required],
             'monitoring_delay': [0, Validators.required],
             'threshold_show': [0, Validators.required],
-            'purge_intreval': ['',],
+            'purge_intreval': [''],
             'dashboardonly_exec_summary_buttons': [false],
-            'bing_key': ['']
+            'bing_key': [''],
+            'ad_enabled': [false],
+            'ad_url': [''],
+            'ad_login_id': [''],
+            'ad_password': ['']
         });     
+
         this.appComponentService = appComponentService;
     }
 
@@ -60,6 +65,7 @@ export class PreferencesForm implements OnInit {
         this.dataProvider.get('/configurator/get_preferences')
             .subscribe(
             response => {
+                this.adEnabled = response.data.userpreference.ad_enabled;
                 if (response.data.licenseitem) {
                     this.expirationDate = new Date(response.data.licenseitem.ExpirationDate).toDateString();
                     this.units = response.data.licenseitem.units;
@@ -68,6 +74,7 @@ export class PreferencesForm implements OnInit {
                     this.installType = response.data.licenseitem.InstallType;
                     this.availableUnits = this.units - response.data.licenseitem.LicensesUsed;
                     //this.purge_intreval = response.data.licenseitem.purge_intreval;
+                   
                 }
                 this.preferencesForm.setValue(response.data.userpreference);
                 //this.licenseForm.setValue(response.data.licenseInfo);
@@ -86,18 +93,38 @@ export class PreferencesForm implements OnInit {
            
          ];
     }
-    onSubmit(nameValue: any): void {
-        this.dataProvider.put('/configurator/save_preferences', nameValue)
-            .subscribe(
-            response => {
-                if (response.status == "Success") {
+    onSubmit(): void {
+        this.dataProvider.put('/configurator/save_preferences', this.preferencesForm.value)
+            .subscribe(response => {
+                if (response.status == "Success") {                  
                     this.appComponentService.showSuccessMessage(response.message);
-                }
-                else {
+                    this.adEnabled = this.preferencesForm.value['ad_enabled'];
+                    this.preferencesForm.controls['ad_password'].reset();
+                } else {
                     this.appComponentService.showErrorMessage(response.message);
                 }
             });
     }
+    
+
+    saveAdPassword(dialog: wijmo.input.Popup) {
+        this.dataProvider.put('/services/set_name_value',
+            {
+                name: 'AD Password',
+                value: this.preferencesForm.value.ad_password
+            }).subscribe(response => {
+                console.log(response);
+                if (response.status == "Success") {
+                    this.appComponentService.showSuccessMessage(response.message);
+                    this.preferencesForm.controls['ad_password'].reset();
+                    dialog.hide();
+                    this.adEnabled = true;
+                } else {
+                    this.appComponentService.showErrorMessage(response.message);
+                }
+            });
+    }
+
     saveLicence(dialog: wijmo.input.Popup) {
         var licencekey=this.licencekey.first.nativeElement.value;
         if (licencekey == "") {
@@ -140,7 +167,7 @@ export class PreferencesForm implements OnInit {
     }
 
     licensedetails() {
-        this.service.get('/configurator/get_license_information')
+        this.dataProvider.get('/configurator/get_license_information')
             .subscribe(
             response => {
                 this.detailsdata = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));

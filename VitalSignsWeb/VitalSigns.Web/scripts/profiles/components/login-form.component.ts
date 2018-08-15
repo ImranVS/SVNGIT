@@ -31,16 +31,22 @@ export class LoginForm {
         this.authenticationService.login(this.model.username, this.model.password)
             .subscribe(result => {
                 this.reroute(result);
-                
-            }, error => { this.error = error; this.loading = false; });
+
+            }, this.handleError);
     }
 
     ngAfterViewInit() {
         this.username.first.nativeElement.focus();
     }
 
+    handleError(errorResponse) {
+        this.error = errorResponse.error;
+        this.loading = false;
+    }
+
     reroute(result) {
-        if (result === true) {
+        console.log(result);
+        if (result.authenticated) {
 
             let referrer = this.route.snapshot.params['ref'];
 
@@ -50,8 +56,7 @@ export class LoginForm {
                 this.router.navigate(['/']);
 
         } else {
-
-            this.error = 'Username or password is incorrect';
+            this.error = result.error;
             this.loading = false;
 
         }

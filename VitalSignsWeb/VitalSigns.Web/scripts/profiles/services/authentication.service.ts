@@ -65,7 +65,7 @@ export class AuthenticationService {
 
     }
     
-    login(username: string, password: string): Observable<boolean> {
+    login(username: string, password: string): Observable<any> {
 
         return this.http.post(`${this.config.getConfig('apiEndpoint')}/token`, { username: username, password: password })
             .map((response: Response) => {
@@ -74,24 +74,24 @@ export class AuthenticationService {
 
     }
 
-    wesTest(response,username) {
-        let token = response.json() && response.json().token;
+    wesTest(response, username) {
+        let responseJson = response.json();
+        let token = responseJson && responseJson.token;
 
         if (token) {
 
             this._uat = token;
             this._storage.setItem('uat', JSON.stringify({ username: username, token: token }));
 
-            return true;
-
-        } else
-            return false;
+        } 
+        return { authenticated: responseJson.authenticated, error: responseJson.error };
     }
 
     logout(): void {
 
         this._uat = null;
         this._storage.removeItem('uat');
+        this._currentUser = null;
 
     }
 

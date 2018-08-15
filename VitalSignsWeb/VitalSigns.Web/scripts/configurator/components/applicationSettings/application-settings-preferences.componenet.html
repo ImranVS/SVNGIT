@@ -155,7 +155,7 @@
             </div>-->
     </div>
     <div class="col-xs-12 col-md-8 col-sm-12 col-lg-9">
-        <form [formGroup]="preferencesForm" (ngSubmit)="onSubmit(preferencesForm.value)" #frmPreferences="ngForm" class="form-horizontal">
+        <form [formGroup]="preferencesForm" (ngSubmit)="onSubmit()" class="form-horizontal">
             <div class="panel panel-default">
                 <div class="panel-heading">General Settings</div>
                 <div class="panel-body">
@@ -184,7 +184,6 @@
                             <label for="currency_symbol" class="control-label col-sm-3">Currency Symbol</label>
                             <div class="col-sm-7">
                                 <input type="text" class="form-control" maxlength="1" name="currency_symbol" id="currency_symbol" formControlName="currency_symbol">
-
                             </div>
                         </div>
                     </div>
@@ -194,6 +193,61 @@
                             <div class="col-sm-7">
                                 <input type="number" min="0" class="form-control" id="monitoring_delay" name="monitoring_delay" formControlName="monitoring_delay"
                                        onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-sm-12">
+                            <label for="ad_enabled" class="control-label col-sm-3"> Active Directory Authentication </label>
+                            <div class="col-sm-7">
+                                <input type="checkbox" id="ad_enabled" name="ad_enabled" formControlName="ad_enabled">
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="preferencesForm.controls['ad_enabled'].value">
+                        <div class="row">
+                            <div class="form-group col-sm-12">
+                                <label for="ad_url" class="control-label col-sm-3">Active Directory URL:</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" name="ad_url" id="ad_url"
+                                           formControlName="ad_url">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-12">
+                                <label for="ad_login_id" class="control-label col-sm-3">Active Directory Login ID:</label>
+                                <div class="col-sm-7">
+                                    <input type="text" class="form-control" name="ad_login_id" id="ad_login_id" formControlName="ad_login_id">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-12">
+                                <label for="ad_password" class="control-label col-sm-3">Active Directory Login Password:</label>
+                                <div class="col-sm-7">
+                                    <input *ngIf="!adEnabled" type="password" class="form-control" name="ad_password" id="ad_password" formControlName="ad_password">
+                                    <button id="adPassword" type="button" class="btn btn-primary" *ngIf="adEnabled">
+                                        Enter Password
+                                    </button>
+                                    
+                                    <wj-popup class="popover" *ngIf="adEnabled" #adPwdPopup owner="#adPassword" [showTrigger]="'Click'" [hideTrigger]="'None'">
+                                        <h3 class="popover-title">
+                                            Password
+                                            <button type="button" tabindex="-1" class="close wj-hide">&times;</button>
+                                        </h3>
+                                        <div class="popover-content">
+                                            <div class="input-group">
+                                                <label for="ad_password" class="control-label">Please enter a password below</label>
+                                                <input class="form-control" name="ad_password" type="password" formControlName="ad_password" />
+                                            </div>
+                                            <div>&nbsp;</div>
+                                            <div class="form-actions">
+                                                <button type="button" class="btn btn-primary" name="save" (click)="saveAdPassword(adPwdPopup)">Save</button>
+                                            </div>
+                                        </div>
+                                    </wj-popup>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -222,31 +276,34 @@
                         </div>
                     </div>
                     <!--<div class="form-group">
-            <label for="bing_key" class="control-label col-sm-3">Bing Key:</label>
-            <div class="form-group col-sm-7">
-                <input type="number" class="form-control" name="bing_key" formControlName="bing_key">
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="col-sm-3">&nbsp;</div>
-            <div class="col-sm-7">
-                <div class="funkyradio">
-                    <div class="funkyradio-default">
-                        <input type="checkbox" id="dashboardonly_exec_summary_buttons" name="dashboardonly_exec_summary_buttons" formControlName="dashboardonly_exec_summary_buttons" />
-                        <label for="dashboardonly_exec_summary_buttons">Dashboard Only/Executive Summary Buttons</label>
+                    <label for="bing_key" class="control-label col-sm-3">Bing Key:</label>
+                    <div class="form-group col-sm-7">
+                        <input type="number" class="form-control" name="bing_key" formControlName="bing_key">
                     </div>
                 </div>
-            </div>
-        </div>-->
+                <div class="form-group">
+                    <div class="col-sm-3">&nbsp;</div>
+                    <div class="col-sm-7">
+                        <div class="funkyradio">
+                            <div class="funkyradio-default">
+                                <input type="checkbox" id="dashboardonly_exec_summary_buttons" name="dashboardonly_exec_summary_buttons" formControlName="dashboardonly_exec_summary_buttons" />
+                                <label for="dashboardonly_exec_summary_buttons">Dashboard Only/Executive Summary Buttons</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>-->
                     <div class="row">
                         <div class="form-group col-sm-12">
                             <div class="col-sm-7">
-                                <button type="submit" class="btn btn-primary" name="submit" [disabled]="!frmPreferences.form.valid" >Save</button>
+                                <button type="submit" class="btn btn-primary" name="submit"
+                                        [disabled]="preferencesForm.invalid">
+                                    Save
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
-                    </div>
+            </div>
 
         </form>
     </div>

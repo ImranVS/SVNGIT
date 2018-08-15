@@ -4,8 +4,11 @@
     <button class="btn btn-success" (click)="editUserGridRow(frmDialog)" [disabled]="data.itemCount==0">
         Edit
     </button>
-    <button class="btn btn-success" (click)="addMaintainUser(frmDialog,roles)">
+    <button class="btn btn-success" (click)="addMaintainUser(frmDialog)">
         Add
+    </button>
+    <button class="btn btn-success" (click)="addMaintainUser(adFrmDialog)">
+        Add AD User
     </button>
     <button class="btn btn-success" (click)="delteMaintainUsers();" [disabled]="data.itemCount==0">
         Delete
@@ -16,12 +19,14 @@
     <img *ngIf="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
 </div>
 <div>&nbsp;</div>
+
 <wj-flex-grid #flex [itemsSource]="data" headersVisibility="Column" selectionMode="Row" [frozenColumns]="1" [isReadOnly]="true">
     <wj-flex-grid-filter></wj-flex-grid-filter>
     <wj-flex-grid-column [header]="'Email'" [binding]="'email'" [width]="250"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Full Name'" [binding]="'full_name'" [width]="200"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Roles'" [binding]="'roles'" [width]="200"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Status'" [binding]="'status'" [width]="120"></wj-flex-grid-column>
+    <wj-flex-grid-column [header]="'Ad User'" [binding]="'ad_user'" [width]="120"></wj-flex-grid-column>
 </wj-flex-grid>
 <div class="btn-group" *ngIf="data != null">
     <button type="button" class="btn btn-default"
@@ -58,6 +63,70 @@ data.pageIndex + 1 | number
         <wj-menu-item [value]="50">50</wj-menu-item>
     </wj-menu>
 </div>
+
+<wj-popup style="border: 0px; width: 820px" #adFrmDialog>
+    <div class="modal-content">
+        <div class="modal-header">
+            {{formTitle}}
+            <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form #adForm="ngForm" (ngSubmit)="handleSubmit(adForm)">
+                <div class="row">
+                    <div class="form-group col-sm-6">
+                        <label for="email" class="control-label col-sm-5">Email</label>
+                        <div class="col-sm-7">
+                            <input type="email" class="form-control" id="email" name="email" ngModel>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label for="name" class="control-label col-sm-5">Name</label>
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control" id="name" name="name" ngModel>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-sm-6">
+                        <button class="btn btn-primary" type="submit">Search</button>
+                    </div>
+                </div>
+
+            </form>
+            <div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Given Name</th>
+                            <th>Email</th>
+                            <th>AD Created Date</th>
+                            <th>AD Updated Date</th>
+                            <th>Role</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tr *ngFor="let sp of searchProfiles">
+                        <td>{{sp?.full_name}}</td>
+                        <td>{{sp?.email}}</td>
+                        <td>{{sp?.created_on | date}}</td>
+                        <td>{{sp?.modified_on | date}}</td>
+                        <td>
+                            <wj-multi-select name="roles" [itemsSource]="maintainRoles"
+                                             placeholder="Select role"
+                                             (lostFocus)="rolesChecked(roles)"
+                                             [isEditable]="true" #roles>
+                            </wj-multi-select>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-primary btn-sm" (click)="saveAdUser(adFrmDialog, sp)">ADD</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</wj-popup>
+
 <wj-popup style="border: 0px; width: 820px" #frmDialog>
     <div class="modal-content">
         <div class="modal-header">
@@ -70,13 +139,19 @@ data.pageIndex + 1 | number
                     <div class="form-group col-sm-6">
                         <label for="full_name" class="control-label col-sm-5">Full Name</label>
                         <div class="col-sm-7">
-                            <input type="text" class="form-control" id="full_name" required name="full_name" [(ngModel)]="currentEditItem.full_name">
+                            <input type="text" class="form-control" id="full_name" 
+                                   required name="full_name" 
+                                   [(ngModel)]="currentEditItem.full_name"
+                                   [attr.readonly]="currentEditItem.ad_user">
                         </div>
                     </div>
                     <div class="form-group col-sm-6">
                         <label for="email" class="control-label col-sm-5">Email</label>
                         <div class="col-sm-7">
-                            <input type="email" class="form-control" id="email" required name="email" [(ngModel)]="currentEditItem.email">
+                            <input type="email" class="form-control" id="email" 
+                                   required name="email" 
+                                   [(ngModel)]="currentEditItem.email"
+                                   [attr.readonly]="currentEditItem.ad_user">
                         </div>
                     </div>
                 </div>
@@ -93,7 +168,9 @@ data.pageIndex + 1 | number
                     <div class="form-group col-sm-6">
                         <label for="status" class="control-label col-sm-5">Status</label>
                         <div class="col-sm-7">
-                            <select name="status" class="form-control" required [(ngModel)]="currentEditItem.status">
+                            <select name="status" class="form-control" required 
+                                    [(ngModel)]="currentEditItem.status"
+                                    [attr.disabled]="currentEditItem.ad_user">
                                 <option value="true">Active</option>
                                 <option value="false">Inactive</option>
                             </select>
