@@ -34,7 +34,7 @@
     "dnx451": {
       "dependencies": {
         "AlertLibrary": "1.0.0-*",
-      
+       "ChilkatDotNet4": "1.0.0-*",
         "Ionic.Zip": "1.0.0-*",
         "LogUtil": "1.0.0-*",
         "VitalSignsLicensing": "1.0.0-*",
