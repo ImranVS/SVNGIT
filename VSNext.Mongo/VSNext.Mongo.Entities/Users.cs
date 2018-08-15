@@ -46,5 +46,10 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNull]
         public bool IsPasswordResetRequired { get; set; }
 
+        [DataMember]
+        [BsonElement("ad_user")]
+        [BsonIgnoreIfNull]
+        public bool AdUser { get; set; }
+
     }
 }
