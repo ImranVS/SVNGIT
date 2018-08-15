@@ -14,6 +14,7 @@ using MongoDB.Bson;
 using System.Dynamic;
 using Microsoft.AspNet.Authorization;
 using System.IdentityModel.Tokens.Jwt;
+using VitalSigns.API.Security;
 
 namespace VitalSigns.API.Controllers
 {
@@ -1955,6 +1956,10 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
+                if (nameValue.Name.Equals("AD Password"))
+                {
+                    nameValue.Value = ActiveDirectoryService.EncryptUsingTripleDES(nameValue.Value);
+                }
                 Common.SaveNameValue(new NameValue() { Name = nameValue.Name, Value = nameValue.Value });
                 Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Value updated successfully");
                 

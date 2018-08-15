@@ -31,6 +31,9 @@ namespace VitalSigns.API.Models
         [JsonProperty("is_password_reset_required")]
         public bool IsPasswordResetRequired { get; set; }
 
+        [JsonProperty("ad_user")]
+        public bool AdUser { get; set; }
+
 
     }
 }

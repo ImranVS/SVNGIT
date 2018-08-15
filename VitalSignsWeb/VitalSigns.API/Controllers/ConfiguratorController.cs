@@ -19,6 +19,7 @@ using Microsoft.AspNet.Authorization;
 using System.Web.Security;
 using VitalSignsWebSphereDLL;
 using VitalSignsLicensing;
+using VitalSigns.API.Security;
 
 namespace VitalSigns.API.Controllers
 {
@@ -94,6 +95,21 @@ namespace VitalSigns.API.Controllers
         /// <param name="userpreference"></param>
         /// <returns>It returns id value</returns>
 
+        [HttpGet("search_ad_user")]
+        public APIResponse searchAdUsers(string adEmail, string name)
+        {
+            try {
+                IEnumerable<Profile> profiles = ActiveDirectoryService.SearchProfilesForAdUser(adEmail, name);
+                Response = Common.CreateResponse(profiles);
+            }
+            catch (Exception ex)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "AD lookup failed.\n Error Message :" + ex.Message);
+            }
+            return Response;
+        }
+
+        
         [HttpPut("save_preferences")]
         public APIResponse SavePreferences([FromBody]PreferencesModel userpreference)
         {
@@ -107,6 +123,17 @@ namespace VitalSigns.API.Controllers
                                                                 new NameValue { Name = "Bing Key", Value = userpreference.BingKey },
                                                                 new NameValue { Name = "Purge Interval", Value = userpreference.PurgeInterval }
                                                              };
+                if (userpreference.ADEnabled)
+                {
+                    preferencesSettings.AddRange(new List<NameValue> {
+                        new NameValue {Name = "AD Enabled", Value= Convert.ToString(userpreference.ADEnabled) },
+                        new NameValue {Name = "AD URL", Value= userpreference.ADUrl },
+                        new NameValue {Name = "AD Login ID", Value= userpreference.ADLoginId }                 
+                    });
+                    if (userpreference.ADPassword != null)
+                        preferencesSettings.Add(new NameValue { Name = "AD Password", Value = ActiveDirectoryService.EncryptUsingTripleDES(userpreference.ADPassword) });
+
+                }
                 var result = Common.SaveNameValues(preferencesSettings);
                 Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), " Settings were successully updated.");
             }
@@ -196,7 +223,7 @@ namespace VitalSigns.API.Controllers
         {
             try
             {
-                var preferencesSettings = new List<string> { "Company Name", "Currency Symbol", "Monitoring Delay", "Threshold Show", "Dashboard Only", "Bing Key", "Purge Interval" };
+                var preferencesSettings = new List<string> { "Company Name", "Currency Symbol", "Monitoring Delay", "Threshold Show", "Dashboard Only", "Bing Key", "Purge Interval", "AD Enabled", "AD URL", "AD Login ID", "AD Password" };
                 PreferencesModel userpreference = new PreferencesModel();
                 var result = Common.GetNameValues(preferencesSettings);
                 VSNext.Mongo.Repository.Repository<License> repoLic = new VSNext.Mongo.Repository.Repository<License>(ConnectionString);
@@ -215,6 +242,14 @@ namespace VitalSigns.API.Controllers
                     userpreference.BingKey = result.FirstOrDefault(x => x.Name == "Bing Key").Value;
                 if (result.Exists(x => x.Name == "Purge Interval"))
                     userpreference.PurgeInterval = result.FirstOrDefault(x => x.Name == "Purge Interval").Value;
+                if (result.Exists(x => x.Name == "AD Enabled"))
+                {
+                    userpreference.ADEnabled = Convert.ToBoolean(result.FirstOrDefault(x => x.Name == "AD Enabled").Value);
+                    userpreference.ADUrl = result.FirstOrDefault(x => x.Name == "AD URL").Value;
+                    userpreference.ADLoginId = result.FirstOrDefault(x => x.Name == "AD Login ID").Value;
+                   /* if(result.FirstOrDefault(x => x.Name == "AD Password")!= null)
+                        userpreference.ADPassword = result.FirstOrDefault(x => x.Name == "AD Password").Value;*/
+                }
 
                 Response = Common.CreateResponse(new { userpreference = userpreference, licenseitem = licenseItem });
 
@@ -1234,6 +1269,7 @@ namespace VitalSigns.API.Controllers
                     FullName = x.FullName,
                     Roles = x.Roles,
                     Status = x.Status,
+                    AdUser = x.AdUser
                 }).ToList();
                 Response = Common.CreateResponse(result);
             }
@@ -1273,12 +1309,23 @@ namespace VitalSigns.API.Controllers
                 {
                     if (string.IsNullOrEmpty(maintainuser.Id))
                     {
-                        Users maintainUsers = new Users { FullName = maintainuser.FullName, Email = maintainuser.Email, Roles = maintainuser.Roles, Status = maintainuser.Status };
-                        string password = Membership.GeneratePassword(6, 2);
-                        string hashedPassword = Startup.SignData(password);
-                        maintainUsers.Hash = hashedPassword;
+                        Users maintainUsers = new Users { FullName = maintainuser.FullName,
+                            Email = maintainuser.Email, Roles = maintainuser.Roles, Status = maintainuser.Status,
+                            AdUser = maintainuser.AdUser
+                        };
+                        string password = null;
+                        if (!maintainuser.AdUser)
+                        {
+                            password = Membership.GeneratePassword(6, 2);
+                            string hashedPassword = Startup.SignData(password);
+                            maintainUsers.Hash = hashedPassword;
+                        }
                         string id = maintainUsersRepository.Insert(maintainUsers);
-                        (new Common()).SendPasswordEmail(maintainuser.Email, password);
+                        if (!maintainuser.AdUser)
+                        {
+                            (new Common()).SendPasswordEmail(maintainuser.Email, password);
+                        }
+                        
                         Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "User information inserted successfully");
                     }
                     else

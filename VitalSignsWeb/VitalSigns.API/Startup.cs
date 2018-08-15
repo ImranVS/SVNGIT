@@ -146,6 +146,35 @@ namespace VitalSigns.API
                 return Convert.ToBase64String(RSA.SignData(Encoding.UTF8.GetBytes(data), hash));
             }
         }
+        /*
+        static internal String EncryptString(String data)
+        {
+            using (RSACryptoServiceProvider RSA = new RSACryptoServiceProvider())
+            {
+                RSA.ImportParameters(RSAKeyParameters);
+                //for encryption, always handle bytes...
+                var bytesPlainTextData = Encoding.Unicode.GetBytes(data);
+
+                var bytesCypherText = RSA.Encrypt(bytesPlainTextData, false);
+
+                return Convert.ToBase64String(bytesCypherText);
+            }
+        }
+        
+        static internal String DecryptString(String encryptedText)
+        {
+            using (RSACryptoServiceProvider RSA = new RSACryptoServiceProvider())
+            {
+                RSA.ImportParameters(RSAKeyParameters);
+                var bytesCypherText = Convert.FromBase64String(encryptedText);
+                var bytesDecryptedCypherText = RSA.Decrypt(bytesCypherText, false);
+
+                return Encoding.Unicode.GetString(bytesDecryptedCypherText);
+            }
+        }
+
+       
+        */
 
         static internal bool VerifyData(string originalMessage, string signedMessage)
         {

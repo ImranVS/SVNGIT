@@ -29,5 +29,18 @@ namespace VitalSigns.API.Models.Configurator
         [JsonProperty("purge_intreval")]
         public string PurgeInterval { get; set; }
 
+        [JsonProperty("ad_enabled")]
+        public bool ADEnabled { get; set; }
+
+        [JsonProperty("ad_url")]
+        public string ADUrl { get; set; }
+
+        [JsonProperty("ad_login_id")]
+        public string ADLoginId { get; set; }
+
+        [JsonProperty("ad_password")]
+        public string ADPassword { get; set; }
+
+
     }
 }

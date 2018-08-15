@@ -246,7 +246,8 @@ namespace VitalSigns.API
                 try
 
                 {
-                    sendSuceess = sendnewPasswordEmail(emailId, password, hostName, emailUserId, emailPassword, port, SSL);
+                    //throw new Exception();
+                    sendSuceess = sendnewPasswordEmailChilkat(emailId, password, hostName, emailUserId, emailPassword, port, SSL);
                 }
                 catch (Exception ex)
                 {
@@ -298,7 +299,7 @@ namespace VitalSigns.API
 
                 try
                 {
-                    return sendnewPasswordEmail(emailId, password, hostName, emailUserId, emailPassword, port, SSL);
+                    return sendnewPasswordEmailChilkat(emailId, password, hostName, emailUserId, emailPassword, port, SSL);
                 }
                 catch (Exception exception)
                 {
@@ -313,6 +314,7 @@ namespace VitalSigns.API
 
         public bool sendnewPasswordEmail(string emailId, string password, string emailHostName, string emailUserId, string emailPassword, int emailPort, Boolean emailSSL)
         {
+
             System.Net.Mail.MailMessage mailMessage = new MailMessage();
             SmtpClient client = new SmtpClient();
             client.Port = Convert.ToInt32(emailPort);
@@ -336,6 +338,42 @@ namespace VitalSigns.API
                 throw ex;
             }
         }
+
+
+        public bool sendnewPasswordEmailChilkat(string emailId, string password, string emailHostName, string emailUserId, string emailPassword, int emailPort, Boolean emailSSL)
+        {
+           Chilkat.MailMan mailman = new Chilkat.MailMan();
+            try {
+                mailman.UnlockComponent("MZLDADMAILQ_8nzv7Kxb4Rpx");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+                //WriteServiceHistoryEntry(Now.ToString & " Error unlocking Chilkat component: " & ex.ToString, LogLevel.Normal)
+            }
+            mailman.SmtpHost = emailHostName;
+            //mailman.SmtpSsl = Convert.ToBoolean(emailSSL);
+            mailman.SmtpPort = Convert.ToInt32(emailPort);
+            mailman.SmtpPassword = emailPassword;
+            mailman.SmtpUsername = emailUserId;
+            Chilkat.Email email = new Chilkat.Email();
+            email.AddTo(emailId, emailId);
+            email.FromAddress = emailUserId;
+            email.ReplyTo = emailUserId;
+            email.FromName = emailUserId;
+            email.Subject = "Your VitalSigns Account Information Update";
+            email.Body = "Your VitalSigns account details are as follows: \n\rUser name: " + emailId.ToString() + "\nPassword: " + password + "";    
+            try
+            {
+                mailman.SendEmail(email);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public bool SendSmtpSevers(string emailId, string password, string emailHostName, string emailUserId, string emailPassword, int emailPort, Boolean emailSSL, string Body, string Subject)
         {
             System.Net.Mail.MailMessage mailMessage = new MailMessage();

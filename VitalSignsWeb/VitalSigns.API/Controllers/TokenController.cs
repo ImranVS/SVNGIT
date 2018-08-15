@@ -10,6 +10,10 @@ using System.Web.Security;
 using VSNext.Mongo.Repository;
 using VSNext.Mongo.Entities;
 using System.Linq;
+using System.DirectoryServices.AccountManagement;
+using System.DirectoryServices;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -22,27 +26,51 @@ namespace VitalSigns.API.Controllers
         private readonly TokenAuthOptions tokenOptions;
 
         private IRepository<Users> maintainUsersRepository;
-
+       
         public TokenController(TokenAuthOptions tokenOptions)
         {
             this.tokenOptions = tokenOptions;
         }
 
+        
         [HttpPost]
         public dynamic Post([FromBody]AuthRequest req)
         {
             string login = req.Username;
             string password = req.Password;
-
+            Profile currentUser = null;
             var dataContext = new DataContext();
+            var adLoginEnabled = ActiveDirectoryService.CheckIfADAuthenticationIsEnabled();
+            //here we need to check if ad login is enabled,then validate against AD
+            if (!"adm@jnittech.com".Equals(login) && adLoginEnabled)
+            {
+                bool valid = ActiveDirectoryService.ValidateAgainstAD(login, password);
+                if (!valid)
+                {
+                    return new { authenticated = false, error = "Invalid username or password" };
+                }
+                /*else
+                {
+                    currentUser = ActiveDirectoryService.GetProfileForAdUser(login);
+                }
+                */
+            }
+               
 
             // TODO: retrieve tenant ID from configuration
-            Profile currentUser = dataContext.Profiles.Find(p => p.TenantId == 5 && p.Email == req.Username).FirstOrDefault();
-            
-            if (currentUser == default(Profile) || !Startup.VerifyData(
+            currentUser = dataContext.Profiles.Find(p => p.TenantId == 5 && p.Email == req.Username).FirstOrDefault();
+            if(currentUser == null && adLoginEnabled && !login.Equals("adm@jnittech.com"))
+            {
+                return new { authenticated = false, error = "AD User login failed. Please reach out to Admin to create a profile" };
+            }
+            if (!adLoginEnabled)
+            {
+                if (currentUser == default(Profile) || !Startup.VerifyData(
                 req.Password,
                 currentUser.Hash))
-                return new { authenticated = false, error = "Invalid username or password" };
+                    return new { authenticated = false, error = "Invalid username or password" };
+            }
+
 
             // TODO: configure token lifetime
             DateTime? expires = DateTime.UtcNow.AddDays(30);
