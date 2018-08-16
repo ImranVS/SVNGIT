@@ -10,6 +10,10 @@ using System.Web.Security;
 using VSNext.Mongo.Repository;
 using VSNext.Mongo.Entities;
 using System.Linq;
+using System.DirectoryServices.AccountManagement;
+using System.DirectoryServices;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -35,8 +39,6 @@ namespace VitalSigns.API.Controllers
             string login = req.Username;
             string password = req.Password;
             Profile currentUser = null;
-
-
             var dataContext = new DataContext();
             var adLoginEnabled = ActiveDirectoryService.CheckIfADAuthenticationIsEnabled();
             //here we need to check if ad login is enabled,then validate against AD
@@ -56,9 +58,8 @@ namespace VitalSigns.API.Controllers
                
 
             // TODO: retrieve tenant ID from configuration
-            currentUser = dataContext.Profiles.Find(p => p.TenantId == 5 && p.Email.ToLower() == login.ToLower()).FirstOrDefault();
-        
-            if (currentUser == null && adLoginEnabled && !login.Equals("adm@jnittech.com"))
+            currentUser = dataContext.Profiles.Find(p => p.TenantId == 5 && p.Email.ToLower() == req.Username.ToLower()).FirstOrDefault();
+            if(currentUser == null && adLoginEnabled && !login.Equals("adm@jnittech.com"))
             {
                 return new { authenticated = false, error = "AD User login failed. Please reach out to Admin to create a profile" };
             }
@@ -130,7 +131,7 @@ namespace VitalSigns.API.Controllers
                     var result = maintainUsersRepository.Update(filterDefination, updatePassword);
 
                     if (emptyPwd)
-                        (new Common()).SendPasswordEmail(emailId, password);
+                        (new Common()).SendPasswordEmail(emailId, password,false);
                     Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "Password reset successful");
                 }
                 else

@@ -171,7 +171,7 @@ namespace VitalSigns.API
             propertyInfo.SetValue(propertyInfo, value, null);
         }
 
-        public bool SendPasswordEmail(string emailId, string password)
+        public bool SendPasswordEmail(string emailId, string password, bool isAdUser)
         {
             string hostName = "";
             int port = 0;
@@ -247,7 +247,7 @@ namespace VitalSigns.API
 
                 {
                     //throw new Exception();
-                    sendSuceess = sendnewPasswordEmailChilkat(emailId, password, hostName, emailUserId, emailPassword, port, SSL);
+                    sendSuceess = sendnewPasswordEmailChilkat(emailId, password, hostName, emailUserId, emailPassword, port, SSL, isAdUser);
                 }
                 catch (Exception ex)
                 {
@@ -299,7 +299,7 @@ namespace VitalSigns.API
 
                 try
                 {
-                    return sendnewPasswordEmailChilkat(emailId, password, hostName, emailUserId, emailPassword, port, SSL);
+                    return sendnewPasswordEmailChilkat(emailId, password, hostName, emailUserId, emailPassword, port, SSL, isAdUser);
                 }
                 catch (Exception exception)
                 {
@@ -340,7 +340,8 @@ namespace VitalSigns.API
         }
 
 
-        public bool sendnewPasswordEmailChilkat(string emailId, string password, string emailHostName, string emailUserId, string emailPassword, int emailPort, Boolean emailSSL)
+        public bool sendnewPasswordEmailChilkat(string emailId, string password, string emailHostName, 
+            string emailUserId, string emailPassword, int emailPort, Boolean emailSSL, bool isAdUser)
         {
            Chilkat.MailMan mailman = new Chilkat.MailMan();
             try {
@@ -362,7 +363,10 @@ namespace VitalSigns.API
             email.ReplyTo = emailUserId;
             email.FromName = emailUserId;
             email.Subject = "Your VitalSigns Account Information Update";
-            email.Body = "Your VitalSigns account details are as follows: \n\rUser name: " + emailId.ToString() + "\nPassword: " + password + "";    
+            if (!isAdUser)
+                email.Body = "Your VitalSigns account details are as follows: \n\rUser name: " + emailId.ToString() + "\nPassword: " + password + "";
+            else
+                email.Body = "Your AD account is now linked with vital signs - Alan to change";
             try
             {
                 mailman.SendEmail(email);

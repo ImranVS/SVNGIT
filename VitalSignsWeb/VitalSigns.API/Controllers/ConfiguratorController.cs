@@ -1321,10 +1321,7 @@ namespace VitalSigns.API.Controllers
                             maintainUsers.Hash = hashedPassword;
                         }
                         string id = maintainUsersRepository.Insert(maintainUsers);
-                        if (!maintainuser.AdUser)
-                        {
-                            (new Common()).SendPasswordEmail(maintainuser.Email, password);
-                        }
+                        (new Common()).SendPasswordEmail(maintainuser.Email, password, maintainuser.AdUser);
                         
                         Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "User information inserted successfully");
                     }
