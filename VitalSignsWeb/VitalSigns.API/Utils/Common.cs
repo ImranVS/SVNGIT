@@ -366,7 +366,7 @@ namespace VitalSigns.API
             if (!isAdUser)
                 email.Body = "Your VitalSigns account details are as follows: \n\rUser name: " + emailId.ToString() + "\nPassword: " + password + "";
             else
-                email.Body = "Your AD account is now linked with vital signs - Alan to change";
+                email.Body = "Your Active Directory account is now linked with VitalSigns.  To log onto VitalSigns simply enter your company email adddress and existing password. (Note that VitalSigns does not store this information nor does it have access to your password.) ";
             try
             {
                 mailman.SendEmail(email);
