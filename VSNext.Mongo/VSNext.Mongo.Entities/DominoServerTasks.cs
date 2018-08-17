@@ -29,7 +29,7 @@ namespace VSNext.Mongo.Entities
 
         [DataMember]
         [BsonElement("freeze_detect")]
-        public bool FreezeDetect { get; set; }
+        public bool? FreezeDetect { get; set; }
 
         [DataMember]
         [BsonElement("max_busy_time")]
