@@ -136,7 +136,7 @@ namespace VitalSigns.API.Models
         public string TaskName { get; set; }
 
         [JsonProperty("freeze_detect")]
-        public bool FreezeDetect { get; set; }
+        public bool? FreezeDetect { get; set; }
 
         [JsonProperty("retry_count")]
         public int RetryCount { get; set; }

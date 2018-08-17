@@ -21,7 +21,7 @@ namespace VitalSigns.API.Models
         public string ConsoleString { get; set; }
 
         [JsonProperty("freeze_detect")]
-        public bool FreezeDetect { get; set; }
+        public bool? FreezeDetect { get; set; }
 
         [JsonProperty("idle_string")]
         public string IdleString { get; set; }
