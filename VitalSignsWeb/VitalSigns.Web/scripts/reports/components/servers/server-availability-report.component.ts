@@ -76,7 +76,8 @@ export class ServerAvailabilityReport extends WidgetController {
                             endOnTick: false,
                             allowDecimals: false,
                             title: {
-                                enabled: false
+                                enabled: true,
+                                text: 'Time(Minutes)'
                             }
                         },
                         plotOptions: {

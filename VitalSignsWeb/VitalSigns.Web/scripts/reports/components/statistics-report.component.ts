@@ -93,7 +93,8 @@ export class StatisticsReport extends WidgetController {
                             endOnTick: false,
                             allowDecimals: false,
                             title: {
-                                enabled: false
+                                enabled: true,
+                                text: 'Percentage(%)'
                             }
                         },
                         plotOptions: {

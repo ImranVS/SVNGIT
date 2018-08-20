@@ -82,7 +82,8 @@ export class HourlyStatisticsReport extends WidgetController {
                             endOnTick: false,
                             allowDecimals: false,
                             title: {
-                                enabled: false
+                                enabled: true,
+                                text: 'Percentage(%)'
                             }
                         },
                         plotOptions: {
