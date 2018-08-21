@@ -63,6 +63,10 @@ namespace VitalSigns.API.Controllers
             {
                 return new { authenticated = false, error = "AD User login failed. Please reach out to Admin to create a profile" };
             }
+            if(!adLoginEnabled && currentUser.Aduser)
+            {
+                return new { authenticated = false, error = "AD User login failed. Please reach out to Admin" };
+            }
             if (!adLoginEnabled)
             {
                 if (currentUser == default(Profile) || !Startup.VerifyData(

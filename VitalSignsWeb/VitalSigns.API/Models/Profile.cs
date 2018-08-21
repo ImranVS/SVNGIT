@@ -39,6 +39,10 @@ namespace VitalSigns.API.Models
         [JsonProperty("modified_on")]
         [BsonElement("modified_on")]
         public DateTime Modified { get; set; }
+
+        [JsonProperty("ad_user")]
+        [BsonElement("ad_user")]
+        public bool Aduser { get; set; }
         
     }
 }

@@ -121,19 +121,21 @@ namespace VitalSigns.API.Controllers
                                                                 new NameValue { Name = "Threshold Show", Value =Convert.ToString(userpreference.ThresholdShow)},
                                                                 new NameValue { Name = "Dashboard Only", Value = (userpreference.DashboardonlyExecSummaryButtons?"True":"False")},
                                                                 new NameValue { Name = "Bing Key", Value = userpreference.BingKey },
-                                                                new NameValue { Name = "Purge Interval", Value = userpreference.PurgeInterval }
+                                                                new NameValue { Name = "Purge Interval", Value = userpreference.PurgeInterval },
+                                                                new NameValue {Name = "AD Enabled", Value= Convert.ToString(userpreference.ADEnabled) }
                                                              };
-                if (userpreference.ADEnabled)
+               
+                if (userpreference.ADUrl != null)
                 {
-                    preferencesSettings.AddRange(new List<NameValue> {
-                        new NameValue {Name = "AD Enabled", Value= Convert.ToString(userpreference.ADEnabled) },
-                        new NameValue {Name = "AD URL", Value= userpreference.ADUrl },
-                        new NameValue {Name = "AD Login ID", Value= userpreference.ADLoginId }                 
-                    });
-                    if (userpreference.ADPassword != null)
+                    preferencesSettings.Add(new NameValue { Name = "AD URL", Value = userpreference.ADUrl });
+                }
+                if (userpreference.ADLoginId != null)
+                {
+                    preferencesSettings.Add(new NameValue { Name = "AD Login ID", Value = userpreference.ADLoginId });
+                }
+                if (userpreference.ADPassword != null)
                         preferencesSettings.Add(new NameValue { Name = "AD Password", Value = ActiveDirectoryService.EncryptUsingTripleDES(userpreference.ADPassword) });
 
-                }
                 var result = Common.SaveNameValues(preferencesSettings);
                 Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), " Settings were successully updated.");
             }
