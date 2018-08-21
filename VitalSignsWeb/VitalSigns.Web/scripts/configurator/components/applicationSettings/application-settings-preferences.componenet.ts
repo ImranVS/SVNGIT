@@ -65,7 +65,7 @@ export class PreferencesForm implements OnInit {
         this.dataProvider.get('/configurator/get_preferences')
             .subscribe(
             response => {
-                this.adEnabled = response.data.userpreference.ad_enabled;
+                this.adEnabled = response.data.userpreference.ad_url ? true:false;
                 if (response.data.licenseitem) {
                     this.expirationDate = new Date(response.data.licenseitem.ExpirationDate).toDateString();
                     this.units = response.data.licenseitem.units;
@@ -98,7 +98,7 @@ export class PreferencesForm implements OnInit {
             .subscribe(response => {
                 if (response.status == "Success") {                  
                     this.appComponentService.showSuccessMessage(response.message);
-                    this.adEnabled = this.preferencesForm.value['ad_enabled'];
+                    this.adEnabled = this.preferencesForm.value['ad_url'] ? true: false;
                     this.preferencesForm.controls['ad_password'].reset();
                 } else {
                     this.appComponentService.showErrorMessage(response.message);
