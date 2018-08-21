@@ -1,10 +1,15 @@
+param(
+        [ValidateNotNullOrEmpty()]
+        [string]$startingChar = 'v'
+     )
+
 $AllMailboxes = @()
-$Mailboxes = Get-Mailbox -ResultSize Unlimited -WarningAction SilentlyContinue | Select DisplayName, Database, IssueWarningQuota, ProhibitSendQuota, ProhibitSendReceiveQuota, Alias, PrimarySmtpAddress, SAMAccountName, ExchangeGuid, RecipientType, RecipientTypeDetails
+$Mailboxes = Get-Mailbox -ResultSize 2 -WarningAction SilentlyContinue | Select DisplayName, Database, IssueWarningQuota, ProhibitSendQuota, ProhibitSendReceiveQuota, Alias, PrimarySmtpAddress, SAMAccountName, ExchangeGuid, LitigationHoldEnabled
 $Users = Get-User -WarningAction SilentlyContinue | select SAMAccountName, Company, Department
 
 $MailboxStatistics = @()
 ForEach ($DAGServer in (Get-DatabaseAvailabilityGroup).Servers) {
-	ForEach ($MailboxStats in (Get-MailboxStatistics -Server $DAGServer | Where {$_.DisconnectDate -eq $Null})) {
+	ForEach ($MailboxStats in (Get-MailboxStatistics -Server $DAGServer  | Where {$_.DisconnectDate -eq $Null})) {
 		$NewMBXStatsDTRow = "" |Select  TotalitemSize,ItemCount,LastLogonTime,LastLogoffTime,MailboxGUID, StorageLimitStatus, ServerName
         $NewMBXStatsDTRow.TotalitemSize = $MailboxStats.TotalItemSize
 		$NewMBXStatsDTRow.ItemCount = $MailboxStats.ItemCount
@@ -19,7 +24,7 @@ ForEach ($DAGServer in (Get-DatabaseAvailabilityGroup).Servers) {
 
 
 foreach ($Mailbox in $Mailboxes){ 
-    $MailboxStats = "" |Select  DisplayName,Database,IssueWarningQuota,ProhibitSendQuota,ProhibitSendReceiveQuota,TotalItemSize,ItemCount,StorageLimitStatus,ServerName, SAMAccountName, PrimarySmtpAddress,Company, Department, Folders,LastLogonTime, RecipientType, RecipientTypeDetails
+    $MailboxStats = "" |Select  DisplayName,Database,IssueWarningQuota,ProhibitSendQuota,ProhibitSendReceiveQuota,TotalItemSize,ItemCount,StorageLimitStatus,ServerName, SAMAccountName, PrimarySmtpAddress,Company, Department, Folders,LastLogonTime, LitigationHoldEnabled
     $Stats = ($MailboxStatistics | ? {$_.MailboxGUID -eq $Mailbox.ExchangeGuid})[0]
     $User = ($Users | ? {$_.SAMAccountName -eq $Mailbox.SAMAccountName})[0]
     $MailboxStats.DisplayName = $Mailbox.DisplayName
@@ -32,16 +37,15 @@ foreach ($Mailbox in $Mailboxes){
     $MailboxStats.StorageLimitStatus = $Stats.StorageLimitStatus
     $MailboxStats.ServerName = $stats.ServerName
     $MailboxStats.LastLogonTime = $stats.LastLogonTime
-    $MailboxStats.RecipientType = $Mailbox.RecipientType
-    $MailboxStats.RecipientTypeDetails = $Mailbox.RecipientTypeDetails
 
-    $folders = Get-MailboxFolderStatistics $Mailbox.Alias | select Name, ItemsInFolder, DeletedItemsInFolder, FolderSize, ItemsInFolderAndSubFolders, FolderAndSubFolderSize
+    $folders = Get-MailboxFolderStatistics $Mailbox.Alias | select Name, ItemsInFolder, DeletedItemsInFolder, FolderSize, ItemsInFolderAndSubFolders, FolderAndSubFolderSize, LitigationHoldEnabled
     $MailboxStats.Folders = $folders
 
     $MailboxStats.SAMAccountName = $Mailbox.SAMAccountName
     $MailboxStats.PrimarySmtpAddress = $Mailbox.PrimarySmtpAddress
     $MailboxStats.Company = $User.Company
     $MailboxStats.Department = $User.Department
+    $MailboxStats.LitigationHoldEnabled = $Mailbox.LitigationHoldEnabled 
     
     $AllMailboxes += $MailboxStats
 }
