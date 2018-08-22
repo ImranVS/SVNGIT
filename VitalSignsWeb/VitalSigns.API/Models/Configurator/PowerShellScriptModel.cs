@@ -26,12 +26,6 @@ namespace VitalSigns.API.Models
         [Newtonsoft.Json.JsonProperty("device_type")]
         public string DeviceType { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("user_id")]
-        public string UserId { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("password")]
-        public string Password { get; set; }
-
         [Newtonsoft.Json.JsonProperty("parameters")]
         public List<Parameters> ParametersList { get; set; }
 

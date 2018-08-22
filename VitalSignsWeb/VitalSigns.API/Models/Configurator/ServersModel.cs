@@ -31,11 +31,6 @@ namespace VitalSigns.API.Models
         [JsonProperty("authentication_type")]
         public string AuthenticationType { get; set; }
 
-        [JsonProperty("credential")]
-        public ServerCredentialsModel Credential { get; set; }
-
-        [JsonProperty("credential_id")]
-        public string CredentialId { get; set; }
 
     }
 }
