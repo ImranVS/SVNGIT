@@ -58,5 +58,6 @@
   "publishExclude": [
     "**.user",
     "**.vspscc"
-  ]
+  ],
+  "userSecretsId": "aspnet5-VitalSigns.API-20180404090809"
 }

@@ -1,11 +1,2 @@
-﻿param(
-        [ValidateNotNullOrEmpty()]
-        [string]$NameSp,
-		[ValidateNotNullOrEmpty()]
-        [string]$NameSp1,
-		[ValidateNotNullOrEmpty()]
-        [string]$NameSp2,
-		[ValidateNotNullOrEmpty()]
-        [string]$NameSp3
-    )
-	Get-SPServer
+﻿$Sites=get-spsite
+foreach ($site in $sites){test-spsite -Identity $site.Url}

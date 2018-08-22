@@ -122,21 +122,19 @@ namespace VitalSigns.API.Controllers
                                                                 new NameValue { Name = "Threshold Show", Value =Convert.ToString(userpreference.ThresholdShow)},
                                                                 new NameValue { Name = "Dashboard Only", Value = (userpreference.DashboardonlyExecSummaryButtons?"True":"False")},
                                                                 new NameValue { Name = "Bing Key", Value = userpreference.BingKey },
-                                                                new NameValue { Name = "Purge Interval", Value = userpreference.PurgeInterval },
-                                                                new NameValue {Name = "AD Enabled", Value= Convert.ToString(userpreference.ADEnabled) }
+                                                                new NameValue { Name = "Purge Interval", Value = userpreference.PurgeInterval }
                                                              };
-               
-                if (userpreference.ADUrl != null)
+                if (userpreference.ADEnabled)
                 {
-                    preferencesSettings.Add(new NameValue { Name = "AD URL", Value = userpreference.ADUrl });
-                }
-                if (userpreference.ADLoginId != null)
-                {
-                    preferencesSettings.Add(new NameValue { Name = "AD Login ID", Value = userpreference.ADLoginId });
-                }
-                if (userpreference.ADPassword != null)
+                    preferencesSettings.AddRange(new List<NameValue> {
+                        new NameValue {Name = "AD Enabled", Value= Convert.ToString(userpreference.ADEnabled) },
+                        new NameValue {Name = "AD URL", Value= userpreference.ADUrl },
+                        new NameValue {Name = "AD Login ID", Value= userpreference.ADLoginId }                 
+                    });
+                    if (userpreference.ADPassword != null)
                         preferencesSettings.Add(new NameValue { Name = "AD Password", Value = ActiveDirectoryService.EncryptUsingTripleDES(userpreference.ADPassword) });
 
+                }
                 var result = Common.SaveNameValues(preferencesSettings);
                 Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), " Settings were successully updated.");
             }
@@ -1573,15 +1571,17 @@ namespace VitalSigns.API.Controllers
                     {
                         var server = serversRepository.Get(id);
                         List<DominoServerTask> dominoServerTasks = new List<DominoServerTask>();
-                        dominoServerTasks.AddRange(server.ServerTasks);
+                        if(server.ServerTasks != null) dominoServerTasks.AddRange(server.ServerTasks);
                         name = string.Empty;
 
                         foreach (var serverTask in selectedServerTasks)
                         {
                             Expression<Func<Server, bool>> filterExpression1 = (p => p.Id == id);
                             var existsData = serversRepository.Find(filterExpression1).Select(x => x.ServerTasks).ToList();
+                            if (existsData == null) continue;
                             foreach (var data in existsData)
                             {
+                                if (data == null) continue;
                                 foreach (var nameData in data)
                                 {
 
@@ -2658,26 +2658,28 @@ namespace VitalSigns.API.Controllers
             {
                 serversRepository = new Repository<Server>(ConnectionString);
                 Expression<Func<Server, bool>> expression = (p => p.Id == id);
-                var result = serversRepository.Find(expression).Select(x => x.ServerTasks).FirstOrDefault();
+                var result = serversRepository.Find(expression).Select(x => x.ServerTasks).First();
                 List<DominoServerTasksModel> servertasks = new List<DominoServerTasksModel>();
-                foreach (DominoServerTask task in result)
-                {
-                    servertasks.Add(new DominoServerTasksModel
+                if (result != null)
+                { 
+                    foreach (DominoServerTask task in result)
                     {
-                        Id = task.Id,
-                        TaskId = task.TaskId,
-                        IsLoad = task.SendLoadCmd,
-                        IsResartLater = task.SendRestartCmd,
-                        IsRestartASAP = task.SendRestartCmdOffhours,
-                        IsDisallow = task.SendExitCmd,
-                        TaskName = task.TaskName,
-                        IsSelected = task.Monitored,
-                        DeviceId = id
+                        servertasks.Add(new DominoServerTasksModel
+                        {
+                            Id = task.Id,
+                            TaskId = task.TaskId,
+                            IsLoad = task.SendLoadCmd,
+                            IsResartLater = task.SendRestartCmd,
+                            IsRestartASAP = task.SendRestartCmdOffhours,
+                            IsDisallow = task.SendExitCmd,
+                            TaskName = task.TaskName,
+                            IsSelected = task.Monitored,
+                            DeviceId = id
 
-                    });
+                        });
 
+                    }
                 }
-
                 Response = Common.CreateResponse(servertasks);
             }
 
@@ -2740,19 +2742,24 @@ namespace VitalSigns.API.Controllers
 
                 Expression<Func<Server, bool>> filterExpression1 = (p => p.Id == servertasks.DeviceId);
                 var existsData = serversRepository.Find(filterExpression1).Select(x => x.ServerTasks).ToList();
-                foreach (var data in existsData)
+                if (existsData != null)
                 {
-                    foreach (var nameData in data)
+                    foreach (var data in existsData)
                     {
-                        if (nameData.Id != servertasks.Id)
+                        if (data == null)
+                            continue;
+                        foreach (var nameData in data)
                         {
-                            if (nameData.TaskName == servertasks.TaskName)
+                            if (nameData.Id != servertasks.Id)
                             {
-                                name = "exists";
+                                if (nameData.TaskName == servertasks.TaskName)
+                                {
+                                    name = "exists";
+                                }
                             }
+
+
                         }
-
-
                     }
                 }
                 if (name == "exists")
@@ -2763,7 +2770,8 @@ namespace VitalSigns.API.Controllers
                 {
                     List<DominoServerTask> serverTasks = new List<DominoServerTask>();
                     var server = serversRepository.Collection.AsQueryable().FirstOrDefault(p => p.Id == servertasks.DeviceId);
-
+                    if (server.ServerTasks == null)
+                        server.ServerTasks = new List<DominoServerTask>();
 
                     if (string.IsNullOrEmpty(servertasks.Id))
                     {
@@ -7531,7 +7539,7 @@ namespace VitalSigns.API.Controllers
             }
             return Response;
         }
-        #endregion
+        #endregion Save
 
         #region Servers Import
         #region Domino
@@ -9377,6 +9385,26 @@ namespace VitalSigns.API.Controllers
                 }).ToList();
 
                 Response = Common.CreateResponse(new { roles = psRoles, scripts = powershellFiles }, Common.ResponseStatus.Success.ToDescription());
+
+                //string filePath = "uploads/";
+                //locationRepository = new Repository<Location>(ConnectionString);
+                ////we are passig only one file currently, but in case we do multiple, POC here:
+                //foreach (var fi in Request.Form.Files)
+                //{
+                //    System.IO.Stream f = fi.OpenReadStream();
+                //    System.Net.Mime.ContentDisposition c = new System.Net.Mime.ContentDisposition();
+                //    string fileName = fi.ContentDisposition.Substring(fi.ContentDisposition.IndexOf("filename=") + 10).Replace("\\", "");
+                //    fileName = fileName.Substring(0, fileName.Length - 1);
+                //    System.IO.Directory.CreateDirectory(filePath);
+                //    System.IO.FileStream fs = new System.IO.FileStream(filePath + fileName, System.IO.FileMode.Create, System.IO.FileAccess.Write);
+                //    //uploadedFile = "~/" + filePath + fileName;
+                //    uploadedFile = fs.Name;
+                //    f.CopyTo(fs);
+                //    fs.Dispose();
+
+                //    //uploadedFile = System.Web.Hosting.HostingEnvironment.MapPath(filePath + fileName);
+                //    Response = Common.CreateResponse(uploadedFile, Common.ResponseStatus.Success.ToDescription(), "Script uploaded successfully");
+                //}
             }
             catch (Exception ex)
             {

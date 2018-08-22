@@ -21,6 +21,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <SchemaVersion>2.0</SchemaVersion>
+    <DevelopmentServerPort>5000</DevelopmentServerPort>
+    <IISExpressAnonymousAuthentication>Enabled</IISExpressAnonymousAuthentication>
+    <SSLPort>44336</SSLPort>
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\DNX\Microsoft.DNX.targets" Condition="'$(VSToolsPath)' != ''" />
 </Project>

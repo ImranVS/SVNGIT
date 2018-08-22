@@ -14,6 +14,15 @@
           "VSNext.Mongo.Repository": "1.0.0"
         }
       },
+      "ChilkatDotNet4/9.1.2": {
+        "type": "package",
+        "compile": {
+          "lib/ChilkatDotNet4.dll": {}
+        },
+        "runtime": {
+          "lib/ChilkatDotNet4.dll": {}
+        }
+      },
       "DateUtils/1.0.0": {
         "type": "project",
         "framework": "DNX,Version=v4.5.1"
@@ -1622,6 +1631,30 @@
           "lib/net45/_._": {}
         }
       },
+      "System.DirectoryServices/4.5.0": {
+        "type": "package",
+        "frameworkAssemblies": [
+          "System.DirectoryServices"
+        ],
+        "compile": {
+          "ref/net45/_._": {}
+        },
+        "runtime": {
+          "lib/net45/_._": {}
+        }
+      },
+      "System.DirectoryServices.AccountManagement/4.5.0": {
+        "type": "package",
+        "frameworkAssemblies": [
+          "System.DirectoryServices.AccountManagement"
+        ],
+        "compile": {
+          "ref/net45/_._": {}
+        },
+        "runtime": {
+          "lib/net45/_._": {}
+        }
+      },
       "System.Globalization/4.0.0": {
         "type": "package",
         "compile": {
@@ -1855,6 +1888,15 @@
           "VSFramework": "1.0.0",
           "VSNext.Mongo.Entities": "1.0.0",
           "VSNext.Mongo.Repository": "1.0.0"
+        }
+      },
+      "ChilkatDotNet4/9.1.2": {
+        "type": "package",
+        "compile": {
+          "lib/ChilkatDotNet4.dll": {}
+        },
+        "runtime": {
+          "lib/ChilkatDotNet4.dll": {}
         }
       },
       "DateUtils/1.0.0": {
@@ -3468,6 +3510,30 @@
           "lib/net45/_._": {}
         }
       },
+      "System.DirectoryServices/4.5.0": {
+        "type": "package",
+        "frameworkAssemblies": [
+          "System.DirectoryServices"
+        ],
+        "compile": {
+          "ref/net45/_._": {}
+        },
+        "runtime": {
+          "runtimes/win/lib/net45/_._": {}
+        }
+      },
+      "System.DirectoryServices.AccountManagement/4.5.0": {
+        "type": "package",
+        "frameworkAssemblies": [
+          "System.DirectoryServices.AccountManagement"
+        ],
+        "compile": {
+          "ref/net45/_._": {}
+        },
+        "runtime": {
+          "runtimes/win/lib/net45/_._": {}
+        }
+      },
       "System.Globalization/4.0.0": {
         "type": "package",
         "compile": {
@@ -3701,6 +3767,15 @@
           "VSFramework": "1.0.0",
           "VSNext.Mongo.Entities": "1.0.0",
           "VSNext.Mongo.Repository": "1.0.0"
+        }
+      },
+      "ChilkatDotNet4/9.1.2": {
+        "type": "package",
+        "compile": {
+          "lib/ChilkatDotNet4.dll": {}
+        },
+        "runtime": {
+          "lib/ChilkatDotNet4.dll": {}
         }
       },
       "DateUtils/1.0.0": {
@@ -5314,6 +5389,30 @@
           "lib/net45/_._": {}
         }
       },
+      "System.DirectoryServices/4.5.0": {
+        "type": "package",
+        "frameworkAssemblies": [
+          "System.DirectoryServices"
+        ],
+        "compile": {
+          "ref/net45/_._": {}
+        },
+        "runtime": {
+          "runtimes/win/lib/net45/_._": {}
+        }
+      },
+      "System.DirectoryServices.AccountManagement/4.5.0": {
+        "type": "package",
+        "frameworkAssemblies": [
+          "System.DirectoryServices.AccountManagement"
+        ],
+        "compile": {
+          "ref/net45/_._": {}
+        },
+        "runtime": {
+          "runtimes/win/lib/net45/_._": {}
+        }
+      },
       "System.Globalization/4.0.0": {
         "type": "package",
         "compile": {
@@ -5574,6 +5673,16 @@
     "VSNext.Mongo.Repository/1.0.0": {
       "type": "project",
       "path": "../wrap/VSNext.Mongo.Repository/project.json"
+    },
+    "ChilkatDotNet4/9.1.2": {
+      "type": "package",
+      "sha512": "ZZdFrnzq3w2QfTVgT7mBqslACC6ZTL/Tym62+3YLKezJOMF5JAan5nEplQxYkCpzRrW0/nOzKGux7oXCX0i/cQ==",
+      "files": [
+        "ChilkatDotNet4.9.1.2.nupkg",
+        "ChilkatDotNet4.9.1.2.nupkg.sha512",
+        "ChilkatDotNet4.nuspec",
+        "lib/ChilkatDotNet4.dll"
+      ]
     },
     "interop.domino.dll/1.0.0": {
       "type": "package",
@@ -6968,6 +7077,50 @@
         "System.Diagnostics.Tracing.nuspec"
       ]
     },
+    "System.DirectoryServices/4.5.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "MmmmhdtEW+2P5aItFlK/0mFwFSVRRNZ955FEDJRmSt4vMlK7xvsAsS1+b2vuJaKVoMuoQPGC0zTAmXL/YrXzJw==",
+      "files": [
+        ".signature.p7s",
+        "lib/net45/_._",
+        "lib/netstandard2.0/System.DirectoryServices.dll",
+        "LICENSE.TXT",
+        "ref/net45/_._",
+        "ref/netstandard2.0/System.DirectoryServices.dll",
+        "ref/netstandard2.0/System.DirectoryServices.xml",
+        "runtimes/win/lib/net45/_._",
+        "runtimes/win/lib/netcoreapp2.0/System.DirectoryServices.dll",
+        "System.DirectoryServices.4.5.0.nupkg",
+        "System.DirectoryServices.4.5.0.nupkg.sha512",
+        "System.DirectoryServices.nuspec",
+        "THIRD-PARTY-NOTICES.TXT",
+        "useSharedDesignerContext.txt",
+        "version.txt"
+      ]
+    },
+    "System.DirectoryServices.AccountManagement/4.5.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "SF45Uvjrxfp8iBNVKlTZQbsoZYYVO1p2n5A17J44nywjmUar2CEjf38y+K9KUpjyT2URFIdBGvFkZl+giIWzbg==",
+      "files": [
+        ".signature.p7s",
+        "lib/net45/_._",
+        "lib/netstandard2.0/System.DirectoryServices.AccountManagement.dll",
+        "LICENSE.TXT",
+        "ref/net45/_._",
+        "ref/netstandard2.0/System.DirectoryServices.AccountManagement.dll",
+        "ref/netstandard2.0/System.DirectoryServices.AccountManagement.xml",
+        "runtimes/win/lib/net45/_._",
+        "runtimes/win/lib/netcoreapp2.0/System.DirectoryServices.AccountManagement.dll",
+        "System.DirectoryServices.AccountManagement.4.5.0.nupkg",
+        "System.DirectoryServices.AccountManagement.4.5.0.nupkg.sha512",
+        "System.DirectoryServices.AccountManagement.nuspec",
+        "THIRD-PARTY-NOTICES.TXT",
+        "useSharedDesignerContext.txt",
+        "version.txt"
+      ]
+    },
     "System.Globalization/4.0.0": {
       "type": "package",
       "sha512": "IBJyTo1y7ZtzzoJUA60T1XPvNTyw/wfFmjFoBFtlYfkekIOtD/AzDDIg0YdUa7eNtFEfliED2R7HdppTdU4t5A==",
@@ -7618,10 +7771,13 @@
       "System.IdentityModel.Tokens >= 5.0.0-rc1-211161024",
       "System.IdentityModel.Tokens.Jwt >= 5.0.0-rc1-211161024",
       "Microsoft.AspNet.Diagnostics >= 1.0.0-rc1-final",
-      "Microsoft.PowerShell.4.ReferenceAssemblies >= 1.0.0"
+      "Microsoft.PowerShell.4.ReferenceAssemblies >= 1.0.0",
+      "System.DirectoryServices >= 4.5.0",
+      "System.DirectoryServices.AccountManagement >= 4.5.0"
     ],
     "DNX,Version=v4.5.1": [
       "AlertLibrary >= 1.0.0-*",
+      "ChilkatDotNet4 >= 1.0.0-*",
       "Ionic.Zip >= 1.0.0-*",
       "LogUtil >= 1.0.0-*",
       "VitalSignsLicensing >= 1.0.0-*",
