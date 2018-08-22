@@ -25,6 +25,9 @@ namespace VitalSigns.API.Models
         [JsonProperty("roles")]
         public List<string> Roles { get; set; }
 
+        [JsonProperty("powerscript_roles")]
+        public List<string> PowerScriptRoles { get; set; }
+
         [JsonProperty("hash")]
         public string Hash { get; set; }
 

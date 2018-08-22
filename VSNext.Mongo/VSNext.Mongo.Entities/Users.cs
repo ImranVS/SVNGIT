@@ -37,6 +37,12 @@ namespace VSNext.Mongo.Entities
         public List<string> Roles { get; set; }
 
         [DataMember]
+        [BsonElement("powerscript_roles")]
+        [BsonIgnoreIfNull]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public List<string> PowerScriptRoles { get; set; }
+
+        [DataMember]
         [BsonElement("hash")]
         [BsonIgnoreIfNull]
         public string Hash { get; set; }

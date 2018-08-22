@@ -4,7 +4,8 @@ import {HttpModule}    from '@angular/http';
 
 import {RESTService} from '../../../core/services';
 import * as ServiceTabs from './application-settings-tab.collection';
-
+import { AuthenticationService } from '../../../profiles/services/authentication.service';
+import { Tab } from '../../../common/models/tab.interface';
 declare var injectSVG: any;
 
 @Component({
@@ -17,9 +18,9 @@ declare var injectSVG: any;
 export class ApplicationSettings implements OnInit {
     @ViewChild('tab', { read: ViewContainerRef }) target: ViewContainerRef;
 
-    tabsData: any;
+    tabsData: Tab[];
     activeTabComponent: ComponentRef<{}>;
-    constructor(private resolver: ComponentFactoryResolver, private elementRef: ElementRef) { }
+    constructor(private resolver: ComponentFactoryResolver, private elementRef: ElementRef, private authService: AuthenticationService) { }
     selectTab(tab: any) {
         // Activate selected tab
         this.tabsData.forEach(tab => tab.active = false);
@@ -73,7 +74,8 @@ export class ApplicationSettings implements OnInit {
                 "title": "Users",
                 "component": "MaintainUser",
                 "path": "/app/configurator/components/applicationSettings/application-settings-maintainusers.component",
-                "active": false
+                "active": false,
+                "visible": this.authService.isCurrentUserInRole("UserManager")
             }
 
         ];

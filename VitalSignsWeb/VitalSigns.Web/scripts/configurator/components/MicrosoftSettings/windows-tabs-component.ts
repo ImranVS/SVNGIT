@@ -3,8 +3,9 @@ import {ActivatedRoute} from '@angular/router';
 import {HttpModule}    from '@angular/http';
 
 import {RESTService} from '../../../core/services';
-
+import { Tab } from '../../../common/models/tab.interface';
 import * as ServiceTabs from './windows-tabs.collection';
+import { AuthenticationService } from '../../../profiles/services/authentication.service';
 declare var injectSVG: any;
 
 @Component({
@@ -17,18 +18,23 @@ declare var injectSVG: any;
 export class WindowsLogSettings implements OnInit {
     @ViewChild('tab', { read: ViewContainerRef }) target: ViewContainerRef;
 
-    tabsData: any;
+    tabsData: Tab[];
     activeTabComponent: ComponentRef<{}>;
-    constructor(private resolver: ComponentFactoryResolver, private elementRef: ElementRef, private route: ActivatedRoute) { }
+    constructor(private resolver: ComponentFactoryResolver, private elementRef: ElementRef, private route: ActivatedRoute, private authService: AuthenticationService) { }
     selectTab(tab: any) {
         // Activate selected tab
-        this.tabsData.forEach(tab => tab.active = false);
-        tab.active = true;
-        // Dispose current tab if one already active
-        if (this.activeTabComponent)
-            this.activeTabComponent.destroy();
-        let factory = this.resolver.resolveComponentFactory(ServiceTabs[tab.component]);
-        this.activeTabComponent = this.target.createComponent(factory);
+        try {
+            this.tabsData.forEach(tab => tab.active = false);
+            tab.active = true;
+            // Dispose current tab if one already active
+            if (this.activeTabComponent)
+                this.activeTabComponent.destroy();
+            let factory = this.resolver.resolveComponentFactory(ServiceTabs[tab.component]);
+            console.log(ServiceTabs);
+            console.log(ServiceTabs[tab.component])
+            this.activeTabComponent = this.target.createComponent(factory);
+        }
+        catch (ex) { console.log(ex) }
     }
     ngOnInit() {
         this.tabsData = [
@@ -37,6 +43,13 @@ export class WindowsLogSettings implements OnInit {
                 "component": "WindowsEventFiles",
                 "path": "/app/components/WindowsSettings/windows-events-file-scanning.component",
                 "active": false
+            },
+            {
+                "title": " PowerScripts Management",
+                "component": "PowerScriptsManagementTab",
+                "path": "/app/configurator/components/microsoftsettings/powerscripts-management-tab.component",
+                "active": false,
+                "visible": this.authService.isCurrentUserInRole("PowerScripts")
             },
             {
                 "title": " PowerScripts Audit Log",

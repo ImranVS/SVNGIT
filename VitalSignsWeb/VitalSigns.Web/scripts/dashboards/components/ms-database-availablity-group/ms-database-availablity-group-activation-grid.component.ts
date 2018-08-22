@@ -74,35 +74,35 @@ export class ActivationPreferencesGrid implements WidgetComponent, OnInit {
         this.service.get(`/services/status_list?type=Database Availability Group&deviceId=${this.serviceId}`)
             .subscribe(
             (data) => {
+                try {
+                    let dagServerDatabases = JSON.parse(data.data[0].dag_server_databases);
+                    let dataObj = {};
+                    let dataToDisplay = [];
+                    for (let i = 0; i < dagServerDatabases.length; i++) {
+                        if (dataObj["Database Name"] !== undefined && dataObj["Database Name"] !== dagServerDatabases[i].database_name) {
+                            dataToDisplay.push(dataObj);
+                            dataObj = {};
+                        }
+                        dataObj["Database Name"] = dagServerDatabases[i].database_name;
+                        dataObj["Activation Preference " + dagServerDatabases[i].action_preference] = {
+                            server_name: dagServerDatabases[i].server_name,
+                            is_active: dagServerDatabases[i].is_active
+                        };
+                        if (i === (dagServerDatabases.length - 1)) {
+                            dataToDisplay.push(dataObj);
+                        }
 
-                let dagServerDatabases = JSON.parse(data.data[0].dag_server_databases);
-                let dataObj = {};
-                let dataToDisplay = [];
-                for (let i = 0; i < dagServerDatabases.length; i++) {
-                    if (dataObj["Database Name"] !== undefined && dataObj["Database Name"] !== dagServerDatabases[i].database_name) {
-                        dataToDisplay.push(dataObj);
-                        dataObj = {};
+                        let ap = 'Activation Preference ' + dagServerDatabases[i].action_preference;
+                        //console.log(ap);
+                        if (this.headers.indexOf(ap) == -1) {
+                            this.headers.push(ap);
+                        }
                     }
-                    dataObj["Database Name"] = dagServerDatabases[i].database_name;
-                    dataObj["Activation Preference " + dagServerDatabases[i].action_preference] = {
-                        server_name: dagServerDatabases[i].server_name,
-                        is_active: dagServerDatabases[i].is_active
-                    };
-                    if (i === (dagServerDatabases.length - 1)) {
-                        dataToDisplay.push(dataObj);
-                    }
-
-                    let ap = 'Activation Preference ' + dagServerDatabases[i].action_preference;
-                    //console.log(ap);
-                    if (this.headers.indexOf(ap) == -1) {
-                        this.headers.push(ap);
-                    }
-                }
-
-                this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(dataToDisplay));
-                this.data.pageSize = this.currentPageSize;
-                this.data.moveCurrentToPosition(0);
-                this.serviceId = this.data.currentItem.device_id;
+                    this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(dataToDisplay));
+                    this.data.pageSize = this.currentPageSize;
+                    this.data.moveCurrentToPosition(0);
+                    this.serviceId = this.data.currentItem.device_id;
+                } catch (ex) { console.log(ex) }
             },
             (error) => this.errorMessage = <any>error
             );

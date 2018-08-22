@@ -77,6 +77,7 @@ namespace VitalSigns.API.Controllers
         private IRepository<SummaryStatistics> summaryStatisticsRepository;
         private IRepository<TravelerStatusSummary> travelerSummaryStatsRepository;
         private IRepository<ServerType> serverTypeRepository;
+        private IRepository<PowerScriptsRoles> powerScriptsRolesRepository;
 
         VSFramework.TripleDES tripleDes = new VSFramework.TripleDES();
         string name;
@@ -1264,6 +1265,8 @@ namespace VitalSigns.API.Controllers
             try
             {
                 maintainUsersRepository = new Repository<Users>(ConnectionString);
+                powerScriptsRolesRepository = new Repository<PowerScriptsRoles>(ConnectionString);
+                List<PowerScriptsRoles> psRoles = powerScriptsRolesRepository.Find(x => true).ToList();
                 var result = maintainUsersRepository.All().Select(x => new MaintainUsersModel
                 {
                     Id = x.Id,
@@ -1271,9 +1274,10 @@ namespace VitalSigns.API.Controllers
                     FullName = x.FullName,
                     Roles = x.Roles,
                     Status = x.Status,
-                    AdUser = x.AdUser
+                    AdUser = x.AdUser,
+                    PowerScriptRoles = psRoles != null ? psRoles.Where(y => x.PowerScriptRoles != null ? x.PowerScriptRoles.Contains(y.Id) : false).Select(y => y.Id).ToList() : new List<string>()
                 }).ToList();
-                Response = Common.CreateResponse(result);
+                Response = Common.CreateResponse(new { users = result, powerscript_roles = psRoles.Select(x => new PowerScriptRole() { Id = x.Id, Name = x.Name }).ToList() });
             }
             catch (Exception exception)
             {
@@ -1313,7 +1317,7 @@ namespace VitalSigns.API.Controllers
                     {
                         Users maintainUsers = new Users { FullName = maintainuser.FullName,
                             Email = maintainuser.Email, Roles = maintainuser.Roles, Status = maintainuser.Status,
-                            AdUser = maintainuser.AdUser
+                            AdUser = maintainuser.AdUser, PowerScriptRoles = maintainuser.PowerScriptRoles
                         };
                         string password = null;
                         if (!maintainuser.AdUser)
@@ -1333,7 +1337,8 @@ namespace VitalSigns.API.Controllers
                         var updateDefination = maintainUsersRepository.Updater.Set(p => p.FullName, maintainuser.FullName)
                                                                  .Set(p => p.Email, maintainuser.Email)
                                                                  .Set(p => p.Status, maintainuser.Status)
-                                                                 .Set(p => p.Roles, maintainuser.Roles);
+                                                                 .Set(p => p.Roles, maintainuser.Roles)
+                                                                 .Set(p => p.PowerScriptRoles, maintainuser.PowerScriptRoles);
                         var result = maintainUsersRepository.Update(filterDefination, updateDefination);
                         Response = Common.CreateResponse(result, Common.ResponseStatus.Success.ToDescription(), "User information updated successfully");
                     }
@@ -9348,6 +9353,96 @@ namespace VitalSigns.API.Controllers
             return Response;
 
         }
+
+        #endregion
+
+        #region Microsoft Settings
+        
+
+        [HttpGet("get_powerscript_roles")]
+        public APIResponse GetPowerScriptRoles()
+        {
+            try
+            {
+                List<string> powershellFiles = new List<String>();
+                powershellFiles = System.IO.Directory.EnumerateFiles(Startup.wwwrootPath, "*.ps1", System.IO.SearchOption.AllDirectories).ToList();
+
+                powerScriptsRolesRepository = new Repository<PowerScriptsRoles>(ConnectionString);
+
+                List<PowerScriptRole> psRoles = powerScriptsRolesRepository.Find(x => true).ToList().Select(x => new PowerScriptRole()
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    FilePaths = x.FilePaths.ToList()
+                }).ToList();
+
+                Response = Common.CreateResponse(new { roles = psRoles, scripts = powershellFiles }, Common.ResponseStatus.Success.ToDescription());
+            }
+            catch (Exception ex)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), ex.Message);
+            }
+            return Response;
+        }
+
+        [HttpPut("save_powerscript_roles")]
+        public APIResponse SavePowerScriptRoles([FromBody]PowerScriptRole role)
+        {
+            try
+            {
+
+                powerScriptsRolesRepository = new Repository<PowerScriptsRoles>(ConnectionString);
+                if (string.IsNullOrEmpty(role.Id))
+                {
+                    PowerScriptsRoles roleForInsert = new PowerScriptsRoles
+                    {
+                        Name = role.Name,
+                        FilePaths = role.FilePaths
+                    };
+
+                    string id = powerScriptsRolesRepository.Insert(roleForInsert);
+                    Response = Common.CreateResponse(id, Common.ResponseStatus.Success.ToDescription(), "The new role was successfully inserted.");
+
+                }
+
+                else
+                {
+                    FilterDefinition<PowerScriptsRoles> filterDefinition = powerScriptsRolesRepository.Filter.Eq(x => x.Id, role.Id);
+
+                    UpdateDefinition<PowerScriptsRoles> updateDefination = powerScriptsRolesRepository.Updater
+                        .Set(p => p.Name, role.Name)
+                        .Set(p => p.FilePaths, role.FilePaths);
+
+                    powerScriptsRolesRepository.Update(filterDefinition, updateDefination);
+
+                    Response = Common.CreateResponse(GetExchangeMailProbes().Data, Common.ResponseStatus.Success.ToDescription(), "The role was successfully updated.");
+
+                }
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Role update has failed.\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpDelete("delete_powerscript_roles/{Id}")]
+        public APIResponse DeletePowerScriptRoles(string Id)
+        {
+            try
+            {
+                powerScriptsRolesRepository = new Repository<PowerScriptsRoles>(ConnectionString);
+                Expression<Func<PowerScriptsRoles, bool>> expression = (p => p.Id == Id);
+                powerScriptsRolesRepository.Delete(expression);
+                Response = Common.CreateResponse(true, Common.ResponseStatus.Success.ToDescription(), "The role was deleted.");
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "The role deletion has failed.\n Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
 
         #endregion
 

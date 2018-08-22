@@ -34,6 +34,9 @@ namespace VitalSigns.API.Controllers
         private IRepository<StatusDetails> statusDetailsRepository;
         private IRepository<Credentials> credentialsRepository;
         private IRepository<IbmConnectionsObjects> ibmConnectionsObjectsRepository;
+        private IRepository<PowerScriptsRoles> powerScriptsRolesRepository;
+        private IRepository<Users> usersRepository;
+        
         // private IRepository<DominoSettingsModel> dominoSettingsRepository;
 
         private string DateFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
@@ -2012,7 +2015,35 @@ namespace VitalSigns.API.Controllers
                 else
                     powershellFiles = System.IO.Directory.EnumerateFiles(Startup.wwwrootPath + "\\" + deviceType, "*.ps1", System.IO.SearchOption.AllDirectories).ToList();
 
-                foreach (string filePath in powershellFiles)
+                powerScriptsRolesRepository = new Repository<PowerScriptsRoles>(ConnectionString);
+                usersRepository = new Repository<Users>(ConnectionString);
+                string userEmail = null;
+                var identity = HttpContext.User.Identity as System.Security.Claims.ClaimsIdentity;
+                if (identity != null)
+                {
+                    //IEnumerable<System.Security.Claims.Claim> claims = identity.Claims;
+                    // or
+                    userEmail = identity.FindFirst(System.Security.Claims.ClaimTypes.Email).Value;
+
+                }
+                else
+                {
+                    return Common.CreateResponse(null, "Error", "Unable to get user info");
+                }
+
+                List<Users> listOfUsers = usersRepository.Find(x => x.Email == userEmail).ToList();
+                List<PowerScriptsRoles> powerScriptRolesList = new List<PowerScriptsRoles>();
+                if(listOfUsers.Count > 0)
+                {
+                    powerScriptRolesList = powerScriptsRolesRepository.Find(powerScriptsRolesRepository.Filter.In(x => x.Id, listOfUsers.First().PowerScriptRoles)).ToList();
+
+                }
+                else
+                {
+                    return Common.CreateResponse(null, "Error", "Unable to get user object");
+                }
+
+                foreach (string filePath in powershellFiles.Where(x => powerScriptRolesList.Exists(y => y.FilePaths.Contains(x))))
                 {
                     string currDeviceType = filePath.Replace(Startup.wwwrootPath, "");
                     currDeviceType = currDeviceType.Substring(0, currDeviceType.IndexOf("\\")).Replace("\\", "");

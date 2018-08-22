@@ -9,6 +9,44 @@ namespace VSNext.Mongo.Entities
 {
     [DataContract]
     [Serializable]
+    [CollectionName("powerscripts_roles")]
+    public class PowerScriptsRoles : Entity
+    {
+        [DataMember]
+        [BsonIgnoreIfNullAttribute]
+        [BsonElement("name")]
+        public string Name { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNullAttribute]
+        [BsonElement("file_paths")]
+        public List<string> FilePaths { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNullAttribute]
+        [BsonElement("powerscripts_roles_log")]
+        public List<PowerScriptsRolesLog> PowerScriptsRolesLog { get; set; }
+    }
+
+    [DataContract]
+    [Serializable]
+    public class PowerScriptsRolesLog : Entity
+    {
+        [DataMember]
+        [BsonIgnoreIfNullAttribute]
+        [BsonRepresentation(BsonType.ObjectId)]
+        [BsonElement("user_id")]
+        public string UserId { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNullAttribute]
+        [BsonRepresentation(BsonType.ObjectId)]
+        [BsonElement("user_ids")]
+        public List<string> UserIds { get; set; }
+    }
+
+    [DataContract]
+    [Serializable]
     [CollectionName("powerscripts_log")]
     public class PowerScriptsLog : Entity 
     {

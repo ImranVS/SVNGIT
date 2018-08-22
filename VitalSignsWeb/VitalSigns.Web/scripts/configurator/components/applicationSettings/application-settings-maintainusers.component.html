@@ -157,7 +157,7 @@ data.pageIndex + 1 | number
                 </div>
                 <div class="row">
                     <div class="form-group col-sm-6">
-                        <label for="roles" class="control-label col-sm-5">Roles</label>
+                        <label for="roles" class="control-label col-sm-5">Access</label>
                         <div class="col-sm-7">
                             <wj-multi-select name="roles" [itemsSource]="maintainRoles"
                                              [(checkedItems)]="checkedItems" placeholder="Select role" [isEditable]="true" #roles
@@ -177,6 +177,17 @@ data.pageIndex + 1 | number
                         </div>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="form-group col-sm-6" *ngIf="checkedItems.indexOf('PowerScripts') > 0">
+                        <label for="roles" class="control-label col-sm-5">PowerScript Roles</label>
+                        <div class="col-sm-7">
+                            <wj-multi-select name="roles" [itemsSource]="psRolesData"
+                                             placeholder="Select role" [isEditable]="true" displayMemberPath="name" [(checkedItems)]="psRolesSelected">
+                            </wj-multi-select>
+                        </div>
+                    </div>
+                </div>
+
             </div>
             <div class="modal-footer">
                 <button class="btn btn-primary" type="submit" name="submit" [disabled]="!frmUser.form.valid || loading">Save</button>

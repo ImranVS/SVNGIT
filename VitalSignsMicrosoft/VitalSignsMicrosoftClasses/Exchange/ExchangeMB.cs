@@ -189,133 +189,172 @@ namespace VitalSignsMicrosoftClasses
 
 				System.Collections.ObjectModel.Collection<PSObject> results = new System.Collections.ObjectModel.Collection<PSObject>();
 				System.IO.StreamReader sr = new System.IO.StreamReader(AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\EX_MailBoxQuotaStats.ps1");
+                String str = sr.ReadToEnd();
 
-				String str = sr.ReadToEnd();
-				powershell.Streams.Error.Clear();
 
-				powershell.AddScript(str);
-				results = powershell.Invoke();
+                string startingPoint = "a";
+                CommonDB db = new CommonDB();
+                //search db for the starting point and override if value found
+                VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server> serverRepo = new VSNext.Mongo.Repository.Repository<VSNext.Mongo.Entities.Server>(db.GetMongoConnectionString());
 
-				//if (powershell.Streams.Error.Count > 51)
-				//{
-				//
-				// Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "getIndividualMailboxes received over 51 errors", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-				//}
-				// else
-				//{
-				Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "getIndividualMailboxes output results: " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                for (char currStarting = startingPoint[0]; currStarting < 'z'; currStarting++)
+                {
+                    powershell.Streams.Error.Clear();
+                    PSCommand cmd = new PSCommand();
+                    //cmd.AddCommand(AppDomain.CurrentDomain.BaseDirectory.ToString() + "Scripts\\EX_MailBoxQuotaStats.ps1");
+                    cmd.AddScript(str);
+                    cmd.AddParameter("startingChar", currStarting);
+                    powershell.Commands = cmd;
+                    results = powershell.Invoke();
 
-				foreach (PSObject ps in results)
-				{
+                    Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "getIndividualMailboxes output results for " + currStarting + " : " + results.Count.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
-					string DisplayName = ps.Properties["DisplayName"].Value == null ? "" : ps.Properties["DisplayName"].Value.ToString();
-					string Database = ps.Properties["Database"].Value == null ? "" : ps.Properties["Database"].Value.ToString();
-					string IssueWarningQuota = ps.Properties["IssueWarningQuota"].Value == null ? "Unlimited" : ps.Properties["IssueWarningQuota"].Value.ToString();
-					string ProhibitSendQuota =  ps.Properties["ProhibitSendQuota"].Value == null ? "Unlimited" : ps.Properties["ProhibitSendQuota"].Value.ToString();
-					string ProhibitSendReceiveQuota = ps.Properties["ProhibitSendReceiveQuota"].Value == null ? "Unlimited" : ps.Properties["ProhibitSendReceiveQuota"].Value.ToString();
-					string TotalItemSize = ps.Properties["TotalItemSize"].Value == null ? "0" : ps.Properties["TotalItemSize"].Value.ToString();
-					string ItemCount = ps.Properties["ItemCount"].Value == null ? "0" : ps.Properties["ItemCount"].Value.ToString();
-					string StorageLimitStatus = ps.Properties["StorageLimitStatus"].Value == null ? "" : ps.Properties["StorageLimitStatus"].Value.ToString();
-					string ServerName = ps.Properties["ServerName"].Value == null ? "" : ps.Properties["ServerName"].Value.ToString();
-                    string SAMAccountName = ps.Properties["SAMAccountName"].Value == null ? "" : ps.Properties["SAMAccountName"].Value.ToString();
-                    string PrimarySmtpAddress = ps.Properties["PrimarySmtpAddress"].Value == null ? "" : ps.Properties["PrimarySmtpAddress"].Value.ToString();
-                    string Company = ps.Properties["Company"].Value == null ? "" : ps.Properties["Company"].Value.ToString();
-                    string Department = ps.Properties["Department"].Value == null ? "" : ps.Properties["Department"].Value.ToString();
-                    string LastLogonTime = ps.Properties["LastLogonTime"] == null || ps.Properties["LastLogonTime"].Value == null ? null : ps.Properties["LastLogonTime"].Value.ToString();
-                    string Identity = ps.Properties["Identity"].Value == null ? "" : ps.Properties["Identity"].Value.ToString();
-
-                    List<VSNext.Mongo.Entities.Mailbox.Folder> listOfFolders = new List<VSNext.Mongo.Entities.Mailbox.Folder>();
-                    try
+                    foreach (PSObject ps in results)
                     {
-                        PSObject folders = (PSObject) ps.Properties["Folders"].Value;
-
-                        PSObject[] results2 = ((System.Collections.ArrayList)folders.BaseObject).OfType<PSObject>().ToArray();
-                        foreach(PSObject ps2 in results2)
+                        try
                         {
-                            string Name = ps2.Properties["Name"].Value == null ? "" : ps2.Properties["Name"].Value.ToString();
-                            string ItemsInFolder = ps2.Properties["ItemsInFolder"].Value == null ? "" : ps2.Properties["ItemsInFolder"].Value.ToString();
-                            string DeletedItemsInFolder = ps2.Properties["DeletedItemsInFolder"].Value == null ? "" : ps2.Properties["DeletedItemsInFolder"].Value.ToString();
-                            string FolderSize = ps2.Properties["FolderSize"].Value == null ? "" : ps2.Properties["FolderSize"].Value.ToString();
-                            string ItemsInFolderAndSubfolders = ps2.Properties["ItemsInFolderAndSubfolders"].Value == null ? "" : ps2.Properties["ItemsInFolderAndSubfolders"].Value.ToString();
-                            string FolderAndSubfolderSize = ps2.Properties["FolderAndSubfolderSize"].Value == null ? "" : ps2.Properties["FolderAndSubfolderSize"].Value.ToString();
+                            string DisplayName = ps.Properties["DisplayName"].Value == null ? "" : ps.Properties["DisplayName"].Value.ToString();
+                            string Database = ps.Properties["Database"].Value == null ? "" : ps.Properties["Database"].Value.ToString();
+                            string IssueWarningQuota = ps.Properties["IssueWarningQuota"].Value == null ? "Unlimited" : ps.Properties["IssueWarningQuota"].Value.ToString();
+                            string ProhibitSendQuota = ps.Properties["ProhibitSendQuota"].Value == null ? "Unlimited" : ps.Properties["ProhibitSendQuota"].Value.ToString();
+                            string ProhibitSendReceiveQuota = ps.Properties["ProhibitSendReceiveQuota"].Value == null ? "Unlimited" : ps.Properties["ProhibitSendReceiveQuota"].Value.ToString();
+                            string TotalItemSize = ps.Properties["TotalItemSize"].Value == null ? "0" : ps.Properties["TotalItemSize"].Value.ToString();
+                            string ItemCount = ps.Properties["ItemCount"].Value == null ? "0" : ps.Properties["ItemCount"].Value.ToString();
+                            string StorageLimitStatus = ps.Properties["StorageLimitStatus"].Value == null ? "" : ps.Properties["StorageLimitStatus"].Value.ToString();
+                            string ServerName = ps.Properties["ServerName"].Value == null ? "" : ps.Properties["ServerName"].Value.ToString();
+                            string SAMAccountName = ps.Properties["SAMAccountName"].Value == null ? "" : ps.Properties["SAMAccountName"].Value.ToString();
+                            string PrimarySmtpAddress = ps.Properties["PrimarySmtpAddress"].Value == null ? "" : ps.Properties["PrimarySmtpAddress"].Value.ToString();
+                            string Company = ps.Properties["Company"].Value == null ? "" : ps.Properties["Company"].Value.ToString();
+                            string Department = ps.Properties["Department"].Value == null ? "" : ps.Properties["Department"].Value.ToString();
+                            string LastLogonTime = ps.Properties["LastLogonTime"] == null || ps.Properties["LastLogonTime"].Value == null ? null : ps.Properties["LastLogonTime"].Value.ToString();
+                            string Identity = ps.Properties["Identity"].Value == null ? "" : ps.Properties["Identity"].Value.ToString();
+                            //string RetentionPolicy = ps.Properties["RetentionPolicy"].Value == null ? "" : ps.Properties["RetentionPolicy"].Value.ToString();
 
-                            int tempInt = 0;
-                            double tempDouble = 0;
-                            string bytesInFolder = "0";
-                            string bytesInSubFolder = "0";
+                            List<VSNext.Mongo.Entities.Mailbox.Folder> listOfFolders = new List<VSNext.Mongo.Entities.Mailbox.Folder>();
+                            try
+                            {
+                                PSObject folders = (PSObject)ps.Properties["Folders"].Value;
+                                if (folders != null)
+                                {
+                                    PSObject[] results2 = ((System.Collections.ArrayList)folders.BaseObject).OfType<PSObject>().ToArray();
+                                    foreach (PSObject ps2 in results2)
+                                    {
+                                        try
+                                        {
+                                            string Name = ps2.Properties["Name"].Value == null ? "" : ps2.Properties["Name"].Value.ToString();
+                                            string ItemsInFolder = ps2.Properties["ItemsInFolder"].Value == null ? "" : ps2.Properties["ItemsInFolder"].Value.ToString();
+                                            string DeletedItemsInFolder = ps2.Properties["DeletedItemsInFolder"].Value == null ? "" : ps2.Properties["DeletedItemsInFolder"].Value.ToString();
+                                            string FolderSize = ps2.Properties["FolderSize"].Value == null ? "" : ps2.Properties["FolderSize"].Value.ToString();
+                                            string ItemsInFolderAndSubfolders = ps2.Properties["ItemsInFolderAndSubfolders"].Value == null ? "" : ps2.Properties["ItemsInFolderAndSubfolders"].Value.ToString();
+                                            string FolderAndSubfolderSize = ps2.Properties["FolderAndSubfolderSize"].Value == null ? "" : ps2.Properties["FolderAndSubfolderSize"].Value.ToString();
 
-                            System.Text.RegularExpressions.MatchCollection matches = new System.Text.RegularExpressions.Regex(@"(?<=\()(\d+[,.]?)*").Matches(FolderSize);
-                            if (matches.Count > 0)
-                                bytesInFolder = matches[0].Value;
+                                            int tempInt = 0;
+                                            double tempDouble = 0;
+                                            string bytesInFolder = "0";
+                                            string bytesInSubFolder = "0";
 
-                            matches = new System.Text.RegularExpressions.Regex(@"(?<=\()(\d+[,.]?)*").Matches(FolderAndSubfolderSize);
-                            if (matches.Count > 0)
-                                bytesInSubFolder = matches[0].Value;
+                                            System.Text.RegularExpressions.MatchCollection matches = new System.Text.RegularExpressions.Regex(@"(?<=\()(\d+[,.]?)*").Matches(FolderSize);
+                                            if (matches.Count > 0)
+                                                bytesInFolder = matches[0].Value;
 
-                            VSNext.Mongo.Entities.Mailbox.Folder folder = new VSNext.Mongo.Entities.Mailbox.Folder();
-                            folder.Name = Name;
-                            folder.ItemCount = int.TryParse(ItemsInFolder, out tempInt) ? (int?)tempInt : null;
-                            folder.DeletedItemCount = int.TryParse(DeletedItemsInFolder, out tempInt) ? (int?)tempInt : null;
-                            folder.TotalItemSizeMb = double.TryParse(bytesInFolder, out tempDouble) ? (double?)tempDouble / 1024 / 1024 : null;
-                            folder.ItemsAndSubfolderItemsCount = int.TryParse(ItemsInFolderAndSubfolders, out tempInt) ? (int?)tempInt : null;
-                            folder.ItemsAndSubfolderItemsSizeMb = double.TryParse(bytesInSubFolder, out tempDouble) ? (double?)tempDouble / 1024 / 1024 : null;
-                            listOfFolders.Add(folder);
+                                            matches = new System.Text.RegularExpressions.Regex(@"(?<=\()(\d+[,.]?)*").Matches(FolderAndSubfolderSize);
+                                            if (matches.Count > 0)
+                                                bytesInSubFolder = matches[0].Value;
+
+                                            VSNext.Mongo.Entities.Mailbox.Folder folder = new VSNext.Mongo.Entities.Mailbox.Folder();
+                                            folder.Name = Name;
+                                            folder.ItemCount = int.TryParse(ItemsInFolder, out tempInt) ? (int?)tempInt : null;
+                                            folder.DeletedItemCount = int.TryParse(DeletedItemsInFolder, out tempInt) ? (int?)tempInt : null;
+                                            folder.TotalItemSizeMb = double.TryParse(bytesInFolder, out tempDouble) ? (double?)tempDouble / 1024 / 1024 : null;
+                                            folder.ItemsAndSubfolderItemsCount = int.TryParse(ItemsInFolderAndSubfolders, out tempInt) ? (int?)tempInt : null;
+                                            folder.ItemsAndSubfolderItemsSizeMb = double.TryParse(bytesInSubFolder, out tempDouble) ? (double?)tempDouble / 1024 / 1024 : null;
+                                            listOfFolders.Add(folder);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            var st = new StackTrace(ex, true);
+                                            // Get the top stack frame
+                                            var frame = st.GetFrame(0);
+                                            // Get the line number from the stack frame
+                                            var line = frame.GetFileLineNumber();
+                                            Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "Exception processing specfic folder at line " + line + ". Folder: " + ps2.ToString() + ". Exception: " + ex.Message.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception fodlerException)
+                            {
+                                var st = new StackTrace(fodlerException, true);
+                                // Get the top stack frame
+                                var frame = st.GetFrame(0);
+                                // Get the line number from the stack frame
+                                var line = frame.GetFileLineNumber();
+                                Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "Exception processing folders at line " + line.ToString() + ". Exception: " + fodlerException.Message.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                            }
+                            if (MyExchangeServers.SearchByName(ServerName) == null)
+                            {
+                                Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "In loop.  Server not being scanned on this server.  Will not be added.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                                //continue;
+                            }
+
+
+                            MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox>();
+                            mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DatabaseName == Database && i.DisplayName == DisplayName && i.DeviceName == "Exchange");
+                            mongoStatement.updateDef = mongoStatement.repo.Updater
+                                .Set(i => i.IssueWarningQuota, IssueWarningQuota)
+                                .Set(i => i.ProhibitSendQuota, ProhibitSendQuota)
+                                .Set(i => i.ProhibitSendReceiveQuota, ProhibitSendReceiveQuota)
+                                .Set(i => i.TotalItemSizeMb, Convert.ToDouble(TotalItemSize))
+                                .Set(i => i.ItemCount, Convert.ToInt32(ItemCount))
+                                .Set(i => i.StorageLimitStatus, StorageLimitStatus)
+                                .Set(i => i.SAMAccountName, SAMAccountName)
+                                .Set(i => i.PrimarySmtpAddress, PrimarySmtpAddress)
+                                .Set(i => i.Company, Company)
+                                .Set(i => i.Department, Department)
+                                .Set(i => i.Folders, listOfFolders)
+                                .Set(i => i.LastLogonTime, LastLogonTime == null ? null : Convert.ToDateTime(LastLogonTime) as DateTime?)
+                                .Set(i => i.Identity, Identity);
+                                //.Set(i => i.RetentionPolicy, RetentionPolicy);
+
+                            AllTestResults.MongoEntity.Add(mongoStatement);
+
+
+
+                            double testForNum;
+                            if (double.TryParse(TotalItemSize, out testForNum))
+                            {
+                                if (Double.TryParse(ProhibitSendReceiveQuota, out testForNum) && Convert.ToDouble(TotalItemSize) > Convert.ToDouble(ProhibitSendReceiveQuota))
+                                {
+                                    //issue alert for send/receive quota
+                                    list.Add(new indvMailboxes(ServerName, "SendAndReceive"));
+                                }
+                                else if (Double.TryParse(ProhibitSendQuota, out testForNum) && Convert.ToDouble(TotalItemSize) > Convert.ToDouble(ProhibitSendQuota))
+                                {
+                                    //issue alert for send quota
+                                    list.Add(new indvMailboxes(ServerName, "Send"));
+                                }
+                                else
+                                {
+                                    //reset alert for send/receive quota
+                                    list.Add(new indvMailboxes(ServerName, "NoAlerts"));
+                                }
+                            }
+                            
+                        }
+                        catch(Exception ex)
+                        {
+                            var st = new StackTrace(ex, true);
+                            // Get the top stack frame
+                            var frame = st.GetFrame(0);
+                            // Get the line number from the stack frame
+                            var line = frame.GetFileLineNumber();
+
+                            Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "Error in getIndividualMailboxes processing a mailbox at line " + line.ToString() + ": " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+
                         }
                     }
-                    catch (Exception fodlerException)
-                    {
-                        Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "Exception processing folders. Exception: " + fodlerException.Message.ToString(), commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-                    }
-                    if (MyExchangeServers.SearchByName(ServerName) == null)
-					{
-						Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "In loop.  Server not being scanned on this server.  Will not be added.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
-						//continue;
-					}
                     
-
-                    MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox>();
-                    mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DatabaseName == Database && i.DisplayName == DisplayName && i.DeviceName == "Exchange");
-                    mongoStatement.updateDef = mongoStatement.repo.Updater
-                        .Set(i => i.IssueWarningQuota, IssueWarningQuota)
-                        .Set(i => i.ProhibitSendQuota, ProhibitSendQuota)
-                        .Set(i => i.ProhibitSendReceiveQuota, ProhibitSendReceiveQuota)
-                        .Set(i => i.TotalItemSizeMb, Convert.ToDouble(TotalItemSize))
-                        .Set(i => i.ItemCount, Convert.ToInt32(ItemCount))
-                        .Set(i => i.StorageLimitStatus, StorageLimitStatus)
-                        .Set(i => i.SAMAccountName, SAMAccountName)
-                        .Set(i => i.PrimarySmtpAddress, PrimarySmtpAddress)
-                        .Set(i => i.Company, Company)
-                        .Set(i => i.Department, Department)
-                        .Set(i => i.Folders, listOfFolders)
-                        .Set(i => i.LastLogonTime, LastLogonTime == null ? null : Convert.ToDateTime(LastLogonTime) as DateTime?)
-                        .Set(i => i.Identity, Identity);
-                        
-                    AllTestResults.MongoEntity.Add(mongoStatement);
-                    
-
-
-					double testForNum;
-					if (double.TryParse(TotalItemSize, out testForNum))
-					{
-						if (Double.TryParse(ProhibitSendReceiveQuota, out testForNum) && Convert.ToDouble(TotalItemSize) > Convert.ToDouble(ProhibitSendReceiveQuota))
-						{
-							//issue alert for send/receive quota
-							list.Add(new indvMailboxes(ServerName, "SendAndReceive"));
-						}
-						else if (Double.TryParse(ProhibitSendQuota, out testForNum) && Convert.ToDouble(TotalItemSize) > Convert.ToDouble(ProhibitSendQuota))
-						{
-							//issue alert for send quota
-							list.Add(new indvMailboxes(ServerName, "Send"));
-						}
-						else
-						{
-							//reset alert for send/receive quota
-							list.Add(new indvMailboxes(ServerName, "NoAlerts"));
-						}
-					}
-
-
-				}
+                }
 				String[] servers = list.Select(L => L.ServerName).ToList().ToArray();
 				foreach (string serverName in list.Select(L => L.ServerName).Distinct())
 				{
@@ -364,8 +403,13 @@ namespace VitalSignsMicrosoftClasses
 			}
 			catch (Exception ex)
 			{
+                var st = new StackTrace(ex, true);
+                // Get the top stack frame
+                var frame = st.GetFrame(0);
+                // Get the line number from the stack frame
+                var line = frame.GetFileLineNumber();
 
-				Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "Error in getIndividualMailboxes : " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
+                Common.WriteDeviceHistoryEntry("Exchange", DummyServerForLogs, "Error in getIndividualMailboxes at line " + line.ToString() + ": " + ex.Message, commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
 
 			}
 
@@ -680,7 +724,7 @@ namespace VitalSignsMicrosoftClasses
 
         }
 
-
+        
     }
 
     public class indvMailboxes

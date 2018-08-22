@@ -1,0 +1,103 @@
+﻿<div id="infoDiv1" class="alert alert-info col-md-12" align="left">
+    PowerScript Roles allow you to define different roles which grant permission to different PowerScripts. These roles can then be assigned to different users in the user management page.
+</div>
+<div class="grid-sort-group" *ngIf="data">
+    <button class="btn btn-success" (click)="editGridRow(frmDialog)" [disabled]="data.itemCount==0">
+        Edit
+    </button>
+    <button class="btn btn-success" (click)="showAddForm(frmDialog)">
+        Add
+    </button>
+    <button class="btn btn-success" (click)="deleteRole()" [disabled]="data.itemCount==0">
+        Delete
+    </button>
+</div>
+<div>&nbsp;</div>
+            
+<wj-flex-grid [itemsSource]="data" selectionMode="Row" headersVisibility="Column" [isReadOnly]="true" #flex id="grid">
+    <wj-flex-grid-filter></wj-flex-grid-filter>
+    <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="120"> </wj-flex-grid-column>
+</wj-flex-grid>
+<div class="btn-group" *ngIf="data != null">
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToFirstPage()"
+            [disabled]="data.pageIndex <= 0">
+        <span class="glyphicon glyphicon-fast-backward"></span>
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToPreviousPage()"
+            [disabled]="data.pageIndex <= 0">
+        <span class="glyphicon glyphicon-step-backward">
+        </span>
+    </button>
+    <button type="button" class="btn btn-default" disabled style="width:100px">
+        {{
+data.pageIndex + 1 | number
+        }} / {{data.pageCount | number}}
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToNextPage()"
+            [disabled]="data.pageIndex >= data.pageCount - 1">
+        <span class="glyphicon glyphicon-step-forward"></span>
+    </button>
+    <button type="button" class="btn btn-default"
+            (click)="data.moveToLastPage()"
+            [disabled]="data.pageIndex >= data.pageCount - 1">
+        <span class="glyphicon glyphicon-fast-forward"></span>
+    </button>
+</div>
+<div class="pull-right" *ngIf="data != null">
+    <wj-menu [(value)]="pageSize" [header]="'Page size'">
+        <wj-menu-item [value]="10">10</wj-menu-item>
+        <wj-menu-item [value]="20">20</wj-menu-item>
+        <wj-menu-item [value]="50">50</wj-menu-item>
+    </wj-menu>
+</div>
+<div>&nbsp;</div>
+<wj-popup style="border: 0px; width: 80%; height: 80%" #frmDialog>
+    <div class="modal-content">
+        <div class="modal-header">
+            {{formTitle}}
+            <button type="button" tabindex="-1" class="close wj-hide" (click)="cancelEditAdd()" name="cancel">&times;</button>
+        </div>
+        <form (ngSubmit)="saveRole(frmDialog)" #frmUser="ngForm" class="form-horizontal">
+            <div class="modal-body" *ngIf="currentEditItem">
+                <div class="col-sm-12">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label class="control-label col-sm-2">PowerScript Role Name</label>
+                                <div class="col-sm-3">
+                                    <input type="text" [(ngModel)]="currentEditItem.name" class="form-control" id="name" required name="name">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            Scripts
+                        </div>
+                        <div class="panel-body">
+                            <div>
+                                <wj-flex-grid [itemsSource]="scripts" selectionMode="Row" headersVisibility="Column" #flexScripts id="grid2" (itemsSourceChanged)="itemsSourceChangedHandler(flexScripts)">
+                                    <wj-flex-grid-filter></wj-flex-grid-filter>
+                                    <wj-flex-grid-column [header]="'Selected'" [binding]="'is_selected'" [isReadOnly]="false"></wj-flex-grid-column>
+                                    <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="300"></wj-flex-grid-column>
+                                    <wj-flex-grid-column [header]="'Path'" [binding]="'path'" width="*"></wj-flex-grid-column>
+                                    <wj-flex-grid-column [header]="'Device Type'" [binding]="'device_type'" [visible]="false"></wj-flex-grid-column>
+                                </wj-flex-grid>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" type="submit" name="submit" [disabled]="!(frmUser.form.valid)">Save</button>
+                <button class="btn btn-primary wj-hide " type="button" name="cancel" (click)="cancelEditAdd()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</wj-popup>

@@ -1576,7 +1576,7 @@ namespace VitalSignsMicrosoftClasses
 				{
 					case "cas":
 						roleEnum = commonEnums.ServerRoles.CAS;
-						cmdlets = "-CommandName Test-MAPIConnectivity, Test-ActiveSyncConnectivity, Get-CasMailbox, Get-ActiveSyncDevice, get-ActiveSyncDeviceStatistics ";
+						cmdlets = "-CommandName Test-MAPIConnectivity, Test-ActiveSyncConnectivity, Get-CasMailbox, Get-ActiveSyncDevice, get-ActiveSyncDeviceStatistics, Test-OutlookWebServices ";
 						break;
 					case "mb":
 						roleEnum = commonEnums.ServerRoles.MailBox;
@@ -2254,7 +2254,7 @@ namespace VitalSignsMicrosoftClasses
 		private void DailyTasks()
 		{
 
-			MonitoredItems.ExchangeServer DummyServerForLogs = new MonitoredItems.ExchangeServer() { Name = "DailyTask" };
+			MonitoredItems.ExchangeServer DummyServerForLogs = new MonitoredItems.ExchangeServer() { Name = "DailyTask", ServerType = "Exchange" };
 
 
 
@@ -3481,9 +3481,10 @@ namespace VitalSignsMicrosoftClasses
                     myDagServer.DAGCopyQueueThreshold = entity.CopyQueueThreshold.HasValue ? entity.CopyQueueThreshold.Value : 10;
                     myDagServer.DAGReplyQueueThreshold = entity.ReplyQueueThreshold.HasValue ? entity.ReplyQueueThreshold.Value : 10;
 
-                    if(entity.DatabaseInfo != null)
+                    if (myDagServer.DagDatabaseSettings == null) myDagServer.DagDatabaseSettings = new List<MonitoredItems.ExchangeServer.DagDatabaseSetting>();
+
+                    if (entity.DatabaseInfo != null)
                     {
-                        if (myDagServer.DagDatabaseSettings == null) myDagServer.DagDatabaseSettings = new List<MonitoredItems.ExchangeServer.DagDatabaseSetting>();
                         foreach(VSNext.Mongo.Entities.DagDatabases currDatabase in entity.DatabaseInfo)
                         {
                             if(!myDagServer.DagDatabaseSettings.Exists(x => x.DatabaseName == currDatabase.DatabaseName && x.ServerName == currDatabase.ServerName))

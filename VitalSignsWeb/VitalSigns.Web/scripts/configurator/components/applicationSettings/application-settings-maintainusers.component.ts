@@ -31,7 +31,8 @@ export class MaintainUser extends GridBase implements OnInit, OnDestroy {
     findAdUserSubscription: Subscription = null;
     adEnabled = false;
     searchProfiles = [];
-
+    psRolesData: wijmo.collections.CollectionView;
+    psRolesSelected: any[];
     constructor(service: RESTService, appComponentService: AppComponentService, protected gridHelpers: gridHelpers.CommonUtils, private authService: AuthenticationService) {
         super(service, appComponentService);
         this.formName = "User";     
@@ -75,6 +76,25 @@ export class MaintainUser extends GridBase implements OnInit, OnDestroy {
             },
             (error) => this.errorMessage = <any>error
             );
+    }
+
+    initialGridBind(dataURI: string) {
+        this.service.get(dataURI)
+            .subscribe(
+                response => {
+                    if (response.status == "Success") {
+                        this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data.users));
+                        this.psRolesData = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data.powerscript_roles));
+                        this.data.pageSize = 10;
+                    } else {
+                    this.appComponentService.showErrorMessage(response.message);
+                    }
+
+                }, error => {
+                    var errorMessage = <any>error;
+                    this.appComponentService.showErrorMessage(errorMessage);
+            });
+               
     }
 
     ngOnDestroy() {
@@ -130,7 +150,8 @@ export class MaintainUser extends GridBase implements OnInit, OnDestroy {
 
     saveMaintainUser(dlg: wijmo.input.Popup) {
         this.loading = true;
-        this.currentEditItem.roles = this.usersRoles;  
+        this.currentEditItem.roles = this.checkedItems;  
+        this.currentEditItem.powerscript_roles = this.psRolesSelected.map(function (x) { return x.id });
         var saveUrl = '/configurator/save_maintain_users';
         //this.saveGridRow('/configurator/save_maintain_users', dlg);
         if (this.currentEditItem.id == "") {
@@ -179,26 +200,34 @@ export class MaintainUser extends GridBase implements OnInit, OnDestroy {
         this.deleteGridRow('/configurator/delete_maintain_users/');
     }
     editUserGridRow(dlg: wijmo.input.Popup) {
-        this.editGridRow(dlg);
-        this.checkedItems = [];
-        var roles = this.currentEditItem.roles;
-        if (roles) {
-            for (var userItem of (<wijmo.collections.CollectionView>this.maintainRoles).sourceCollection) {
-                var urole = roles.filter((item) => item == userItem);
-                if (urole.length > 0)
-                    this.checkedItems.push(userItem);
-            }
-        }
+        try {
+            let mainThis = this;
+            this.editGridRow(dlg);
+            this.checkedItems = [];
+            var roles = this.currentEditItem.roles;
+            this.maintainRoles.sourceCollection.forEach(function (x) {
+                console.log(x)
+                if (mainThis.currentEditItem.roles.indexOf(x) > -1) { mainThis.checkedItems.push(x); }
+            });
+            
+            this.psRolesSelected = [];
+            this.psRolesData.sourceCollection.forEach(function (x) {
+                if (mainThis.currentEditItem.powerscript_roles.indexOf(x.id) > -1) { mainThis.psRolesSelected.push(x); }
+            });
+        } catch (ex) { console.log(ex) }
     }
     addMaintainUser(dlg: wijmo.input.Popup) {
-        this.usersRoles = [];
-        this.searchProfiles = [];
-        this.addGridRow(dlg);
-        this.currentEditItem.email = "";
-        this.currentEditItem.full_name = "";
-        this.currentEditItem.roles = [];
-        this.currentEditItem.status = true;
-        this.checkedItems = [];
+        try {
+            this.usersRoles = [];
+            this.searchProfiles = [];
+            this.addGridRow(dlg);
+            this.currentEditItem.email = "";
+            this.currentEditItem.full_name = "";
+            this.currentEditItem.roles = [];
+            this.currentEditItem.status = true;
+            this.checkedItems = [];
+            this.psRolesSelected = [];
+        } catch (ex) { console.log(ex) }
     }
 
     handleSubmit(adForm: NgForm) {
