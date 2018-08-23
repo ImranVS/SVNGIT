@@ -150,6 +150,7 @@ export * from './configurator/components/MicrosoftSettings/windows-events-file-s
 export * from './configurator/components/MicrosoftSettings/Exchange-mail-probe-scanning.component'
 
 export * from './configurator/components/MicrosoftSettings/windows-save-events-file-scanning.component'
+export * from './configurator/components/MicrosoftSettings/powerscripts-role-management.component'
 
 //mail
 export * from './configurator/components/ibmDomino/notesmail-probes.component'

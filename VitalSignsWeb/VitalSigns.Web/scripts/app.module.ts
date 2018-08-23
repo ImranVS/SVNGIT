@@ -21,6 +21,7 @@ import { LoginForm } from './profiles/components/login-form.component';
 import * as dashboards from './app.routes';
 import * as widgets from './app.widgets';
 import * as tabs from './services/service-tab.collection';
+import * as windowsTabs from './configurator/components/MicrosoftSettings/windows-tabs.collection';
 
 import * as wjFlexGrid from 'wijmo/wijmo.angular2.grid';
 import * as wjFlexGridFilter from 'wijmo/wijmo.angular2.grid.filter';
@@ -47,6 +48,7 @@ import {ServersLocation} from './configurator/components/server-list-location.co
 import {SearchDeviceListPipe} from './services/components/search-server-list.pipe';
 import { FilterDeviceAttributesPipe } from './configurator/components/server/filter-device-attributes.pipe';
 import { FilterWidgetsPipe } from './services/components/filter-widgets.pipe';
+import { TabVisiblePipe } from './common/pipes/tab-visible.pipe';
 
 import { IBMConnectionsDetails } from './dashboards/components/ibm-connections/ibm-connections-details.component';
 import {IBMSametimeDetails} from './dashboards/components/ibm-sametime/ibm-sametime-details.component';
@@ -320,6 +322,7 @@ import { LoadingIndicator } from './core/services/loading-indicator'
         LoadingIndicator,
         Office365SharedMailboxesConsumingLicensesReport,
         PowerScriptsReportFilter,
+        TabVisiblePipe,
         dashboards.SampleDashboard,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
@@ -520,6 +523,7 @@ import { LoadingIndicator } from './core/services/loading-indicator'
         widgets.Office365ReassignableLicensesGrid,
         widgets.Office365LicensesGrid,
         widgets.ExchangeMailProbeGrid,
+        widgets.PowerScriptsRoleManagement,
         tabs.Office365ReassignableLicensesTab,
         tabs.Office365MailboxViewTab,
         tabs.Office365UsersGrid,
@@ -576,6 +580,7 @@ import { LoadingIndicator } from './core/services/loading-indicator'
         tabs.Office365PasswordSettingsTab,
         tabs.MicrosoftPowerShellScriptsTab,
         tabs.ExchangeMailProbeTab,
+        windowsTabs.PowerScriptsManagementTab,
         wjFlexGrid.WjFlexGrid,
         wjFlexGrid.WjFlexGridColumn,
         wjFlexGrid.WjFlexGridCellTemplate,
@@ -745,6 +750,7 @@ import { LoadingIndicator } from './core/services/loading-indicator'
         widgets.Office365ReassignableLicensesGrid,
         widgets.Office365LicensesGrid,
         widgets.ExchangeMailProbeGrid,
+        widgets.PowerScriptsRoleManagement,
         tabs.Office365ReassignableLicensesTab,
         tabs.Office365MailboxViewTab,
         tabs.Office365UsersGrid,
@@ -799,6 +805,7 @@ import { LoadingIndicator } from './core/services/loading-indicator'
         tabs.Office365PasswordSettingsTab,
         tabs.MicrosoftPowerShellScriptsTab,
         tabs.ExchangeMailProbeTab,
+        windowsTabs.PowerScriptsManagementTab,
     ],
     bootstrap: [
         AppComponent
