@@ -21,7 +21,7 @@ namespace VitalSigns.API
         public static string ConnectionString { get; private set; }
         public static string DataBaseName { get; private set; }
         public static string ServerTypeJsonPath { get; private set; }
-        public static string wwwrootPath { get; private set; }
+        public static string PowerScriptsPath { get; private set; }
 
         internal static RSAParameters RSAKeyParameters { get; set; }
 
@@ -43,7 +43,7 @@ namespace VitalSigns.API
             DataBaseName = Configuration.Get<string>("Data:MongoDB:DataBaseName");
 
             RSAKeyParameters = RSAKeyUtils.GetKeyParameters(env.MapPath("App_Data/rsa_key.json"));
-            wwwrootPath = env.MapPath("PowerShellScripts/");
+            PowerScriptsPath = env.MapPath("PowerShellScripts/");
             
         }
 

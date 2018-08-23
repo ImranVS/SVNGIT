@@ -2011,9 +2011,9 @@ namespace VitalSigns.API.Controllers
                 var results = new List<PowerShellScriptModel>();
                 var powershellFiles = new List<String>();
                 if (String.IsNullOrWhiteSpace(deviceType))
-                    powershellFiles = System.IO.Directory.EnumerateFiles(Startup.wwwrootPath, "*.ps1", System.IO.SearchOption.AllDirectories).ToList();
+                    powershellFiles = System.IO.Directory.EnumerateFiles(Startup.PowerScriptsPath, "*.ps1", System.IO.SearchOption.AllDirectories).ToList();
                 else
-                    powershellFiles = System.IO.Directory.EnumerateFiles(Startup.wwwrootPath + "\\" + deviceType, "*.ps1", System.IO.SearchOption.AllDirectories).ToList();
+                    powershellFiles = System.IO.Directory.EnumerateFiles(Startup.PowerScriptsPath + "\\" + deviceType, "*.ps1", System.IO.SearchOption.AllDirectories).ToList();
 
                 powerScriptsRolesRepository = new Repository<PowerScriptsRoles>(ConnectionString);
                 usersRepository = new Repository<Users>(ConnectionString);
@@ -2036,7 +2036,7 @@ namespace VitalSigns.API.Controllers
                 if(listOfUsers.Count > 0)
                 {
                     powerScriptRolesList = powerScriptsRolesRepository.Find(powerScriptsRolesRepository.Filter.In(x => x.Id, listOfUsers.First().PowerScriptRoles)).ToList();
-
+                    powerScriptRolesList = powerScriptRolesList.Select(x => { x.FilePaths = x.FilePaths.Select(y => Startup.PowerScriptsPath + y).ToList(); return x; }).ToList();
                 }
                 else
                 {
@@ -2045,7 +2045,7 @@ namespace VitalSigns.API.Controllers
 
                 foreach (string filePath in powershellFiles.Where(x => powerScriptRolesList.Exists(y => y.FilePaths.Contains(x))))
                 {
-                    string currDeviceType = filePath.Replace(Startup.wwwrootPath, "");
+                    string currDeviceType = filePath.Replace(Startup.PowerScriptsPath, "");
                     currDeviceType = currDeviceType.Substring(0, currDeviceType.IndexOf("\\")).Replace("\\", "");
                     string script = System.IO.File.ReadAllText(filePath);
                     string parameters;

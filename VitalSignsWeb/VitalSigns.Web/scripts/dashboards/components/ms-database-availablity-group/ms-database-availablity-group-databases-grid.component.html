@@ -8,10 +8,10 @@
     <wj-flex-grid-column [header]="'Replay Queue	'" [binding]="'replay_queue'" [width]="120"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Replay Lagged'" [binding]="'replay_lagged'" [width]="120"></wj-flex-grid-column>
     <wj-flex-grid-column [header]="'Truncation Laggeds'" [binding]="'truncation_lagged'" [width]="120"></wj-flex-grid-column>
-    <wj-flex-grid-column [header]="'Content Indexs'" [binding]="'contend_index'" [width]="120">
+    <wj-flex-grid-column [header]="'Content Indexs'" [binding]="'context_index'" [width]="120">
         <template wjFlexGridCellTemplate [cellType]="'Cell'" let-cell="cell">
-            <span *ngIf="cell.item.status == 'Healthy'" class="label label-pill label-success">Healthy</span>
-            <span *ngIf="cell.item.status == 'Suspended'" class="label label-pill label-danger">Suspended</span>
+            <span *ngIf="cell.item.context_index == 'Healthy'" class="label label-pill label-success">Healthy</span>
+            <span *ngIf="cell.item.context_index == 'Suspended'" class="label label-pill label-danger">Suspended</span>
             
         </template>
     </wj-flex-grid-column>

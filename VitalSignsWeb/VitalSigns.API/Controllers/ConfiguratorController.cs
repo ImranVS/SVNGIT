@@ -9365,7 +9365,7 @@ namespace VitalSigns.API.Controllers
             try
             {
                 List<string> powershellFiles = new List<String>();
-                powershellFiles = System.IO.Directory.EnumerateFiles(Startup.wwwrootPath, "*.ps1", System.IO.SearchOption.AllDirectories).ToList();
+                powershellFiles = System.IO.Directory.EnumerateFiles(Startup.PowerScriptsPath, "*.ps1", System.IO.SearchOption.AllDirectories).ToList();
 
                 powerScriptsRolesRepository = new Repository<PowerScriptsRoles>(ConnectionString);
 
@@ -9373,10 +9373,30 @@ namespace VitalSigns.API.Controllers
                 {
                     Id = x.Id,
                     Name = x.Name,
-                    FilePaths = x.FilePaths.ToList()
+                    FilePaths = x.FilePaths.Select(y => Startup.PowerScriptsPath + y).ToList()
                 }).ToList();
 
                 Response = Common.CreateResponse(new { roles = psRoles, scripts = powershellFiles }, Common.ResponseStatus.Success.ToDescription());
+
+                //string filePath = "uploads/";
+                //locationRepository = new Repository<Location>(ConnectionString);
+                ////we are passig only one file currently, but in case we do multiple, POC here:
+                //foreach (var fi in Request.Form.Files)
+                //{
+                //    System.IO.Stream f = fi.OpenReadStream();
+                //    System.Net.Mime.ContentDisposition c = new System.Net.Mime.ContentDisposition();
+                //    string fileName = fi.ContentDisposition.Substring(fi.ContentDisposition.IndexOf("filename=") + 10).Replace("\\", "");
+                //    fileName = fileName.Substring(0, fileName.Length - 1);
+                //    System.IO.Directory.CreateDirectory(filePath);
+                //    System.IO.FileStream fs = new System.IO.FileStream(filePath + fileName, System.IO.FileMode.Create, System.IO.FileAccess.Write);
+                //    //uploadedFile = "~/" + filePath + fileName;
+                //    uploadedFile = fs.Name;
+                //    f.CopyTo(fs);
+                //    fs.Dispose();
+
+                //    //uploadedFile = System.Web.Hosting.HostingEnvironment.MapPath(filePath + fileName);
+                //    Response = Common.CreateResponse(uploadedFile, Common.ResponseStatus.Success.ToDescription(), "Script uploaded successfully");
+                //}
             }
             catch (Exception ex)
             {
@@ -9397,7 +9417,7 @@ namespace VitalSigns.API.Controllers
                     PowerScriptsRoles roleForInsert = new PowerScriptsRoles
                     {
                         Name = role.Name,
-                        FilePaths = role.FilePaths
+                        FilePaths = role.FilePaths.Select(x => x.Replace(Startup.PowerScriptsPath, "")).ToList()
                     };
 
                     string id = powerScriptsRolesRepository.Insert(roleForInsert);
@@ -9411,7 +9431,7 @@ namespace VitalSigns.API.Controllers
 
                     UpdateDefinition<PowerScriptsRoles> updateDefination = powerScriptsRolesRepository.Updater
                         .Set(p => p.Name, role.Name)
-                        .Set(p => p.FilePaths, role.FilePaths);
+                        .Set(p => p.FilePaths, role.FilePaths.Select(x => x.Replace(Startup.PowerScriptsPath, "")).ToList());
 
                     powerScriptsRolesRepository.Update(filterDefinition, updateDefination);
 

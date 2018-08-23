@@ -54,7 +54,7 @@ data.pageIndex + 1 | number
     </wj-menu>
 </div>
 <div>&nbsp;</div>
-<wj-popup style="border: 0px; width: 80%; height: 80%" #frmDialog>
+<wj-popup style="border: 0px; width: 80%; height: 80%;" #frmDialog>
     <div class="modal-content">
         <div class="modal-header">
             {{formTitle}}
@@ -82,7 +82,7 @@ data.pageIndex + 1 | number
                         </div>
                         <div class="panel-body">
                             <div>
-                                <wj-flex-grid [itemsSource]="scripts" selectionMode="Row" headersVisibility="Column" #flexScripts id="grid2" (itemsSourceChanged)="itemsSourceChangedHandler(flexScripts)">
+                                <wj-flex-grid style="height:400px;" [itemsSource]="scripts" selectionMode="Row" headersVisibility="Column" #flexScripts id="grid2" (itemsSourceChanged)="itemsSourceChangedHandler(flexScripts)">
                                     <wj-flex-grid-filter></wj-flex-grid-filter>
                                     <wj-flex-grid-column [header]="'Selected'" [binding]="'is_selected'" [isReadOnly]="false"></wj-flex-grid-column>
                                     <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="300"></wj-flex-grid-column>
