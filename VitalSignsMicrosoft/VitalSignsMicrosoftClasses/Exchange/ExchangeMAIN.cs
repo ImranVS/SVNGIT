@@ -2297,7 +2297,7 @@ namespace VitalSignsMicrosoftClasses
 
                     using (ReturnPowerShellObjects results = Common.PrereqForExchangeWithCmdlets(testServer.Name, testServer.UserName, testServer.Password, "Exchange", testServer.IPAddress, commonEnums.ServerRoles.Empty, cmdlets, testServer.AuthenticationType))
                     {
-                        Collection<PSObject> DBCorruptionTest = TestDatabaseCorruptionQueue(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS);
+                        //Collection<PSObject> DBCorruptionTest = TestDatabaseCorruptionQueue(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS);
                         EMB.getMailBoxInfo(testServer, ref AllTestResults, DummyServerForLogs.Name, myExchangeServers, results);
                     }
 
@@ -2335,7 +2335,7 @@ namespace VitalSignsMicrosoftClasses
 
                         using (ReturnPowerShellObjects results = Common.PrereqForExchangeWithCmdlets(testServer.Name, testServer.UserName, testServer.Password, "Exchange", testServer.IPAddress, commonEnums.ServerRoles.Empty, cmdlets, testServer.AuthenticationType))
                         {
-                            // Collection<PSObject> DBCorruptionTest = TestDatabaseCorruptionQueue(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS);
+                            //Collection<PSObject> DBCorruptionTest = TestDatabaseCorruptionQueue(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS);
                             EMB.getMailboxPermissions(testServer, results.PS, ref AllTestResults, DummyServerForLogs.Name, myExchangeServers);
                         }
                     }
@@ -2515,10 +2515,10 @@ namespace VitalSignsMicrosoftClasses
 
                             using (ReturnPowerShellObjects results = Common.PrereqForExchangeWithCmdlets(testServer.Name, testServer.UserName, testServer.Password, "Exchange", testServer.IPAddress, commonEnums.ServerRoles.Empty, cmdlets, testServer.AuthenticationType))
                             {
-                                Collection<PSObject> DBCorruptionTest = TestDatabaseCorruptionQueue(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS);
+                                //Collection<PSObject> DBCorruptionTest = TestDatabaseCorruptionQueue(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS);
                                 checkHealthCheckPages(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS);
                                 //EMB.getMailBoxInfo(testServer, ref AllTestResults, testServer.VersionNo.ToString(), DummyServerForLogs.Name, myExchangeServers, results);
-                                TestDatabaseCorruptionStatus(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS, DBCorruptionTest);
+                                //TestDatabaseCorruptionStatus(testServer, ref AllTestResults, DummyServerForLogs.Name, results.PS, DBCorruptionTest);
                             }
 
                             GC.Collect();
