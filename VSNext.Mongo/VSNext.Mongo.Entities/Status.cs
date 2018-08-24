@@ -1185,9 +1185,9 @@ namespace VSNext.Mongo.Entities
         public string TruncationLagged { get; set; }
 
         [DataMember]
-        [BsonElement("contend_index")]
+        [BsonElement("content_index")]
         [BsonIgnoreIfNullAttribute]
-        public string ContendIndex { get; set; }
+        public string ContentIndex { get; set; }
 
 
     }
