@@ -420,15 +420,15 @@ namespace VitalSignsMicrosoftClasses
 				   string strServerErros = serverErrors.Remove(serverErrors.Length - 1);
 				   if (countErrors == 1)
 				   {
-					   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Member_Health, ref AllTestsList, "The test " + strTestErrors + " failed on server " + strServerErros + ".", "Member Report");
+					   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Member_Health, ref AllTestsList, "The test " + strTestErrors + " failed on server " + strServerErros + ". See Mebers Tab for more info.", "Member Report");
 				   }
 				   else if (new HashSet<string>(serverErrors.Split(',').ToArray()).Count == 1)
 				   {
-					   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Member_Health, ref AllTestsList, "Multiple tests failed on server " + strServerErros.Substring(0, strServerErros.IndexOf(',')) + ".", "Member Report");
+					   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Member_Health, ref AllTestsList, "Multiple tests failed on server " + strServerErros.Substring(0, strServerErros.IndexOf(',')) + ". See Mebers Tab for more info.", "Member Report");
 				   }
 				   else
 				   {
-					   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Member_Health, ref AllTestsList, "More than one test failed for this Database Availability Group.", "Member Report");
+					   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Member_Health, ref AllTestsList, "More than one test failed for this Database Availability Group. See Mebers Tab for more info.", "Member Report");
 				   }
 			   }
 		   }
@@ -490,7 +490,7 @@ namespace VitalSignsMicrosoftClasses
 					   string strReplayQueue = ps.Properties["ReplayQueueLength"].Value == null ? "0" : ps.Properties["ReplayQueueLength"].Value.ToString();
 					   string strReplayLagged = ps.Properties["ReplayLagged"].Value == null ? "" : ps.Properties["ReplayLagged"].Value.ToString();
 					   string strTruncationLagged = ps.Properties["TruncationLagged"].Value == null ? "" : ps.Properties["TruncationLagged"].Value.ToString();
-					   string strContendIndex = ps.Properties["Content Index"].Value == null ? "" : ps.Properties["Content Index"].Value.ToString();
+					   string strContentIndex = ps.Properties["Content Index"].Value == null ? "" : ps.Properties["Content Index"].Value.ToString();
 
                        listOfDagEntities.Add(new VSNext.Mongo.Entities.DagServerDatabases()
                        {
@@ -499,11 +499,11 @@ namespace VitalSignsMicrosoftClasses
                            ReplayQueue = int.Parse(strReplayQueue),
                            ReplayLagged = strReplayLagged,
                            TruncationLagged = strTruncationLagged,
-                           ContendIndex = strContendIndex,
+                           ContentIndex = strContentIndex,
                            ServerName = strServer
                        });
 
-					   if (strContendIndex != "Healthy")
+					   if (strContentIndex != "Healthy")
 					   {
 						   serverErrors += strDatabaseName + ",";
 					   }
@@ -549,11 +549,11 @@ namespace VitalSignsMicrosoftClasses
 					serverErrors = serverErrors.Remove(serverErrors.Length - 1);
 					if (serverErrors.Contains(','))
 					{
-						Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Database_Health, ref AllTestsList, "Multiple databases(" + serverErrors + ") are marked as unhealthy.", "Database");
+						Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Database_Health, ref AllTestsList, "Multiple databases(" + serverErrors + ") are marked as unhealthy. See the Databases Tab for more info.", "Database");
 					}
 					else
 					{
-						Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Database_Health, ref AllTestsList, "The database " + serverErrors.Replace(",", "") + " is marked as unhealthy.", "Database");
+						Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Database_Health, ref AllTestsList, "The database " + serverErrors.Replace(",", "") + " is marked as unhealthy. See the Databases Tab for more info.", "Database");
 					}
 				}
 				else
@@ -566,11 +566,11 @@ namespace VitalSignsMicrosoftClasses
 					if (replyErrors.Contains(','))
 					{
 						   
-						Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Replay_Queue, ref AllTestsList, "Multiple databases(" + serverErrors + ") are over their replay queue limits.", "Database");
+						Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Replay_Queue, ref AllTestsList, "Multiple databases(" + serverErrors + ") are over their replay queue limits. See the Databases Tab for more info.", "Database");
 					}
 					else
 					{
-						Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Replay_Queue, ref AllTestsList, "The database " + serverErrors.Replace(",", "") + " is over the replay queue limit.", "Database");
+						Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Replay_Queue, ref AllTestsList, "The database " + serverErrors.Replace(",", "") + " is over the replay queue limit. See the Databases Tab for more info.", "Database");
 					}
 				}
 				else
@@ -582,11 +582,11 @@ namespace VitalSignsMicrosoftClasses
 				{
 					if (copyErrors.Contains(','))
 					{
-						Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Copy_Queue, ref AllTestsList, "Multiple databases(" + serverErrors + ") are over their copy queue limits.", "Database");
+						Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Copy_Queue, ref AllTestsList, "Multiple databases(" + serverErrors + ") are over their copy queue limits. See the Databases Tab for more info.", "Database");
 					}
 					else
 					{
-						Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Copy_Queue, ref AllTestsList, "The database " + serverErrors.Replace(",", "") + " is over the copy queue limit.", "Database");
+						Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Copy_Queue, ref AllTestsList, "The database " + serverErrors.Replace(",", "") + " is over the copy queue limit. See the Databases Tab for more info.", "Database");
 					}
 				}
 				else
@@ -708,11 +708,11 @@ namespace VitalSignsMicrosoftClasses
 			   {
 				   if (serverErrors.Contains(','))
 				   {
-					   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Activation_Preference, ref AllTestsList, "Multiple DAGs are not mounted on their first preference. ", "Activation Preference");
+					   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Activation_Preference, ref AllTestsList, "Multiple DAGs are not mounted on their first preference. See Activation Preference Tab for more info.", "Activation Preference");
 				   }
 				   else
 				   {
-					   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Activation_Preference, ref AllTestsList, DAGErrors.Replace(",", "") + " is not mounted on its first preference, server " + serverErrors.Replace(",", ""), "Activation Preference");
+					   Common.makeAlert(false, myServer, commonEnums.AlertType.DAG_Activation_Preference, ref AllTestsList, DAGErrors.Replace(",", "") + " is not mounted on its first preference, server " + serverErrors.Replace(",", "") + ". See Activation Preference Tab for more info", "Activation Preference");
 				   }
 			   }
 			   else

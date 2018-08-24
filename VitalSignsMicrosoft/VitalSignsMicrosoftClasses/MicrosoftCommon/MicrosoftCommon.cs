@@ -574,7 +574,7 @@ namespace VitalSignsMicrosoftClasses
 
 					if (Convert.ToInt32(myServer.ServerDaysAlert) > 0 && Convert.ToInt32(myServer.ServerDaysAlert) < Convert.ToInt32(days))
 					{
-						Common.makeAlert(false, myServer, commonEnums.AlertType.Reboot_Overdue, ref AllTestsList, " This server is due for a reboot", "Windows");
+						Common.makeAlert(false, myServer, commonEnums.AlertType.Reboot_Overdue, ref AllTestsList, "This server is due for a reboot. It has been up for " + days + " days", "Windows");
 					}
 					else
 					{

@@ -2587,7 +2587,7 @@ namespace VitalSignsMicrosoftClasses
                                 {
                                     Common.WriteDeviceHistoryEntry(myServer.ServerType, DummyServerForLogs.Name, "Unable to connect to backup server.", commonEnums.ServerRoles.Empty, Common.LogLevel.Normal);
                                     results.Dispose();
-                                    return;
+                                    continue;
                                 }
                                 else
                                 {
