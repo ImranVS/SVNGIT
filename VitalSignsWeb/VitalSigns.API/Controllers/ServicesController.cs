@@ -2162,10 +2162,12 @@ namespace VitalSigns.API.Controllers
                 string response = "Output from PowerShell:\n";
 
                 System.Collections.ObjectModel.Collection<System.Management.Automation.PSObject> psOutput = ps.Invoke();
-                
 
 
-                
+
+                bool isHTML = false;
+                if (psOutput.Count > 0)
+                    isHTML = psOutput.First().ImmediateBaseObject.ToString().StartsWith("<!DOCTYPE");
 
                 foreach (System.Management.Automation.PSObject psObject in psOutput)
                 {
@@ -2217,7 +2219,9 @@ namespace VitalSigns.API.Controllers
 
                 
 
-                response = response.Replace("\n", "<br />");
+                response = response.Replace("\n", "<br class='vitalSignsBr' />");
+                if (isHTML)
+                    response = response.Replace("<br class='vitalSignsBr' />", "");
                 Response = Common.CreateResponse(response);
                 
 
