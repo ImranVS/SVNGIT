@@ -76,5 +76,14 @@ namespace VitalSigns.API.Models
         
         [JsonProperty("deliver_to_mailbox_and_forward")]
         public Boolean DeliverToMailboxAndForward { get; set; }
+
+        [JsonProperty("retention_policy")]
+        public string RetentionPolicy { get; set; }
+
+        [JsonProperty("litigation_hold_enabled")]
+        public Boolean? LitigationHoldEnabled { get; set; }
+
+        [JsonProperty("recipient_type_details")]
+        public string RecipientTypeDetails { get; set; }
     }
 }

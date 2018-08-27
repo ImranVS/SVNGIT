@@ -165,6 +165,42 @@ namespace VSNext.Mongo.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         public List<string> UsersWithPermission { get; set; }
 
+        [DataMember]
+        [BsonElement("retention_policy")]
+        [BsonIgnoreIfNullAttribute]
+        public string RetentionPolicy { get; set; }
+
+        [DataMember]
+        [BsonElement("litigation_hold_enabled")]
+        [BsonIgnoreIfNullAttribute]
+        public bool? LitigationHoldEnabled { get; set; }
+
+        [DataMember]
+        [BsonElement("recipient_type_details")]
+        [BsonIgnoreIfNullAttribute]
+        public string RecipientTypeDetails { get; set; }
+
+        [DataMember]
+        [BsonElement("owa_mailbox_policy")]
+        [BsonIgnoreIfNullAttribute]
+        public string OWAMailboxPolicy { get; set; }
+
+        [DataMember]
+        [BsonElement("last_ews_scan")]
+        [BsonIgnoreIfNullAttribute]
+        public DateTime? LastEwsScan { get; set; }
+
+        [DataMember]
+        [BsonElement("encrypted_mail_count")]
+        [BsonIgnoreIfNullAttribute]
+        public int? EncryptedMailCount { get; set; }
+
+        [DataMember]
+        [BsonElement("attachment_types")]
+        [BsonIgnoreIfNullAttribute]
+        public List<NameValuePair> AttachmentTypes { get; set; }
+
+
         public class Folder
         {
 

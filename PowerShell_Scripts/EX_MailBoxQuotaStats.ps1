@@ -1,10 +1,10 @@
 param(
         [ValidateNotNullOrEmpty()]
-        [string]$startingChar
+        [string]$startingChar = 'v'
     )
 
 $AllMailboxes = @()
-$Mailboxes = Get-Mailbox -ResultSize Unlimited -WarningAction SilentlyContinue -Filter "SamAccountName -like '$startingChar*'" | Select DisplayName, Database, IssueWarningQuota, ProhibitSendQuota, ProhibitSendReceiveQuota, Alias, PrimarySmtpAddress, SAMAccountName, ExchangeGuid, RetentionPolicy, Identity,  RecipientType, RecipientTypeDetails, LitigationHoldEnabled
+$Mailboxes = Get-Mailbox -ResultSize 5 -WarningAction SilentlyContinue -Filter "SamAccountName -like '$startingChar*'" | Select DisplayName, Database, IssueWarningQuota, ProhibitSendQuota, ProhibitSendReceiveQuota, Alias, PrimarySmtpAddress, SAMAccountName, ExchangeGuid, RetentionPolicy, Identity,  RecipientType, RecipientTypeDetails, LitigationHoldEnabled
 $Users = Get-User -WarningAction SilentlyContinue | select SAMAccountName, Company, Department
 
 $MailboxStatistics = @()
@@ -50,7 +50,7 @@ foreach ($Mailbox in $Mailboxes){
     $MailboxStats.PrimarySmtpAddress = $Mailbox.PrimarySmtpAddress
     $MailboxStats.Company = $User.Company
     $MailboxStats.Department = $User.Department
-    $MailboxStats.LitigationHoldEnabled = $Mailbox.LitigationHoldEnabled 
+    $MailboxStats.LitigationHoldEnabled = $Mailbox.LitigationHoldEnabled
     
     $AllMailboxes += $MailboxStats
 }

@@ -228,7 +228,9 @@ namespace VitalSignsMicrosoftClasses
                             string Department = ps.Properties["Department"].Value == null ? "" : ps.Properties["Department"].Value.ToString();
                             string LastLogonTime = ps.Properties["LastLogonTime"] == null || ps.Properties["LastLogonTime"].Value == null ? null : ps.Properties["LastLogonTime"].Value.ToString();
                             string Identity = ps.Properties["Identity"].Value == null ? "" : ps.Properties["Identity"].Value.ToString();
-                            //string RetentionPolicy = ps.Properties["RetentionPolicy"].Value == null ? "" : ps.Properties["RetentionPolicy"].Value.ToString();
+                            string RetentionPolicy = ps.Properties["RetentionPolicy"].Value == null ? "" : ps.Properties["RetentionPolicy"].Value.ToString();
+                            string LitigationHoldEnabled = ps.Properties["LitigationHoldEnabled"].Value == null ? "" : ps.Properties["LitigationHoldEnabled"].Value.ToString();
+                            string RecipientTypeDetails = ps.Properties["RecipientTypeDetails"].Value == null ? "" : ps.Properties["RecipientTypeDetails"].Value.ToString();
 
                             List<VSNext.Mongo.Entities.Mailbox.Folder> listOfFolders = new List<VSNext.Mongo.Entities.Mailbox.Folder>();
                             try
@@ -297,7 +299,7 @@ namespace VitalSignsMicrosoftClasses
                                 //continue;
                             }
 
-
+                            bool testBool = false;
                             MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox> mongoStatement = new MongoStatementsUpsert<VSNext.Mongo.Entities.Mailbox>();
                             mongoStatement.filterDef = mongoStatement.repo.Filter.Where(i => i.DatabaseName == Database && i.DisplayName == DisplayName && i.DeviceName == "Exchange");
                             mongoStatement.updateDef = mongoStatement.repo.Updater
@@ -313,8 +315,10 @@ namespace VitalSignsMicrosoftClasses
                                 .Set(i => i.Department, Department)
                                 .Set(i => i.Folders, listOfFolders)
                                 .Set(i => i.LastLogonTime, LastLogonTime == null ? null : Convert.ToDateTime(LastLogonTime) as DateTime?)
-                                .Set(i => i.Identity, Identity);
-                                //.Set(i => i.RetentionPolicy, RetentionPolicy);
+                                .Set(i => i.Identity, Identity)
+                                .Set(i => i.RetentionPolicy, RetentionPolicy)
+                                .Set(i => i.LitigationHoldEnabled, Boolean.TryParse(LitigationHoldEnabled, out testBool) ? testBool : false)
+                                .Set(x => x.RecipientTypeDetails, RecipientTypeDetails);
 
                             AllTestResults.MongoEntity.Add(mongoStatement);
 

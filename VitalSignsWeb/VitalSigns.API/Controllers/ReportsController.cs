@@ -3015,6 +3015,9 @@ namespace VitalSigns.API.Controllers
                     ItemCount = x.ItemCount,
                     FolderCount = x.Folders == null ? 0 : x.Folders.Count,
                     DatabaseName = x.DatabaseName,
+                    RetentionPolicy = x.RetentionPolicy,
+                    LitigationHoldEnabled = x.LitigationHoldEnabled,
+                    RecipientTypeDetails = x.RecipientTypeDetails,
                     LastLogonTime = x.LastLogonTime
                 }).ToList().OrderBy(x => x.DisplayName);
                 Response = Common.CreateResponse(results);
