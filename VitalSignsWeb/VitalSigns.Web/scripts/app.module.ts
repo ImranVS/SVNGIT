@@ -49,6 +49,7 @@ import {SearchDeviceListPipe} from './services/components/search-server-list.pip
 import { FilterDeviceAttributesPipe } from './configurator/components/server/filter-device-attributes.pipe';
 import { FilterWidgetsPipe } from './services/components/filter-widgets.pipe';
 import { TabVisiblePipe } from './common/pipes/tab-visible.pipe';
+import { SafeHtmlPipe } from './common/pipes/safe-html.pipe';
 
 import { IBMConnectionsDetails } from './dashboards/components/ibm-connections/ibm-connections-details.component';
 import {IBMSametimeDetails} from './dashboards/components/ibm-sametime/ibm-sametime-details.component';
@@ -323,6 +324,7 @@ import { LoadingIndicator } from './core/services/loading-indicator'
         Office365SharedMailboxesConsumingLicensesReport,
         PowerScriptsReportFilter,
         TabVisiblePipe,
+        SafeHtmlPipe,
         dashboards.SampleDashboard,
         dashboards.OverallDashboard,
         dashboards.IBMConnectionsDashboard,
