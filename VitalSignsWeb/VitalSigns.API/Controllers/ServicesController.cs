@@ -2033,17 +2033,22 @@ namespace VitalSigns.API.Controllers
 
                 List<Users> listOfUsers = usersRepository.Find(x => x.Email == userEmail).ToList();
                 List<PowerScriptsRoles> powerScriptRolesList = new List<PowerScriptsRoles>();
+                Boolean allSelected = false;
                 if(listOfUsers.Count > 0)
                 {
                     powerScriptRolesList = powerScriptsRolesRepository.Find(powerScriptsRolesRepository.Filter.In(x => x.Id, listOfUsers.First().PowerScriptRoles)).ToList();
-                    powerScriptRolesList = powerScriptRolesList.Select(x => { x.FilePaths = x.FilePaths.Select(y => Startup.PowerScriptsPath + y).ToList(); return x; }).ToList();
+                    powerScriptRolesList = powerScriptRolesList.Select(x => {
+                        x.FilePaths = x.FilePaths.Select(y => Startup.PowerScriptsPath + y).ToList();
+                        return x;
+                    }).ToList();
+                    allSelected = powerScriptRolesList.Exists(x => x.AllSelected == true);
                 }
                 else
                 {
                     return Common.CreateResponse(null, "Error", "Unable to get user object");
                 }
 
-                foreach (string filePath in powershellFiles.Where(x => powerScriptRolesList.Exists(y => y.FilePaths.Contains(x))))
+                foreach (string filePath in powershellFiles.Where(x => allSelected || powerScriptRolesList.Exists(y => y.FilePaths.Contains(x))))
                 {
                     string currDeviceType = filePath.Replace(Startup.PowerScriptsPath, "");
                     currDeviceType = currDeviceType.Substring(0, currDeviceType.IndexOf("\\")).Replace("\\", "");

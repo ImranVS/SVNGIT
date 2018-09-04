@@ -81,8 +81,16 @@ data.pageIndex + 1 | number
                             Scripts
                         </div>
                         <div class="panel-body">
-                            <div>
-                                <wj-flex-grid style="height:400px;" [itemsSource]="scripts" selectionMode="Row" headersVisibility="Column" #flexScripts id="grid2" (itemsSourceChanged)="itemsSourceChangedHandler(flexScripts)">
+                            <div class="row">
+                                <div class="funkyradio">
+                                    <div class="funkyradio-default">
+                                        <input type="checkbox" name="all_selected "id="all_selected" [(ngModel)]="currentEditItem.all_selected" />
+                                        <label for="all_selected">All Scripts</label> 
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <wj-flex-grid style="height:400px;" [isDisabled]="currentEditItem.all_selected" [itemsSource]="scripts" selectionMode="Row" headersVisibility="Column" #flexScripts id="grid2" (itemsSourceChanged)="itemsSourceChangedHandler(flexScripts)">
                                     <wj-flex-grid-filter></wj-flex-grid-filter>
                                     <wj-flex-grid-column [header]="'Selected'" [binding]="'is_selected'" [isReadOnly]="false"></wj-flex-grid-column>
                                     <wj-flex-grid-column [header]="'Name'" [binding]="'name'" [width]="300"></wj-flex-grid-column>

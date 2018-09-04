@@ -9373,7 +9373,8 @@ namespace VitalSigns.API.Controllers
                 {
                     Id = x.Id,
                     Name = x.Name,
-                    FilePaths = x.FilePaths.Select(y => Startup.PowerScriptsPath + y).ToList()
+                    FilePaths = x.FilePaths.Select(y => Startup.PowerScriptsPath + y).ToList(),
+                    AllSelected = x.AllSelected.HasValue ? x.AllSelected.Value : false
                 }).ToList();
 
                 Response = Common.CreateResponse(new { roles = psRoles, scripts = powershellFiles }, Common.ResponseStatus.Success.ToDescription());
@@ -9417,7 +9418,8 @@ namespace VitalSigns.API.Controllers
                     PowerScriptsRoles roleForInsert = new PowerScriptsRoles
                     {
                         Name = role.Name,
-                        FilePaths = role.FilePaths.Select(x => x.Replace(Startup.PowerScriptsPath, "")).ToList()
+                        FilePaths = role.FilePaths.Select(x => x.Replace(Startup.PowerScriptsPath, "")).ToList(),
+                        AllSelected = role.AllSelected
                     };
 
                     string id = powerScriptsRolesRepository.Insert(roleForInsert);
@@ -9431,7 +9433,8 @@ namespace VitalSigns.API.Controllers
 
                     UpdateDefinition<PowerScriptsRoles> updateDefination = powerScriptsRolesRepository.Updater
                         .Set(p => p.Name, role.Name)
-                        .Set(p => p.FilePaths, role.FilePaths.Select(x => x.Replace(Startup.PowerScriptsPath, "")).ToList());
+                        .Set(p => p.FilePaths, role.FilePaths.Select(x => x.Replace(Startup.PowerScriptsPath, "")).ToList())
+                        .Set(p => p.AllSelected, role.AllSelected);
 
                     powerScriptsRolesRepository.Update(filterDefinition, updateDefination);
 

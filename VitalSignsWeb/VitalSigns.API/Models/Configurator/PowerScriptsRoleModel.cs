@@ -14,5 +14,8 @@ namespace VitalSigns.API.Models.Configurator
         public string Name;
         [JsonProperty("file_paths")]
         public List<string> FilePaths;
+
+        [JsonProperty("all_selected")]
+        public bool AllSelected = false;
     }
 }

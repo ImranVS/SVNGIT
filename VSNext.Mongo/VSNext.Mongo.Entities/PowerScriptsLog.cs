@@ -24,6 +24,11 @@ namespace VSNext.Mongo.Entities
 
         [DataMember]
         [BsonIgnoreIfNullAttribute]
+        [BsonElement("all_selected")]
+        public bool? AllSelected { get; set; }
+
+        [DataMember]
+        [BsonIgnoreIfNullAttribute]
         [BsonElement("powerscripts_roles_log")]
         public List<PowerScriptsRolesLog> PowerScriptsRolesLog { get; set; }
     }
