@@ -8,7 +8,7 @@ namespace VitalSigns.API.Models.Configurator
 {
     public class NodesModel
     {
-        [JsonProperty("Id")]
+        [JsonProperty("id")]
         public string Id { get; set; }
 
          

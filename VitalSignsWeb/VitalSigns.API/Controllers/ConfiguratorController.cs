@@ -7314,7 +7314,7 @@ namespace VitalSigns.API.Controllers
                 Expression<Func<Nodes, bool>> expression = (p => p.Id == Id);
                 nodesRepository.Delete(expression);
 
-
+                Response = Common.CreateResponse(null, "Success", "The node was successfully deleted.");
             }
             catch (Exception exception)
             {
