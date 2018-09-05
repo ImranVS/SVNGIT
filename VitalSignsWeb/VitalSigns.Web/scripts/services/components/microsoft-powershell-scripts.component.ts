@@ -46,6 +46,9 @@ export class MicrosoftPowerShellScripts implements WidgetComponent, OnInit  {
     disabledFields: Array<string> = [];
 
     access: boolean = false;
+    userId: string = "";
+    password: string = "";
+    useServerCreds: boolean = true;
 
     private isLoading: boolean = false;
     
@@ -71,11 +74,7 @@ export class MicrosoftPowerShellScripts implements WidgetComponent, OnInit  {
             .subscribe(
             (response) => {
                 try {
-                    console.log("wes")
-                    console.log(response)
                     this.devices = response.data.devices;
-                    console.log(this.devices)
-                    console.log(this.deviceId);
                     this.scripts = response.data.scripts;
                     if (this.deviceId != null && this.deviceId != "") {
                         this.devices = this.devices.filter(x => x.device_id == this.deviceId);
@@ -88,8 +87,7 @@ export class MicrosoftPowerShellScripts implements WidgetComponent, OnInit  {
                     this.deviceTypes = this.devices.map(x => x.device_type).filter(function (e, i, a) {
                         return i === a.indexOf(e);
                     });
-
-                    console.log(this.deviceTypes)
+                    
                 } catch (ex){
                     console.log(ex)
                 }
@@ -104,6 +102,7 @@ export class MicrosoftPowerShellScripts implements WidgetComponent, OnInit  {
         this.devicesFromType = this.devices.filter(x => x.device_type == this.selectedType);
         this.scriptsFromType = this.scripts.filter(x => x.device_type == this.selectedType);
         var outterThis = this;
+        
         if (this.subTypes && this.subTypes.length > 0)
             this.scriptsFromType = this.scriptsFromType.filter(x => x.sub_types.some(function (y) {
                 return outterThis.subTypes.indexOf(y) !== -1;
@@ -111,6 +110,10 @@ export class MicrosoftPowerShellScripts implements WidgetComponent, OnInit  {
     }
 
     deviceChanged(event: wijmo.EventArgs) {
+        if (this.selectedDevice.credential && this.selectedDevice.credential.user_id)
+            this.userId = this.selectedDevice.credential.user_id;
+        else
+            this.userId = "";
     }
 
     scriptChanged(event: wijmo.EventArgs) {
@@ -128,23 +131,37 @@ export class MicrosoftPowerShellScripts implements WidgetComponent, OnInit  {
             path: mainThis.selectedScript.path,
             parameters: mainThis.formBuilder.array(mainThis.selectedScript.parameters.map(function (x) { return mainThis.formBuilder.group({ name: x.name, value: x.value }); })),
             device_id: mainThis.selectedDevice.device_id,
-            name: mainThis.selectedScript.name
+            name: mainThis.selectedScript.name,
+            user_id: "",
+            password: "",
+            server_credentials: this.useServerCreds 
         });
     }
     onSubmit(): void {
+        this.parameterForm.patchValue({
+            user_id: this.userId,
+            password: this.password,
+            server_credentials: this.useServerCreds
+        });
         var obj = this.parameterForm.getRawValue()
         this.isLoading = true;
+        //this.buttonnativeElement.visability = false;
         this.service.put("/services/execute_powershell_script", obj)
             .subscribe((response) => {
-                this.isLoading = false;
-                if(response.status == "Success") {
-                    this.response = response.data;
-                } else {
-                    this.response = response.message;
+                try{
+                    this.isLoading = false;
+                    if (response.status == "Success") {
+                        this.response = response.data;
+                    } else {
+                        this.response = response.message;
+                    }
+                }catch (ex) {
+                    console.log(ex);
                 }
             },
             (error) => {
                 this.isLoading = false;
+                //this.button.disabled = false;
                 this.errorMessage = <any>error
             });
 

@@ -2127,17 +2127,29 @@ namespace VitalSigns.API.Controllers
                 Server server = listOfServers.First();
 
                 //Gets credential Info
-                FilterDefinition<Credentials> filterDefCredentials = credentialsRepository.Filter.Eq(x => x.Id, server.CredentialsId);
-                List<Credentials> listOfCredentials = credentialsRepository.Find(filterDefCredentials).ToList();
-                if (listOfServers.Count() == 0) {
-                    Response = Common.CreateResponse(null, "Error", "Could not find the credentials in the database.");
-                    return Response;
+                VSFramework.TripleDES tripleDes = new VSFramework.TripleDES();
+                Credentials creds = new Credentials();
+                if (obj.ServerCredentials == false)
+                {
+                    creds = new Credentials()
+                    {
+                        UserId = obj.UserId,
+                        Password = String.Join(", ", tripleDes.Encrypt(obj.Password))
+                    };
                 }
-                Credentials creds = listOfCredentials.First();
+                else
+                {
+                    FilterDefinition<Credentials> filterDefCredentials = credentialsRepository.Filter.Eq(x => x.Id, server.CredentialsId);
+                    List<Credentials> listOfCredentials = credentialsRepository.Find(filterDefCredentials).ToList();
+                    if (listOfServers.Count() == 0)
+                    {
+                        Response = Common.CreateResponse(null, "Error", "Could not find the credentials in the database.");
+                        return Response;
+                    }
+                    creds = listOfCredentials.First();
+                }
 
                 //Calls the connect to server
-                VSFramework.TripleDES tripleDes = new VSFramework.TripleDES();
-                
                 if (server.DeviceType == Enums.ServerType.Exchange.ToDescription().ToString())
                 {
                     ps = MicrosoftConnections.ConnectToExchange(server.DeviceName, creds.UserId, tripleDes.Decrypt(creds.Password), server.IPAddress, server.AuthenticationType);

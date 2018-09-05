@@ -15,19 +15,7 @@
 
                     <div class="col-sm-12">
                         <div class="col-sm-9">
-                            <div [ngStyle]="{'display': deviceId == null || deviceId == '' ? 'block' : 'none'}">
-                                <label class="col-sm-6">Device Type:</label>
-                                <wj-combo-box class="col-sm-6" name="type_selector" [itemsSource]="deviceTypes"
-                                              placeholder="Select Type" [isEditable]="true" [(selectedItem)]="selectedType" (selectedIndexChanged)="deviceTypeChanged($event)" [isDisabled]="disabledFields.indexOf('DeviceType') !== -1">
-
-                                    <!--[disable]="disabledFields."-->
-                                </wj-combo-box>
-
-                                <label class="col-sm-6">Device:</label>
-                                <wj-combo-box class="col-sm-6" name="device_selector" [itemsSource]="devicesFromType" displayMemberPath="device_name" selectedValuePath="id"
-                                              placeholder="Select Server" [isEditable]="true" [(selectedItem)]="selectedDevice" (selectedIndexChanged)="deviceChanged($event)">
-                                </wj-combo-box>
-                            </div>
+                            <!--<div class="col-sm-6"></div>-->
                             <label class="col-sm-6">Script:</label>
                             <wj-combo-box class="col-sm-6" name="script_selector" [itemsSource]="scriptsFromType" displayMemberPath="name" selectedValuePath="path"
                                           placeholder="Select Script" [isEditable]="true" [(selectedItem)]="selectedScript" (selectedIndexChanged)="scriptChanged($event)">
@@ -37,6 +25,41 @@
                         <p *ngIf="selectedScript != null && selectedScript.description != null && selectedScript.description != ''"><br /><br /></p>
                         <div class="alert alert-info col-lg-12" *ngIf="selectedScript != null && selectedScript.description != null && selectedScript.description != ''">
                             <p [innerHTML]="selectedScript.description"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">Credentials</div>
+                <div class="panel-body">
+                    <div class="funkyradio">
+                        <div class="funkyradio-default">
+                            <input type="checkbox" name="useServerCreds "id="useServerCreds"  [(ngModel)]="useServerCreds" />
+                            <label for="useServerCreds">Use Server Credentials</label>
+                        </div>
+                    </div>
+                    <div [ngStyle]="{'display': useServerCreds && (deviceId == null || deviceId == '') ? 'block' : 'none'}" class="panel-group col-sm-9">
+                        <label class="col-sm-6">Device Type:</label>
+                        <wj-combo-box class="col-sm-6" name="type_selector" [itemsSource]="deviceTypes"
+                                      placeholder="Select Type" [isEditable]="true" [(selectedItem)]="selectedType" (selectedIndexChanged)="deviceTypeChanged($event)" [isDisabled]="disabledFields.indexOf('DeviceType') !== -1">
+
+                        </wj-combo-box>
+
+                        <label class="col-sm-6">Device:</label>
+                        <wj-combo-box class="col-sm-6" name="device_selector" [itemsSource]="devicesFromType" displayMemberPath="device_name" selectedValuePath="id"
+                                      placeholder="Select Server" [isEditable]="true" [(selectedItem)]="selectedDevice" (selectedIndexChanged)="deviceChanged($event)">
+                        </wj-combo-box>
+                    </div>
+                    <div *ngIf="useServerCreds == false" class="panel-group col-sm-9">
+                        <div class="col-sm-12" style="padding-left:unset; padding-right:unset">
+                            <label class="col-sm-6">User ID:</label>
+                            <input class="col-sm-6" [(ngModel)]="userId">
+                        </div>
+                        <!--<div class="col-sm-6"></div>-->
+                        <div class="col-sm-12" style="padding-left:unset; padding-right:unset">
+                            <label class="col-sm-6">Password:</label>
+                            <input class="col-sm-6" [(ngModel)]="password" type="password">
                         </div>
                     </div>
                 </div>
