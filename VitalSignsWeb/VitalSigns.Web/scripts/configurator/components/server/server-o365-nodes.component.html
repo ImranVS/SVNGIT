@@ -3,9 +3,8 @@
     <div class="row">&nbsp;</div>
     <div class="col-xs-12 col-md-9 col-sm-12 col-lg-12">
         <div id="infoDiv1" class="alert alert-info col-md-12" align="left">
-            Select the locations you would liek to scan this Office 365 instance from. TEST
+            Select the locations you would like to scan this Office 365 instance from.
         </div>
-
 
         <wj-flex-grid #flex [itemsSource]="data" selectionMode="Row" [frozenColumns]="1" headersVisibility="Column" (itemsSourceChanged)="itemsSourceChangedHandler()">
             <wj-flex-grid-column [header]="'Select'" [binding]="'is_selected'"></wj-flex-grid-column>
