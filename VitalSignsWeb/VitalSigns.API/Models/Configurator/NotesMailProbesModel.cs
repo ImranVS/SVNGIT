@@ -49,5 +49,14 @@ namespace VitalSigns.API.Models.Configurator
 
         [JsonProperty("destination_database")]
         public string DestinationDatabase { get; set; }
+
+        [JsonProperty("use_imap")]
+        public bool UseImap { get; set; }
+
+        [JsonProperty("imap_host_name")]
+        public string ImapHostName { get; set; }
+
+        [JsonProperty("credentials_id")]
+        public string CredentialsId { get; set; }
     }
 }

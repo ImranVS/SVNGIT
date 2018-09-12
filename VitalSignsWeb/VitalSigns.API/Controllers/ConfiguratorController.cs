@@ -6178,7 +6178,11 @@ namespace VitalSigns.API.Controllers
                     SendTo = x.SendToAddress,
                     EchoService = x.SendToEchoService,
                     ReplyTo = x.ReplyToAddress,
-                    DestinationDatabase = x.TargetDatabase
+                    DestinationDatabase = x.TargetDatabase,
+                    UseImap = x.UseImap,
+                    ImapHostName = x.ImapHostName,
+                    CredentialsId = x.CredentialsId
+
                 }).OrderBy(x => x.Name).ToList();
                 foreach(var x in result)
                 {
@@ -6215,6 +6219,9 @@ namespace VitalSigns.API.Controllers
                     {
                         Server notesMailProbes = new Server
                         {
+                            UseImap = notesMailProbe.UseImap,
+                            CredentialsId = notesMailProbe.CredentialsId,
+                            ImapHostName = notesMailProbe.ImapHostName,
                             DeviceName = notesMailProbe.Name,
                             DeviceType = "NotesMail Probe",
                             IsEnabled = notesMailProbe.IsEnabled,
@@ -6237,6 +6244,9 @@ namespace VitalSigns.API.Controllers
                     {
                         FilterDefinition<Server> filterDefination = Builders<Server>.Filter.Where(p => p.Id == notesMailProbe.Id);
                         var updateDefination = serversRepository.Updater.Set(p => p.DeviceName, notesMailProbe.Name)
+                            .Set(p => p.UseImap, notesMailProbe.UseImap)
+                            .Set(p => p.ImapHostName, notesMailProbe.ImapHostName)
+                            .Set(p => p.CredentialsId, notesMailProbe.CredentialsId)
                             .Set(p => p.IsEnabled, notesMailProbe.IsEnabled)
                             .Set(p => p.Category, notesMailProbe.Category)
                             .Set(p => p.DeliveryThreshold, notesMailProbe.Threshold)
