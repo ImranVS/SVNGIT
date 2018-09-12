@@ -743,6 +743,16 @@ namespace VSNext.Mongo.Entities
         public string TargetDatabase { get; set; }
 
         [DataMember]
+        [BsonElement("use_imap")]
+        [BsonIgnoreIfNullAttribute]
+        public bool UseImap { get; set; }
+
+        [DataMember]
+        [BsonElement("imap_host_name")]
+        [BsonIgnoreIfNullAttribute]
+        public string ImapHostName { get; set; }
+
+        [DataMember]
         [BsonElement("file_name")]
         [BsonIgnoreIfNullAttribute]
         public string FileName { get; set; }
