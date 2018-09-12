@@ -39,6 +39,7 @@ export abstract class GridBase {
             .subscribe(
             response => {
                 if (response.status == "Success") {
+                    console.log(response.data);
                     this.data = new wijmo.collections.CollectionView(new wijmo.collections.ObservableArray(response.data));
                     this.data.pageSize = 10;
                 } else {
@@ -65,8 +66,6 @@ export abstract class GridBase {
     }
    
     saveGridRow(saveUrl: any, dlg?: wijmo.input.Popup, postdata?: any) {
-        console.log("executint save grid row");
-        console.log(this.currentEditItem);
         
         if (this.currentEditItem.id == "") {
            

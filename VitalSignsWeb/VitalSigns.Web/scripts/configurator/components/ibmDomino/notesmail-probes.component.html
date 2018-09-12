@@ -15,7 +15,6 @@
 
 <div id="zeusContent">
     <div class="widgetWrapper">
-        <!--<div class="widgetTitle">NotesMail Probes</div>-->
         <div class="widgetContent">
             <div class="alert alert-info col-lg-12">
                 NotesMail Probes send a text message from a specified server to a NotesMail Address. Then the mail file of the recipient is checked to verify that the message has arrived and to see how long it took. NotesMail Probes are useful for spotting trends in delivery times and successful message delivery.
@@ -41,6 +40,8 @@
                 <wj-flex-grid-column [header]="'Off-Hours Scan Interval'" [binding]="'off_hours_interval'" align="right"></wj-flex-grid-column>
                 <wj-flex-grid-column [header]="'Source Server'" [binding]="'source_server'" [width]="200"></wj-flex-grid-column>
                 <wj-flex-grid-column [header]="'Send To'" [binding]="'send_to'" [width]="200"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Imap'" [binding]="'use_imap'" [width]="50"></wj-flex-grid-column>
+                <wj-flex-grid-column [header]="'Imap Host'" [binding]="'imap_host_name'" [width]="200"></wj-flex-grid-column>
                 <wj-flex-grid-column [header]="'Destination Server'" [binding]="'destination_server'" [width]="200"></wj-flex-grid-column>
                 <wj-flex-grid-column [header]="'Destination Database'" [binding]="'destination_database'" [width]="200"></wj-flex-grid-column>
                 <wj-flex-grid-column [header]="'Delivery Threshold'" [binding]="'threshold'" [width]="100" align="right"></wj-flex-grid-column>
@@ -138,7 +139,7 @@ data.pageIndex + 1 | number
                                             <div class="form-group col-sm-6">
                                                 <label for="scan_interval" class="control-label col-sm-5">Scan Interval</label>
                                                 <div class="col-sm-6">
-                                                    <input type="text" class="form-control" id="scan_interval" required name="scan_interval" 
+                                                    <input type="text" class="form-control" id="scan_interval" required name="scan_interval"
                                                            [(ngModel)]="currentEditItem.scan_interval" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
                                                 </div>
                                                 <div class="control-label col-sm-1">minutes</div>
@@ -146,7 +147,7 @@ data.pageIndex + 1 | number
                                             <div class="form-group col-sm-6">
                                                 <label for="retry_interval" class="control-label col-sm-5">Retry Interval</label>
                                                 <div class="col-sm-6">
-                                                    <input type="text" class="form-control" id="retry_interval" required name="retry_interval" 
+                                                    <input type="text" class="form-control" id="retry_interval" required name="retry_interval"
                                                            [(ngModel)]="currentEditItem.retry_interval" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
                                                 </div>
                                                 <div class="control-label col-sm-1">minutes</div>
@@ -154,7 +155,7 @@ data.pageIndex + 1 | number
                                             <div class="form-group col-sm-6">
                                                 <label for="off_hours_interval" class="control-label col-sm-5">Off-Hours Scan Interval</label>
                                                 <div class="col-sm-6">
-                                                    <input type="text" class="form-control" id="off_hours_interval" required name="off_hours_interval" 
+                                                    <input type="text" class="form-control" id="off_hours_interval" required name="off_hours_interval"
                                                            [(ngModel)]="currentEditItem.off_hours_interval" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
                                                 </div>
                                                 <div class="control-label col-sm-1">minutes</div>
@@ -162,7 +163,7 @@ data.pageIndex + 1 | number
                                             <div class="form-group col-sm-6">
                                                 <label for="threshold" class="control-label col-sm-5">Delivery Threshold</label>
                                                 <div class="col-sm-6">
-                                                    <input type="text" class="form-control" id="threshold" required name="threshold" 
+                                                    <input type="text" class="form-control" id="threshold" required name="threshold"
                                                            [(ngModel)]="currentEditItem.threshold" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
                                                 </div>
                                                 <div class="control-label col-sm-1">minutes</div>
@@ -206,19 +207,53 @@ data.pageIndex + 1 | number
                                 <div class="panel panel-default">
                                     <div class="panel-heading">Message Destination</div>
                                     <div class="panel-body">
-                                        <div class="row">
-                                            <div class="form-group col-sm-12">
-                                                <label for="destination_server" class="control-label col-sm-6">Destination Server</label>
-                                                <div class="col-sm-6">
-                                                    <wj-combo-box name="destination_server" [itemsSource]="serverNames" displayMemberPath="text" selectedValuePath="text" [(ngModel)]="currentEditItem.destination_server" placeholder="Select Server" [isEditable]="true" required></wj-combo-box>
+                                        <div *ngIf="!currentEditItem.use_imap">
+                                            <div class="row">
+                                                <div class="form-group col-sm-12">
+                                                    <label for="destination_server" class="control-label col-sm-6">Destination Server</label>
+                                                    <div class="col-sm-6">
+                                                        <wj-combo-box name="destination_server" [itemsSource]="serverNames" displayMemberPath="text" selectedValuePath="text" [(ngModel)]="currentEditItem.destination_server" placeholder="Select Server" [isEditable]="true" [required]="!currentEditItem.use_imap"></wj-combo-box>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="form-group col-sm-12">
+                                                    <label for="destination_database" class="control-label col-sm-6">Destination Database Filename</label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" placeholder="mail\vitalsigns.nsf" class="form-control" name="destination_database" [(ngModel)]="currentEditItem.destination_database" [required]="!currentEditItem.use_imap">
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="form-group col-sm-12">
-                                                <label for="destination_database" class="control-label col-sm-6">Destination Database Filename</label>
-                                                <div class="col-sm-6">
-                                                    <input type="text" placeholder="mail\vitalsigns.nsf" class="form-control" name="destination_database" [(ngModel)]="currentEditItem.destination_database" required>
+                                            <div class="col-sm-12 form-group">
+                                                <label class="control-label">Use IMAP to query message destination</label>
+                                                <input type="checkbox" style="margin-left:10px" id="use_imap" name="use_imap" [(ngModel)]="currentEditItem.use_imap">
+                                            </div>
+                                        </div>
+                                        <div *ngIf="currentEditItem.use_imap">
+                                            <div class="row">
+                                                <div class="form-group col-sm-12">
+                                                    <label for="imap_host_name" class="control-label col-sm-6">Server Hostname:</label>
+                                                    <div class="col-sm-6">
+                                                        <input type="text" class="form-control" name="imap_host_name" [(ngModel)]="currentEditItem.imap_host_name" [required]="currentEditItem.use_imap">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="form-group col-sm-12">
+                                                    <label class="control-label col-sm-4">Credentials&nbsp;&nbsp;&nbsp;</label>
+                                                    <span class="col-sm-8">
+                                                        <wj-combo-box class="col-sm-8" displayMemberPath="alias" #credCombo
+                                                                      selectedValuePath="id" 
+                                                                      name="credentials" [itemsSource]="credentialCollectionView"
+                                                                      placeholder="Select Credentials"
+                                                                      [(ngModel)] ="currentEditItem.credentials_id">
+                                                        </wj-combo-box>
+                                                        <button class="btn btn-primary btn-sm col-sm-4" type="button" (click)="addCredential(addCredentialDialog)">
+                                                            Add Credentials
+                                                        </button>
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
@@ -233,6 +268,41 @@ data.pageIndex + 1 | number
                     </form>
                 </div>
             </wj-popup>
+            <wj-popup style="border: 0px; width: 40%" #addCredentialDialog>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        Credentials
+                        <button type="button" tabindex="-1" class="close wj-hide" name="cancel">&times;</button>
+                    </div>
+                    <form (ngSubmit)="SaveCredential(addCredentialForm,addCredentialDialog)" class="form-horizontal" #addCredentialForm="ngForm">
+                        <div class="modal-body">
+                            <div class="form-group col-sm-12">
+                                <label for="alias" class="control-label col-sm-2">Alias</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control" id="alias" required name="alias" ngModel>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                <label for="user_id" class="control-label col-sm-2">User Id</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control" required name="user_id" ngModel>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-sm-12">
+                                <label for="password" class="control-label col-sm-2">Password</label>
+                                <div class="col-sm-4">
+                                    <input type="password" class="form-control" name="password" required ngModel>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Save </button>
+                        </div>
+                    </form>
+                </div>
+            </wj-popup>
+
         </div>
     </div>
 </div>
