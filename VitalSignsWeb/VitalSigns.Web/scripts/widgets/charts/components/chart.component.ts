@@ -14,6 +14,7 @@ import { ChartSeries } from '../models/chart-series';
 declare var Highcharts: any;
 
 @Component({
+    selector: 'chart',
     template: `<loading-indicator [isLoading]="isLoading"></loading-indicator>`,
     providers: [
         HttpModule,

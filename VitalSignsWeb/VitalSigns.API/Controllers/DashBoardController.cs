@@ -3444,7 +3444,150 @@ namespace VitalSigns.API.Controllers
             return Response;
         }
 
+        [HttpGet("exchange_mailboxes_last_logon")]
+        public APIResponse GetExchangeMailboxesLastLogonChart()
+        {
+            try
+            {
+                mailboxRepository = new Repository<Mailbox>(ConnectionString);
+                var filterDef = mailboxRepository.Filter.Eq(x => x.DeviceName, "Exchange");
 
+
+                var result = mailboxRepository.Find(filterDef).ToList();
+
+                List<Segment> segments = new List<Segment>();
+
+                double today = result.Where(x => x.LastLogonTime > (DateTime.Now.ToUniversalTime().AddDays(-1)) && x.LastLogonTime <= DateTime.Now.ToUniversalTime()).Count();
+                double oneToThreeDays = result.Where(x => x.LastLogonTime < DateTime.Now.ToUniversalTime().AddDays(-1) && x.LastLogonTime >= DateTime.Now.ToUniversalTime().AddDays(-3)).Count();
+                double threeToSevenDays = result.Where(x => x.LastLogonTime < DateTime.Now.ToUniversalTime().AddDays(-3) && x.LastLogonTime >= DateTime.Now.ToUniversalTime().AddDays(-7)).Count();
+                double moreThanSevenDays = result.Where(x => x.LastLogonTime < DateTime.Now.ToUniversalTime().AddDays(-7)).Count();
+                double never = result.Where(x => x.LastLogonTime == null).Count();
+                if (today > 0)
+                {
+                    segments.Add(new Segment { Label = "Today.", Value = today });
+                }
+
+                if (oneToThreeDays > 0)
+                {
+                    segments.Add(new Segment { Label = "Within In 3 Days.", Value = oneToThreeDays });
+                }
+                if (threeToSevenDays > 0)
+                {
+                    segments.Add(new Segment { Label = "With In 7 Days.", Value = threeToSevenDays });
+                }
+                if (moreThanSevenDays > 0)
+                {
+                    segments.Add(new Segment { Label = "More Than 7 Days.", Value = moreThanSevenDays });
+                }
+                if (never > 0)
+                {
+                    segments.Add(new Segment { Label = "Never Synced.", Value = never });
+                }
+
+                Serie serie = new Serie();
+                serie.Title = "Last Logon Chart";
+                serie.Segments = segments.ToList();
+
+                List<Serie> series = new List<Serie>();
+                series.Add(serie);
+
+                Chart chart = new Chart();
+                chart.Title = "Last Logon Chart";
+                chart.Series = series;
+                Response = Common.CreateResponse(chart);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpGet("exchange_mailboxes_types_chart")]
+        public APIResponse GetExchangeMailboxesTypesChart()
+        {
+            try
+            {
+                mailboxRepository = new Repository<Mailbox>(ConnectionString);
+                var filterDef = mailboxRepository.Filter.Eq(x => x.DeviceName, "Exchange") &
+                    mailboxRepository.Filter.Ne(x => x.RecipientTypeDetails, "UserMailbox") &
+                    mailboxRepository.Filter.Ne(x => x.RecipientTypeDetails, null) &
+                    mailboxRepository.Filter.Ne(x => x.RecipientTypeDetails, "");
+                var result = mailboxRepository.Collection.Aggregate()
+                    .Match(filterDef)
+                    .Group(
+                        x => x.RecipientTypeDetails,
+                        g => new { Name = g.Key, Count = g.Count() }
+                    ).ToList();
+
+                List<Segment> segments = new List<Segment>();
+                foreach (var group in result)
+                {
+                    segments.Add(new Segment { Label = group.Name, Value = group.Count });
+                }
+
+                Serie serie = new Serie();
+                serie.Title = "Mailbox Type";
+                serie.Segments = segments.ToList();
+
+                List<Serie> series = new List<Serie>();
+                series.Add(serie);
+
+                Chart chart = new Chart();
+                chart.Title = "Mailbox Type Chart";
+                chart.Series = series;
+                Response = Common.CreateResponse(chart);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Error Message :" + exception.Message);
+            }
+            return Response;
+        }
+
+        [HttpGet("exchange_mailbox_database")]
+        public APIResponse GetExchangeMailboxDatabase()
+        {
+            try
+            {
+                mailboxRepository = new Repository<Mailbox>(ConnectionString);
+                var filterDef = mailboxRepository.Filter.Eq(x => x.DeviceName, "Exchange") &
+                    mailboxRepository.Filter.Ne(x => x.DatabaseName, null) &
+                    mailboxRepository.Filter.Ne(x => x.DatabaseName, ""); ;
+
+                var result = mailboxRepository.Collection.Aggregate()
+                    .Match(filterDef)
+                    .Group(
+                        x => x.DatabaseName,
+                        g => new { Name = g.Key, Count = g.Count() }
+                    ).ToList();
+
+
+                List<Segment> segments = new List<Segment>();
+                
+                foreach (var group in result)
+                {
+                    segments.Add(new Segment { Label = group.Name, Value = group.Count });
+                }
+
+                Serie serie = new Serie();
+                serie.Title = "Mailbox Count";
+                serie.Segments = segments.ToList();
+
+                List<Serie> series = new List<Serie>();
+                series.Add(serie);
+
+                Chart chart = new Chart();
+                chart.Title = "Database Chart";
+                chart.Series = series;
+                Response = Common.CreateResponse(chart);
+            }
+            catch (Exception exception)
+            {
+                Response = Common.CreateResponse(null, Common.ResponseStatus.Error.ToDescription(), "Error Message :" + exception.Message);
+            }
+            return Response;
+        }
     }
 }
 
