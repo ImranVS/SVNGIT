@@ -2468,7 +2468,9 @@ Partial Public Class VitalSignsPlusDomino
                 .Include(Function(x) x.SourceServer) _
                 .Include(Function(x) x.SendToEchoService) _
                 .Include(Function(x) x.ReplyToAddress) _
-                .Include(Function(x) x.CurrentNode)
+                .Include(Function(x) x.CurrentNode) _
+                .Include(Function(x) x.ImapHostName) _
+                .Include(Function(x) x.CredentialsId)
 
             listOfServers = repository.Find(filterDef, projectionDef).ToList()
 
@@ -2825,6 +2827,45 @@ Partial Public Class VitalSignsPlusDomino
                     Catch ex As Exception
                         '7/8/2015 NS modified for VSPLUS-1959
                         WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probes insufficient licenses not set.")
+
+                    End Try
+
+                    Try
+                        If entity.ImapHostName Is Nothing Then
+                            .ImapHostName = ""
+                        Else
+                            .ImapHostName = entity.ImapHostName
+                        End If
+                    Catch ex As Exception
+                        '7/8/2015 NS modified for VSPLUS-1959
+                        WriteAuditEntry(Now.ToString & " " & .Name & " NotesMail Probes ImapHostName not set.")
+
+                    End Try
+
+                    Try
+                        WriteAuditEntry(Now.ToString & " Getting server credentials.", LogLevel.Verbose)
+                        If entity.CredentialsId Is Nothing Then
+                            .ImapUserName = ""
+                            .ImapPassword = ""
+                        Else
+                            'Run a query here, then parse the results
+
+                            Dim repositoryCredentials As New VSNext.Mongo.Repository.Repository(Of VSNext.Mongo.Entities.Credentials)(connectionString)
+                            Dim filterDefCredentials As FilterDefinition(Of VSNext.Mongo.Entities.Credentials) = repositoryCredentials.Filter.Eq(Function(x) x.Id, entity.CredentialsId)
+                            Dim entityCredentials As VSNext.Mongo.Entities.Credentials = repositoryCredentials.Find(filterDefCredentials).ToList()(0)
+
+                            .ImapUserName = entityCredentials.UserId
+                            WriteAuditEntry(Now.ToString & " IMAP Username is " & .ImapUserName, LogLevel.Verbose)
+
+                            Dim mySecrets As New VSFramework.TripleDES
+                            Try
+                                .ImapPassword = mySecrets.Decrypt(entityCredentials.Password)
+                            Catch ex As Exception
+                                .ImapPassword = ""
+                                WriteAuditEntry(Now.ToString & " Error decrypting the password.  " & ex.ToString)
+                            End Try
+                        End If
+                    Catch ex As Exception
 
                     End Try
 

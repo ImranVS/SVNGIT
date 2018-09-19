@@ -172,94 +172,105 @@ data.pageIndex + 1 | number
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-sm-6">
+
+                            <div class="col-sm-12">
                                 <div class="panel panel-default">
-                                    <div class="panel-heading">Message Source</div>
+                                    <div class="panel-heading">Message Settings</div>
                                     <div class="panel-body">
-                                        <div class="row">
-                                            <div class="form-group col-sm-12">
-                                                <label for="source_server" class="control-label col-sm-6">Source Server</label>
-                                                <div class="col-sm-6">
-                                                    <wj-combo-box name="source_server" [itemsSource]="serverNames" displayMemberPath="text" selectedValuePath="text" [(ngModel)]="currentEditItem.source_server" placeholder="Select Server" [isEditable]="true" required></wj-combo-box>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="form-group col-sm-12">
-                                                <label for="send_to" class="control-label col-sm-6">Send to</label>
-                                                <div class="col-sm-6">
-                                                    <input type="text" class="form-control" name="send_to" [(ngModel)]="currentEditItem.send_to" required>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="form-group col-sm-12">
-                                                <label for="reply_to" class="control-label col-sm-6">Reply to</label>
-                                                <div class="col-sm-6">
-                                                    <input type="text" class="form-control" name="reply_to" [(ngModel)]="currentEditItem.reply_to">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="panel panel-default">
-                                    <div class="panel-heading">Message Destination</div>
-                                    <div class="panel-body">
-                                        <div *ngIf="!currentEditItem.use_imap">
-                                            <div class="row">
-                                                <div class="form-group col-sm-12">
-                                                    <label for="destination_server" class="control-label col-sm-6">Destination Server</label>
-                                                    <div class="col-sm-6">
-                                                        <wj-combo-box name="destination_server" [itemsSource]="serverNames" displayMemberPath="text" selectedValuePath="text" [(ngModel)]="currentEditItem.destination_server" placeholder="Select Server" [isEditable]="true" [required]="!currentEditItem.use_imap"></wj-combo-box>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="form-group col-sm-12">
-                                                    <label for="destination_database" class="control-label col-sm-6">Destination Database Filename</label>
-                                                    <div class="col-sm-6">
-                                                        <input type="text" placeholder="mail\vitalsigns.nsf" class="form-control" name="destination_database" [(ngModel)]="currentEditItem.destination_database" [required]="!currentEditItem.use_imap">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
                                         <div class="row">
                                             <div class="col-sm-12 form-group">
                                                 <label class="control-label">Use IMAP to query message destination</label>
                                                 <input type="checkbox" style="margin-left:10px" id="use_imap" name="use_imap" [(ngModel)]="currentEditItem.use_imap">
                                             </div>
                                         </div>
-                                        <div *ngIf="currentEditItem.use_imap">
-                                            <div class="row">
-                                                <div class="form-group col-sm-12">
-                                                    <label for="imap_host_name" class="control-label col-sm-6">Server Hostname:</label>
-                                                    <div class="col-sm-6">
-                                                        <input type="text" class="form-control" name="imap_host_name" [(ngModel)]="currentEditItem.imap_host_name" [required]="currentEditItem.use_imap">
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="panel panel-default">
+                                                    <div class="panel-heading">Message Source</div>
+                                                    <div class="panel-body">
+                                                        <div class="row" *ngIf="!currentEditItem.use_imap">
+                                                            <div class="form-group col-sm-12">
+                                                                <label for="source_server" class="control-label col-sm-6">Source Server</label>
+                                                                <div class="col-sm-6">
+                                                                    <wj-combo-box name="source_server" [itemsSource]="serverNames" displayMemberPath="text" selectedValuePath="text" [(ngModel)]="currentEditItem.source_server" placeholder="Select Server" [isEditable]="true" required></wj-combo-box>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="form-group col-sm-12">
+                                                                <label for="send_to" class="control-label col-sm-6">Send to</label>
+                                                                <div class="col-sm-6">
+                                                                    <input type="text" class="form-control" name="send_to" [(ngModel)]="currentEditItem.send_to" required>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="form-group col-sm-12">
+                                                                <label for="reply_to" class="control-label col-sm-6">Reply to</label>
+                                                                <div class="col-sm-6">
+                                                                    <input type="text" class="form-control" name="reply_to" [(ngModel)]="currentEditItem.reply_to">
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="row">
-                                                <div class="form-group col-sm-12">
-                                                    <label class="control-label col-sm-4">Credentials&nbsp;&nbsp;&nbsp;</label>
-                                                    <span class="col-sm-8">
-                                                        <wj-combo-box class="col-sm-8" displayMemberPath="alias" #credCombo
-                                                                      selectedValuePath="id" 
-                                                                      name="credentials" [itemsSource]="credentialCollectionView"
-                                                                      placeholder="Select Credentials"
-                                                                      [(ngModel)] ="currentEditItem.credentials_id">
-                                                        </wj-combo-box>
-                                                        <button class="btn btn-primary btn-sm col-sm-4" type="button" (click)="addCredential(addCredentialDialog)">
-                                                            Add Credentials
-                                                        </button>
-                                                    </span>
+                                            <div class="col-sm-6">
+                                                <div class="panel panel-default">
+                                                    <div class="panel-heading">Message Destination</div>
+                                                    <div class="panel-body">
+                                                        <div *ngIf="!currentEditItem.use_imap">
+                                                            <div class="row">
+                                                                <div class="form-group col-sm-12">
+                                                                    <label for="destination_server" class="control-label col-sm-6">Destination Server</label>
+                                                                    <div class="col-sm-6">
+                                                                        <wj-combo-box name="destination_server" [itemsSource]="serverNames" displayMemberPath="text" selectedValuePath="text" [(ngModel)]="currentEditItem.destination_server" placeholder="Select Server" [isEditable]="true" [required]="!currentEditItem.use_imap"></wj-combo-box>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="form-group col-sm-12">
+                                                                    <label for="destination_database" class="control-label col-sm-6">Destination Database Filename</label>
+                                                                    <div class="col-sm-6">
+                                                                        <input type="text" placeholder="mail\vitalsigns.nsf" class="form-control" name="destination_database" [(ngModel)]="currentEditItem.destination_database" [required]="!currentEditItem.use_imap">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div *ngIf="currentEditItem.use_imap">
+                                                            <div class="row">
+                                                                <div class="form-group col-sm-12">
+                                                                    <label for="imap_host_name" class="control-label col-sm-6">Server Hostname:</label>
+                                                                    <div class="col-sm-6">
+                                                                        <input type="text" class="form-control" name="imap_host_name" [(ngModel)]="currentEditItem.imap_host_name" [required]="currentEditItem.use_imap">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="form-group col-sm-12">
+                                                                    <label class="control-label col-sm-4">Credentials&nbsp;&nbsp;&nbsp;</label>
+                                                                    <span class="col-sm-8">
+                                                                        <wj-combo-box class="col-sm-8" displayMemberPath="alias" #credCombo
+                                                                                      selectedValuePath="id"
+                                                                                      name="credentials" [itemsSource]="credentialCollectionView"
+                                                                                      placeholder="Select Credentials"
+                                                                                      [(ngModel)]="currentEditItem.credentials_id">
+                                                                        </wj-combo-box>
+                                                                        <button class="btn btn-primary btn-sm col-sm-4" type="button" (click)="addCredential(addCredentialDialog)">
+                                                                            Add Credentials
+                                                                        </button>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+
                         </div>
                         <div class="modal-footer">
                             <button class="btn btn-primary" type="submit" name="submit" [disabled]="!(frmUser.form.valid)">Save</button>

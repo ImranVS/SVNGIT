@@ -4036,6 +4036,9 @@ Public Class BlackBerryMailProbe
     Dim mNotesMailAddress As String
     Dim mConfirmationServer As String
     Dim mConfirmationDatabase As String
+    Dim mImapUserName As String
+    Dim mImapHostName As String
+    Dim mImapPassword As String
 
     'Where the delivery confirmation message goes
     Public Property ConfirmationServer() As String
@@ -4115,6 +4118,33 @@ Public Class BlackBerryMailProbe
     Public Sub New(ByVal Name As String)
         Me.Name = Name
     End Sub
+
+    Public Property ImapUserName() As String
+        Get
+            Return mImapUserName
+        End Get
+        Set(ByVal Value As String)
+            mImapUserName = Value
+        End Set
+    End Property
+
+    Public Property ImapPassword() As String
+        Get
+            Return mImapPassword
+        End Get
+        Set(ByVal Value As String)
+            mImapPassword = Value
+        End Set
+    End Property
+
+    Public Property ImapHostName() As String
+        Get
+            Return mImapHostName
+        End Get
+        Set(ByVal Value As String)
+            mImapHostName = Value
+        End Set
+    End Property
 
 End Class
 
