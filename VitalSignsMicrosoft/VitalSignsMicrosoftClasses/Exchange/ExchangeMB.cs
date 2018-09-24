@@ -231,6 +231,7 @@ namespace VitalSignsMicrosoftClasses
                             string RetentionPolicy = ps.Properties["RetentionPolicy"].Value == null ? "" : ps.Properties["RetentionPolicy"].Value.ToString();
                             string LitigationHoldEnabled = ps.Properties["LitigationHoldEnabled"].Value == null ? "" : ps.Properties["LitigationHoldEnabled"].Value.ToString();
                             string RecipientTypeDetails = ps.Properties["RecipientTypeDetails"].Value == null ? "" : ps.Properties["RecipientTypeDetails"].Value.ToString();
+                            string DistinguishedName = ps.Properties["DistinguishedName"].Value == null ? "" : ps.Properties["DistinguishedName"].Value.ToString();
 
                             List<VSNext.Mongo.Entities.Mailbox.Folder> listOfFolders = new List<VSNext.Mongo.Entities.Mailbox.Folder>();
                             try
@@ -318,7 +319,8 @@ namespace VitalSignsMicrosoftClasses
                                 .Set(i => i.Identity, Identity)
                                 .Set(i => i.RetentionPolicy, RetentionPolicy)
                                 .Set(i => i.LitigationHoldEnabled, Boolean.TryParse(LitigationHoldEnabled, out testBool) ? testBool : false)
-                                .Set(x => x.RecipientTypeDetails, RecipientTypeDetails);
+                                .Set(x => x.RecipientTypeDetails, RecipientTypeDetails)
+                                .Set(x => x.DistinguishedName, DistinguishedName);
 
                             AllTestResults.MongoEntity.Add(mongoStatement);
 
@@ -728,8 +730,8 @@ namespace VitalSignsMicrosoftClasses
 
         }
 
-        
-    }
+
+                            }
 
     public class indvMailboxes
 		{

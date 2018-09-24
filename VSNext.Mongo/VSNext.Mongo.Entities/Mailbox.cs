@@ -200,6 +200,12 @@ namespace VSNext.Mongo.Entities
         [BsonIgnoreIfNullAttribute]
         public List<NameValuePair> AttachmentTypes { get; set; }
 
+        [DataMember]
+        [BsonElement("distinguished_name")]
+        [BsonIgnoreIfNullAttribute]
+        public string DistinguishedName { get; set; }
+        
+
 
         public class Folder
         {

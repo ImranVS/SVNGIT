@@ -85,5 +85,9 @@ namespace VitalSigns.API.Models
 
         [JsonProperty("recipient_type_details")]
         public string RecipientTypeDetails { get; set; }
+
+        [JsonProperty("distinguished_name")]
+        public string DistinguishedName { get; set; }
+        
     }
 }

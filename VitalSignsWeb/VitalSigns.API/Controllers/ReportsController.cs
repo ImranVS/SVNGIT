@@ -3018,6 +3018,7 @@ namespace VitalSigns.API.Controllers
                     RetentionPolicy = x.RetentionPolicy,
                     LitigationHoldEnabled = x.LitigationHoldEnabled,
                     RecipientTypeDetails = x.RecipientTypeDetails,
+                    DistinguishedName = x.DistinguishedName,
                     LastLogonTime = x.LastLogonTime
                 }).ToList().OrderBy(x => x.DisplayName);
                 Response = Common.CreateResponse(results);

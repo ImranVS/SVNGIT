@@ -4,7 +4,7 @@ param(
     )
 
 $AllMailboxes = @()
-$Mailboxes = Get-Mailbox -ResultSize Unlimited -WarningAction SilentlyContinue -Filter "SamAccountName -like '$startingChar*'" | Select DisplayName, Database, IssueWarningQuota, ProhibitSendQuota, ProhibitSendReceiveQuota, Alias, PrimarySmtpAddress, SAMAccountName, ExchangeGuid, RetentionPolicy, Identity,  RecipientType, RecipientTypeDetails, LitigationHoldEnabled
+$Mailboxes = Get-Mailbox -ResultSize Unlimited -WarningAction SilentlyContinue -Filter "SamAccountName -like '$startingChar*'" | Select DisplayName, Database, IssueWarningQuota, ProhibitSendQuota, ProhibitSendReceiveQuota, Alias, PrimarySmtpAddress, SAMAccountName, ExchangeGuid, RetentionPolicy, Identity,  RecipientType, RecipientTypeDetails, LitigationHoldEnabled, DistinguishedName
 $Users = Get-User -WarningAction SilentlyContinue | select SAMAccountName, Company, Department
 
 $MailboxStatistics = @()
@@ -24,7 +24,7 @@ ForEach ($DAGServer in (Get-DatabaseAvailabilityGroup).Servers) {
 
 
 foreach ($Mailbox in $Mailboxes){ 
-    $MailboxStats = "" |Select  DisplayName,Database,IssueWarningQuota,ProhibitSendQuota,ProhibitSendReceiveQuota,TotalItemSize,ItemCount,StorageLimitStatus,ServerName, SAMAccountName, PrimarySmtpAddress,Company, Department, Folders,LastLogonTime, OWAMailboxPolicy, RetentionPolicy, Identity,  RecipientType, RecipientTypeDetails, LitigationHoldEnabled
+    $MailboxStats = "" |Select  DisplayName,Database,IssueWarningQuota,ProhibitSendQuota,ProhibitSendReceiveQuota,TotalItemSize,ItemCount,StorageLimitStatus,ServerName, SAMAccountName, PrimarySmtpAddress,Company, Department, Folders,LastLogonTime, OWAMailboxPolicy, RetentionPolicy, Identity,  RecipientType, RecipientTypeDetails, LitigationHoldEnabled, DistinguishedName
     $Stats = ($MailboxStatistics | ? {$_.MailboxGUID -eq $Mailbox.ExchangeGuid})[0]
     $User = ($Users | ? {$_.SAMAccountName -eq $Mailbox.SAMAccountName})[0]
     $CASMailbox = (Get-CASMailbox $_.SAMAccountName)[0]
@@ -42,6 +42,7 @@ foreach ($Mailbox in $Mailboxes){
     $MailboxStats.Identity = $Mailbox.Identity
     $MailboxStats.RecipientType = $Mailbox.RecipientType
     $MailboxStats.RecipientTypeDetails = $Mailbox.RecipientTypeDetails
+    $MailboxStats.DistinguishedName = $Mailbox.DistinguishedName
 
     $folders = Get-MailboxFolderStatistics $Mailbox.Alias | select Name, ItemsInFolder, DeletedItemsInFolder, FolderSize, ItemsInFolderAndSubFolders, FolderAndSubFolderSize
     $MailboxStats.Folders = $folders
