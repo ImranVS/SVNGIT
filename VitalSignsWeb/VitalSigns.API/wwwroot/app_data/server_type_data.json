@@ -184,6 +184,14 @@
         "path": "/app/configurator/components/server/server-dag-settings.component"
       },
       {
+        "tab_id": 3,
+        "title": "PowerScripts",
+        "type": "Configurator",
+        "component": "MicrosoftPowerShellScriptsTab",
+        "path": "/app/services/components/microsoft-powershell-scripts-tab.component",
+        "roles": [ "PowerScripts" ]
+      },
+      {
         "tab_id": 1,
         "title": "Activation Preferences",
         "type": "Dashboard",
@@ -217,6 +225,14 @@
         "type": "Dashboard",
         "component": "ServiceMainHealthTab",
         "path": "/app/services/components/service-mainhealth-tab.component"
+      },
+      {
+        "tab_id": 6,
+        "title": "PowerScripts",
+        "type": "Dashboard",
+        "component": "MicrosoftPowerShellScriptsTab",
+        "path": "/app/services/components/microsoft-powershell-scripts-tab.component",
+        "roles": [ "PowerScripts" ]
       },
       {
         "tab_id": 1,
